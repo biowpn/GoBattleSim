@@ -607,46 +607,93 @@ World.prototype.battle = function (){
  *	PART IV: APPLICATION SECTION
  */
 
+function addRowForAttacker (){
+	var table = document.getElementById("atkrsInfo");
+	
+	var position = -1;
+	if (position < 0)
+		position = table.rows.length;
+    var row = table.insertRow(position);
+	
+	row.insertCell(0).innerHTML = position.toString();
+	row.insertCell(1).innerHTML = '<input type="number" value="6">';
+    row.insertCell(2).innerHTML = '<input type="text">';
+	row.insertCell(3).innerHTML = '<input type="number" value="40">';
+	row.insertCell(4).innerHTML = '<input type="number" value="15">';
+	row.insertCell(5).innerHTML = '<input type="number" value="15">';
+	row.insertCell(6).innerHTML = '<input type="number" value="15">';
+	row.insertCell(7).innerHTML = '<input type="text">';
+	row.insertCell(8).innerHTML = '<input type="text">';
+	row.insertCell(9).innerHTML = '<input type="checkbox">';
+	
+}
+
+function removeRowForAttacker (table){
+	var table = document.getElementById("atkrsInfo");
+	table.deleteRow(table.rows.length);
+}
+ 
 
 function main(){ 
 	var mainForm = document.forms[0];
 	
-	try {
-		var app_atkr = new Pokemon(mainForm['attacker_species'].value, 
-									[mainForm['attacker_AtkIV'].valueAsNumber, 
-									mainForm['attacker_DefIV'].valueAsNumber, 
-									mainForm['attacker_StmIV'].valueAsNumber], 
-									mainForm['attacker_level'].valueAsNumber, 
-									mainForm['attacker_fmove'].value, 
-									mainForm['attacker_cmove'].value, 
-									0);
-									
-		var app_dfdr = new Pokemon(mainForm['defender_species'].value, 
-									[mainForm['defender_AtkIV'].valueAsNumber, 
-									mainForm['defender_DefIV'].valueAsNumber, 
-									mainForm['defender_StmIV'].valueAsNumber], 
-									mainForm['defender_level'].valueAsNumber, 
-									mainForm['defender_fmove'].value, 
-									mainForm['defender_cmove'].value, 
-									mainForm['defender_raid_tier'].valueAsNumber);
-									
+	
 		var debug_world = new World();
-		debug_world.weather = mainForm['weather'].value.toUpperCase();
+		
+		
+		// Loading attackers
+		var table = document.getElementById("atkrsInfo");
+		
+		for (var r = 1; r < table.rows.length; r++){
+			var row = table.rows[r];
+			var ap = [];
+			var p_size = row.cells[1].children[0].value;
+			for(var i = 0; i < p_size; i++){
+				var pkm = new Pokemon(row.cells[2].children[0].value,
+									[row.cells[4].children[0].valueAsNumber,
+									row.cells[5].children[0].valueAsNumber,
+									row.cells[6].children[0].valueAsNumber],
+									row.cells[3].children[0].valueAsNumber,
+									row.cells[7].children[0].value,
+									row.cells[8].children[0].value,
+									0);
+				pkm.dodgeCMoves = row.cells[9].children[0].checked;
+				ap.push(pkm);
+			}
+			debug_world.atkr_parties.push(new Party(ap));
+		}
+		
+		table = document.getElementById("dfdrsInfo");
+		var row = table.rows[1];
+		var app_dfdr = new Pokemon(row.cells[0].children[0].value, 
+									[row.cells[2].children[0].valueAsNumber, 
+									row.cells[3].children[0].valueAsNumber, 
+									row.cells[4].children[0].valueAsNumber], 
+									row.cells[1].children[0].valueAsNumber, 
+									row.cells[5].children[0].value, 
+									row.cells[6].children[0].value, 
+									row.cells[7].children[0].valueAsNumber);
+									
+		
+		
+		
+		
 
-		debug_world.atkr_parties.push(new Party([app_atkr]));
 		debug_world.dfdr_party = new Party([app_dfdr]);
 
+		debug_world.weather = mainForm['weather'].value.toUpperCase();
 		debug_world.randomness = true;
 		debug_world.print_log_on = true;
 
 		// 4. Get it running! //
-		document.getElementById("battlelog").innerHTML = "";
 		debug_world.battle();
 
 		document.getElementById("feedback").innerHTML = "Simulation done. Check console for detailed Pokemon status <br />";
-		document.getElementById("feedback").innerHTML += app_atkr.toString() + "<br />";
-		document.getElementById("feedback").innerHTML += app_dfdr.toString() + "<br />";
 		console.log(debug_world);
+		
+		
+	try {
+		
 	}
 	catch(err) {
 		document.getElementById("feedback").innerHTML = err.message;

@@ -2,45 +2,97 @@
 <head>
 <title>GoBattleSim Debug V0.2.2</title>
 
+<style> 
+	fieldset {width: 300px;}
+	
+	legend { font-size: 20px;}
+	
+	label.field {
+					font-size: 15px;
+					text-align: left; 
+					width: 120px; 
+					float: left; 
+				}
+	
+	input[type=number] {
+		text-align: left; 
+		width: 50px;
+		height: 20px;
+	}
+	
+	input[type=text] {
+		text-align: left; 
+		width: 150px;
+		height: 20px;
+	}
+
+</style>
+
 </head>
  
 <body>
 
-
-
-<h1> GoBattleSim Debug V0.2 </h1>
+<h1> GoBattleSim Debug V0.2.2 </h1>
 <h3>GamePress internal beta version</h3>
 
- 
+<script type="text/javascript" src="GoBattleSim.js"></script>
+
+
+<button onclick="javascript:addRowForAttacker()">Add Team</button>
+
 <form action="javascript:main()" name="Main">
-  Attacker species: <input type="text" name="attacker_species"><br>
-  Attacker level: <input type="number" name="attacker_level" value="40"><br>
-  Attacker AtkIV: <input type="number" name="attacker_AtkIV" value="15"><br>
-  Attacker DefIV: <input type="number" name="attacker_DefIV" value="15"><br>
-  Attacker StmIV: <input type="number" name="attacker_StmIV" value="15"><br>
-  Attacker Fast Move: <input type="text" name="attacker_fmove"><br>
-  Attacker Charged Move: <input type="text" name="attacker_cmove"><br>
-  
-  <br><br>
-  
-  Defender species: <input type="text" name="defender_species"><br>
-  Defender level: <input type="number" name="defender_level" value="40"><br>
-  Defender AtkIV: <input type="number" name="defender_AtkIV" value="15"><br>
-  Defender DefIV: <input type="number" name="defender_DefIV" value="15"><br>
-  Defender StmIV: <input type="number" name="defender_StmIV" value="15"><br>
-  Defender Fast Move: <input type="text" name="defender_fmove"><br>
-  Defender Charged Move: <input type="text" name="defender_cmove"><br>
-  Defender Raid Tier (-1 for Gym Defender): <input type="number" name="defender_raid_tier"  value="-1"><br>
-  
-  
-  <br><br>
-  Weather: <input type="text" name="weather" value="EXTREME"><br>
-  
-  <br><br>
-  
-  
+
+<legend>Attacker Information</legend>
+<table id="atkrsInfo">
+	<tr>
+		<th>Team#</th> <th>Copies</th>
+		<th>Species</th> <th>Level</th> 
+		<th>AtkIV</th> <th>DefIV</th> <th>StmIV</th> 
+		<th>Fast Move</th> <th>Charged Move</th>
+		<th>DodgedCMoveIfFree</th>
+	</tr>
+
+</table>
+
+
+
+<br><br>
+
+
+<legend>Enemy Information</legend>
+<table id="dfdrsInfo">
+	<tr>
+		<th>Species</th> <th>Level</th> <th>AtkIV</th> <th>DefIV</th> <th>StmIV</th> 
+		<th>Fast Move</th> <th>Charged Move</th> <th>Tier (-1 for gym defender)</th>
+	</tr>
+	<tr>
+		<td><input type="text" name="defender_species"></td> 
+		<td><input type="number" name="defender_level" value="40"></td>
+		<td><input type="number" name="defender_AtkIV" value="15"></td>
+		<td><input type="number" name="defender_DefIV" value="15"></td>
+		<td><input type="number" name="defender_StmIV" value="15"></td>
+		<td><input type="text" name="defender_fmove"></td>
+		<td><input type="text" name="defender_cmove"></td>
+		<td><input type="number" name="defender_raid_tier"  value="-1"></td>
+	</tr>
+
+</table>
+
+<br><br>
+
+<fieldset>
+	<legend>General Settings</legend>
+	<p><label class="field">Weather: </label> <input type="text" name="weather" value="EXTREME"><br>
+</fieldset>
+
+
+<br><br>
+
   <input type="submit" value="GoBattleSim!">
 </form>
+
+
+  
  
 <p id="feedback"></p>
  <p></p>
@@ -49,7 +101,7 @@
  <p id="battlelog"></p>
  
  
-<script type="text/javascript" src="GoBattleSim.js"></script>
+
  
  
  
