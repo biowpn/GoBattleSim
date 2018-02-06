@@ -195,7 +195,7 @@ function Pokemon(speciesName, IVs, level, fastMove, chargeMove, raidTier){
 		this.Def = (this.baseDef + this.ivDef) * this.cpm;
 		this.maxHP = RAID_BOSS_HP[raidTier - 1];
 	}
-	
+	this.dodgeCMoves = false;
 	this.reset_stats();
 }
 
@@ -387,7 +387,6 @@ Party.prototype.reset_all = function(){
 // constructor
 function World(){
 	this.atkr_parties = [];
-	this.dodgeCMoves = false;
 	this.dfdr_party = [];
 	this.randomness = false;
 	this.battle_type = "";
@@ -603,21 +602,43 @@ World.prototype.battle = function (){
 
 
 
+
+
+
 /*
  *	PART IV: APPLICATION SECTION
  */
 
-function addRowForAttacker (){
+function addTeamForAttacker() {
+	addRowForAttacker(true);
+}
+
+function addPokemonForAttacker() {
+	var rows = document.getElementById("atkrsInfo").rows;
+	if (rows.length > 1)
+		addRowForAttacker(false, rows[rows.length - 1]);
+	else
+		addRowForAttacker(true);
+}
+
+function addRowForAttacker(newTeam, lastRow){
 	var table = document.getElementById("atkrsInfo");
 	
-	var position = -1;
-	if (position < 0)
-		position = table.rows.length;
+	var position = table.rows.length;
     var row = table.insertRow(position);
 	
-	row.insertCell(0).innerHTML = position.toString();
-	row.insertCell(1).innerHTML = '<input type="number" value="6">';
-    row.insertCell(2).innerHTML = '<input type="text">';
+	var teamName = "?";
+	if (newTeam){
+		if (position == 1)
+			teamName = 1;
+		else
+			teamName = parseInt(table.rows[position - 1].cells[0].innerHTML) + 1;
+	} else
+		teamName = table.rows[position - 1].cells[0].innerHTML;
+		
+	row.insertCell(0).innerHTML = teamName;
+	row.insertCell(1).innerHTML = '<input type="number" value="1">';
+	row.insertCell(2).innerHTML = '<input type="text">';
 	row.insertCell(3).innerHTML = '<input type="number" value="40">';
 	row.insertCell(4).innerHTML = '<input type="number" value="15">';
 	row.insertCell(5).innerHTML = '<input type="number" value="15">';
@@ -626,29 +647,53 @@ function addRowForAttacker (){
 	row.insertCell(8).innerHTML = '<input type="text">';
 	row.insertCell(9).innerHTML = '<input type="checkbox">';
 	
+	if (lastRow){
+		row.cells[2].children[0].value = lastRow.cells[2].children[0].value;
+		row.cells[3].children[0].valueAsNumber = lastRow.cells[3].children[0].valueAsNumber;
+		row.cells[4].children[0].valueAsNumber = lastRow.cells[4].children[0].valueAsNumber;
+		row.cells[5].children[0].valueAsNumber = lastRow.cells[5].children[0].valueAsNumber;
+		row.cells[6].children[0].valueAsNumber = lastRow.cells[6].children[0].valueAsNumber;
+		row.cells[7].children[0].value = lastRow.cells[7].children[0].value;
+		row.cells[8].children[0].value = lastRow.cells[8].children[0].value;
+	}
+	
 }
 
-function removeRowForAttacker (table){
+function removePokemonForAttacker(){
 	var table = document.getElementById("atkrsInfo");
-	table.deleteRow(table.rows.length);
+	if (table.rows.length > 1)
+		table.deleteRow(table.rows.length - 1);
 }
  
 
 function main(){ 
 	var mainForm = document.forms[0];
+	document.getElementById("battlelog").innerHTML = "";
+	document.getElementById("feedback").innerHTML = "";
 	
-	
+	try {
 		var debug_world = new World();
 		
 		
 		// Loading attackers
 		var table = document.getElementById("atkrsInfo");
+
+		var lastTeamNum = table.rows[1].cells[0].innerHTML;
+		var curTeamNum = lastTeamNum;
+		var curTeam = new Party();
 		
 		for (var r = 1; r < table.rows.length; r++){
 			var row = table.rows[r];
-			var ap = [];
-			var p_size = row.cells[1].children[0].value;
-			for(var i = 0; i < p_size; i++){
+			
+			curTeamNum = row.cells[0].innerHTML;
+			if (curTeamNum != lastTeamNum){
+				debug_world.atkr_parties.push(curTeam);
+				curTeam = new Party();
+				lastTeamNum = curTeamNum;
+			}
+			
+			var num_copies = row.cells[1].children[0].valueAsNumber;
+			for(var i = 0; i < num_copies; i++){
 				var pkm = new Pokemon(row.cells[2].children[0].value,
 									[row.cells[4].children[0].valueAsNumber,
 									row.cells[5].children[0].valueAsNumber,
@@ -658,11 +703,12 @@ function main(){
 									row.cells[8].children[0].value,
 									0);
 				pkm.dodgeCMoves = row.cells[9].children[0].checked;
-				ap.push(pkm);
+				curTeam.add(pkm);
 			}
-			debug_world.atkr_parties.push(new Party(ap));
 		}
+		debug_world.atkr_parties.push(curTeam);
 		
+		// Loading defender
 		table = document.getElementById("dfdrsInfo");
 		var row = table.rows[1];
 		var app_dfdr = new Pokemon(row.cells[0].children[0].value, 
@@ -673,17 +719,13 @@ function main(){
 									row.cells[5].children[0].value, 
 									row.cells[6].children[0].value, 
 									row.cells[7].children[0].valueAsNumber);
-									
-		
-		
-		
 		
 
 		debug_world.dfdr_party = new Party([app_dfdr]);
 
 		debug_world.weather = mainForm['weather'].value.toUpperCase();
-		debug_world.randomness = true;
-		debug_world.print_log_on = true;
+		debug_world.randomness = mainForm['randonness'].checked;
+		debug_world.print_log_on = mainForm['log_on'].checked;
 
 		// 4. Get it running! //
 		debug_world.battle();
@@ -699,7 +741,7 @@ function main(){
 		fb_print(debug_world.dfdr_party.active_pkm.toString());
 		
 		console.log(debug_world);
-	try {
+
 		
 	}
 	catch(err) {
@@ -712,89 +754,6 @@ function fb_print(msg){
 	var feedback = document.getElementById("feedback");
 	feedback.innerHTML += msg + "<br />";
 }
- 
- 
- 
- 
- 
- 
-
-
- 
-
-/* 
- *	PART V: DEBUG SECTION
- */
- 
- /*
-
-// 1. Create Attacker(s)
-var water_gun = new Move("Water Gun", 'f', "Water", 5, 4, 500, 300);
-var hydro_pump = new Move("Hydro Pump", 'c', "Water", 130, -100, 3300, 1100);
-
-
-var my_vape = new Pokemon("vaporeon", [15,15,15], 40, "water gun", "hydro pump", 0);
-
-var atkr_party1 = new Party([my_vape]);
-
-
-var atkr_party2 = new Party();
-for (var i = 0; i < MAX_POKEMON_PER_PARTY; i++){
-	atkr_party2.add(new Pokemon("vaporeon", [15,15,15], 40, "water gun", "hydro pump", 0));
-}
-
-
-var atkr_party3 = new Party();
-for (var i = 0; i < MAX_POKEMON_PER_PARTY; i++){
-	atkr_party3.add(new Pokemon(vaporeon, [15,15,15], 0.79, water_gun, hydro_pump, 0));
-}
-
-var atkr_party4 = new Party();
-for (var i = 0; i < MAX_POKEMON_PER_PARTY; i++){
-	atkr_party4.add(new Pokemon(vaporeon, [15,15,15], 0.79, water_gun, hydro_pump, 0));
-}
-
-
-// 2. Create Defender/Boss
-var zen_headbutt = new Move("Zen Headbutt", 'f', "Psychic", 12, 10, 1100, 850);
-var dazzling_gleam = new Move("Dazzling Gleam", 'c', "Fairy", 100, -50, 3500, 2100);
-
-var my_egg = new Pokemon("blissey", [15,15,15], 35, "Zen Headbutt", "Dazzling Gleam", -1);
-
-var dragon_tail = new Move("Dragon Tail", 'f', "Dragon", 15, 9, 1200, 800);
-var earthquake = new Move("Earthquake", 'c', "Ground", 130, -100, 3300, 2700);
-var boss_groudon = new Pokemon("groudon", [15,15,15], 40, "dragon tail", "earthquake", 5);
-
-
-// 3. Build a world
-
-var debug_world = new World();
-debug_world.weather = 'RAIN';
-
-debug_world.atkr_parties.push(atkr_party2);
-
-//debug_world.atkr_parties.push(atkr_party3);
-//debug_world.atkr_parties.push(atkr_party4);
-
-debug_world.dfdr_party = new Party([boss_groudon]);
-
-
-debug_world.randomness = true;
-debug_world.print_log_on = false;
-
-
-// 4. Get it running! //
-debug_world.battle();
-
-console.log("Simulation Done");
-
-*/
-
-
-
-
-
-
 
 
 

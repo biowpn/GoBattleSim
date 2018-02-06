@@ -3,15 +3,15 @@
 <title>GoBattleSim Debug V0.2.2</title>
 
 <style> 
-	fieldset {width: 300px;}
+	fieldset {width: 800px;}
 	
 	legend { font-size: 20px;}
 	
 	label.field {
 					font-size: 15px;
 					text-align: left; 
-					width: 120px; 
-					float: left; 
+					width: 100px; 
+					float: left;
 				}
 	
 	input[type=number] {
@@ -22,7 +22,7 @@
 	
 	input[type=text] {
 		text-align: left; 
-		width: 150px;
+		width: 120px;
 		height: 20px;
 	}
 
@@ -37,8 +37,12 @@
 
 <script type="text/javascript" src="GoBattleSim.js"></script>
 
+<button onclick="javascript:addTeamForAttacker()">Add Team</button>
+<button onclick="javascript:addPokemonForAttacker()">Add Pokemon</button>
+<button onclick="javascript:removePokemonForAttacker()">Remove Pokemon</button>
 
-<button onclick="javascript:addRowForAttacker()">Add Team</button>
+
+
 
 <form action="javascript:main()" name="Main">
 
@@ -49,7 +53,7 @@
 		<th>Species</th> <th>Level</th> 
 		<th>AtkIV</th> <th>DefIV</th> <th>StmIV</th> 
 		<th>Fast Move</th> <th>Charged Move</th>
-		<th>DodgedCMoveIfFree</th>
+		<th>dodgeCMoves</th>
 	</tr>
 
 </table>
@@ -82,7 +86,9 @@
 
 <fieldset>
 	<legend>General Settings</legend>
-	<p><label class="field">Weather: </label> <input type="text" name="weather" value="EXTREME"><br>
+	<p><label class="field">Weather: </label> <input type="text" name="weather" value="EXTREME"></p>
+	<p><label class="field">Randomness: </label> <input type="checkbox" name="randonness"></p>
+	<p><label class="field">Battle Log</label> <input type="checkbox" name="log_on"></p>
 </fieldset>
 
 
@@ -93,9 +99,12 @@
 
 
   
- 
+ <fieldset>
+ <legend>System Feedback</legend>
 <p id="feedback"></p>
  <p></p>
+ </fieldset>
+ 
  
  <h4>Battle Log</h4>
  <p id="battlelog"></p>
