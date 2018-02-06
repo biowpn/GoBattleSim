@@ -687,21 +687,31 @@ function main(){
 
 		// 4. Get it running! //
 		debug_world.battle();
-
-		document.getElementById("feedback").innerHTML = "Simulation done. Check console for detailed Pokemon status <br />";
+		
+		fb_print("Simulation done. Check console for detailed Pokemon status");
+		for (var i = 0; i < debug_world.atkr_parties.length; i++){
+			var ap = debug_world.atkr_parties[i];
+			for(var j = 0; j < ap.list.length; j++){
+				fb_print("Team#" + (i+1).toString() + ' ' + ap.list[j].toString());
+			}
+		}
+		
+		fb_print(debug_world.dfdr_party.active_pkm.toString());
+		
 		console.log(debug_world);
-		
-		
 	try {
 		
 	}
 	catch(err) {
-		document.getElementById("feedback").innerHTML = err.message;
+		fb_print(err.message);
 	}
 }
  
  
- 
+function fb_print(msg){
+	var feedback = document.getElementById("feedback");
+	feedback.innerHTML += msg + "<br />";
+}
  
  
  
