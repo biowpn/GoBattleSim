@@ -1,5 +1,5 @@
 /*
-	GoBattlerSim v0.2.2
+	GoBattlerSim v0.2.4
 	
 	- A next-generation Pokemon GO battler simulator
 	- Supports:
