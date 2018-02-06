@@ -670,28 +670,26 @@ function main(){
 	var mainForm = document.forms[0];
 	document.getElementById("battlelog").innerHTML = "";
 	document.getElementById("feedback").innerHTML = "";
+	clearTable("teamSummary", 1);
+	clearTable("pokemonSummary", 1);
 	
 	try {
 		var debug_world = new World();
 		
 		
-		// Loading attackers
+		// 1. Loading attackers
 		var table = document.getElementById("atkrsInfo");
-
 		var lastTeamNum = table.rows[1].cells[0].innerHTML;
 		var curTeamNum = lastTeamNum;
 		var curTeam = new Party();
-		
 		for (var r = 1; r < table.rows.length; r++){
 			var row = table.rows[r];
-			
 			curTeamNum = row.cells[0].innerHTML;
 			if (curTeamNum != lastTeamNum){
 				debug_world.atkr_parties.push(curTeam);
 				curTeam = new Party();
 				lastTeamNum = curTeamNum;
 			}
-			
 			var num_copies = row.cells[1].children[0].valueAsNumber;
 			for(var i = 0; i < num_copies; i++){
 				var pkm = new Pokemon(row.cells[2].children[0].value,
@@ -708,7 +706,7 @@ function main(){
 		}
 		debug_world.atkr_parties.push(curTeam);
 		
-		// Loading defender
+		// 2. Loading defender
 		table = document.getElementById("dfdrsInfo");
 		var row = table.rows[1];
 		var app_dfdr = new Pokemon(row.cells[0].children[0].value, 
@@ -719,10 +717,9 @@ function main(){
 									row.cells[5].children[0].value, 
 									row.cells[6].children[0].value, 
 									row.cells[7].children[0].valueAsNumber);
-		
-
 		debug_world.dfdr_party = new Party([app_dfdr]);
-
+		
+		// 3. Set other parameters
 		debug_world.weather = mainForm['weather'].value.toUpperCase();
 		debug_world.randomness = mainForm['randonness'].checked;
 		debug_world.print_log_on = mainForm['log_on'].checked;
@@ -730,19 +727,45 @@ function main(){
 		// 4. Get it running! //
 		debug_world.battle();
 		
+		
+		// 5. Get summary statistics
 		fb_print("Simulation done. Check console for detailed Pokemon status");
+		
+		var teamTDOs_sum = 0;
+		var teamDurations = [];
+		var teamTDOs = [];
 		for (var i = 0; i < debug_world.atkr_parties.length; i++){
+			teamDurations.push(0);
+			teamTDOs.push(0);
 			var ap = debug_world.atkr_parties[i];
 			for(var j = 0; j < ap.list.length; j++){
-				fb_print("Team#" + (i+1).toString() + ' ' + ap.list[j].toString());
+				var pkm = ap.list[j];
+				var dur = (pkm.time_leave_ms - pkm.time_enter_ms)/1000;				
+				teamDurations[i] += dur;
+				teamTDOs[i] += pkm.total_damage_output;
+				
+				// Team#, Pokemon, HP, Energy, TDO, Duration, DPS, TDO_Fast, TEW
+				newRowForTable("pokemonSummary", [i+1, pkm.name, pkm.HP, pkm.energy, pkm.total_damage_output,
+								dur, Math.round(pkm.total_damage_output/dur, 2),
+								pkm.total_fmove_damage_output, pkm.energy + pkm.total_energy_overcharged]);
 			}
+			teamTDOs_sum += teamTDOs[i];
 		}
 		
-		fb_print(debug_world.dfdr_party.active_pkm.toString());
+		for (var i = 0; i < debug_world.atkr_parties.length; i++){
+			//Team#, TDO, TDO%, Duration, DPS
+			newRowForTable("teamSummary", [i+1, teamTDOs[i], (Math.round(teamTDOs[i]/teamTDOs_sum*100,2)).toString() + "%",
+							teamDurations[i], teamTDOs[i]/teamDurations[i]]);
+		}
+		
+		var pkm = app_dfdr;
+		var dur = (app_dfdr.time_leave_ms - app_dfdr.time_enter_ms)/1000;
+		newRowForTable("pokemonSummary", ["Enemy", pkm.name, pkm.HP, pkm.energy, pkm.total_damage_output,
+								dur, Math.round(pkm.total_damage_output/dur, 2),
+								pkm.total_fmove_damage_output, pkm.energy + pkm.total_energy_overcharged]);
+	
 		
 		console.log(debug_world);
-
-		
 	}
 	catch(err) {
 		fb_print(err.message);
@@ -751,17 +774,24 @@ function main(){
  
  
 function fb_print(msg){
-	var feedback = document.getElementById("feedback");
-	feedback.innerHTML += msg + "<br />";
+	document.getElementById("feedback").innerHTML += msg + "<br />";
+}
+
+function clearTable(TableID, numRowsToKeep){
+	var table = document.getElementById(TableID);
+	while(table.rows.length > numRowsToKeep){
+		table.deleteRow(table.rows.length - 1);
+	}
 }
 
 
-
- 
-
-
-
-
+function newRowForTable(TableID, rowData){
+	var table = document.getElementById(TableID);
+	var newRow = table.insertRow(table.length);
+	for (var i = 0; i < rowData.length; i++){
+		newRow.insertCell(i).innerHTML = rowData[i];
+	}
+}
 
 
 
