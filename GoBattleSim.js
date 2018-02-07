@@ -740,13 +740,13 @@ function main(){
 			var ap = debug_world.atkr_parties[i];
 			for(var j = 0; j < ap.list.length; j++){
 				var pkm = ap.list[j];
-				var dur = (pkm.time_leave_ms - pkm.time_enter_ms)/1000;				
+				var dur = Math.round((pkm.time_leave_ms - pkm.time_enter_ms)/10)/100;				
 				teamDurations[i] += dur;
 				teamTDOs[i] += pkm.total_damage_output;
 				
 				// Team#, Pokemon, HP, Energy, TDO, Duration, DPS, TDO_Fast, TEW
 				newRowForTable("pokemonSummary", [i+1, pkm.name, pkm.HP, pkm.energy, pkm.total_damage_output,
-								dur, Math.round(pkm.total_damage_output/dur, 2),
+								dur, Math.round(pkm.total_damage_output/dur*100)/100,
 								pkm.total_fmove_damage_output, pkm.energy + pkm.total_energy_overcharged]);
 			}
 			teamTDOs_sum += teamTDOs[i];
@@ -754,14 +754,14 @@ function main(){
 		
 		for (var i = 0; i < debug_world.atkr_parties.length; i++){
 			//Team#, TDO, TDO%, Duration, DPS
-			newRowForTable("teamSummary", [i+1, teamTDOs[i], (Math.round(teamTDOs[i]/teamTDOs_sum*100,2)).toString() + "%",
+			newRowForTable("teamSummary", [i+1, teamTDOs[i], (Math.round(teamTDOs[i]/teamTDOs_sum*10000)/100).toString() + "%",
 							teamDurations[i], teamTDOs[i]/teamDurations[i]]);
 		}
 		
 		var pkm = app_dfdr;
-		var dur = (app_dfdr.time_leave_ms - app_dfdr.time_enter_ms)/1000;
+		var dur = Math.round((app_dfdr.time_leave_ms - app_dfdr.time_enter_ms)/10)/100;
 		newRowForTable("pokemonSummary", ["Enemy", pkm.name, pkm.HP, pkm.energy, pkm.total_damage_output,
-								dur, Math.round(pkm.total_damage_output/dur, 2),
+								dur, Math.round(pkm.total_damage_output/dur*100)/100,
 								pkm.total_fmove_damage_output, pkm.energy + pkm.total_energy_overcharged]);
 	
 		
