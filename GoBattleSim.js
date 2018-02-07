@@ -517,7 +517,7 @@ World.prototype.atkr_choose = function (pkm, t){
 										pkm.fmove.duration, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration);
 				var resC = strategyMaxDmg(timeTillHurt - pkm.cmove.dws, pkm.energy + pkm.cmove.energyDelta, fDmg, pkm.fmove.energyDelta, 
 										pkm.fmove.duration, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration);
-				if (resC[0] + CDmg > resF[0] + fDmg && resC[1] >= 0){ 
+				if (resC[0] + cDmg > resF[0] + fDmg && resC[1] >= 0){ 
 					// Use a cmove at the end is better, on the condition that it obeys the energy rule
 					return resC[2].concat('c');
 				}else{
@@ -634,7 +634,6 @@ World.prototype.battle = function (){
 		
 		if (cur_event.name == "AtkrFree"){
 			actions = this.atkr_choose(cur_event.subject, t);
-			console.log(actions);
 			this.enqueueActions(cur_event.subject, dfdr, t, actions);
 		}else if (cur_event.name == "DfdrFree"){
 			this.dfdr_choose(cur_event.subject, t, cur_event.move);
