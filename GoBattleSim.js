@@ -24,6 +24,7 @@ const WAB_MULTIPLIER = 1.2;
 
 const DODGE_COOLDOWN_MS = 500;
 const DODGEWINDOW_LENGTH_MS = 700;
+const DODGED_DAMAGE_REDUCTION_PERCENT = 0.75;
 const ARENA_ENTRY_LAG_MS = 3000;
 const SWITCHING_DELAY_MS = 900;
 const TIMELIMIT_GYM_MS = 100000;
@@ -149,7 +150,6 @@ function Move(name, moveType, pokeType, power, energyDelta, duration, dws){
 /* Class <Pokemon> and <PokemonSpecies> */
 // constructor
 function Pokemon(speciesName, IVs, level, fastMove, chargeMove, raidTier){
-
 	var i = get_species_index_by_name(speciesName);
 	this.dex = POKEMON_SPECIES_DATA[i]['dex']
 	this.name = POKEMON_SPECIES_DATA[i]['name'];
@@ -270,6 +270,7 @@ function Event(name, t, subject, object, move, dmg, energyDelta){
 	this.move = move;
 	this.dmg = dmg;
 	this.energyDelta = energyDelta;
+	this.dodged = false; //prevent double dodging (you want to reduce damage to 1/16?? Nice dreaming)
 }
 
 // Returns a string with the info of this event
@@ -312,10 +313,17 @@ Timeline.prototype.dequeue = function (){
 	return this.list.shift();
 }
 
+// Finds and returns the next Hurt event of a specified Pokemon
+Timeline.prototype.nextHurtEventOf = function(pkm){
+	for (var i = 0; i < this.list.length; i++)
+		if (this.list[i].name == "Hurt" && this.list[i].subject == pkm)
+			return this.list[i];
+}
+
 // For debug use
 Timeline.prototype.print = function (){
-	for (var i = 0; i < tline.list.length; i++){
-		console.log(tline.list[i].name);
+	for (var i = 0; i < this.list.length; i++){
+		console.log(this.list[i]);
 	}
 }
 
@@ -407,16 +415,16 @@ World.prototype.init = function (){
 }
 
 // Player's Pokemon uses a move
-World.prototype.atkr_use_move = function (pkm, pkm_hurt, move, t){
+World.prototype.atkr_use_move = function(pkm, pkm_hurt, move, t){
 	var dmg = damage(pkm, pkm_hurt, move, this.weather);
 	this.tline.enqueue(new Event("Anounce", t, pkm, pkm_hurt, move, 0, 0));
 	this.tline.enqueue(new Event("Hurt", t + move.dws, pkm_hurt, pkm, move, dmg, 0));
 	this.tline.enqueue(new Event("EnergyDelta", t + move.dws, pkm, 0, 0, 0, move.energyDelta));
+
 }
 
-
-// Gym Defender/Raid Boss uses a move
-World.prototype.dfdr_use_move = function (pkm, move, t){
+// Gym Defender/Raid Boss uses a move, hurting all active attackers
+World.prototype.dfdr_use_move = function(pkm, move, t){
 	this.tline.enqueue(new Event("Anounce", t, pkm, 0, move, 0, 0));
 	for (var i = 0; i < this.atkr_parties.length; i++){
 		var pkm_hurt = this.atkr_parties[i].active_pkm;
@@ -427,22 +435,104 @@ World.prototype.dfdr_use_move = function (pkm, move, t){
 }
 
 
-// Player strategy
-World.prototype.atkr_choose = function (pkm, t){
-	// For now, simply no dodging and use cmove as soon as possible
-	// TODO: Implement (smart) dodging
-	var dfdr = this.dfdr_party.active_pkm;
-	var tFree = t;
-
-
-	if (pkm.energy + pkm.cmove.energyDelta >= 0){
-		this.atkr_use_move(pkm, dfdr, pkm.cmove, t);
-		tFree += pkm.cmove.duration;
-	}else{
-		this.atkr_use_move(pkm, dfdr, pkm.fmove, t);
-		tFree += pkm.fmove.duration;
+// Brutal force to find out how to maximize damage within a limited time (guaranteed to fit in at least one fmove/cmove)
+// and be free afterwards, at the same time satisfies energy rule
+// returns the damage, totaltime needd, and a list of 'f'/'c' like ['f','f','c','f'] representing the optimal action
+// Note it will returns [-1, -1, []] if there's no solution for negative initial energy
+function strategyMaxDmg(T, initE, fDmg, fE, fDur, cDmg, cE, cDur){
+	var maxC = Math.floor(T/cDur);
+	var maxF = 0;
+	var optimalC = 0;
+	var optimalF = 0;
+	var optimalDamage = -1;
+	var optimalTime = -1;
+	for (var c = 0; c <= maxC; c++){
+		maxF = Math.floor((T - c * cDur)/fDur);
+		for (var f = 0; f <= maxF; f++){
+			if (initE + f * fE + c * cE < 0)
+				break; // Failing the energy requirement
+			if (f * fDmg + c * cDmg > optimalDamage){ // Found a better solution
+				optimalDamage = f * fDmg + c * cDmg;
+				optimalTime = f * fDur + c * cDur;
+				optimalF = f;
+				optimalC = c;
+			}
+		}
 	}
-	this.tline.enqueue(new Event("AtkrFree", tFree, pkm, 0, 0, 0, 0));
+	// Now form and return a valid sequece of actions
+	var solution = [];
+	var projE = initE;
+	while (optimalC > 0 || optimalF > 0){
+		if (projE + cE >= 0 && optimalC > 0){
+			solution.push('c');
+			projE += cE;
+			optimalC--;
+		}else{
+			solution.push('f');
+			projE += fE;
+			optimalF--;
+		}
+	}
+	return [optimalDamage, optimalTime, solution];
+}
+
+
+// Player strategy
+// This function should return a list of planned actions
+// like ['f', 'c', 100, 'd'] <- means use a FMove, then a Cmove, then wait for 100s and finally dodge
+World.prototype.atkr_choose = function (pkm, t){
+	var dfdr = this.dfdr_party.active_pkm;
+	
+	if (pkm.dodgeCMoves){ 
+		// The optimal dodging should be: 
+		// - Minimize waiting (waiting should always be avoided)
+		// - Maximize time left before dodging (dodge as late as possible)
+		// - Maximize damage done before dodging
+		var hurtEvent = this.tline.nextHurtEventOf(pkm);
+		if (hurtEvent && hurtEvent.move.moveType == 'c' && !hurtEvent.dodged){
+			var timeTillHurt = hurtEvent.t - t;
+			
+			// 1. If can't fit in a fmove or a cmove (whichever has earliest DWS), just dodge and attack
+			if (timeTillHurt < pkm.fmove.dws && timeTillHurt < pkm.cmove.dws){
+				var decision = [Math.max(0, timeTillHurt - DODGEWINDOW_LENGTH_MS), 'd'];
+				if (pkm.energy + pkm.cmove.energyDelta >= 0)
+					return decision.concat('c');
+				else
+					return decision.concat('f');
+			}
+			
+			var fDmg = damage(pkm, dfdr, pkm.fmove, this.weather);
+			var cDmg = damage(pkm, dfdr, pkm.cmove, this.weather);
+
+			// (2) Otherwise, need to maximize damage before time runs out
+			if (pkm.HP > Math.floor(hurtEvent.dmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT))){
+				// (2a) if this Pokemon can survive the dodged damage, then it's better to dodge
+				var res = strategyMaxDmg(timeTillHurt, pkm.energy, fDmg, pkm.fmove.energyDelta, 
+										pkm.fmove.duration, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration);
+				return res[2].concat([Math.max(timeTillHurt - DODGEWINDOW_LENGTH_MS - res[1], 0), 'd']);
+			} else{
+				// (2b) otherwise, just don't bother to dodge, and shine like the sun before dying!
+				// Compare two strategies: a FMove at the end (resF) or a CMove at the end (resC) by exploiting DWS
+				var resF = strategyMaxDmg(timeTillHurt - pkm.fmove.dws, pkm.energy, fDmg, pkm.fmove.energyDelta, 
+										pkm.fmove.duration, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration);
+				var resC = strategyMaxDmg(timeTillHurt - pkm.cmove.dws, pkm.energy + pkm.cmove.energyDelta, fDmg, pkm.fmove.energyDelta, 
+										pkm.fmove.duration, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration);
+				if (resC[0] + CDmg > resF[0] + fDmg && resC[1] >= 0){ 
+					// Use a cmove at the end is better, on the condition that it obeys the energy rule
+					return resC[2].concat('c');
+				}else{
+					return resF[2].concat('f');
+				}
+			} 
+		}
+	}
+	
+	// No dodging or no need to dodge
+	if (pkm.energy + pkm.cmove.energyDelta >= 0){
+		return ['c'];
+	}else{
+		return ['f'];
+	}
 }
 
 
@@ -474,6 +564,28 @@ World.prototype.dfdr_choose = function (pkm, t, current_move){
 	this.tline.enqueue(new Event("DfdrFree", next_t, pkm, 0, next_move, 0, 0));
 }
 
+// Enqueue events to timeline according from a list of actions
+// And ask for the next action when the attacker is free again
+World.prototype.enqueueActions = function(pkm, pkm_hurt, t, actions){
+	var tFree = t;
+	for (var i = 0; i < actions.length; i++){
+		if (actions[i] == 'f'){
+			this.atkr_use_move(pkm, pkm_hurt, pkm.fmove, tFree);
+			tFree += pkm.fmove.duration;
+		} else if (actions[i] == 'c'){
+			this.atkr_use_move(pkm, pkm_hurt, pkm.cmove, tFree);
+			tFree += pkm.cmove.duration;
+		} else if (actions[i] == 'd'){
+			this.tline.enqueue(new Event("Dodge", tFree, pkm, 0,0,0,0));
+			tFree += DODGE_COOLDOWN_MS;
+		} else
+			tFree += actions[i];
+	}
+	this.tline.enqueue(new Event("AtkrFree", tFree, pkm, 0,0,0,0));
+	if (tFree == t)
+		throw "dangerous: stuck at time" + t;
+}
+
 
 // Gym Defender or Raid Boss moves at the start of a battle
 World.prototype.initial_dfdr_choose = function (dfdr){
@@ -497,6 +609,8 @@ World.prototype.any_atkr_alive = function (){
 // TODO: Main function for simulating a battle
 World.prototype.battle = function (){
 	var t = 0;
+	var e = 0;
+	var actions = [];
 	var dfdr = this.dfdr_party.active_pkm;
 	
 	if (dfdr.raidTier == -1){ // Indicating gym defender
@@ -519,18 +633,24 @@ World.prototype.battle = function (){
 		t = cur_event.t;
 		
 		if (cur_event.name == "AtkrFree"){
-			this.atkr_choose(cur_event.subject, t);
+			actions = this.atkr_choose(cur_event.subject, t);
+			console.log(actions);
+			this.enqueueActions(cur_event.subject, dfdr, t, actions);
 		}else if (cur_event.name == "DfdrFree"){
 			this.dfdr_choose(cur_event.subject, t, cur_event.move);
 		}else if (cur_event.name == "Hurt"){
-			var overKilledPart = cur_event.subject.take_damage(cur_event.dmg);
-			cur_event.object.contribute(cur_event.dmg - overKilledPart, cur_event.move.moveType);
+			// cur_event.subject.take_damage() returns overkilled part of damage
+			cur_event.object.contribute(cur_event.dmg - cur_event.subject.take_damage(cur_event.dmg), cur_event.move.moveType);
 		}else if (cur_event.name == "EnergyDelta"){
 			cur_event.subject.gain_energy(cur_event.energyDelta, false);
 		}else if (cur_event.name == "Enter"){
 			cur_event.subject.time_enter_ms = t;
 		}else if (cur_event.name == "Dodge"){
-			// TDDO: Implement Dodging
+			e = this.tline.nextHurtEventOf(cur_event.subject);
+			if (e && (e.t - DODGEWINDOW_LENGTH_MS) <= t && t <= e.t && !e.dodged){
+				e.dmg = Math.floor(e.dmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
+				e.dodged = true;
+			}
 		}else if (cur_event.name == "Anounce"){
 			// Do nothing
 		} else{
@@ -540,7 +660,10 @@ World.prototype.battle = function (){
 		if (this.print_log_on){
 			document.getElementById("battlelog").innerHTML += cur_event.toString() + '<br />';
 		}
-		// this.elog.push(cur_event); // Will enable this later
+		
+		if (t == this.tline.list[0].t) // process the next event if it's at the same time
+			continue;
+		
 		
 		// Checking if some attacker fainted
 		for (var i = 0; i < this.atkr_parties.length; i++){
@@ -636,13 +759,13 @@ function addRowForAttacker(newTeam, lastRow){
 		
 	row.insertCell(0).innerHTML = teamName;
 	row.insertCell(1).innerHTML = '<input type="number" value="1">';
-	row.insertCell(2).innerHTML = '<input type="text">';
+	row.insertCell(2).innerHTML = '<input type="text" value="Machamp">';
 	row.insertCell(3).innerHTML = '<input type="number" value="40">';
 	row.insertCell(4).innerHTML = '<input type="number" value="15">';
 	row.insertCell(5).innerHTML = '<input type="number" value="15">';
 	row.insertCell(6).innerHTML = '<input type="number" value="15">';
-	row.insertCell(7).innerHTML = '<input type="text">';
-	row.insertCell(8).innerHTML = '<input type="text">';
+	row.insertCell(7).innerHTML = '<input type="text" value="Counter">';
+	row.insertCell(8).innerHTML = '<input type="text" value="Dynamic Punch">';
 	row.insertCell(9).innerHTML = '<input type="checkbox">';
 	
 	if (lastRow){
@@ -671,103 +794,95 @@ function main(){
 	clearTable("teamSummary", 1);
 	clearTable("pokemonSummary", 1);
 	
-	try {
-		var debug_world = new World();
-		
-		
-		// 1. Loading attackers
-		var table = document.getElementById("atkrsInfo");
-		var lastTeamNum = table.rows[1].cells[0].innerHTML;
-		var curTeamNum = lastTeamNum;
-		var curTeam = new Party();
-		for (var r = 1; r < table.rows.length; r++){
-			var row = table.rows[r];
-			curTeamNum = row.cells[0].innerHTML;
-			if (curTeamNum != lastTeamNum){
-				debug_world.atkr_parties.push(curTeam);
-				curTeam = new Party();
-				lastTeamNum = curTeamNum;
-			}
-			var num_copies = row.cells[1].children[0].valueAsNumber;
-			for(var i = 0; i < num_copies; i++){
-				var pkm = new Pokemon(row.cells[2].children[0].value,
-									[row.cells[4].children[0].valueAsNumber,
-									row.cells[5].children[0].valueAsNumber,
-									row.cells[6].children[0].valueAsNumber],
-									row.cells[3].children[0].valueAsNumber,
-									row.cells[7].children[0].value,
-									row.cells[8].children[0].value,
-									0);
-				pkm.dodgeCMoves = row.cells[9].children[0].checked;
-				curTeam.add(pkm);
-			}
-		}
-		debug_world.atkr_parties.push(curTeam);
-		
-		// 2. Loading defender
-		table = document.getElementById("dfdrsInfo");
-		var row = table.rows[1];
-		var app_dfdr = new Pokemon(row.cells[0].children[0].value, 
-									[row.cells[2].children[0].valueAsNumber, 
-									row.cells[3].children[0].valueAsNumber, 
-									row.cells[4].children[0].valueAsNumber], 
-									row.cells[1].children[0].valueAsNumber, 
-									row.cells[5].children[0].value, 
-									row.cells[6].children[0].value, 
-									row.cells[7].children[0].valueAsNumber);
-		debug_world.dfdr_party = new Party([app_dfdr]);
-		
-		// 3. Set other parameters
-		debug_world.weather = mainForm['weather'].value.toUpperCase();
-		debug_world.randomness = mainForm['randonness'].checked;
-		debug_world.print_log_on = mainForm['log_on'].checked;
-
-		// 4. Get it running! //
-		debug_world.battle();
-		
-		
-		// 5. Get summary statistics
-		fb_print("Simulation done. Check console for detailed Pokemon status");
-		
-		var teamTDOs_sum = 0;
-		var teamDurations = [];
-		var teamTDOs = [];
-		for (var i = 0; i < debug_world.atkr_parties.length; i++){
-			teamDurations.push(0);
-			teamTDOs.push(0);
-			var ap = debug_world.atkr_parties[i];
-			for(var j = 0; j < ap.list.length; j++){
-				var pkm = ap.list[j];
-				var dur = Math.round((pkm.time_leave_ms - pkm.time_enter_ms)/100)/10;				
-				teamDurations[i] += dur;
-				teamTDOs[i] += pkm.total_damage_output;
-				
-				// Team#, Pokemon, HP, Energy, TDO, Duration, DPS, TDO_Fast, TEW
-				newRowForTable("pokemonSummary", [i+1, pkm.name, pkm.HP, pkm.energy, pkm.total_damage_output,
-								dur, Math.round(pkm.total_damage_output/dur*100)/100,
-								pkm.total_fmove_damage_output, pkm.energy + pkm.total_energy_overcharged]);
-			}
-			teamTDOs_sum += teamTDOs[i];
-		}
-		
-		for (var i = 0; i < debug_world.atkr_parties.length; i++){
-			//Team#, TDO, TDO%, Duration, DPS
-			newRowForTable("teamSummary", [i+1, teamTDOs[i], (Math.round(teamTDOs[i]/teamTDOs_sum*10000)/100).toString() + "%",
-							Math.round(teamDurations[i]*10)/10, Math.round(teamTDOs[i]/teamDurations[i]*100)/100]);
-		}
-		
-		var pkm = app_dfdr;
-		var dur = Math.round((app_dfdr.time_leave_ms - app_dfdr.time_enter_ms)/100)/10;
-		newRowForTable("pokemonSummary", ["Enemy", pkm.name, pkm.HP, pkm.energy, pkm.total_damage_output,
-								dur, Math.round(pkm.total_damage_output/dur*100)/100,
-								pkm.total_fmove_damage_output, pkm.energy + pkm.total_energy_overcharged]);
+	// Hellow, world
+	var app_world = new World();
 	
-		
-		console.log(debug_world);
+	// 1. Loading attackers
+	var table = document.getElementById("atkrsInfo");
+	var lastTeamNum = table.rows[1].cells[0].innerHTML;
+	var curTeamNum = lastTeamNum;
+	var curTeam = new Party();
+	for (var r = 1; r < table.rows.length; r++){
+		var row = table.rows[r];
+		curTeamNum = row.cells[0].innerHTML;
+		if (curTeamNum != lastTeamNum){
+			app_world.atkr_parties.push(curTeam);
+			curTeam = new Party();
+			lastTeamNum = curTeamNum;
+		}
+		var num_copies = row.cells[1].children[0].valueAsNumber;
+		for(var i = 0; i < num_copies; i++){
+			var pkm = new Pokemon(row.cells[2].children[0].value,
+								[row.cells[4].children[0].valueAsNumber,
+								row.cells[5].children[0].valueAsNumber,
+								row.cells[6].children[0].valueAsNumber],
+								row.cells[3].children[0].valueAsNumber,
+								row.cells[7].children[0].value,
+								row.cells[8].children[0].value,
+								0);
+			pkm.dodgeCMoves = row.cells[9].children[0].checked;
+			curTeam.add(pkm);
+		}
 	}
-	catch(err) {
-		fb_print(err.message);
+	app_world.atkr_parties.push(curTeam);
+	
+	// 2. Loading defender
+	table = document.getElementById("dfdrsInfo");
+	var row = table.rows[1];
+	var app_dfdr = new Pokemon(row.cells[0].children[0].value, 
+								[row.cells[2].children[0].valueAsNumber, 
+								row.cells[3].children[0].valueAsNumber, 
+								row.cells[4].children[0].valueAsNumber], 
+								row.cells[1].children[0].valueAsNumber, 
+								row.cells[5].children[0].value, 
+								row.cells[6].children[0].value, 
+								row.cells[7].children[0].valueAsNumber);
+	app_world.dfdr_party = new Party([app_dfdr]);
+	
+	// 3. Set other parameters
+	app_world.weather = mainForm['weather'].value.toUpperCase();
+	app_world.randomness = mainForm['randonness'].checked;
+	app_world.print_log_on = mainForm['log_on'].checked;
+
+	// 4. Get it running! //
+	app_world.battle();
+	
+	
+	// 5. Get summary statistics
+	fb_print("Simulation done. Check console for detailed Pokemon status");
+	
+	var teamTDOs_sum = 0;
+	var teamDurations = [];
+	var teamTDOs = [];
+	for (var i = 0; i < app_world.atkr_parties.length; i++){
+		teamDurations.push(0);
+		teamTDOs.push(0);
+		var ap = app_world.atkr_parties[i];
+		for(var j = 0; j < ap.list.length; j++){
+			var pkm = ap.list[j];
+			var dur = Math.round((pkm.time_leave_ms - pkm.time_enter_ms)/100)/10;				
+			teamDurations[i] += dur;
+			teamTDOs[i] += pkm.total_damage_output;
+			
+			// Team#, Pokemon, HP, Energy, TDO, Duration, DPS, TDO_Fast, TEW
+			newRowForTable("pokemonSummary", [i+1, pkm.name, pkm.HP, pkm.energy, pkm.total_damage_output,
+							dur, Math.round(pkm.total_damage_output/dur*100)/100,
+							pkm.total_fmove_damage_output, pkm.energy + pkm.total_energy_overcharged]);
+		}
+		teamTDOs_sum += teamTDOs[i];
 	}
+	
+	for (var i = 0; i < app_world.atkr_parties.length; i++){
+		//Team#, TDO, TDO%, Duration, DPS
+		newRowForTable("teamSummary", [i+1, teamTDOs[i], (Math.round(teamTDOs[i]/teamTDOs_sum*10000)/100).toString() + "%",
+						Math.round(teamDurations[i]*10)/10, Math.round(teamTDOs[i]/teamDurations[i]*100)/100]);
+	}
+	
+	var pkm = app_dfdr;
+	var dur = Math.round((app_dfdr.time_leave_ms - app_dfdr.time_enter_ms)/100)/10;
+	newRowForTable("pokemonSummary", ["Enemy", pkm.name, pkm.HP, pkm.energy, pkm.total_damage_output,
+							dur, Math.round(pkm.total_damage_output/dur*100)/100,
+							pkm.total_fmove_damage_output, pkm.energy + pkm.total_energy_overcharged]);
 }
  
  
@@ -781,7 +896,6 @@ function clearTable(TableID, numRowsToKeep){
 		table.deleteRow(table.rows.length - 1);
 	}
 }
-
 
 function newRowForTable(TableID, rowData){
 	var table = document.getElementById(TableID);

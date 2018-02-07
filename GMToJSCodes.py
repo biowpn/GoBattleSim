@@ -155,7 +155,7 @@ FAST_MOVE_DATA, CHARGED_MOVE_DATA, POKEMON_SPECIES_DATA, CPM_TABLE, POKEMON_TYPE
 WEATHER_BOOSTED_TYPES = {'SUNNY_CLEAR':["grass","ground","fire"],
                          'RAIN':["water","electric","bug"],
                          'PARTLY_CLOUDY':["normal","rock"],
-                         'CLOUDY':["fairy","fight","poison"],
+                         'CLOUDY':["fairy","fighting","poison"],
                          'WINDY':["dragon","flying","psychic"],
                          'SNOW':["ice","steel"],
                          'FOG':["dark","ghost"],
