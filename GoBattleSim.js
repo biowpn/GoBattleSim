@@ -357,13 +357,14 @@ Party.prototype.add = function(pkm){
 }
 
 // Switch the active Pokemon to the next Pokemon in the party
-// If success, returns true. Otherwise, returns false
+// If success, returns true. Otherwise, active Pokemon will be set to 0 and returns false
 Party.prototype.next_up = function (){
 	if (this.active_idx + 1 < this.list.length){
 		this.active_idx++;
 		this.active_pkm = this.list[this.active_idx];
 		return true;
 	}else{
+		this.active_pkm = 0;
 		return false; 
 	}
 }
@@ -428,8 +429,10 @@ World.prototype.dfdr_use_move = function(pkm, move, t){
 	this.tline.enqueue(new Event("Anounce", t, pkm, 0, move, 0, 0));
 	for (var i = 0; i < this.atkr_parties.length; i++){
 		var pkm_hurt = this.atkr_parties[i].active_pkm;
-		var dmg = damage(pkm, pkm_hurt, move, this.weather);
-		this.tline.enqueue(new Event("Hurt", t + move.dws, pkm_hurt, pkm, move, dmg, 0));
+		if (pkm_hurt && pkm_hurt.HP > 0){
+			var dmg = damage(pkm, pkm_hurt, move, this.weather);
+			this.tline.enqueue(new Event("Hurt", t + move.dws, pkm_hurt, pkm, move, dmg, 0));
+		}
 	}
 	this.tline.enqueue(new Event("EnergyDelta", t + move.dws, pkm, 0, 0, 0, move.energyDelta));
 }
