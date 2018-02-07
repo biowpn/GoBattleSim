@@ -1,5 +1,5 @@
 /*
-	GoBattlerSim v0.2.4
+	GoBattlerSim
 	
 	- A next-generation Pokemon GO battler simulator
 	- Supports:
@@ -9,8 +9,6 @@
 		- Highly customizable configuration
 		- Professional performance analytic metrics
 	
-	
-	Last Updated: 17:11, Feb 5, 2018
 	Author: biowp (https://github.com/ymenghank), inspired by Felix's BattleSim (https://github.com/doublefelix921/battlesim)
 */
 
@@ -740,7 +738,7 @@ function main(){
 			var ap = debug_world.atkr_parties[i];
 			for(var j = 0; j < ap.list.length; j++){
 				var pkm = ap.list[j];
-				var dur = Math.round((pkm.time_leave_ms - pkm.time_enter_ms)/10)/100;				
+				var dur = Math.round((pkm.time_leave_ms - pkm.time_enter_ms)/100)/10;				
 				teamDurations[i] += dur;
 				teamTDOs[i] += pkm.total_damage_output;
 				
@@ -755,11 +753,11 @@ function main(){
 		for (var i = 0; i < debug_world.atkr_parties.length; i++){
 			//Team#, TDO, TDO%, Duration, DPS
 			newRowForTable("teamSummary", [i+1, teamTDOs[i], (Math.round(teamTDOs[i]/teamTDOs_sum*10000)/100).toString() + "%",
-							teamDurations[i], teamTDOs[i]/teamDurations[i]]);
+							Math.round(teamDurations[i]*10)/10, Math.round(teamTDOs[i]/teamDurations[i]*100)/100]);
 		}
 		
 		var pkm = app_dfdr;
-		var dur = Math.round((app_dfdr.time_leave_ms - app_dfdr.time_enter_ms)/10)/100;
+		var dur = Math.round((app_dfdr.time_leave_ms - app_dfdr.time_enter_ms)/100)/10;
 		newRowForTable("pokemonSummary", ["Enemy", pkm.name, pkm.HP, pkm.energy, pkm.total_damage_output,
 								dur, Math.round(pkm.total_damage_output/dur*100)/100,
 								pkm.total_fmove_damage_output, pkm.energy + pkm.total_energy_overcharged]);
