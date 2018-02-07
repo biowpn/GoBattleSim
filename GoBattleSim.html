@@ -12,6 +12,7 @@
 					text-align: left; 
 					width: 100px; 
 					float: left;
+					height: 10px;
 				}
 	
 	input[type=number] {
@@ -32,7 +33,7 @@
  
 <body>
 
-<h1> GoBattleSim Debug V0.3.2 </h1>
+<h1> GoBattleSim Debug V0.3.3 </h1>
 <h3>GamePress internal beta version</h3>
 
 <script type="text/javascript" src="GoBattleSim.js"></script>
@@ -84,15 +85,14 @@
 
 <br><br>
 
-<fieldset>
+
 	<legend>General Settings</legend>
 	<p><label class="field">Weather: </label> <input type="text" name="weather" value="EXTREME"></p>
 	<p><label class="field">Randomness: </label> <input type="checkbox" name="randonness"></p>
 	<p><label class="field">Battle Log</label> <input type="checkbox" name="log_on"></p>
-</fieldset>
 
 
-<br><br>
+
 
   <input type="submit" value="GoBattleSim!">
 </form>
@@ -102,11 +102,9 @@
 <fieldset>
  <legend>System Feedback</legend>
 <p id="feedback"></p>
- <p></p>
 </fieldset>
  
-
- <br><br>
+<br>
 <legend>Team Statistics</legend>
 <table id="teamSummary">
 	<tr>	<th>Team#</th>  <th>TDO</th>  <th>TDO%</th> <th>Duration</th> <th>DPS</th>
@@ -125,9 +123,11 @@
  
  
  
- 
- <h4>Battle Log</h4>
- <p id="battlelog"></p>
+ <br><br>
+ <legend>Battle Log</legend>
+ <table id="battleLog">
+
+ </table>
  
  
 

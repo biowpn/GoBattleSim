@@ -194,6 +194,7 @@ function Pokemon(speciesName, IVs, level, fastMove, chargeMove, raidTier){
 		this.maxHP = RAID_BOSS_HP[raidTier - 1];
 	}
 	this.dodgeCMoves = false;
+	this.party_index = -1;
 	this.reset_stats();
 }
 
@@ -248,14 +249,6 @@ Pokemon.prototype.contribute = function(dmg, mType){
 	}
 }
 
-// Returns a string with Pokemon status
-Pokemon.prototype.toString = function(){
-	var s = this.name + " HP:" + this.HP.toString() + " Energy:" + this.energy.toString();
-	s += " Survival Time: " + ((this.time_leave_ms - this.time_enter_ms)/1000).toString();
-	s += " TDO: " + this.total_damage_output.toString() + " TEG:" + this.total_energy_gained.toString();
-	return s;
-}
-
 /* End of Class <Pokemon> and <PokemonSpecies> */
 
 
@@ -271,23 +264,6 @@ function Event(name, t, subject, object, move, dmg, energyDelta){
 	this.dmg = dmg;
 	this.energyDelta = energyDelta;
 	this.dodged = false; //prevent double dodging (you want to reduce damage to 1/16?? Nice dreaming)
-}
-
-// Returns a string with the info of this event
-Event.prototype.toString = function() {
-	var s = this.t + '\t' + this.name + '\t' + this.subject.name;
-	var s0 = s;
-	if (this.object){
-		s += '\t' + this.object.name;
-	}
-	if (this.move){
-		s += '\t' + this.move.name;
-		s0 += '\t' + this.move.name;
-	}
-	s += '\t' + this.dmg.toString();
-	s += '\t' + this.energyDelta.toString();
-	
-	return s0;
 }
 
 /* End of Class <Event> */
@@ -333,10 +309,11 @@ Timeline.prototype.print = function (){
 
 /* Class <Party> */
 // constructor
-function Party(pkm_list){
+function Party(pkm_list, index){
 	pkm_list = pkm_list || [];
 	
 	this.list = [];
+	this.index = index;
 	this.active_idx = -1;
 	this.active_pkm = 0;
 	for(var i = 0; i < pkm_list.length; i++){
@@ -350,6 +327,7 @@ Party.prototype.add = function(pkm){
 		throw "Exceeding maximum party size";
 	}
 	this.list.push(pkm);
+	pkm.party_index = this.index;
 	if (this.active_pkm == 0) {
 		this.active_pkm = pkm;
 		this.active_idx = 0;
@@ -613,6 +591,7 @@ World.prototype.any_atkr_alive = function (){
 World.prototype.battle = function (){
 	var t = 0;
 	var e = 0;
+	var elog = [];
 	var actions = [];
 	var dfdr = this.dfdr_party.active_pkm;
 	
@@ -643,28 +622,32 @@ World.prototype.battle = function (){
 		}else if (cur_event.name == "Hurt"){
 			// cur_event.subject.take_damage() returns overkilled part of damage
 			cur_event.object.contribute(cur_event.dmg - cur_event.subject.take_damage(cur_event.dmg), cur_event.move.moveType);
+			elog.push(cur_event);
 		}else if (cur_event.name == "EnergyDelta"){
 			cur_event.subject.gain_energy(cur_event.energyDelta, false);
 		}else if (cur_event.name == "Enter"){
 			cur_event.subject.time_enter_ms = t;
+			elog.push(cur_event);
 		}else if (cur_event.name == "Dodge"){
 			e = this.tline.nextHurtEventOf(cur_event.subject);
 			if (e && (e.t - DODGEWINDOW_LENGTH_MS) <= t && t <= e.t && !e.dodged){
 				e.dmg = Math.floor(e.dmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
 				e.dodged = true;
 			}
+			elog.push(cur_event);
 		}else if (cur_event.name == "Anounce"){
 			// Do nothing
 		} else{
 			throw "Unrecognized Event Type:" + cur_event.name;
 		}
 		
-		if (this.print_log_on){
-			document.getElementById("battlelog").innerHTML += cur_event.toString() + '<br />';
-		}
-		
-		if (t == this.tline.list[0].t) // process the next event if it's at the same time
+		if (t == this.tline.list[0].t){ // process the next event if it's at the same time
 			continue;
+		}else if (this.print_log_on){
+			if (elog.length > 0)
+				addBattleLog(elog);
+			elog = [];
+		}
 		
 		
 		// Checking if some attacker fainted
@@ -791,7 +774,12 @@ function removePokemonForAttacker(){
 
 function main(){ 
 	var mainForm = document.forms[0];
-	document.getElementById("battlelog").innerHTML = "";
+	
+	clearTable("battleLog", 0);
+	var newRow = document.getElementById("battleLog").insertRow(0);
+	newRow.insertCell(0).innerHTML = "Time";
+	newRow.insertCell(1).innerHTML = "(Defender)";
+	
 	document.getElementById("feedback").innerHTML = "";
 	clearTable("teamSummary", 1);
 	clearTable("pokemonSummary", 1);
@@ -803,13 +791,13 @@ function main(){
 	var table = document.getElementById("atkrsInfo");
 	var lastTeamNum = table.rows[1].cells[0].innerHTML;
 	var curTeamNum = lastTeamNum;
-	var curTeam = new Party();
+	var curTeam = new Party([],0);
 	for (var r = 1; r < table.rows.length; r++){
 		var row = table.rows[r];
 		curTeamNum = row.cells[0].innerHTML;
 		if (curTeamNum != lastTeamNum){
 			app_world.atkr_parties.push(curTeam);
-			curTeam = new Party();
+			curTeam = new Party([], app_world.atkr_parties.length);
 			lastTeamNum = curTeamNum;
 		}
 		var num_copies = row.cells[1].children[0].valueAsNumber;
@@ -828,6 +816,10 @@ function main(){
 	}
 	app_world.atkr_parties.push(curTeam);
 	
+	for (var i = 0; i < app_world.atkr_parties.length; i++){
+		document.getElementById("battleLog").rows[0].insertCell(i + 1).innerHTML = i + 1;
+	}
+	
 	// 2. Loading defender
 	table = document.getElementById("dfdrsInfo");
 	var row = table.rows[1];
@@ -839,7 +831,8 @@ function main(){
 								row.cells[5].children[0].value, 
 								row.cells[6].children[0].value, 
 								row.cells[7].children[0].valueAsNumber);
-	app_world.dfdr_party = new Party([app_dfdr]);
+	app_world.dfdr_party = new Party([], -1);
+	app_world.dfdr_party.add(app_dfdr);
 	
 	// 3. Set other parameters
 	app_world.weather = mainForm['weather'].value.toUpperCase();
@@ -885,12 +878,75 @@ function main(){
 	newRowForTable("pokemonSummary", ["Enemy", pkm.name, pkm.HP, pkm.energy, pkm.total_damage_output,
 							dur, Math.round(pkm.total_damage_output/dur*100)/100,
 							pkm.total_fmove_damage_output, pkm.energy + pkm.total_energy_overcharged]);
+	
+	console.log(app_world);
 }
  
  
 function fb_print(msg){
 	document.getElementById("feedback").innerHTML += msg + "<br />";
 }
+
+
+
+
+function checkAndPush(rowData){
+	for (var i = 1; i < rowData.length; i++){
+		if (rowData[i] != " "){
+			newRowForTable("battleLog", rowData);
+			return;
+		}
+	}
+}
+
+
+
+function addBattleLog(events){
+	var table = document.getElementById("battleLog");
+	var numTeam = table.rows[0].cells.length - 2;
+	var Enter_rowData = [Math.round((events[0]).t/10)/100];
+	var AtkrHurt_rowData = [Math.round((events[0]).t/10)/100];
+	var DfdrHurt_rowData = [Math.round((events[0]).t/10)/100];
+	var AtkrDogde_rowData = [Math.round((events[0]).t/10)/100];
+	
+	// Time, Team 1, Team 2, ..., Defender
+	for (var i = 1; i < numTeam + 2; i++){
+		Enter_rowData.push(" ");
+		AtkrHurt_rowData.push(" ");
+		DfdrHurt_rowData.push(" ");
+		AtkrDogde_rowData.push(" ");
+	}
+	
+	var e = 0;
+	for (var i = 0; i < events.length; i++){
+		e = events[i];
+		if (e.name == "Enter"){
+			if (e.subject.party_index == -1)
+				Enter_rowData[numTeam + 1] = e.subject.name;
+			else
+				Enter_rowData[e.subject.party_index + 1] = e.subject.name;
+		}else if (e.name == "Hurt"){
+			if (e.subject.raidTier == 0){ // atkrHurt
+				AtkrHurt_rowData[e.subject.party_index + 1] = e.subject.HP + '/' + e.subject.maxHP;
+				AtkrHurt_rowData[numTeam + 1] = e.move.name;
+			} else{ // dfdrHurt
+				DfdrHurt_rowData[numTeam + 1] = e.subject.HP + '/' + e.subject.maxHP;
+				DfdrHurt_rowData[e.object.party_index + 1] = e.move.name;
+			}
+		}else if (e.name == "Dodge"){
+			AtkrDogde_rowData[e.subject.party_index + 1] = "dodge";
+		}
+	}
+	
+	checkAndPush(Enter_rowData);
+	checkAndPush(AtkrHurt_rowData);
+	checkAndPush(DfdrHurt_rowData);
+	checkAndPush(AtkrDogde_rowData);
+}
+
+
+
+
 
 function clearTable(TableID, numRowsToKeep){
 	var table = document.getElementById(TableID);

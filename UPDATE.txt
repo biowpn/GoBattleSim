@@ -1,0 +1,31 @@
+TODO in v0.4
+	- Prototype to support batch simluations
+	- Support averaging performance of a single matchup
+
+v0.3.3
+	1. Fixed a bug causing battle log sometimes display "undefined"
+
+v0.3.2
+	1. Fixed a bug causing defender to beat dead attackers
+
+
+v0.3.1
+	1. Implemented dodge Charged Move
+	2. Improve event handling logic to support dodging
+
+
+v0.2.5
+	1. Fixed rounding issues
+
+
+v0.2.4
+	1. More summary statistics available
+	2. Fixed cloudy weather issue
+
+
+v0.2.3
+	1. Improved UI
+
+
+v0.2.2
+	1. Updated UI to support multi-team battle
