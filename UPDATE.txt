@@ -2,8 +2,11 @@ TODO in v0.4
 	- Prototype to support batch simluations
 	- Support averaging performance of a single matchup
 
+v0.3.4
+	1.Fixed a bug causing events handling incorrect when switching attacker
+
 v0.3.3
-	1. Fixed a bug causing battle log sometimes display "undefined"
+	1. Fixed a bug causing battle log sometimes displays "undefined"
 
 v0.3.2
 	1. Fixed a bug causing defender to beat dead attackers

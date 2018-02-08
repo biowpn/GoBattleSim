@@ -335,14 +335,13 @@ Party.prototype.add = function(pkm){
 }
 
 // Switch the active Pokemon to the next Pokemon in the party
-// If success, returns true. Otherwise, active Pokemon will be set to 0 and returns false
+// Returns true if successful or false otherwise
 Party.prototype.next_up = function (){
 	if (this.active_idx + 1 < this.list.length){
 		this.active_idx++;
 		this.active_pkm = this.list[this.active_idx];
 		return true;
 	}else{
-		this.active_pkm = 0;
 		return false; 
 	}
 }
@@ -614,6 +613,7 @@ World.prototype.battle = function (){
 		cur_event = this.tline.dequeue();
 		t = cur_event.t;
 		
+		// 1. First process the event
 		if (cur_event.name == "AtkrFree"){
 			actions = this.atkr_choose(cur_event.subject, t);
 			this.enqueueActions(cur_event.subject, dfdr, t, actions);
@@ -641,16 +641,7 @@ World.prototype.battle = function (){
 			throw "Unrecognized Event Type:" + cur_event.name;
 		}
 		
-		if (t == this.tline.list[0].t){ // process the next event if it's at the same time
-			continue;
-		}else if (this.print_log_on){
-			if (elog.length > 0)
-				addBattleLog(elog);
-			elog = [];
-		}
-		
-		
-		// Checking if some attacker fainted
+		// 2. Check if some attacker fainted
 		for (var i = 0; i < this.atkr_parties.length; i++){
 			var old_pkm = this.atkr_parties[i].active_pkm;
 			if (old_pkm.HP <= 0){
@@ -662,12 +653,14 @@ World.prototype.battle = function (){
 					for (var i = 0; i < this.tline.list.length; i++){
 						// Redirect queued damage to newcomer
 						var e = this.tline.list[i];
-						if (e.name == "Hurt" && e.object == old_pkm){
-							e.object = new_pkm;
-							e.dmg = damage(e.subject, new_pkm, e.move, this.weather);
+						if (e.name == "Hurt" && e.subject.party_index == old_pkm.party_index){
+							e.subject = new_pkm;
+							e.dmg = damage(e.object, new_pkm, e.move, this.weather);
+							new_tline.enqueue(e);
 						}
 						// Erase the queued events of previous active attacker
-						if (e.subject !== old_pkm){
+						if (e.subject.party_index != old_pkm.party_index && 
+							     e.object.party_index != old_pkm.party_index){
 							new_tline.enqueue(e);
 						}
 					}
@@ -678,7 +671,7 @@ World.prototype.battle = function (){
 			}
 		}
 		
-		// Checking if defender fainted
+		// 3. Check if the defender fainted
 		if (dfdr.HP <= 0){
 			dfdr.time_leave_ms = t;
 			if (this.dfdr_party.next_up()){
@@ -689,8 +682,18 @@ World.prototype.battle = function (){
 			}
 		}
 		
+		
+		// 4. Process the next event if it's at the same time before deciding whether the battle has ended
+		if (this.tline.list && t == this.tline.list[0].t){ 
+			continue;
+		}else if (this.print_log_on){
+			if (elog.length > 0)
+				addBattleLog(elog);
+			elog = [];
+		}
 	}
 	
+	// Battle has ended
 	this.battle_lengths.push(t);
 	
 	for (var i = 0; i < this.atkr_parties.length; i++){
@@ -700,8 +703,6 @@ World.prototype.battle = function (){
 	
 	if (this.dfdr_party.active_pkm.time_leave_ms == 0)
 		this.dfdr_party.active_pkm.time_leave_ms = t;
-	
-
 }
 
 /* End of Class <World> */
