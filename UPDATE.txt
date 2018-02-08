@@ -2,6 +2,10 @@ TODO in v0.4
 	- Prototype to support batch simluations
 	- Support averaging performance of a single matchup
 
+v0.3.5
+	1. Fixed a bug causing the earlier fainted team's last Pokemon continue to do damage after death;
+	2. Improved Pokemon switching logic to support smoother switches.
+
 v0.3.4
 	1.Fixed a bug causing events handling incorrect when switching attacker
 

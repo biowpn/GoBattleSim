@@ -315,7 +315,7 @@ function Party(pkm_list, index){
 	this.list = [];
 	this.index = index;
 	this.active_idx = -1;
-	this.active_pkm = 0;
+	this.active_pkm = null;
 	for(var i = 0; i < pkm_list.length; i++){
 		this.add(pkm_list[i]);
 	}
@@ -328,20 +328,22 @@ Party.prototype.add = function(pkm){
 	}
 	this.list.push(pkm);
 	pkm.party_index = this.index;
-	if (this.active_pkm == 0) {
+	if (!this.active_pkm) {
 		this.active_pkm = pkm;
 		this.active_idx = 0;
 	}
 }
 
 // Switch the active Pokemon to the next Pokemon in the party
-// Returns true if successful or false otherwise
+// Returns true if successful. Otherwise sets active_pkm to null
 Party.prototype.next_up = function (){
 	if (this.active_idx + 1 < this.list.length){
 		this.active_idx++;
 		this.active_pkm = this.list[this.active_idx];
 		return true;
 	}else{
+		this.active_idx = -1;
+		this.active_pkm = null;
 		return false; 
 	}
 }
@@ -578,7 +580,8 @@ World.prototype.initial_dfdr_choose = function (dfdr){
 // Check if any of the atkrs on the field is alive
 World.prototype.any_atkr_alive = function (){
 	for (var p = 0; p < this.atkr_parties.length; p++){
-		if (this.atkr_parties[p].active_pkm.HP > 0){
+		var pkm = this.atkr_parties[p].active_pkm;
+		if (pkm && pkm.HP > 0){
 			return true;
 		}
 	}
@@ -644,30 +647,36 @@ World.prototype.battle = function (){
 		// 2. Check if some attacker fainted
 		for (var i = 0; i < this.atkr_parties.length; i++){
 			var old_pkm = this.atkr_parties[i].active_pkm;
-			if (old_pkm.HP <= 0){
+			if (old_pkm && old_pkm.HP <= 0){
 				old_pkm.time_leave_ms = t;
+				
+				var new_tline = new Timeline();
 				if (this.atkr_parties[i].next_up()){ 
-					// Successfuly switched to the next Pokemon in the party
+					// If there's a newcomer, need to redirect queued damage to the it
 					var new_pkm = this.atkr_parties[i].active_pkm;
-					var new_tline = new Timeline();
 					for (var i = 0; i < this.tline.list.length; i++){
-						// Redirect queued damage to newcomer
 						var e = this.tline.list[i];
 						if (e.name == "Hurt" && e.subject.party_index == old_pkm.party_index){
 							e.subject = new_pkm;
 							e.dmg = damage(e.object, new_pkm, e.move, this.weather);
-							new_tline.enqueue(e);
-						}
-						// Erase the queued events of previous active attacker
-						if (e.subject.party_index != old_pkm.party_index && 
-							     e.object.party_index != old_pkm.party_index){
-							new_tline.enqueue(e);
 						}
 					}
-					this.tline = new_tline;
-					this.tline.enqueue(new Event("Enter", t + SWITCHING_DELAY_MS, new_pkm, 0,0,0,0));
-					this.tline.enqueue(new Event("AtkrFree", t + SWITCHING_DELAY_MS + 100, new_pkm, 0,0,0,0));
+					// And ask for the newcomer's decision
+					new_tline.enqueue(new Event("Enter", t + SWITCHING_DELAY_MS, new_pkm, 0,0,0,0));
+					new_tline.enqueue(new Event("AtkrFree", t + SWITCHING_DELAY_MS + 100, new_pkm, 0,0,0,0));
+				} 
+				
+				// Erase the queued events of previous active attacker
+				for (var i = 0; i < this.tline.list.length; i++){
+					var e = this.tline.list[i];
+					if (e.subject.party_index != old_pkm.party_index && 
+							 e.object.party_index != old_pkm.party_index){
+						new_tline.enqueue(e);
+					}
 				}
+				
+				// Load the filtered tline
+				this.tline = new_tline;
 			}
 		}
 		
@@ -676,6 +685,7 @@ World.prototype.battle = function (){
 			dfdr.time_leave_ms = t;
 			if (this.dfdr_party.next_up()){
 				// Successfuly switched to the next defender in the gym
+				dfdr = this.dfdr_party.active_pkm;
 				this.battle_lengths.push(t);
 				t = 0;
 				this.tline = new Timeline();
@@ -697,12 +707,13 @@ World.prototype.battle = function (){
 	this.battle_lengths.push(t);
 	
 	for (var i = 0; i < this.atkr_parties.length; i++){
-		if (this.atkr_parties[i].active_pkm.time_leave_ms == 0)
+		var pkm = this.atkr_parties[i].active_pkm;
+		if (pkm && pkm.time_leave_ms == 0)
 			this.atkr_parties[i].active_pkm.time_leave_ms = t;
 	}
 	
-	if (this.dfdr_party.active_pkm.time_leave_ms == 0)
-		this.dfdr_party.active_pkm.time_leave_ms = t;
+	if (dfdr.time_leave_ms == 0)
+		dfdr.time_leave_ms = t;
 }
 
 /* End of Class <World> */
