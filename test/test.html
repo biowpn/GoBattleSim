@@ -1,0 +1,15 @@
+<input name="car" list="anrede" />
+<datalist id="anrede"></datalist>
+
+<script type="text/javascript">
+  var mycars = new Array();
+  mycars[0]='Herr';
+  mycars[1]='Frau';
+
+  var options = '';
+
+  for(var i = 0; i < mycars.length; i++)
+    options += '<option value="'+mycars[i]+'" />';
+
+  document.getElementById('anrede').innerHTML = options;
+</script>

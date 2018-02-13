@@ -1,0 +1,12 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $.getJSON('https://s3.us-east-2.amazonaws.com/gamepress-json/pogo/pokemon-list/en.json',
+            function(data) {
+                for(var i = 0; i < data.length; i++){
+                    var currPokemon = data[i];
+                    console.log("POKEMON: " + currPokemon.title_1 + " ATK: " + currPokemon.atk + " DEF: " + currPokemon.def + " STA: " + currPokemon.sta);
+                }
+            });
+    });
+</script>

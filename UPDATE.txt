@@ -1,6 +1,7 @@
-TODO in v0.4
-	- Prototype to support batch simluations
-	- Support averaging performance of a single matchup
+v1.0.0
+	1. Beta release on GamePress
+	2. UI/partly core logic rework
+	3. Team will revive and rejoin after all fainted
 
 v0.3.5
 	1. Fixed a bug causing the earlier fainted team's last Pokemon continue to do damage after death;
