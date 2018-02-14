@@ -1,14 +1,7 @@
 /*
 	GoBattlerSim
-	
-	- A next-generation Pokemon GO battler simulator
-	- Supports:
-		- Full Gym of six battle
-		- Team of six battle
-		- Multi-player battle
-		- Highly customizable configuration
-		- Professional performance analytic metrics
-	
+		- A next-generation Pokemon GO battler simulator
+
 	Author: biowp (https://github.com/ymenghank), inspired by Felix's BattleSim (https://github.com/doublefelix921/battlesim)
 */
 
@@ -43,7 +36,7 @@ const TIMELIMIT_RAID_MS = [180000, 180000, 180000, 180000, 300000];
  // but this seems to be the simplest way to import all the Pokemon/move data to the program
  // each GM update, this section will have to be updated, luckily I have a nice python program to help to generate the following section of codes
  // (you didn't think I typed them all, RIGHT?)
- // Will improve this section later
+ // Will rewrite this section later
  
 const FAST_MOVE_DATA = [{"name": "fury cutter", "moveType": "f", "power": 3.0, "pokeType": "bug", "energyDelta": 6, "dws": 100, "duration": 400}, {"name": "bug bite", "moveType": "f", "power": 5.0, "pokeType": "bug", "energyDelta": 6, "dws": 250, "duration": 500}, {"name": "bite", "moveType": "f", "power": 6.0, "pokeType": "dark", "energyDelta": 4, "dws": 300, "duration": 500}, {"name": "sucker punch", "moveType": "f", "power": 7.0, "pokeType": "dark", "energyDelta": 8, "dws": 300, "duration": 700}, {"name": "dragon breath", "moveType": "f", "power": 6.0, "pokeType": "dragon", "energyDelta": 4, "dws": 300, "duration": 500}, {"name": "thunder shock", "moveType": "f", "power": 5.0, "pokeType": "electric", "energyDelta": 8, "dws": 300, "duration": 600}, {"name": "spark", "moveType": "f", "power": 6.0, "pokeType": "electric", "energyDelta": 9, "dws": 300, "duration": 700}, {"name": "low kick", "moveType": "f", "power": 6.0, "pokeType": "fighting", "energyDelta": 6, "dws": 300, "duration": 600}, {"name": "karate chop", "moveType": "f", "power": 8.0, "pokeType": "fighting", "energyDelta": 10, "dws": 600, "duration": 800}, {"name": "ember", "moveType": "f", "power": 10.0, "pokeType": "fire", "energyDelta": 10, "dws": 600, "duration": 1000}, {"name": "wing attack", "moveType": "f", "power": 8.0, "pokeType": "flying", "energyDelta": 9, "dws": 550, "duration": 800}, {"name": "peck", "moveType": "f", "power": 10.0, "pokeType": "flying", "energyDelta": 10, "dws": 450, "duration": 1000}, {"name": "lick", "moveType": "f", "power": 5.0, "pokeType": "ghost", "energyDelta": 6, "dws": 200, "duration": 500}, {"name": "shadow claw", "moveType": "f", "power": 9.0, "pokeType": "ghost", "energyDelta": 6, "dws": 250, "duration": 700}, {"name": "vine whip", "moveType": "f", "power": 7.0, "pokeType": "grass", "energyDelta": 6, "dws": 350, "duration": 600}, {"name": "razor leaf", "moveType": "f", "power": 13.0, "pokeType": "grass", "energyDelta": 7, "dws": 600, "duration": 1000}, {"name": "mud shot", "moveType": "f", "power": 5.0, "pokeType": "ground", "energyDelta": 7, "dws": 350, "duration": 600}, {"name": "ice shard", "moveType": "f", "power": 12.0, "pokeType": "ice", "energyDelta": 12, "dws": 600, "duration": 1200}, {"name": "frost breath", "moveType": "f", "power": 10.0, "pokeType": "ice", "energyDelta": 8, "dws": 450, "duration": 900}, {"name": "quick attack", "moveType": "f", "power": 8.0, "pokeType": "normal", "energyDelta": 10, "dws": 250, "duration": 800}, {"name": "scratch", "moveType": "f", "power": 6.0, "pokeType": "normal", "energyDelta": 4, "dws": 300, "duration": 500}, {"name": "tackle", "moveType": "f", "power": 5.0, "pokeType": "normal", "energyDelta": 5, "dws": 300, "duration": 500}, {"name": "pound", "moveType": "f", "power": 7.0, "pokeType": "normal", "energyDelta": 6, "dws": 340, "duration": 600}, {"name": "cut", "moveType": "f", "power": 5.0, "pokeType": "normal", "energyDelta": 5, "dws": 300, "duration": 500}, {"name": "poison jab", "moveType": "f", "power": 10.0, "pokeType": "poison", "energyDelta": 7, "dws": 200, "duration": 800}, {"name": "acid", "moveType": "f", "power": 9.0, "pokeType": "poison", "energyDelta": 8, "dws": 400, "duration": 800}, {"name": "psycho cut", "moveType": "f", "power": 5.0, "pokeType": "psychic", "energyDelta": 8, "dws": 370, "duration": 600}, {"name": "rock throw", "moveType": "f", "power": 12.0, "pokeType": "rock", "energyDelta": 7, "dws": 500, "duration": 900}, {"name": "metal claw", "moveType": "f", "power": 8.0, "pokeType": "steel", "energyDelta": 7, "dws": 430, "duration": 700}, {"name": "bullet punch", "moveType": "f", "power": 9.0, "pokeType": "steel", "energyDelta": 10, "dws": 300, "duration": 900}, {"name": "water gun", "moveType": "f", "power": 5.0, "pokeType": "water", "energyDelta": 5, "dws": 300, "duration": 500}, {"name": "splash", "moveType": "f", "power": 0, "pokeType": "water", "energyDelta": 20, "dws": 1030, "duration": 1730}, {"name": "water gun fast blas", "moveType": "f", "power": 10.0, "pokeType": "water", "energyDelta": 6, "dws": 300, "duration": 1000}, {"name": "mud slap", "moveType": "f", "power": 15.0, "pokeType": "ground", "energyDelta": 12, "dws": 1150, "duration": 1400}, {"name": "zen headbutt", "moveType": "f", "power": 12.0, "pokeType": "psychic", "energyDelta": 10, "dws": 850, "duration": 1100}, {"name": "confusion", "moveType": "f", "power": 20.0, "pokeType": "psychic", "energyDelta": 15, "dws": 600, "duration": 1600}, {"name": "poison sting", "moveType": "f", "power": 5.0, "pokeType": "poison", "energyDelta": 7, "dws": 375, "duration": 600}, {"name": "bubble", "moveType": "f", "power": 12.0, "pokeType": "water", "energyDelta": 14, "dws": 750, "duration": 1200}, {"name": "feint attack", "moveType": "f", "power": 10.0, "pokeType": "dark", "energyDelta": 9, "dws": 750, "duration": 900}, {"name": "steel wing", "moveType": "f", "power": 11.0, "pokeType": "steel", "energyDelta": 6, "dws": 500, "duration": 800}, {"name": "fire fang", "moveType": "f", "power": 11.0, "pokeType": "fire", "energyDelta": 8, "dws": 640, "duration": 900}, {"name": "rock smash", "moveType": "f", "power": 15.0, "pokeType": "fighting", "energyDelta": 10, "dws": 550, "duration": 1300}, {"name": "transform", "moveType": "f", "power": 0, "pokeType": "normal", "energyDelta": 0, "dws": 300, "duration": 2230}, {"name": "counter", "moveType": "f", "power": 12.0, "pokeType": "fighting", "energyDelta": 8, "dws": 700, "duration": 900}, {"name": "powder snow", "moveType": "f", "power": 6.0, "pokeType": "ice", "energyDelta": 15, "dws": 850, "duration": 1000}, {"name": "charge beam", "moveType": "f", "power": 8.0, "pokeType": "electric", "energyDelta": 15, "dws": 850, "duration": 1100}, {"name": "volt switch", "moveType": "f", "power": 20.0, "pokeType": "electric", "energyDelta": 25, "dws": 1800, "duration": 2300}, {"name": "dragon tail", "moveType": "f", "power": 15.0, "pokeType": "dragon", "energyDelta": 9, "dws": 850, "duration": 1100}, {"name": "air slash", "moveType": "f", "power": 14.0, "pokeType": "flying", "energyDelta": 10, "dws": 1000, "duration": 1200}, {"name": "infestation", "moveType": "f", "power": 10.0, "pokeType": "bug", "energyDelta": 14, "dws": 850, "duration": 1100}, {"name": "struggle bug", "moveType": "f", "power": 15.0, "pokeType": "bug", "energyDelta": 0, "dws": 1200, "duration": 1500}, {"name": "astonish", "moveType": "f", "power": 8.0, "pokeType": "ghost", "energyDelta": 14, "dws": 700, "duration": 1100}, {"name": "hex", "moveType": "f", "power": 10.0, "pokeType": "ghost", "energyDelta": 15, "dws": 1000, "duration": 1200}, {"name": "iron tail", "moveType": "f", "power": 15.0, "pokeType": "steel", "energyDelta": 7, "dws": 850, "duration": 1100}, {"name": "fire spin", "moveType": "f", "power": 14.0, "pokeType": "fire", "energyDelta": 10, "dws": 850, "duration": 1100}, {"name": "bullet seed", "moveType": "f", "power": 8.0, "pokeType": "grass", "energyDelta": 14, "dws": 850, "duration": 1100}, {"name": "extrasensory", "moveType": "f", "power": 12.0, "pokeType": "psychic", "energyDelta": 12, "dws": 850, "duration": 1100}, {"name": "snarl", "moveType": "f", "power": 12.0, "pokeType": "dark", "energyDelta": 12, "dws": 850, "duration": 1100}, {"name": "hidden power", "moveType": "f", "power": 15.0, "pokeType": "normal", "energyDelta": 15, "dws": 1100, "duration": 1500}, {"name": "take down", "moveType": "f", "power": 8.0, "pokeType": "normal", "energyDelta": 10, "dws": 950, "duration": 1200}, {"name": "waterfall", "moveType": "f", "power": 16.0, "pokeType": "water", "energyDelta": 8, "dws": 950, "duration": 1200}, {"name": "yawn", "moveType": "f", "power": 0, "pokeType": "normal", "energyDelta": 15, "dws": 1400, "duration": 1700}, {"name": "present", "moveType": "f", "power": 5.0, "pokeType": "normal", "energyDelta": 20, "dws": 1100, "duration": 1300}];
 
@@ -610,10 +603,9 @@ World.prototype.enqueueActions = function(pkm, pkm_hurt, t, actions){
 
 // Gym Defender or Raid Boss moves at the start of a battle
 World.prototype.initial_dfdr_choose = function (dfdr){
-	this.tline.enqueue(new Event("Enter", 0, dfdr, 0, 0, 0, 0));
 	this.dfdr_use_move(dfdr, dfdr.fmove, 1000);
-	this.dfdr_use_move(dfdr, dfdr.fmove, 2000);
-	this.tline.enqueue(new Event("DfdrFree", 2000, dfdr, 0, dfdr.fmove, 0, 0));
+	this.dfdr_use_move(dfdr, dfdr.fmove, 1000 + Math.max(1000, dfdr.fmove.duration));
+	this.tline.enqueue(new Event("DfdrFree", 1000 + Math.max(1000, dfdr.fmove.duration), dfdr, 0, dfdr.fmove, 0, 0));
 }
 
 // Check if any of the atkrs on the field is alive
@@ -636,11 +628,11 @@ World.prototype.battle = function (){
 	var actions = [];
 	var dfdr = this.dfdr_party.active_pkm;
 	
-	this.initial_dfdr_choose(dfdr);
+	this.tline.enqueue(new Event("Enter", 0, dfdr, 0, 0, 0, 0));
+	this.tline.enqueue(new Event("DfdrFree", 0, dfdr, 0, 0, 0, 0));
 	for (var p = 0; p < this.atkr_parties.length; p++){
 		var atkr = this.atkr_parties[p].active_pkm;
 		this.tline.enqueue(new Event("Enter", 0, atkr, 0, 0, 0, 0));
-		this.tline.enqueue(new Event("AtkrFree", 100, atkr, 0,0,0,0));
 	}
 	
 	while (dfdr.HP > 0 && this.any_atkr_alive() && t < this.timelimit_ms){
@@ -652,7 +644,10 @@ World.prototype.battle = function (){
 			actions = this.atkr_choose(cur_event.subject, t);
 			this.enqueueActions(cur_event.subject, dfdr, t, actions);
 		}else if (cur_event.name == "DfdrFree"){
-			this.dfdr_choose(cur_event.subject, t, cur_event.move);
+			if (t > 0)
+				this.dfdr_choose(cur_event.subject, t, cur_event.move);
+			else	
+				this.initial_dfdr_choose(dfdr);
 		}else if (cur_event.name == "Hurt"){
 			if (cur_event.subject.active){
 				cur_event.subject.take_damage(cur_event.dmg);
@@ -664,6 +659,8 @@ World.prototype.battle = function (){
 		}else if (cur_event.name == "Enter"){
 			cur_event.subject.time_enter_ms = t;
 			cur_event.subject.active = true;
+			if (cur_event.subject.raidTier == 0) // Atkr
+				this.tline.enqueue(new Event("AtkrFree", t + 100, atkr, 0,0,0,0));
 			elog.push(cur_event);
 		}else if (cur_event.name == "Dodge"){
 			e = this.tline.nextHurtEventOf(cur_event.subject);
@@ -711,9 +708,7 @@ World.prototype.battle = function (){
 					}
 				}
 				this.tline = new_tline;
-				// Ask for the newcomer's decision
 				this.tline.enqueue(new Event("Enter", t + SWITCHING_DELAY_MS + delay, new_pkm, 0,0,0,0));
-				this.tline.enqueue(new Event("AtkrFree", t + SWITCHING_DELAY_MS + delay + 100, new_pkm, 0,0,0,0));
 			}
 		}
 		

@@ -227,6 +227,8 @@ function main(){
 	else if (document.getElementById("battleMode").value == "gym")
 		app_world.set_battle_mode(-1);
 	
+	app_world.weather = document.getElementById("weather").value;
+	
 	if (2 <= totalAtkrTeamCount && totalAtkrTeamCount <= 3)
 		app_world.log_style = 2;
 	else
