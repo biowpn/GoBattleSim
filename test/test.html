@@ -1,15 +1,51 @@
-<input name="car" list="anrede" />
-<datalist id="anrede"></datalist>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript">
+	
+function getPokemonType1FromString(S){
+	var L = S.split(",");
+	return L[0].trim().toLowerCase();
+}
+
+function getPokemonType2FromString(S){
+	var L = S.split(",");
+	if (L.length > 1)
+		return L[1].trim().toLowerCase();
+	else
+		return "none";
+}
+
+function getMovesFromString(S){
+	var L = S.split(",");
+	var res = [];
+	for (var i = 0; i < L.length; i++){
+		res.push(L[i].trim().toLowerCase());
+	}
+	return res;
+}
+
+</script>
 
 <script type="text/javascript">
-  var mycars = new Array();
-  mycars[0]='Herr';
-  mycars[1]='Frau';
+    $(document).ready(function() {
+        $.getJSON('https://s3.us-east-2.amazonaws.com/gamepress-json/pogo/pokemon-data-full.json',
+            function(data) {
+                for(var i = 0; i < data.length; i++){
+                    var pkm = {
+						dex : parseInt(data[i].number),
+						name : data[i].title_1.toLowerCase(),
+						pokeType1 : getPokemonType1FromString(data[i].field_pokemon_type),
+						pokeType2 : getPokemonType2FromString(data[i].field_pokemon_type),
+						baseAtk : parseInt(data[i].atk),
+						baseDef : parseInt(data[i].def),
+						baseStm : parseInt(data[i].sta),
+						fastMoves : getMovesFromString(data[i].field_primary_moves),
+						chargedMoves : getMovesFromString(data[i].field_secondary_moves),
+						fastMoves_legacy : getMovesFromString(data[i].field_legacy_quick_moves),
+						chargedMoves_legacy : getMovesFromString(data[i].field_legacy_charge_moves)
+					};
+					console.log(pkm);
+                }
+            });
+    });
 
-  var options = '';
-
-  for(var i = 0; i < mycars.length; i++)
-    options += '<option value="'+mycars[i]+'" />';
-
-  document.getElementById('anrede').innerHTML = options;
 </script>
