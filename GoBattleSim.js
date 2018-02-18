@@ -83,7 +83,7 @@ function get_species_index_by_name(name) {
 		++i;
 	}
 	if (i == POKEMON_SPECIES_DATA.length)
-		throw "Unable to create Pokemon <" + name + ">: Pokemon Species Not Found";
+		throw new Error("<" + name + ">: Pokemon Species Not Found");
 	return i;
  }
  
@@ -96,11 +96,8 @@ function get_fmove_object_by_name(name){
 		++i;
 	}
 	if (i == FAST_MOVE_DATA.length)
-		throw "Unable to create Fast Move <" + name + ">: Move Not Found";
-	
-	var fmove = new Move(FAST_MOVE_DATA[i].name, 'f', FAST_MOVE_DATA[i]['pokeType'], FAST_MOVE_DATA[i]['power'], 
-						FAST_MOVE_DATA[i]['energyDelta'], FAST_MOVE_DATA[i]['duration'], FAST_MOVE_DATA[i]['dws']);
-	return fmove;
+		throw new Error("Fast Move <" + name + ">: Move Not Found");
+	return FAST_MOVE_DATA[i];
  }
  
 function get_cmove_object_by_name(name){
@@ -112,11 +109,8 @@ function get_cmove_object_by_name(name){
 		++i;
 	}
 	if (i == CHARGED_MOVE_DATA.length)
-		throw "Unable to create Charged Move <" + name + ">: Move Not Found";
-	
-	var cmove = new Move(CHARGED_MOVE_DATA[i].name, 'c', CHARGED_MOVE_DATA[i]['pokeType'], CHARGED_MOVE_DATA[i]['power'], 
-						CHARGED_MOVE_DATA[i]['energyDelta'], CHARGED_MOVE_DATA[i]['duration'], CHARGED_MOVE_DATA[i]['dws']);
-	return cmove;
+		throw new Error("Charged Move <" + name + ">: Move Not Found");
+	return CHARGED_MOVE_DATA[i];
  }
 
  
@@ -128,64 +122,45 @@ function get_cmove_object_by_name(name){
  
  
 
-/* Class <Move> */
-// constructor
-function Move(name, moveType, pokeType, power, energyDelta, duration, dws){
-	this.name = name;
-	this.moveType = moveType;
-	this.pokeType = pokeType;
-	this.power = power;
-	this.energyDelta = energyDelta;
-	this.duration = duration;
-	this.dws = dws;
-}
-/* End of Class <Move> */
-
-
 /* Class <Pokemon> and <PokemonSpecies> */
 // constructor
-function Pokemon(speciesName, IVs, level, fastMove, chargeMove, raidTier){
-	var i = get_species_index_by_name(speciesName);
-	this.dex = POKEMON_SPECIES_DATA[i]['dex']
-	this.name = POKEMON_SPECIES_DATA[i]['name'];
+function Pokemon(pd){
+	var i = get_species_index_by_name(pd.species_name);
+	this.dex = POKEMON_SPECIES_DATA[i]['dex'];
+	this.species_name = POKEMON_SPECIES_DATA[i]['name'];
 	this.pokeType1 = POKEMON_SPECIES_DATA[i]['pokeType1'];
 	this.pokeType2 = POKEMON_SPECIES_DATA[i]['pokeType2'];
 	this.baseAtk = POKEMON_SPECIES_DATA[i]['baseAtk'];
 	this.baseDef = POKEMON_SPECIES_DATA[i]['baseDef'];
-	this.baseStm = POKEMON_SPECIES_DATA[i]['baseStm'];					
-						
-	this.ivAtk = IVs[0];
-	this.ivDef = IVs[1];
-	this.ivStm = IVs[2];
-	this.cpm = CPM_TABLE[Math.round(2*level-2)];
+	this.baseStm = POKEMON_SPECIES_DATA[i]['baseStm'];
+	this.fastMoves = POKEMON_SPECIES_DATA[i]['fastMoves'];
+	this.chargedMoves = POKEMON_SPECIES_DATA[i]['chargedMoves'];
 	
-	if (fastMove instanceof Move){
-		this.fmove = fastMove;
-	}else{
-		this.fmove = get_fmove_object_by_name(fastMove);
-	}
-	if (chargeMove instanceof Move){
-		this.cmove = chargeMove;
-	}else{
-		this.cmove = get_cmove_object_by_name(chargeMove);
-	}
+	this.name = pd.nickname || this.species_name;
+	this.ivAtk = pd.atkiv;
+	this.ivDef = pd.defiv;
+	this.ivStm = pd.stmiv;
+	this.cpm = CPM_TABLE[Math.round(2*pd.level-2)];
+	this.fmove = pd.fmove_obj || get_fmove_object_by_name(pd.fmove);
+	this.cmove = pd.cmove_obj || get_cmove_object_by_name(pd.cmove);
 	
 	this.Atk = (this.baseAtk + this.ivAtk) * this.cpm;
 	this.Def = (this.baseDef + this.ivDef) * this.cpm;
 	this.Stm = (this.baseStm + this.ivStm) * this.cpm;
-	this.raidTier = raidTier;
-	if (raidTier < 0) { // gym defender
+	this.raidTier = pd.raid_tier;
+	if (this.raidTier < 0) { // gym defender
 		this.maxHP = 2 * Math.floor(this.Stm);
-	} else if (raidTier == 0){ // attacker
+	} else if (this.raidTier == 0){ // attacker
 		this.maxHP = Math.floor(this.Stm);
 	} else {// raid boss
-		this.cpm = RAID_BOSS_CPM[raidTier - 1];
+		this.cpm = RAID_BOSS_CPM[this.raidTier - 1];
 		this.Atk = (this.baseAtk + 15) * this.cpm;
 		this.Def = (this.baseDef + 15) * this.cpm;
-		this.maxHP = RAID_BOSS_HP[raidTier - 1];
+		this.maxHP = RAID_BOSS_HP[this.raidTier - 1];
 	}
-	this.dodgeCMoves = false;
-	this.party_index = -1;
+	this.dodgeStrat = pd.dodge || false;
+	this.party_index = pd.team_idx;
+	
 	this.active = false;
 	this.reset_stats();
 }
@@ -193,16 +168,13 @@ function Pokemon(speciesName, IVs, level, fastMove, chargeMove, raidTier){
 // Reset Pokemon battle stats for a new battle
 Pokemon.prototype.reset_stats = function(){
 	this.heal();
-
 	// Some statistics for performance analysis
 	this.time_enter_ms = 0;
 	this.time_leave_ms = 0;
 	this.total_time_active_ms = 0;
 	this.num_deaths = 0;
-	
 	this.total_damage_output = 0;
 	this.total_fmove_damage_output = 0;
-	
 	this.total_energy_gained = 0;
 	this.total_energy_gained_from_damage = 0;
 	this.total_energy_overcharged = 0;
@@ -272,17 +244,12 @@ Pokemon.prototype.get_statistics = function(){
 
 /* Class <Party> */
 // constructor
-function Party(pkm_list, index){
-	pkm_list = pkm_list || [];
-	
+function Party(index){
 	this.list = [];
 	this.index = index;
 	this.active_idx = -1;
 	this.active_pkm = null;
 	this.num_rejoin = 0;
-	for(var i = 0; i < pkm_list.length; i++){
-		this.add(pkm_list[i]);
-	}
 }
 
 // Add a pokemon to the party
@@ -410,32 +377,50 @@ Timeline.prototype.nextHurtEventOf = function(pkm){
 // constructor
 function World(){
 	this.atkr_parties = [];
-	this.dfdr_party = new Party();
-	this.timelimit_ms = 0;
-	this.weather = "EXTREME";
+	this.dfdr = null;
 	this.tline = new Timeline();
-	this.battle_lengths = [];
+	this.battle_length = 0;
 	this.log = [];
-	this.log_style = 0; //By default, logs are off.
 }
 
-// Set the timelimit_ms
-World.prototype.set_battle_mode = function (raidTier){
-	if (raidTier == -1)
+// Takes a configuration dictionary object "cfg" for sim parameters
+// Should call this function before calling "::battle()" which runs the simulation
+World.prototype.config = function(cfg){
+	// Set up general
+	this.raid_tier = cfg['generalSettings']['raidTier'];
+	if (this.raid_tier == -1)
 		this.timelimit_ms = TIMELIMIT_GYM_MS;
 	else
-		this.timelimit_ms = TIMELIMIT_RAID_MS[raidTier - 1];
+		this.timelimit_ms = TIMELIMIT_RAID_MS[this.raid_tier - 1];
+	this.weather = cfg['generalSettings']['weather'] || "EXTREME";
+	this.log_style = cfg['generalSettings']['logStyle'] || 0;
+	this.random_seed = cfg['generalSettings']['randomSeed'] || 0;
+	
+	// Set up attacker
+	var atkr_parties = cfg['atkrSettings'];
+	for (var i = 0; i < atkr_parties.length; i++){
+		var ap = new Party(i);
+		for (var j = 0; j < atkr_parties[i].length; j++){
+			for (var k = 0; k < atkr_parties[i][j].copies; k++)
+				ap.add(new Pokemon(atkr_parties[i][j]));
+		}
+		this.atkr_parties.push(ap);
+	}
+	
+	// Set up defender
+	this.dfdr = new Pokemon(cfg['dfdrSettings']);
 }
+
 
 // (Re)Initialize the world to prepare for new sim
 World.prototype.init = function (raidTier){
 	for (var i = 0; i < this.atkr_parties.length; i++){
 		this.atkr_parties[i].reset_all();
 	}
-	this.dfdr_party.reset_all();
+	this.dfdr.reset_stats();
 	this.log = [];
 	this.tline = new Timeline();
-	this.battle_lengths = [];
+	this.battle_length = 0;
 }
 
 // Player's Pokemon uses a move
@@ -444,7 +429,6 @@ World.prototype.atkr_use_move = function(pkm, pkm_hurt, move, t){
 	this.tline.enqueue(new Event("Anounce", t, pkm, pkm_hurt, move, 0, 0));
 	this.tline.enqueue(new Event("Hurt", t + move.dws, pkm_hurt, pkm, move, dmg, 0));
 	this.tline.enqueue(new Event("EnergyDelta", t + move.dws, pkm, 0, 0, 0, move.energyDelta));
-
 }
 
 // Gym Defender/Raid Boss uses a move, hurting all active attackers
@@ -505,9 +489,9 @@ function strategyMaxDmg(T, initE, fDmg, fE, fDur, cDmg, cE, cDur){
 // This function should return a list of planned actions
 // like ['f', 'c', 100, 'd'] <- means use a FMove, then a Cmove, then wait for 100s and finally dodge
 World.prototype.atkr_choose = function (pkm, t){
-	var dfdr = this.dfdr_party.active_pkm;
+	var dfdr = this.dfdr;
 	
-	if (pkm.dodgeCMoves){ 
+	if (pkm.dodgeStrat){
 		// The optimal dodging should be: 
 		// - Minimize waiting (waiting should always be avoided)
 		// - Maximize time left before dodging (dodge as late as possible)
@@ -611,8 +595,8 @@ World.prototype.initial_dfdr_choose = function (dfdr){
 
 // Check if any of the atkrs on the field is alive
 World.prototype.any_atkr_alive = function (){
-	for (var p = 0; p < this.atkr_parties.length; p++){
-		var pkm = this.atkr_parties[p].active_pkm;
+	for (var i = 0; i < this.atkr_parties.length; i++){
+		var pkm = this.atkr_parties[i].active_pkm;
 		if (pkm && pkm.HP > 0){
 			return true;
 		}
@@ -624,10 +608,8 @@ World.prototype.any_atkr_alive = function (){
 // TODO: Main function for simulating a battle
 World.prototype.battle = function (){
 	var t = 0;
-	var e = 0;
 	var elog = [];
-	var actions = [];
-	var dfdr = this.dfdr_party.active_pkm;
+	var dfdr = this.dfdr;
 	
 	this.tline.enqueue(new Event("Enter", 0, dfdr, 0, 0, 0, 0));
 	this.tline.enqueue(new Event("DfdrFree", 0, dfdr, 0, 0, 0, 0));
@@ -637,43 +619,41 @@ World.prototype.battle = function (){
 	}
 	
 	while (dfdr.HP > 0 && this.any_atkr_alive() && t < this.timelimit_ms){
-		cur_event = this.tline.dequeue();
-		t = cur_event.t;
+		var e = this.tline.dequeue();
+		t = e.t;
 		
 		// 1. First process the event
-		if (cur_event.name == "AtkrFree"){
-			actions = this.atkr_choose(cur_event.subject, t);
-			this.enqueueActions(cur_event.subject, dfdr, t, actions);
-		}else if (cur_event.name == "DfdrFree"){
+		if (e.name == "AtkrFree"){
+			var actions = this.atkr_choose(e.subject, t);
+			this.enqueueActions(e.subject, dfdr, t, actions);
+		}else if (e.name == "DfdrFree"){
 			if (t > 0)
-				this.dfdr_choose(cur_event.subject, t, cur_event.move);
+				this.dfdr_choose(e.subject, t, e.move);
 			else	
 				this.initial_dfdr_choose(dfdr);
-		}else if (cur_event.name == "Hurt"){
-			if (cur_event.subject.active){
-				cur_event.subject.take_damage(cur_event.dmg);
-				cur_event.object.contribute(cur_event.dmg + Math.min(0, cur_event.subject.HP), cur_event.move.moveType);
-				elog.push(cur_event);
+		}else if (e.name == "Hurt"){
+			if (e.subject.active){
+				e.subject.take_damage(e.dmg);
+				e.object.contribute(e.dmg + Math.min(0, e.subject.HP), e.move.moveType);
+				elog.push(e);
 			}
-		}else if (cur_event.name == "EnergyDelta"){
-			cur_event.subject.gain_energy(cur_event.energyDelta, false);
-		}else if (cur_event.name == "Enter"){
-			cur_event.subject.time_enter_ms = t;
-			cur_event.subject.active = true;
-			if (cur_event.subject.raidTier == 0) // Atkr
-				this.tline.enqueue(new Event("AtkrFree", t + 100, cur_event.subject, 0,0,0,0));
-			elog.push(cur_event);
-		}else if (cur_event.name == "Dodge"){
-			e = this.tline.nextHurtEventOf(cur_event.subject);
-			if (e && (e.t - DODGEWINDOW_LENGTH_MS) <= t && t <= e.t && !e.dodged){
-				e.dmg = Math.floor(e.dmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
-				e.dodged = true;
+		}else if (e.name == "EnergyDelta"){
+			e.subject.gain_energy(e.energyDelta, false);
+		}else if (e.name == "Enter"){
+			e.subject.time_enter_ms = t;
+			e.subject.active = true;
+			if (e.subject.raidTier == 0) // Atkr
+				this.tline.enqueue(new Event("AtkrFree", t + 100, e.subject, 0,0,0,0));
+			elog.push(e);
+		}else if (e.name == "Dodge"){
+			var eHurt = this.tline.nextHurtEventOf(e.subject);
+			if (eHurt && (eHurt.t - DODGEWINDOW_LENGTH_MS) <= t && t <= eHurt.t && !eHurt.dodged){
+				eHurt.dmg = Math.floor(eHurt.dmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
+				eHurt.dodged = true;
 			}
-			elog.push(cur_event);
-		}else if (cur_event.name == "Anounce"){
+			elog.push(e);
+		}else if (e.name == "Anounce"){
 			// Do nothing
-		}else{
-			throw "Unrecognized Event Type:" + cur_event.name;
 		}
 		
 		// 2. Check if some attacker fainted
@@ -717,13 +697,6 @@ World.prototype.battle = function (){
 		if (dfdr.HP <= 0){
 			dfdr.time_leave_ms = t;
 			dfdr.total_time_active_ms = t - dfdr.time_enter_ms;
-			if (this.dfdr_party.next_up()){
-				// Successfuly switched to the next defender in the gym
-				dfdr = this.dfdr_party.active_pkm;
-				this.battle_lengths.push(t);
-				t = 0;
-				this.tline = new Timeline();
-			}
 		}
 		
 		// 4. Process the next event if it's at the same time before deciding whether the battle has ended
@@ -737,7 +710,7 @@ World.prototype.battle = function (){
 	}
 	
 	// Battle has ended
-	this.battle_lengths.push(t);
+	this.battle_length = t;
 	
 	for (var i = 0; i < this.atkr_parties.length; i++){
 		var pkm = this.atkr_parties[i].active_pkm;
@@ -836,7 +809,6 @@ World.prototype.add_to_log_s2 = function addBattleLog(events){
 		if(nonEmpty[i])
 			this.log.push(rowData[i]);
 	}
-		
 }
 
 // Return the statistis and battle log
@@ -847,18 +819,15 @@ World.prototype.get_statistics = function(){
 	var pokemon_stats = [];	// 3. Individual Pokemon performance statistics, including the defender
 	var battle_log = [];	// 4. Battle log (if number of team <= 3, will generate style 2 log)
 	
-	general_stat['duration'] = Math.round(this.battle_lengths[0]/100)/10;
+	general_stat['duration'] = Math.round(this.battle_length/100)/10;
 	general_stat['total_deaths'] = 0;
-	if (this.dfdr_party.active_pkm) // defender is still active (HP > 0)
+	if (this.dfdr.HP > 0) // defender is still active
 		general_stat['result'] = "Lose";
 	else
 		general_stat['result'] = "Win";
-	
-	var total_dfdr_HP_lost = 0;
-	for (var i = 0; i < this.dfdr_party.list.length; i++){
-		total_dfdr_HP_lost += this.dfdr_party.list[i].maxHP - Math.max(0, this.dfdr_party.list[i].HP);
-		pokemon_stats.push(this.dfdr_party.list[i].get_statistics());
-	}
+
+	var total_dfdr_HP_lost = this.dfdr.maxHP - Math.max(0, this.dfdr.HP);
+
 	for (var i = 0; i < this.atkr_parties.length; i++){
 		var team = this.atkr_parties[i];
 		var ts = team.get_statistics(total_dfdr_HP_lost);
