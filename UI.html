@@ -347,12 +347,10 @@ function writeUserInput(cfg){
 	document.getElementById("dodgeBug").value = cfg['generalSettings']['dodgeBug'];
 	document.getElementById("simType").value = cfg['generalSettings']['simType'];
 	
-	
 	var attackerSections = document.getElementById("AttackerInput");
 	while (attackerSections.children.length > 0)
 		attackerSections.removeChild(attackerSections.children[attackerSections.children.length - 1]);
 	totalAtkrTeamCount = 0;
-	
 	
 	for (var i = 0; i < cfg['atkrSettings'].length; i++){
 		addTeam();
@@ -362,8 +360,7 @@ function writeUserInput(cfg){
 			writeAttackerInput(attackerSections.children[i].children[j+1], cfg['atkrSettings'][i][j]);
 		}
 	}
-	
-	
+		
 	setDefenderInput();
 	var defenderSection = document.getElementById("DefenderInput");
 	writeDefenderInput(defenderSection, cfg['dfdrSettings']);
@@ -447,21 +444,66 @@ function createBattleLogTable(log, log_style){
 
 function main(){
 	parseUserInput(readUserInput());
-	
 	while (simQueue.length > 0){
-		app_world = new World();
-		var cfg = simQueue.shift();
-		app_world.config(cfg);
-		app_world.battle();
-		simResults.push({
-			input:cfg, 
-			output:app_world.get_statistics()
-		});
+		runSim(simQueue.shift());
+	}
+	displayMasterSummaryTable();
+	send_feedback("Simulation done.");
+}
+
+// A recursive function to handle enumerated input
+function runSim(cfg){
+	for (var i = 0; i < cfg['atkrSettings'].length; i++){
+		for (var j = 0; j < cfg['atkrSettings'][i].length; j++){
+			var dex = get_species_index_by_name(cfg['atkrSettings'][i][j].species_name);
+			if (cfg['atkrSettings'][i][j].fmove == '*'){
+				var fmoves = POKEMON_SPECIES_DATA[dex].fastMoves;
+				for (var k = 0; k < fmoves.length; k++){
+					var cfg_fm = JSON.parse(JSON.stringify(cfg));
+					cfg_fm['atkrSettings'][i][j].fmove = fmoves[k];
+					runSim(cfg_fm);
+				}
+				return;
+			}
+			if (cfg['atkrSettings'][i][j].cmove == '*'){
+				var cmoves = POKEMON_SPECIES_DATA[dex].chargedMoves;
+				for (var k = 0; k < cmoves.length; k++){
+					var cfg_cm = JSON.parse(JSON.stringify(cfg));
+					cfg_cm['atkrSettings'][i][j].cmove = cmoves[k];
+					runSim(cfg_cm);
+				}
+				return;
+			}
+		}
 	}
 	
-	displayMasterSummaryTable();
+	var dex = get_species_index_by_name(cfg['dfdrSettings'].species_name);
+	if (cfg['dfdrSettings'].fmove == '*'){
+		var fmoves = POKEMON_SPECIES_DATA[dex].fastMoves;
+		for (var k = 0; k < fmoves.length; k++){
+			var cfg_fm = JSON.parse(JSON.stringify(cfg));
+			cfg_fm['dfdrSettings'].fmove = fmoves[k];
+			runSim(cfg_fm);
+		}
+		return;
+	}
+	if (cfg['dfdrSettings'].cmove == '*'){
+		var cmoves = POKEMON_SPECIES_DATA[dex].chargedMoves;
+		for (var k = 0; k < cmoves.length; k++){
+			var cfg_cm = JSON.parse(JSON.stringify(cfg));
+			cfg_cm['dfdrSettings'].cmove = cmoves[k];
+			runSim(cfg_cm);
+		}
+		return;
+	}
 	
-	send_feedback("Simulation done.");
+	app_world = new World();
+	app_world.config(cfg);
+	app_world.battle();
+	simResults.push({
+			input: cfg, 
+			output: app_world.get_statistics()
+		});
 }
 
 function clearFeedbackTables(){
@@ -564,7 +606,6 @@ function clearSimResults(clearAll){
 		<td>
 			<select id="simType">
 				<option value="1">Single Random Battle</option>
-				<option value="20">20 Random Battles</option>
 			</select>
 		</td>
 	</tr>

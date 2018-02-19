@@ -763,7 +763,6 @@ World.prototype.battle = function (){
 		if(this.log_style && elog.length > 0)
 			this["add_to_log_s" + this.log_style](elog);
 		elog = [];
-		
 	}
 	
 	// Battle has ended
