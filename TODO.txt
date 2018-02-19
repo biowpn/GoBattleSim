@@ -1,7 +1,0 @@
-动态加载pokemon stats move stats
-
-auto fill 支持多浏览器
-
-关于那个removepokemon的按钮，我感觉还是生成pokemon的时候后面加一个按钮，上面单个的按钮操作不方便
-
-然后add pokemon如果每个team有一个也好
