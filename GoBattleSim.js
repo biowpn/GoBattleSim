@@ -57,7 +57,7 @@ var RAID_BOSS_HP = [600, 1800, 3000, 7500, 12500];
 /*
  *	PART I(c): IMPORT GAME DATA DYNAMICALLY
  */
-/*
+
 function getPokemonType1FromString(S){
 	var L = S.split(",");
 	return L[0].trim().toLowerCase();
@@ -79,6 +79,7 @@ function getMovesFromString(S){
 	return res;
 }
 
+/*
 $(document).ready(function() {
 	$.getJSON('https://s3.us-east-2.amazonaws.com/gamepress-json/pogo/pokemon-data-full.json',
 	function(data) {
@@ -210,7 +211,7 @@ function Pokemon(pd){
 		this.Def = (this.baseDef + 15) * this.cpm;
 		this.maxHP = RAID_BOSS_HP[this.raidTier - 1];
 	}
-	this.dodgeStrat = pd.dodge || false;
+	this.dodgeStrat = parseInt(pd.dodge) || 0;
 	this.party_index = pd.team_idx;
 	
 	this.active = false;
@@ -448,6 +449,7 @@ World.prototype.config = function(cfg){
 	this.weather = cfg['generalSettings']['weather'] || "EXTREME";
 	this.log_style = cfg['generalSettings']['logStyle'] || 0;
 	this.random_seed = cfg['generalSettings']['randomSeed'] || 0;
+	this.dodge_bug = cfg['generalSettings']['dodgeBug'] || false;
 	
 	// Set up attacker
 	var atkr_parties = cfg['atkrSettings'];
@@ -544,13 +546,13 @@ function strategyMaxDmg(T, initE, fDmg, fE, fDur, cDmg, cE, cDur){
 World.prototype.atkr_choose = function (pkm, t){
 	var dfdr = this.dfdr;
 	
-	if (pkm.dodgeStrat == "DodgeCMove"){
+	if (pkm.dodgeStrat > 0){
 		// The optimal dodging should be: 
 		// - Minimize waiting (waiting should always be avoided)
 		// - Maximize time left before dodging (dodge as late as possible)
 		// - Maximize damage done before dodging
 		var hurtEvent = this.tline.nextHurtEventOf(pkm);
-		if (hurtEvent && hurtEvent.move.moveType == 'c' && !hurtEvent.dodged){
+		if (hurtEvent && (hurtEvent.move.moveType == 'c' || pkm.dodgeStrat >= 2) && !hurtEvent.dodged){
 			var timeTillHurt = hurtEvent.t - t;
 			
 			// 1. If can't fit in a fmove or a cmove (whichever has earliest DWS), just dodge and attack
@@ -561,12 +563,14 @@ World.prototype.atkr_choose = function (pkm, t){
 				else
 					return decision.concat('f');
 			}
-			
 			var fDmg = damage(pkm, dfdr, pkm.fmove, this.weather);
 			var cDmg = damage(pkm, dfdr, pkm.cmove, this.weather);
 
 			// (2) Otherwise, need to maximize damage before time runs out
-			if (pkm.HP > Math.floor(hurtEvent.dmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT))){
+			var dodgedDmg = Math.floor(hurtEvent.dmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
+			if (this.dodge_bug && this.atkr_parties.length >= 2)
+				dodgedDmg = hurtEvent.dmg;
+			if (pkm.HP > dodgedDmg){
 				// (2a) if this Pokemon can survive the dodged damage, then it's better to dodge
 				var res = strategyMaxDmg(timeTillHurt, pkm.energy, fDmg, pkm.fmove.energyDelta, 
 										pkm.fmove.duration, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration);

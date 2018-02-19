@@ -73,7 +73,7 @@ function createPokemonTemplate(){
 	var tb3 = createElement("table", "<col width=35%><col width=35%><col width=30%>");
 	row3.appendChild(createElement('td',"<input type='text' placeholder='Fast Move' list='FMovesDataList'>"));
 	row3.appendChild(createElement('td',"<input type='text' placeholder='Charged Move' list='CMovesDataList'>"));
-	row3.appendChild(createElement('td',"<select><option value='noDodge'>No Dodge</option><option value='DodgeCMove'>Dodge Charged</option></select></td>"));
+	row3.appendChild(createElement('td',"<select><option value='0'>No Dodge</option><option value='1'>Dodge Charged</option><option value='2'>Dodge All</option></select></td>"));
 	tb3.appendChild(row3);
 	
 	pkm.appendChild(tb1);
@@ -308,6 +308,7 @@ function readUserInput(){
 	else
 		gSettings['logStyle'] = 1;
 	gSettings['simType'] = parseInt(document.getElementById("simType").value);
+	gSettings['dodgeBug'] = parseInt(document.getElementById("dodgeBug").value);
 		
 	var atkr_parties = [];
 	var attackerSections = document.getElementById("AttackerInput").children;
@@ -343,6 +344,7 @@ function writeUserInput(cfg){
 		document.getElementById("battleMode").value = "raid";
 	}
 	document.getElementById("weather").value = cfg['generalSettings']['weather'];
+	document.getElementById("dodgeBug").value = cfg['generalSettings']['dodgeBug'];
 	document.getElementById("simType").value = cfg['generalSettings']['simType'];
 	
 	
@@ -531,9 +533,9 @@ function clearSimResults(clearAll){
 <h2>General Settings</h2>
 <div id="GeneralSettings">
 	<table>
-	<col width=33%><col width=33%><col width=34%>
+	<col width=25%><col width=25%><col width=25%><col width=25%>
 	<tr>
-		<th>Battle Mode</th><th>Weather</th><th>Simulation Type</th>
+		<th>Battle Mode</th><th>Weather</th><th>Dodge Bug</th><th>Simulation Type</th>
 	</tr>
 	<tr>
 		<td><select id="battleMode"  onchange="setDefenderInput()">
@@ -551,6 +553,12 @@ function clearSimResults(clearAll){
 				<option value="WINDY">Windy</option>
 				<option value="SNOW">Snow</option>
 				<option value="FOG">Fog</option>
+			</select>
+		</td>
+		<td>
+			<select id="dodgeBug">
+				<option value="0">Absent</option>
+				<option value="1">Present</option>
 			</select>
 		</td>
 		<td>
@@ -589,7 +597,7 @@ setDefenderInput();
 
 // Debug
 var dbgs = {
-	generalSettings : {battleMode: "raid", weather : "CLOUDY", simType : 1},
+	generalSettings : {battleMode: "raid", weather : "CLOUDY", dodgeBug: 0, simType : 1},
 	atkrSettings : [[{	
 						copies: 6,
 						species_name: "machamp", 
@@ -599,7 +607,7 @@ var dbgs = {
 						stmiv: 15,
 						fmove: "counter",
 						cmove: "dynamic punch",
-						dodge: "DodgeCMove"
+						dodge: 1
 					}]],
 	dfdrSettings : {	
 						species_name: "blissey", 
