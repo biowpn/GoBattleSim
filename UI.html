@@ -1,15 +1,30 @@
 <style>
-	.block {
+	table{
 		width: 100%;
 	}
+	
+	th, td {
+		vertical-align: center;
+		text-align: center;
+	}
+	
+	input, select {
+		width: 100%;
+	}
+	
+	button {
+		width: 100%;
+	}
+}
 </style>
 
 <datalist id="SpeciesNameDataList"></datalist>
 <datalist id="FMovesDataList"></datalist>
 <datalist id="CMovesDataList"></datalist>
 
-<script type="text/javascript" src="GoBattleSim.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.min.js"></script>
+<script type="text/javascript" src="GoBattleSim.js"></script>
 <script type="text/javascript">
 
 function initDataList(){
@@ -29,101 +44,205 @@ function initDataList(){
 	document.getElementById("CMovesDataList").innerHTML = cmoveOptions;
 }
 
-function addPokemon(){
-	var collection = document.getElementById("AttackerInput");
-	var newSection = document.createElement("div");
-	newSection.innerHTML = collection.children[collection.children.length - 1].innerHTML;
-	collection.appendChild(newSection);			
+function createElement(type, innerHTML){
+	var e = document.createElement(type);
+	e.innerHTML = innerHTML;
+	return e;
 }
 
-function removePokemon(){
-	var collection = document.getElementById("AttackerInput");
-	if(collection.children.length > 1){
-		collection.removeChild(collection.children[collection.children.length - 1]);
-		if (collection.children[collection.children.length - 1].children[0].children[1].children[0].children[0].children[0].innerHTML != totalAtkrTeamCount)
-			totalAtkrTeamCount--;
-	}
-}
+function createPokemonTemplate(){
+	var pkm = document.createElement("div");
 
-function addTeam(){
-	if (totalAtkrTeamCount < MAX_NUMBER_OF_TEAMS){
-		var collection = document.getElementById("AttackerInput");
-		var newSection = document.createElement("div");
-		totalAtkrTeamCount++;
+	var row1 = document.createElement("tr");
+	var row2 = document.createElement("tr");
+	var row3 = document.createElement("tr");
 	
-		newSection.innerHTML = collection.children[collection.children.length - 1].innerHTML;
-		newSection.children[0].children[1].children[0].children[0].children[0].innerHTML = totalAtkrTeamCount;
+	var tb1 = createElement("table", "<col width=50%><col width=25%><col width=25%>");
+	row1.appendChild(createElement('td',"<input type='text' placeholder='Species' list='SpeciesNameDataList'>"));
+	row1.appendChild(createElement('td',"<input type='number' placeholder='Copies' min='1' max='6'>"));
+	row1.appendChild(createElement('td',"<button>Remove</button>"));
+	tb1.appendChild(row1);
+	
+	var tb2 = createElement("table", "<col width=25%><col width=25%><col width=25%><col width=25%>");
+	row2.appendChild(createElement('td',"<input type='number' placeholder='Level' min='1' max='40'>"));
+	row2.appendChild(createElement('td',"<input type='number' placeholder='HP. IV' min='0' max='15'>"));
+	row2.appendChild(createElement('td',"<input type='number' placeholder='Atk. IV' min='0' max='15'>"));
+	row2.appendChild(createElement('td',"<input type='number' placeholder='Def. IV' min='0' max='15'>"));
+	tb2.appendChild(row2);
 
-		collection.appendChild(newSection);	
+	var tb3 = createElement("table", "<col width=35%><col width=35%><col width=30%>");
+	row3.appendChild(createElement('td',"<input type='text' placeholder='Fast Move' list='FMovesDataList'>"));
+	row3.appendChild(createElement('td',"<input type='text' placeholder='Charged Move' list='CMovesDataList'>"));
+	row3.appendChild(createElement('td',"<select><option value='noDodge'>No Dodge</option><option value='DodgeCMove'>Dodge Charged</option></select></td>"));
+	tb3.appendChild(row3);
+	
+	pkm.appendChild(tb1);
+	pkm.appendChild(tb2);
+	pkm.appendChild(tb3);
+	return pkm;
+}
+
+function createTeamButtonTable(i){
+	const iii = i;
+	var tb = createElement("table","<col width=50%><col width=50%>");
+	var row = createElement("tr","<td></td><td></td>");
+	var b1 = createElement("button", "Add Pokemon");
+	var b2 = createElement("button", "Remove Team");
+	b1.addEventListener("click", function(){addPokemon(iii);});
+	b2.addEventListener("click", function(){removeTeam(iii);});
+	row.children[0].appendChild(b1);
+	row.children[1].appendChild(b2);
+	tb.appendChild(row);
+	return tb;
+}
+
+// Re positioning all Pokemon from Team (start+1) up to but excluding Team (end+1)
+function repositionAllPokemon(start, end){
+	var teams = document.getElementById("AttackerInput");
+	end = end || teams.children.length;
+	for (var i = start; i < end; i++){
+		const iii = i;
+		var team = teams.children[i];
+		team.children[0].innerHTML = "Team " + (i+1);
+		for (var j = 1; j < team.children.length - 1; j++){
+			const jjj = j;
+			var td = team.children[j].children[0].children[1].children[2];
+			td.removeChild(td.children[td.children.length - 1]);
+			var b = createElement("button", "Remove");
+			b.addEventListener("click", function(){removePokemon(iii, jjj);});
+			td.appendChild(b);
+		}
+		team.removeChild(team.children[team.children.length - 1]);
+		team.appendChild(createTeamButtonTable(i));
 	}
+}
+
+
+function addPokemon(i){
+	//console.log("call addPokemon(" + i + ")");
+	var team = document.getElementById("AttackerInput").children[i];
+	team.removeChild(team.children[team.children.length - 1]);
+	team.appendChild(createPokemonTemplate());
+	team.appendChild(createElement("div",""));
+	repositionAllPokemon(i, i+1);
+}
+
+function removePokemon(i, j){
+	//console.log("call removePokemon(" + i + "," + j + ")");
+	var team = document.getElementById("AttackerInput").children[i];
+	team.removeChild(team.children[j]);
+	repositionAllPokemon(i, i+1);
+}
+function addTeam(){
+	//console.log("call addTeam()");
+	if (totalAtkrTeamCount < MAX_NUMBER_OF_TEAMS){
+		var teams = document.getElementById("AttackerInput");
+		var newTeam = document.createElement("div");
+		newTeam.appendChild(createElement("h3","Team" + (totalAtkrTeamCount+1)));
+		newTeam.appendChild(createPokemonTemplate());
+		newTeam.appendChild(createElement("div",""));
+		teams.appendChild(newTeam);
+		totalAtkrTeamCount++;
+		repositionAllPokemon(totalAtkrTeamCount - 1);
+	}else{
+		send_feedback("exceeding maximum parties allowed");
+	}
+}
+
+function removeTeam(i){
+	//console.log("call removeTeam(" + i + ")");
+	if (totalAtkrTeamCount >= 2){
+		var teams = document.getElementById("AttackerInput");
+		teams.removeChild(teams.children[i]);
+		totalAtkrTeamCount--;
+		repositionAllPokemon(i);
+	}
+	else
+		send_feedback("Can't remove the only attacker team");
 }
 
 function setDefenderInput(){
 	var mode = document.getElementById("battleMode").value;
-	var row = document.getElementById("DefenderInput").children[0].children[1].children[1].children[0];
-	while (row.children.length > 0){
-		row.removeChild(row.children[row.children.length - 1]);
-	}
+	var dfdrSection = document.getElementById("DefenderInput");
+	var tb1 = createElement("table", "<col width=100%>");
+	var tb2 = createElement("table", "");
+	var tb3 = createElement("table", "<col width=50%><col width=50%>");
+	var row1 = createElement("tr","");
+	var row2 = createElement("tr","");
+	var row3 = createElement("tr","");
 	
+	if (dfdrSection.children.length > 0){
+		tb1 = dfdrSection.children[0];
+		tb3 = dfdrSection.children[2];
+	}else{
+		row1.appendChild(createElement('td',"<input type='text' placeholder='Species' list='SpeciesNameDataList'>"));
+		tb1.appendChild(row1);
+		row3.appendChild(createElement('td',"<input type='text' placeholder='Fast Move' list='FMovesDataList'>"));
+		row3.appendChild(createElement('td',"<input type='text' placeholder='Charged Move' list='CMovesDataList'>"));
+		tb3.appendChild(row3);
+	}
+
 	if (mode=="gym"){
-		row.appendChild(document.createElement("td"));
-		row.appendChild(document.createElement("td"));
-		row.appendChild(document.createElement("td"));
-		row.appendChild(document.createElement("td"));
-		row.children[0].innerHTML = "<input type='number' placeholder='Level'>";
-		row.children[1].innerHTML = "<input type='number' placeholder='HP. IV'>";
-		row.children[2].innerHTML = "<input type='number' placeholder='Atk. IV'>";
-		row.children[3].innerHTML = "<input type='number' placeholder='Def. IV'>";
+		tb2.innerHTML = "<col width=25%><col width=25%><col width=25%><col width=25%>";
+		row2.appendChild(createElement("td","<input type='number' placeholder='Level'>"));
+		row2.appendChild(createElement("td","<input type='number' placeholder='HP. IV'>"));
+		row2.appendChild(createElement("td","<input type='number' placeholder='Atk. IV'>"));
+		row2.appendChild(createElement("td","<input type='number' placeholder='Def. IV'>"));
 	}else if (mode == "raid"){
-		row.appendChild(document.createElement("td"));
-		row.children[0].innerHTML = "Raid Tier: ";
+		tb2.innerHTML = "<col width=100%>";
+		row2.appendChild(createElement("td","Raid Tier:"));
 		var raidSelection = document.createElement("select");
 		raidSelection.id = "raidTier";
 		for (var i = 1; i <= 5; i++){
-			var option = document.createElement("option");
+			var option = createElement("option", i);
 			option.value = i;
-			option.innerHTML = i;
 			raidSelection.appendChild(option);
 		}
-		row.children[0].appendChild(raidSelection);
+		row2.children[0].appendChild(raidSelection);
 	}
+	tb2.appendChild(row2);
+	
+	dfdrSection.innerHTML = "";
+	dfdrSection.appendChild(tb1);
+	dfdrSection.appendChild(tb2);
+	dfdrSection.appendChild(tb3);
 }
 
+
 function parseAttackerInput(section){
-	var row1 = section.children[0].children[1].children[0];
-	var row2 = section.children[1].children[1].children[0];
-	var row3 = section.children[2].children[1].children[0];
+	var row1 = section.children[0].children[1];
+	var row2 = section.children[1].children[1];
+	var row3 = section.children[2].children[1];
 	
 	var pkm = {
-		team_idx : parseInt(row1.children[0].children[0].innerHTML) - 1,
-		species: row1.children[1].children[0].value,
-		copies: row1.children[2].children[0].valueAsNumber,
+		species_name: row1.children[0].children[0].value.trim(),
+		copies: row1.children[1].children[0].valueAsNumber,
 		level: row2.children[0].children[0].valueAsNumber,
 		stmiv: row2.children[1].children[0].valueAsNumber,
 		atkiv: row2.children[2].children[0].valueAsNumber,
 		defiv: row2.children[3].children[0].valueAsNumber,
-		fmove: row3.children[0].children[0].value,
-		cmove: row3.children[1].children[0].value,
-		dodge: row3.children[2].children[0].value
+		fmove: row3.children[0].children[0].value.trim(),
+		cmove: row3.children[1].children[0].value.trim(),
+		dodge: row3.children[2].children[0].value,
+		raid_tier : 0
 	};
-	
 	return pkm;
 }
 
 function parseDefenderInput(section){
-	var row1 = section.children[0].children[1].children[0];
-	var row2 = section.children[1].children[1].children[0];
-	var row3 = section.children[2].children[1].children[0];
+	var row1 = section.children[0].children[1];
+	var row2 = section.children[1].children[1];
+	var row3 = section.children[2].children[1];
 	
 	var pkm = {
 		team_idx : -1,
-		species: row1.children[0].children[0].value,
+		species_name: row1.children[0].children[0].value.trim(),
 		level : 1,
 		atkiv : 0,
 		defiv : 0,
 		stmiv : 0,
-		fmove: row3.children[0].children[0].value,
-		cmove: row3.children[1].children[0].value
+		fmove: row3.children[0].children[0].value.trim(),
+		cmove: row3.children[1].children[0].value.trim()
 	};
 	
 	if (document.getElementById("battleMode").value == "gym"){
@@ -132,11 +251,120 @@ function parseDefenderInput(section){
 		pkm['atkiv'] = row2.children[1].children[0].valueAsNumber;
 		pkm['defiv'] = row2.children[2].children[0].valueAsNumber;
 		pkm['raid_tier'] = -1;
-	}else if (document.getElementById("battleMode").value ==  "raid"){
+	}else if (document.getElementById("battleMode").value == "raid"){
 		pkm['raid_tier'] = parseInt(document.getElementById("raidTier").value);
 	}
 	
 	return pkm;
+}
+
+
+function writeAttackerInput(section, pkm){
+	var row1 = section.children[0].children[1];
+	var row2 = section.children[1].children[1];
+	var row3 = section.children[2].children[1];
+	
+	row1.children[0].children[0].value = pkm.species_name;
+	row1.children[1].children[0].value = pkm.copies;
+	row2.children[0].children[0].value = pkm.level;
+	row2.children[1].children[0].value = pkm.stmiv;
+	row2.children[2].children[0].value = pkm.atkiv;
+	row2.children[3].children[0].value = pkm.defiv;
+	row3.children[0].children[0].value = pkm.fmove;
+	row3.children[1].children[0].value = pkm.cmove;
+	row3.children[2].children[0].value = pkm.dodge;
+}
+
+
+function writeDefenderInput(section, pkm){
+	var row1 = section.children[0].children[1];
+	var row2 = section.children[1].children[1];
+	var row3 = section.children[2].children[1];
+	
+	row1.children[0].children[0].value = pkm['species_name'];
+	row3.children[0].children[0].value = pkm['fmove'];
+	row3.children[1].children[0].value = pkm['cmove'];
+	if (document.getElementById("battleMode").value == "gym"){
+		row2.children[0].children[0].value = pkm['level'];
+		row2.children[0].children[0].value = pkm['stmiv'];
+		row2.children[1].children[0].value = pkm['atkiv'];
+		row2.children[2].children[0].value = pkm['defiv'];
+	}else if (document.getElementById("battleMode").value ==  "raid"){
+		document.getElementById("raidTier").value = pkm['raid_tier'];
+	}
+}
+
+
+function readUserInput(){
+	var gSettings = {};
+	if (document.getElementById("battleMode").value == "raid")
+		gSettings['raidTier'] = (parseInt(document.getElementById("raidTier").value));
+	else if (document.getElementById("battleMode").value == "gym")
+		gSettings['raidTier'] = -1;
+	gSettings['weather'] = document.getElementById("weather").value;
+	
+	if (2 <= totalAtkrTeamCount && totalAtkrTeamCount <= 3)
+		gSettings['logStyle'] = 2;
+	else
+		gSettings['logStyle'] = 1;
+	gSettings['simType'] = parseInt(document.getElementById("simType").value);
+		
+	var atkr_parties = [];
+	var attackerSections = document.getElementById("AttackerInput").children;
+	for (var i = 0; i < attackerSections.length; i++){
+		atkr_parties.push([]);
+		var sec = attackerSections[i];
+		for (var j = 1; j < sec.children.length - 1; j++)
+			atkr_parties[i].push(parseAttackerInput(sec.children[j]));
+	}
+	
+	var defenderSection = document.getElementById("DefenderInput");
+	var dfdr_info = parseDefenderInput(defenderSection)
+	
+	return {
+				generalSettings : gSettings,
+				atkrSettings : atkr_parties,
+				dfdrSettings : dfdr_info
+			};
+}
+
+function parseUserInput(cfg){
+	for (var i = 0; i < cfg['generalSettings']['simType']; i++){
+		simQueue.push(cfg);
+	}
+}
+
+
+function writeUserInput(cfg){
+	if (cfg['generalSettings']['raidTier'] == -1){
+		document.getElementById("battleMode").value = "gym";
+	}
+	else{
+		document.getElementById("battleMode").value = "raid";
+	}
+	document.getElementById("weather").value = cfg['generalSettings']['weather'];
+	document.getElementById("simType").value = cfg['generalSettings']['simType'];
+	
+	
+	var attackerSections = document.getElementById("AttackerInput");
+	while (attackerSections.children.length > 0)
+		attackerSections.removeChild(attackerSections.children[attackerSections.children.length - 1]);
+	totalAtkrTeamCount = 0;
+	
+	
+	for (var i = 0; i < cfg['atkrSettings'].length; i++){
+		addTeam();
+		for (var j = 0; j < cfg['atkrSettings'][i].length; j++){
+			if (j >= 1)
+				addPokemon(i);
+			writeAttackerInput(attackerSections.children[i].children[j+1], cfg['atkrSettings'][i][j]);
+		}
+	}
+	
+	
+	setDefenderInput();
+	var defenderSection = document.getElementById("DefenderInput");
+	writeDefenderInput(defenderSection, cfg['dfdrSettings']);
 }
 
 function createRow(rowData, type){
@@ -144,6 +372,7 @@ function createRow(rowData, type){
 	var row = document.createElement("tr");
 	for (var i = 0; i < rowData.length; i++){
 		var d = document.createElement(type);
+		d.style
 		d.innerHTML = rowData[i];
 		row.appendChild(d);
 	}
@@ -154,7 +383,7 @@ function createMasterSummaryTable(sims){
 	var table = document.createElement("table");
 	table.appendChild(createRow(["Sim#","Result","Time","#Deaths","Details"],"th"));
 	for (var i = 0; i < sims.length; i++){
-		var gs = sims[i]['generalStat']; // represents a single sim's general stats
+		var gs = sims[i]['output']['generalStat']; // represents a single sim's general stats
 		table.appendChild(createRow([i+1, gs.result, gs.duration, gs.total_deaths, "<button onclick='displayDetail("+i+")'>Detail</button>"],"td"));
 	}
 	return table;
@@ -172,74 +401,60 @@ function createTeamStatisticsTable(teamStats){
 
 function createPokemonStatisticsTable(pokemonStats){
 	var table = document.createElement("table");
-	table.appendChild(createRow(["Team#","Pokemon","HP","Energy","TDO","Duration","DPS","TEO"],"th"));
+	table.appendChild(createRow(["Team#",
+								"<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>",
+								"HP",
+								"Energy",
+								"TDO",
+								"Duration",
+								"DPS",
+								"TEO"],"th"));
 	for (var i = 0; i < pokemonStats.length; i++){
 		var ps = pokemonStats[i];
-		table.appendChild(createRow([ps.team, ps.pokemon, ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, ps.teo],"td"));
+		table.appendChild(createRow([ps.team, ps.img, ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, ps.teo],"td"));
 	}
 	return table;
 }
 
 function createBattleLogTable(log, log_style){
 	var table = document.createElement("table");
-	
-	var headers = ["Time"];
 	if (log_style == 1){
-		headers = ["Time","Team#","Pokemon","Action","Defender"];
+		var headers = ["Time",
+					"Team#",
+					"<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>",
+					"Action",
+					"Defender"];
+		table.appendChild(createRow(headers, "th"));
+		
+		for (var i = 0; i < log.length; i++){
+			table.appendChild(createRow(log[i]), "td");
+		}
 	}else if (log_style == 2){
+		var headers = ["Time"];
 		for (var i = 1; i <= totalAtkrTeamCount; i++)
 			headers.push("Team"+i);
 		headers.push("Defender");
+		table.appendChild(createRow(headers, "th"));
+		
+		for (var i = 0; i < log.length; i++){
+			table.appendChild(createRow(log[i]), "td");
+		}
 	}
-	table.appendChild(createRow(headers, "th"));
-	
-	for (var i = 0; i < log.length; i++)
-		table.appendChild(createRow(log[i]), "td");
-	
 	return table;
 }
 
 function main(){
-	app_world = new World();
+	parseUserInput(readUserInput());
 	
-	for (var i = 0; i < totalAtkrTeamCount; i++){
-		app_world.atkr_parties.push(new Party([], i));
-	}
-	
-	var attackerSections = document.getElementById("AttackerInput").children;
-	for (var i = 0; i < attackerSections.length; i++){
-		var pi = parseAttackerInput(attackerSections[i]);
-		for (var j = 0; j < pi.copies; j++){
-			var pkm = new Pokemon(pi.species, [pi.atkiv, pi.defiv, pi.stmiv], pi.level, pi.fmove, pi.cmove, 0);
-			if (pi.dodge == "DodgeCMove")
-				pkm.dodgeCMoves = true;
-			app_world.atkr_parties[pi.team_idx].add(pkm);
-		}
-	}
-	
-	var defenderSections = document.getElementById("DefenderInput").children;
-	for (var i = 0; i < defenderSections.length; i++){
-		var pi = parseDefenderInput(defenderSections[i]);
-		app_world.dfdr_party.add(new Pokemon(pi.species, [pi.atkiv, pi.defiv, pi.stmiv], pi.level, pi.fmove, pi.cmove, pi.raid_tier));
-	}
-	
-	if (document.getElementById("battleMode").value == "raid")
-		app_world.set_battle_mode(parseInt(document.getElementById("raidTier").value));
-	else if (document.getElementById("battleMode").value == "gym")
-		app_world.set_battle_mode(-1);
-	
-	app_world.weather = document.getElementById("weather").value;
-	
-	if (2 <= totalAtkrTeamCount && totalAtkrTeamCount <= 3)
-		app_world.log_style = 2;
-	else
-		app_world.log_style = 1;
-		
-	var numSimsToRun = parseInt(document.getElementById("numRandomBattles").value);
-	for (var i = 0; i < numSimsToRun; i++){
-		app_world.init();
+	while (simQueue.length > 0){
+		app_world = new World();
+		var cfg = simQueue.shift();
+		app_world.config(cfg);
 		app_world.battle();
-		simResults.push(app_world.get_statistics());
+		simResults.push({
+			input:cfg, 
+			output:app_world.get_statistics()
+		});
 	}
 	
 	displayMasterSummaryTable();
@@ -256,17 +471,27 @@ function clearFeedbackTables(){
 function displayMasterSummaryTable(){
 	clearFeedbackTables();
 	send_feedback("Display all sims run");
-	
+	if (configStack.length > 0)
+		writeUserInput(configStack.pop());
 	document.getElementById("feedback_table1").appendChild(createMasterSummaryTable(simResults));
-	document.getElementById("feedback_buttons").innerHTML = "<button onclick='clearSimResults(false)'>Clear</button>";
-	document.getElementById("feedback_buttons").innerHTML += "<button onclick='clearSimResults(true)'>Clear All</button>";
+	var buttonSection = document.getElementById("feedback_buttons");
+	buttonSection.innerHTML = "";
+	var tb = createElement("table","<col width=50%><col width=50%>");
+	var tr = createElement("tr","");
+	tr.appendChild(createElement("td","<button onclick='clearSimResults(false)'>Clear</button>"));
+	tr.appendChild(createElement("td","<button onclick='clearSimResults(true)'>Clear All</button>"));
+	tb.appendChild(tr);
+	buttonSection.appendChild(tb);
 }
 
 function displayDetail(i){
 	clearFeedbackTables();
 	send_feedback("Display details of Simulation#"+(i+1));
 	
-	var gs = simResults[i];
+	configStack.push(readUserInput(simResults[i]['input']));
+	writeUserInput(simResults[i]['input']);
+	
+	var gs = simResults[i]['output'];
 	document.getElementById("feedback_table1").appendChild(createTeamStatisticsTable(gs['teamStat']));
 	document.getElementById("feedback_table2").appendChild(createPokemonStatisticsTable(gs['pokemonStat']));
 	document.getElementById("feedback_table3").appendChild(createBattleLogTable(gs['battleLog'], app_world.log_style));
@@ -290,111 +515,25 @@ function clearSimResults(clearAll){
 
 </script>
 
-<script>
-
-var totalAtkrTeamCount = 1;
-var app_world = new World(); // The World object to run sims
-var simResults = []; // This is used to store many sims result
-initDataList();
-
-</script>
-
-
-
 <h2>Attacker Information</h2>
-<button onclick="javascript:addPokemon()">Add Pokemon</button>
 <button onclick="javascript:addTeam()">Add Team</button>
-<button onclick="javascript:removePokemon()">Remove Pokemon</button>
 <br>
 
 <div id="AttackerInput">
-	<div>
-		<table>
-		<col width=25%>
-		<col width=50%>
-		<col width=25%>
-			<tr>
-				<td> Team <b>1</b>
-				</td>
-				<td> <input type='text' placeholder='Species' list="SpeciesNameDataList"> </td>
-				<td> <input type='number' placeholder='Copies' min="1" max="6"></td>
-			</tr>
-		</table>
-		<table>
-		<col width=25%>
-		<col width=25%>
-		<col width=25%>
-		<col width=25%>
-			<tr>
-				<td> <input type='number' placeholder='Level' min="1" max="40"> </td>
-				<td> <input type='number' placeholder='HP. IV' min="0" max="15"> </td>
-				<td> <input type='number' placeholder='Atk. IV' min="0" max="15"> </td>
-				<td> <input type='number' placeholder='Def. IV' min="0" max="15"> </td>
-			</tr>
-		</table>
-		<table>
-		<col width=35%>
-		<col width=35%>
-		<col width=30%>
-			<tr>
-				<td> <input type='text' placeholder='Fast Move' list="FMovesDataList"> </td>
-				<td> <input type='text' placeholder='Charged Move' list="CMovesDataList"> </td>
-				<td> <select> 
-						<option value="noDodge">No Dodge</option>
-						<option value="DodgeCMove">Dodge Charged</option>
-					</select></td>
-			</tr>
-		</table>
-		<br>
-	</div>
 </div>
-
 
 
 <h2>Defender Information</h2>
 <div id="DefenderInput">
-	<div>
-		<table>
-		<col width=100%>
-			<tr>
-			<td><input type='text' placeholder='Species' list="SpeciesNameDataList"> </td>
-			</tr>
-		</table>
-		<table>
-		<col width=25%>
-		<col width=25%>
-		<col width=25%>
-		<col width=25%>
-			<tr>
-				<td> <input type='number' placeholder='Level' min="1" max="40"> </td>
-				<td> <input type='number' placeholder='HP. IV' min="0" max="15"> </td>
-				<td> <input type='number' placeholder='Atk. IV' min="0" max="15"> </td>
-				<td> <input type='number' placeholder='Def. IV' min="0" max="15"> </td>
-			</tr>
-		</table>
-		<table>
-		<col width=50%>
-		<col width=50%>
-			<tr>
-				<td> <input type='text' placeholder='Fast Move' list="FMovesDataList"> </td>
-				<td> <input type='text' placeholder='Charged Move' list="CMovesDataList"> </td>
-			</tr>
-		</table>
-	</div>
 </div>
-
 
 
 <h2>General Settings</h2>
 <div id="GeneralSettings">
 	<table>
-	<col width=33%>
-	<col width=33%>
-	<col width=34%>
+	<col width=33%><col width=33%><col width=34%>
 	<tr>
-		<th>Battle Mode</th>
-		<th>Weather</th>
-		<th>Simulation Type</th>
+		<th>Battle Mode</th><th>Weather</th><th>Simulation Type</th>
 	</tr>
 	<tr>
 		<td><select id="battleMode"  onchange="setDefenderInput()">
@@ -415,7 +554,7 @@ initDataList();
 			</select>
 		</td>
 		<td>
-			<select id="numRandomBattles">
+			<select id="simType">
 				<option value="1">Single Random Battle</option>
 				<option value="20">20 Random Battles</option>
 			</select>
@@ -425,7 +564,7 @@ initDataList();
 </div>
 
 <br>
-<button class="block" onclick="main()">Go</button>
+<button onclick="main()" id="GoButton">Go</button>
 
 
 <h2>Feedback</h2>
@@ -436,3 +575,40 @@ initDataList();
 <div id="feedback_table3"></div>
 
 
+<script type="text/javascript">
+
+
+var totalAtkrTeamCount = 0;
+var simQueue = []; // Batch individual sims configurations here
+var simResults = []; // This is used to store many sims result
+var configStack = []; // Store temporary user configurations
+
+initDataList();
+addTeam();
+setDefenderInput();
+
+// Debug
+var dbgs = {
+	generalSettings : {battleMode: "raid", weather : "CLOUDY", simType : 1},
+	atkrSettings : [[{	
+						copies: 6,
+						species_name: "machamp", 
+						level: 40,
+						atkiv: 15,
+						defiv: 15,
+						stmiv: 15,
+						fmove: "counter",
+						cmove: "dynamic punch",
+						dodge: "DodgeCMove"
+					}]],
+	dfdrSettings : {	
+						species_name: "blissey", 
+						fmove: "pound",
+						cmove: "dazzling gleam",
+						raid_tier: 3
+					}
+};
+
+writeUserInput(dbgs);
+
+</script>
