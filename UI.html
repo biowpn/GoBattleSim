@@ -57,10 +57,12 @@ function createPokemonTemplate(){
 	var row2 = document.createElement("tr");
 	var row3 = document.createElement("tr");
 	
-	var tb1 = createElement("table", "<col width=50%><col width=25%><col width=25%>");
+	var tb1 = createElement("table", "<col width=50%><col width=35%><col width=5%><col width=5%><col width=5%>");
 	row1.appendChild(createElement('td',"<input type='text' placeholder='Species' list='SpeciesNameDataList'>"));
 	row1.appendChild(createElement('td',"<input type='number' placeholder='Copies' min='1' max='6'>"));
-	row1.appendChild(createElement('td',"<button>Remove</button>"));
+	row1.appendChild(createElement('td',"<button>X</button>"));
+	row1.appendChild(createElement('td',"<button>&uarr;</button>"));
+	row1.appendChild(createElement('td',"<button>&darr;</button>"));
 	tb1.appendChild(row1);
 	
 	var tb2 = createElement("table", "<col width=25%><col width=25%><col width=25%><col width=25%>");
@@ -106,11 +108,16 @@ function repositionAllPokemon(start, end){
 		team.children[0].innerHTML = "Team " + (i+1);
 		for (var j = 1; j < team.children.length - 1; j++){
 			const jjj = j;
-			var td = team.children[j].children[0].children[1].children[2];
-			td.removeChild(td.children[td.children.length - 1]);
-			var b = createElement("button", "Remove");
-			b.addEventListener("click", function(){removePokemon(iii, jjj);});
-			td.appendChild(b);
+			var symsbolsAndFunctions = [["&uarr;", function(){movePokemonUp(iii, jjj);}],
+										["&darr;", function(){movePokemonDown(iii, jjj);}],
+										["X", function(){removePokemon(iii, jjj);}]];
+			for (var k = 0; k < symsbolsAndFunctions.length; k++){
+				var td = team.children[j].children[0].children[1].children[k+2];
+				var b = createElement("button", symsbolsAndFunctions[k][0]);
+				b.addEventListener("click", symsbolsAndFunctions[k][1]);
+				td.removeChild(td.children[0]);
+				td.appendChild(b);
+			}
 		}
 		team.removeChild(team.children[team.children.length - 1]);
 		team.appendChild(createTeamButtonTable(i));
@@ -119,7 +126,6 @@ function repositionAllPokemon(start, end){
 
 
 function addPokemon(i){
-	//console.log("call addPokemon(" + i + ")");
 	var team = document.getElementById("AttackerInput").children[i];
 	team.removeChild(team.children[team.children.length - 1]);
 	team.appendChild(createPokemonTemplate());
@@ -128,13 +134,45 @@ function addPokemon(i){
 }
 
 function removePokemon(i, j){
-	//console.log("call removePokemon(" + i + "," + j + ")");
 	var team = document.getElementById("AttackerInput").children[i];
-	team.removeChild(team.children[j]);
-	repositionAllPokemon(i, i+1);
+	if (team.children.length > 3){
+		team.removeChild(team.children[j]);
+		repositionAllPokemon(i, i+1);
+	}else
+		send_feedback("Can't remove the only attacker in the team. Use Remove Team instead");
 }
+
+function swapChildren(parent, i1, i2){
+	var children = [];
+	while (parent.children.length > 0){
+		children.push(parent.children[0]);
+		parent.removeChild(parent.children[0]);
+	}
+	var intermediate = children[i1];
+	children[i1] = children[i2];
+	children[i2] = intermediate;
+	for (var k = 0; k < children.length; k++)
+		parent.appendChild(children[k]);
+}
+
+function movePokemonUp(i, j){
+	var team = document.getElementById("AttackerInput").children[i];
+	if (j > 1){
+		swapChildren(team, j, j - 1);
+		repositionAllPokemon(i, i + 1);
+	}
+}
+
+function movePokemonDown(i, j){
+	var team = document.getElementById("AttackerInput").children[i];
+	if (j < team.children.length - 2){
+		swapChildren(team, j, j + 1);
+		repositionAllPokemon(i, i + 1);
+	}
+}
+
+
 function addTeam(){
-	//console.log("call addTeam()");
 	if (totalAtkrTeamCount < MAX_NUMBER_OF_TEAMS){
 		var teams = document.getElementById("AttackerInput");
 		var newTeam = document.createElement("div");
@@ -150,7 +188,6 @@ function addTeam(){
 }
 
 function removeTeam(i){
-	//console.log("call removeTeam(" + i + ")");
 	if (totalAtkrTeamCount >= 2){
 		var teams = document.getElementById("AttackerInput");
 		teams.removeChild(teams.children[i]);
@@ -158,7 +195,7 @@ function removeTeam(i){
 		repositionAllPokemon(i);
 	}
 	else
-		send_feedback("Can't remove the only attacker team");
+		send_feedback("Can't remove the only team");
 }
 
 function setDefenderInput(){
