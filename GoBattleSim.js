@@ -610,12 +610,7 @@ World.prototype.dfdr_choose = function (pkm, t, current_move){
 			next_move = pkm.cmove;
 	}
 	// Add the defender delay
-	if (this.randomness){
-		next_t += 1500 + Math.round(1000 * Math.random());
-	}else{
-		next_t += 2000;
-	}
-	
+	next_t += 1500 + Math.round(1000 * Math.random());
 	this.dfdr_use_move(pkm, next_move, next_t);
 	this.tline.enqueue(new Event("DfdrFree", next_t, pkm, 0, next_move, 0, 0));
 }

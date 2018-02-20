@@ -286,9 +286,9 @@ function writeDefenderInput(section, pkm){
 	row3.children[1].children[0].value = pkm['cmove'];
 	if (document.getElementById("battleMode").value == "gym"){
 		row2.children[0].children[0].value = pkm['level'];
-		row2.children[0].children[0].value = pkm['stmiv'];
-		row2.children[1].children[0].value = pkm['atkiv'];
-		row2.children[2].children[0].value = pkm['defiv'];
+		row2.children[1].children[0].value = pkm['stmiv'];
+		row2.children[2].children[0].value = pkm['atkiv'];
+		row2.children[3].children[0].value = pkm['defiv'];
 	}else if (document.getElementById("battleMode").value ==  "raid"){
 		document.getElementById("raidTier").value = pkm['raid_tier'];
 	}
