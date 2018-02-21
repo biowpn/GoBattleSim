@@ -101,6 +101,7 @@ function createTeamButtonTable(i){
 // Re positioning all Pokemon from Team (start+1) up to but excluding Team (end+1)
 function repositionAllPokemon(start, end){
 	var teams = document.getElementById("AttackerInput");
+	start = start || 0;
 	end = end || teams.children.length;
 	for (var i = start; i < end; i++){
 		const iii = i;
@@ -170,7 +171,6 @@ function movePokemonDown(i, j){
 		repositionAllPokemon(i, i + 1);
 	}
 }
-
 
 function addTeam(){
 	if (totalAtkrTeamCount < MAX_NUMBER_OF_TEAMS){
@@ -245,19 +245,17 @@ function setDefenderInput(){
 	dfdrSection.appendChild(tb3);
 }
 
-
 function parseAttackerInput(section){
 	var row1 = section.children[0].children[1];
 	var row2 = section.children[1].children[1];
 	var row3 = section.children[2].children[1];
-	
 	var pkm = {
 		species_name: row1.children[0].children[0].value.trim(),
-		copies: row1.children[1].children[0].valueAsNumber,
-		level: row2.children[0].children[0].valueAsNumber,
-		stmiv: row2.children[1].children[0].valueAsNumber,
-		atkiv: row2.children[2].children[0].valueAsNumber,
-		defiv: row2.children[3].children[0].valueAsNumber,
+		copies: row1.children[1].children[0].valueAsNumber || 1,
+		level: Math.max(1, Math.min(40,row2.children[0].children[0].valueAsNumber)),
+		stmiv: Math.max(0, Math.min(15,row2.children[1].children[0].valueAsNumber)),
+		atkiv: Math.max(0, Math.min(15,row2.children[2].children[0].valueAsNumber)),
+		defiv: Math.max(0, Math.min(15,row2.children[3].children[0].valueAsNumber)),
 		fmove: row3.children[0].children[0].value.trim(),
 		cmove: row3.children[1].children[0].value.trim(),
 		dodge: row3.children[2].children[0].value,
@@ -270,7 +268,6 @@ function parseDefenderInput(section){
 	var row1 = section.children[0].children[1];
 	var row2 = section.children[1].children[1];
 	var row3 = section.children[2].children[1];
-	
 	var pkm = {
 		team_idx : -1,
 		species_name: row1.children[0].children[0].value.trim(),
@@ -281,20 +278,17 @@ function parseDefenderInput(section){
 		fmove: row3.children[0].children[0].value.trim(),
 		cmove: row3.children[1].children[0].value.trim()
 	};
-	
 	if (document.getElementById("battleMode").value == "gym"){
-		pkm['level'] = row2.children[0].children[0].valueAsNumber;
-		pkm['stmiv'] = row2.children[0].children[0].valueAsNumber;
-		pkm['atkiv'] = row2.children[1].children[0].valueAsNumber;
-		pkm['defiv'] = row2.children[2].children[0].valueAsNumber;
+		pkm['level'] = Math.max(1, Math.min(40,row2.children[0].children[0].valueAsNumber));
+		pkm['stmiv'] = Math.max(0, Math.min(15,row2.children[1].children[0].valueAsNumber));
+		pkm['atkiv'] = Math.max(0, Math.min(15,row2.children[2].children[0].valueAsNumber));
+		pkm['defiv'] = Math.max(0, Math.min(15,row2.children[3].children[0].valueAsNumber));
 		pkm['raid_tier'] = -1;
 	}else if (document.getElementById("battleMode").value == "raid"){
 		pkm['raid_tier'] = parseInt(document.getElementById("raidTier").value);
 	}
-	
 	return pkm;
 }
-
 
 function writeAttackerInput(section, pkm){
 	var row1 = section.children[0].children[1];
@@ -311,7 +305,6 @@ function writeAttackerInput(section, pkm){
 	row3.children[1].children[0].value = pkm.cmove;
 	row3.children[2].children[0].value = pkm.dodge;
 }
-
 
 function writeDefenderInput(section, pkm){
 	var row1 = section.children[0].children[1];
@@ -331,7 +324,6 @@ function writeDefenderInput(section, pkm){
 	}
 }
 
-
 function readUserInput(){
 	var gSettings = {};
 	if (document.getElementById("battleMode").value == "raid")
@@ -339,14 +331,15 @@ function readUserInput(){
 	else if (document.getElementById("battleMode").value == "gym")
 		gSettings['raidTier'] = -1;
 	gSettings['weather'] = document.getElementById("weather").value;
-	
-	if (2 <= totalAtkrTeamCount && totalAtkrTeamCount <= 3)
-		gSettings['logStyle'] = 2;
-	else
-		gSettings['logStyle'] = 1;
-	gSettings['simType'] = parseInt(document.getElementById("simType").value);
 	gSettings['dodgeBug'] = parseInt(document.getElementById("dodgeBug").value);
-		
+	gSettings['simType'] = document.getElementById("simType").value;
+	if (gSettings['simType'] != '1')
+		gSettings['logStyle'] = 0;
+	else if (totalAtkrTeamCount == 1 || totalAtkrTeamCount > 3)
+		gSettings['logStyle'] = 1;
+	else
+		gSettings['logStyle'] = 2;
+	
 	var atkr_parties = [];
 	var attackerSections = document.getElementById("AttackerInput").children;
 	for (var i = 0; i < attackerSections.length; i++){
@@ -357,21 +350,12 @@ function readUserInput(){
 	}
 	
 	var defenderSection = document.getElementById("DefenderInput");
-	var dfdr_info = parseDefenderInput(defenderSection)
-	
-	return {
-				generalSettings : gSettings,
-				atkrSettings : atkr_parties,
-				dfdrSettings : dfdr_info
+	var dfdr_info = parseDefenderInput(defenderSection);
+	return {generalSettings : gSettings,
+			atkrSettings : atkr_parties,
+			dfdrSettings : dfdr_info
 			};
 }
-
-function parseUserInput(cfg){
-	for (var i = 0; i < cfg['generalSettings']['simType']; i++){
-		simQueue.push(cfg);
-	}
-}
-
 
 function writeUserInput(cfg){
 	if (cfg['generalSettings']['raidTier'] == -1){
@@ -417,13 +401,33 @@ function createRow(rowData, type){
 
 function createMasterSummaryTable(sims){
 	var table = document.createElement("table");
-	table.appendChild(createRow(["Sim#","Result","Time","#Deaths","Details"],"th"));
+	var headers = createRow(MasterSummaryTableMetricHeaders.concat(["Details"]),"th");
+	
+	for (var i = 0; i < headers.children.length - 1; i++){
+		const ii = i;
+		headers.children[i].onclick = function(){sortMasterSummaryTable(MasterSummaryTableMetrics[ii]);};
+	}
+	table.appendChild(headers);
+	
 	for (var i = 0; i < sims.length; i++){
 		var gs = sims[i]['output']['generalStat']; // represents a single sim's general stats
-		table.appendChild(createRow([i+1, gs.result, gs.duration, gs.total_deaths, "<button onclick='displayDetail("+i+")'>Detail</button>"],"td"));
+		var row = [];
+		for (var j = 0; j < MasterSummaryTableMetrics.length; j++)
+			row.push(gs[MasterSummaryTableMetrics[j]]);
+		row.push("<button onclick='displayDetail("+i+")'>Detail</button>");
+		table.appendChild(createRow(row, "td"));
 	}
 	return table;
 }
+
+function sortMasterSummaryTable(attr){
+	if (MasterSummaryTableMetricsSorted[attr] == 0)
+		MasterSummaryTableMetricsSorted[attr] = 1;
+	sortByDeepAttr(simResults, ['output', 'generalStat', attr], MasterSummaryTableMetricsSorted[attr]);
+	MasterSummaryTableMetricsSorted[attr] *= -1;
+	displayMasterSummaryTable();
+}
+
 
 function createTeamStatisticsTable(teamStats){
 	var table = document.createElement("table");
@@ -480,67 +484,119 @@ function createBattleLogTable(log, log_style){
 }
 
 function main(){
-	parseUserInput(readUserInput());
-	while (simQueue.length > 0){
-		runSim(simQueue.shift());
-	}
+	simQueue.push(readUserInput());
+	while (simQueue.length > 0)
+		processQueue(simQueue.pop());
 	displayMasterSummaryTable();
 	send_feedback("Simulation done.");
 }
 
-// A recursive function to handle enumerated input
-function runSim(cfg){
+function enqueueSim(cfg){
+	if (simQueue.length < MAX_QUEUE_SIZE){
+		var cfg_copy = JSON.parse(JSON.stringify(cfg));
+		simQueue.push(cfg_copy);
+	}else
+		send_feedback("Too many sims to unpack. Try to use less enumerators");
+}
+
+
+// Unpack enumerated sim, or run fully an unpacked one
+function processQueue(cfg){
 	for (var i = 0; i < cfg['atkrSettings'].length; i++){
 		for (var j = 0; j < cfg['atkrSettings'][i].length; j++){
 			var dex = get_species_index_by_name(cfg['atkrSettings'][i][j].species_name);
 			if (cfg['atkrSettings'][i][j].fmove == '*'){
 				var fmoves = POKEMON_SPECIES_DATA[dex].fastMoves;
 				for (var k = 0; k < fmoves.length; k++){
-					var cfg_fm = JSON.parse(JSON.stringify(cfg));
-					cfg_fm['atkrSettings'][i][j].fmove = fmoves[k];
-					runSim(cfg_fm);
+					cfg['atkrSettings'][i][j].fmove = fmoves[k];
+					enqueueSim(cfg);
 				}
 				return;
 			}
 			if (cfg['atkrSettings'][i][j].cmove == '*'){
 				var cmoves = POKEMON_SPECIES_DATA[dex].chargedMoves;
 				for (var k = 0; k < cmoves.length; k++){
-					var cfg_cm = JSON.parse(JSON.stringify(cfg));
-					cfg_cm['atkrSettings'][i][j].cmove = cmoves[k];
-					runSim(cfg_cm);
+					cfg['atkrSettings'][i][j].cmove = cmoves[k];
+					enqueueSim(cfg);
 				}
 				return;
 			}
 		}
-	}
-	
+	}	
 	var dex = get_species_index_by_name(cfg['dfdrSettings'].species_name);
 	if (cfg['dfdrSettings'].fmove == '*'){
 		var fmoves = POKEMON_SPECIES_DATA[dex].fastMoves;
 		for (var k = 0; k < fmoves.length; k++){
-			var cfg_fm = JSON.parse(JSON.stringify(cfg));
-			cfg_fm['dfdrSettings'].fmove = fmoves[k];
-			runSim(cfg_fm);
+			cfg['dfdrSettings'].fmove = fmoves[k];
+			enqueueSim(cfg);
 		}
 		return;
 	}
 	if (cfg['dfdrSettings'].cmove == '*'){
 		var cmoves = POKEMON_SPECIES_DATA[dex].chargedMoves;
 		for (var k = 0; k < cmoves.length; k++){
-			var cfg_cm = JSON.parse(JSON.stringify(cfg));
-			cfg_cm['dfdrSettings'].cmove = cmoves[k];
-			runSim(cfg_cm);
+			cfg['dfdrSettings'].cmove = cmoves[k];
+			enqueueSim(cfg);
 		}
 		return;
 	}
-	
-	app_world = new World();
-	app_world.config(cfg);
-	app_world.battle();
+	runSim(cfg);
+}
+
+// Running a specific sim without any enumerator and push result(s) to simResults
+function runSim(cfg){
+	var numSimToRun = 1;
+	if (cfg['generalSettings']['simType'] == '2'){
+		numSimToRun = 100;
+	} else if (cfg['generalSettings']['simType'] == '3'){
+		numSimToRun = 1000;
+	}
+	var interResults = [];
+	for (var i = 0; i < numSimToRun; i++){
+		app_world = new World();
+		app_world.config(cfg);
+		app_world.battle();
+		interResults.push(app_world.get_statistics());
+	}
 	simResults.push({
 			input: cfg, 
-			output: app_world.get_statistics()
+			output: averageResults(interResults)
 		});
+}
+
+// Averaging some key performance metrics
+function averageResults(results){
+	var avrgResult = JSON.parse(JSON.stringify(results[0]));
+	var numResults = results.length;
+	var sumWin = 0, sumDuration = 0, sumEnemyHPLostPctg = 0, sumDeaths = 0;
+	for (var i = 0; i < numResults; i++){
+		var gs = results[i]['generalStat'];
+		if (gs['battle_result'] == 'Win')
+			sumWin++;
+		sumDuration += gs['duration'];
+		sumEnemyHPLostPctg += gs['dfdr_HP_lost_percent'];
+		sumDeaths += gs['total_deaths'];
+	}
+	if (numResults > 1){
+		avrgResult['generalStat']['battle_result'] = Math.round(sumWin/numResults*1000)/10 + "%Win";
+	}else{
+		avrgResult['generalStat']['battle_result'] = results[0]['generalStat']['battle_result'];
+	}
+	avrgResult['generalStat']['duration'] = Math.round(sumDuration/numResults*10)/10;
+	avrgResult['generalStat']['dfdr_HP_lost_percent'] = Math.round(sumEnemyHPLostPctg/numResults*100)/100;
+	avrgResult['generalStat']['total_deaths'] = Math.round(sumDeaths/numResults*100)/100;
+	
+	return avrgResult;
+}
+
+function sortByDeepAttr(data, attrs, reversed){
+	data.sort(function(a, b){
+		for (var i = 0; i < attrs.length; i++){
+			a = a[attrs[i]];
+			b = b[attrs[i]];
+		}
+		return ((a == b) ? 0 : (a < b ? -1 : 1)) * reversed;
+	});
 }
 
 function clearFeedbackTables(){
@@ -555,6 +611,7 @@ function displayMasterSummaryTable(){
 	if (configStack.length > 0)
 		writeUserInput(configStack.pop());
 	document.getElementById("feedback_table1").appendChild(createMasterSummaryTable(simResults));
+	
 	var buttonSection = document.getElementById("feedback_buttons");
 	buttonSection.innerHTML = "";
 	var tb = createElement("table","<col width=50%><col width=50%>");
@@ -643,6 +700,8 @@ function clearSimResults(clearAll){
 		<td>
 			<select id="simType">
 				<option value="1">Single Random Battle</option>
+				<option value="2">Average 100</option>
+				<option value="3">Average 1000</option>
 			</select>
 		</td>
 	</tr>
@@ -663,11 +722,17 @@ function clearSimResults(clearAll){
 
 <script type="text/javascript">
 
-
+var MAX_QUEUE_SIZE = 1024;
 var totalAtkrTeamCount = 0;
+var MasterSummaryTableMetrics = ['battle_result','duration','dfdr_HP_lost_percent','total_deaths'];
+var MasterSummaryTableMetricHeaders = ['Outcome','Time','EnemyHPLost%','#Death'];
 var simQueue = []; // Batch individual sims configurations here
 var simResults = []; // This is used to store many sims result
 var configStack = []; // Store temporary user configurations
+
+var MasterSummaryTableMetricsSorted = {};
+for (var i = 0; i < MasterSummaryTableMetrics.length; i++)
+	MasterSummaryTableMetricsSorted[MasterSummaryTableMetrics[i]] = 0;
 
 initDataList();
 addTeam();
