@@ -57,7 +57,7 @@ function createPokemonTemplate(){
 	var row2 = document.createElement("tr");
 	var row3 = document.createElement("tr");
 	
-	var tb1 = createElement("table", "<col width=50%><col width=35%><col width=5%><col width=5%><col width=5%>");
+	var tb1 = createElement("table", "<col width=50%><col width=20%><col width=10%><col width=10%><col width=10%>");
 	row1.appendChild(createElement('td',"<input type='text' placeholder='Species' list='SpeciesNameDataList'>"));
 	row1.appendChild(createElement('td',"<input type='number' placeholder='Copies' min='1' max='6'>"));
 	row1.appendChild(createElement('td',"<button>X</button>"));
@@ -332,10 +332,11 @@ function readUserInput(){
 		gSettings['raidTier'] = -1;
 	gSettings['weather'] = document.getElementById("weather").value;
 	gSettings['dodgeBug'] = parseInt(document.getElementById("dodgeBug").value);
-	gSettings['simType'] = document.getElementById("simType").value;
-	if (gSettings['simType'] != '1')
+	gSettings['simPerConfig'] = Math.max(0, Math.min(MAX_SIM_PER_CONFIG, document.getElementById("simPerConfig").valueAsNumber));
+	gSettings['reportType'] = document.getElementById("reportType").value;
+	if (gSettings['reportType'] == 'avrg')
 		gSettings['logStyle'] = 0;
-	else if (totalAtkrTeamCount == 1 || totalAtkrTeamCount > 3)
+	else if (totalAtkrTeamCount > 3)
 		gSettings['logStyle'] = 1;
 	else
 		gSettings['logStyle'] = 2;
@@ -353,20 +354,17 @@ function readUserInput(){
 	var dfdr_info = parseDefenderInput(defenderSection);
 	return {generalSettings : gSettings,
 			atkrSettings : atkr_parties,
-			dfdrSettings : dfdr_info
+			dfdrSettings : dfdr_info,
+			unpackedFields : []
 			};
 }
 
 function writeUserInput(cfg){
-	if (cfg['generalSettings']['raidTier'] == -1){
-		document.getElementById("battleMode").value = "gym";
-	}
-	else{
-		document.getElementById("battleMode").value = "raid";
-	}
+	document.getElementById("battleMode").value = (cfg['generalSettings']['raidTier'] == -1) ? "gym" : "raid";
 	document.getElementById("weather").value = cfg['generalSettings']['weather'];
 	document.getElementById("dodgeBug").value = cfg['generalSettings']['dodgeBug'];
-	document.getElementById("simType").value = cfg['generalSettings']['simType'];
+	document.getElementById("simPerConfig").value = cfg['generalSettings']['simPerConfig'];
+	document.getElementById("reportType").value = cfg['generalSettings']['reportType'];
 	
 	var attackerSections = document.getElementById("AttackerInput");
 	while (attackerSections.children.length > 0)
@@ -401,19 +399,22 @@ function createRow(rowData, type){
 
 function createMasterSummaryTable(sims){
 	var table = document.createElement("table");
+	var sortableFields = MasterSummaryTableMetrics;
+	/*for (var i = 0; i < sims[0]['input']['unpackedFields'].length; i++)
+		sortableFields.push('*' + i);*/
 	var headers = createRow(MasterSummaryTableMetricHeaders.concat(["Details"]),"th");
 	
 	for (var i = 0; i < headers.children.length - 1; i++){
 		const ii = i;
-		headers.children[i].onclick = function(){sortMasterSummaryTable(MasterSummaryTableMetrics[ii]);};
+		headers.children[i].onclick = function(){sortMasterSummaryTable(sortableFields[ii]);};
 	}
 	table.appendChild(headers);
 	
-	for (var i = 0; i < sims.length; i++){
+	for (var i = pageStart; i < Math.min(pageStart + MaxResultsPerPage, sims.length); i++){
 		var gs = sims[i]['output']['generalStat']; // represents a single sim's general stats
 		var row = [];
-		for (var j = 0; j < MasterSummaryTableMetrics.length; j++)
-			row.push(gs[MasterSummaryTableMetrics[j]]);
+		for (var j = 0; j < sortableFields.length; j++)
+			row.push(gs[sortableFields[j]]);
 		row.push("<button onclick='displayDetail("+i+")'>Detail</button>");
 		table.appendChild(createRow(row, "td"));
 	}
@@ -429,17 +430,17 @@ function sortMasterSummaryTable(attr){
 }
 
 
-function createTeamStatisticsTable(teamStats){
+function createTeamStatisticsTable(simRes){
 	var table = document.createElement("table");
 	table.appendChild(createRow(["Team#","TDO","TDO%","#Rejoin","#Deaths"],"th"));
-	for (var i = 0; i < teamStats.length; i++){
-		var ts = teamStats[i];
+	for (var i = 0; i < simRes.output.teamStat.length; i++){
+		var ts = simRes.output.teamStat[i];
 		table.appendChild(createRow([ts.team, ts.tdo, ts.tdo_percentage, ts.num_rejoin, ts.total_deaths],"td"));
 	}
 	return table;
 }
 
-function createPokemonStatisticsTable(pokemonStats){
+function createPokemonStatisticsTable(simRes){
 	var table = document.createElement("table");
 	table.appendChild(createRow(["Team#",
 								"<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>",
@@ -449,16 +450,17 @@ function createPokemonStatisticsTable(pokemonStats){
 								"Duration",
 								"DPS",
 								"TEO"],"th"));
-	for (var i = 0; i < pokemonStats.length; i++){
-		var ps = pokemonStats[i];
+	for (var i = 0; i < simRes.output.pokemonStat.length; i++){
+		var ps = simRes.output.pokemonStat[i];
 		table.appendChild(createRow([ps.team, ps.img, ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, ps.teo],"td"));
 	}
 	return table;
 }
 
-function createBattleLogTable(log, log_style){
+function createBattleLogTable(simRes){
 	var table = document.createElement("table");
-	if (log_style == 1){
+	var log = simRes.output.battleLog;
+	if (simRes.input.generalSettings.logStyle == 1){
 		var headers = ["Time",
 					"Team#",
 					"<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>",
@@ -469,7 +471,7 @@ function createBattleLogTable(log, log_style){
 		for (var i = 0; i < log.length; i++){
 			table.appendChild(createRow(log[i]), "td");
 		}
-	}else if (log_style == 2){
+	}else if (simRes.input.generalSettings.logStyle == 2){
 		var headers = ["Time"];
 		for (var i = 1; i <= totalAtkrTeamCount; i++)
 			headers.push("Team"+i);
@@ -486,7 +488,7 @@ function createBattleLogTable(log, log_style){
 function main(){
 	simQueue.push(readUserInput());
 	while (simQueue.length > 0)
-		processQueue(simQueue.pop());
+		processQueue(simQueue.shift());
 	displayMasterSummaryTable();
 	send_feedback("Simulation done.");
 }
@@ -509,6 +511,7 @@ function processQueue(cfg){
 				var fmoves = POKEMON_SPECIES_DATA[dex].fastMoves;
 				for (var k = 0; k < fmoves.length; k++){
 					cfg['atkrSettings'][i][j].fmove = fmoves[k];
+					cfg['unpackedFields'].push(fmoves[k]);
 					enqueueSim(cfg);
 				}
 				return;
@@ -517,6 +520,7 @@ function processQueue(cfg){
 				var cmoves = POKEMON_SPECIES_DATA[dex].chargedMoves;
 				for (var k = 0; k < cmoves.length; k++){
 					cfg['atkrSettings'][i][j].cmove = cmoves[k];
+					cfg['unpackedFields'].push(cmoves[k]);
 					enqueueSim(cfg);
 				}
 				return;
@@ -528,6 +532,7 @@ function processQueue(cfg){
 		var fmoves = POKEMON_SPECIES_DATA[dex].fastMoves;
 		for (var k = 0; k < fmoves.length; k++){
 			cfg['dfdrSettings'].fmove = fmoves[k];
+			cfg['unpackedFields'].push(fmoves[k]);
 			enqueueSim(cfg);
 		}
 		return;
@@ -536,6 +541,7 @@ function processQueue(cfg){
 		var cmoves = POKEMON_SPECIES_DATA[dex].chargedMoves;
 		for (var k = 0; k < cmoves.length; k++){
 			cfg['dfdrSettings'].cmove = cmoves[k];
+			cfg['unpackedFields'].push(cmoves[k]);
 			enqueueSim(cfg);
 		}
 		return;
@@ -545,28 +551,24 @@ function processQueue(cfg){
 
 // Running a specific sim without any enumerator and push result(s) to simResults
 function runSim(cfg){
-	var numSimToRun = 1;
-	if (cfg['generalSettings']['simType'] == '2'){
-		numSimToRun = 100;
-	} else if (cfg['generalSettings']['simType'] == '3'){
-		numSimToRun = 1000;
-	}
 	var interResults = [];
-	for (var i = 0; i < numSimToRun; i++){
-		app_world = new World();
+	for (var i = 0; i < cfg['generalSettings']['simPerConfig']; i++){
+		var app_world = new World();
 		app_world.config(cfg);
 		app_world.battle();
 		interResults.push(app_world.get_statistics());
 	}
-	simResults.push({
-			input: cfg, 
-			output: averageResults(interResults)
-		});
+	if (cfg['generalSettings']['reportType'] == 'avrg')
+		simResults.push({input: cfg, output: averageResults(interResults)});
+	else if (cfg['generalSettings']['reportType'] == 'enum'){
+		for (var i = 0; i < interResults.length; i++)
+			simResults.push({input: cfg, output: interResults[i]});
+	}
 }
 
 // Averaging some key performance metrics
 function averageResults(results){
-	var avrgResult = JSON.parse(JSON.stringify(results[0]));
+	var avrgResult = results[0];
 	var numResults = results.length;
 	var sumWin = 0, sumDuration = 0, sumEnemyHPLostPctg = 0, sumDeaths = 0;
 	for (var i = 0; i < numResults; i++){
@@ -605,49 +607,79 @@ function clearFeedbackTables(){
 	document.getElementById("feedback_table3").innerHTML = "";
 }
 
+function turnPage(command){
+	var maxStartPostion = Math.floor((simResults.length-1) / MaxResultsPerPage) * MaxResultsPerPage;
+	if (command == 1)
+		pageStart += MaxResultsPerPage;
+	else if (command == -1)
+		pageStart -= MaxResultsPerPage;
+	else if (command == 2)
+		pageStart = maxStartPostion;
+	else if (command == -2)
+		pageStart = 0;
+	pageStart = Math.max(0, Math.min(maxStartPostion, pageStart));
+	displayMasterSummaryTable();
+}
+
 function displayMasterSummaryTable(){
 	clearFeedbackTables();
-	send_feedback("Display all sims run");
 	if (configStack.length > 0)
 		writeUserInput(configStack.pop());
-	document.getElementById("feedback_table1").appendChild(createMasterSummaryTable(simResults));
-	
 	var buttonSection = document.getElementById("feedback_buttons");
 	buttonSection.innerHTML = "";
-	var tb = createElement("table","<col width=50%><col width=50%>");
-	var tr = createElement("tr","");
-	tr.appendChild(createElement("td","<button onclick='clearSimResults(false)'>Clear</button>"));
-	tr.appendChild(createElement("td","<button onclick='clearSimResults(true)'>Clear All</button>"));
-	tb.appendChild(tr);
-	buttonSection.appendChild(tb);
+	var tb1 = createElement("table","<col width=50%><col width=50%>");
+	var tr1 = createElement("tr","");
+	tr1.appendChild(createElement("td","<button onclick='clearSims(false)'>Clear Last</button>"));
+	tr1.appendChild(createElement("td","<button onclick='clearSims(true)'>Clear All</button>"));
+	tb1.appendChild(tr1);
+	buttonSection.appendChild(tb1);
+	
+	document.getElementById("feedback_table1").appendChild(createMasterSummaryTable(simResults));
+	
+	var tb2 = createElement("table","<col width=25%><col width=25%><col width=25%><col width=25%>");
+	var tr2 = createElement("tr","");
+	tr2.appendChild(createElement("td","<button onclick='turnPage(-2)'>First</button>"));
+	tr2.appendChild(createElement("td","<button onclick='turnPage(-1)'>Prev</button>"));
+	tr2.appendChild(createElement("td","<button onclick='turnPage(1)'>Next</button>"));
+	tr2.appendChild(createElement("td","<button onclick='turnPage(2)'>Last</button>"));
+	tb2.appendChild(tr2);
+	document.getElementById("feedback_table1").appendChild(createElement("p",
+		"Page " + (Math.floor(pageStart/MaxResultsPerPage)+1) + " of " + Math.max(Math.ceil(simResults.length/MaxResultsPerPage),1)));
+	document.getElementById("feedback_table1").appendChild(tb2);
 }
 
 function displayDetail(i){
 	clearFeedbackTables();
-	send_feedback("Display details of Simulation#"+(i+1));
-	
 	configStack.push(readUserInput(simResults[i]['input']));
 	writeUserInput(simResults[i]['input']);
-	
-	var gs = simResults[i]['output'];
-	document.getElementById("feedback_table1").appendChild(createTeamStatisticsTable(gs['teamStat']));
-	document.getElementById("feedback_table2").appendChild(createPokemonStatisticsTable(gs['pokemonStat']));
-	document.getElementById("feedback_table3").appendChild(createBattleLogTable(gs['battleLog'], app_world.log_style));
 	document.getElementById("feedback_buttons").innerHTML = "<button onclick='displayMasterSummaryTable()'>Back</button>";
+	
+	document.getElementById("feedback_table1").appendChild(createTeamStatisticsTable(simResults[i]));
+	document.getElementById("feedback_table2").appendChild(createPokemonStatisticsTable(simResults[i]));
+	document.getElementById("feedback_table3").innerHTML = "<button onclick='displayBattleLog("+i+")'>Display Battle Log</button>";
+	
 }
 
-function send_feedback(msg){
-	document.getElementById("feedback_message").innerHTML = msg;
+function displayBattleLog(i){
+	document.getElementById("feedback_table3").innerHTML = "";
+	document.getElementById("feedback_table3").appendChild(createBattleLogTable(simResults[i]));
 }
 
-function clearSimResults(clearAll){
-	if (clearAll)
+function send_feedback(msg, appending){
+	if (appending){
+		document.getElementById("feedback_message").innerHTML += '<br>' + msg;
+	}else
+		document.getElementById("feedback_message").innerHTML = msg;
+}
+
+function clearSims(all){
+	if (all)
 		simResults = [];
 	else if (simResults.length > 0)
 		simResults.pop();
-
+	while (pageStart >= simResults.length && pageStart > 0)
+		pageStart -= MaxResultsPerPage;
 	displayMasterSummaryTable();
-	send_feedback("Simulation result cleared");
 }
 
 
@@ -669,9 +701,9 @@ function clearSimResults(clearAll){
 <h2>General Settings</h2>
 <div id="GeneralSettings">
 	<table>
-	<col width=25%><col width=25%><col width=25%><col width=25%>
+	<col width=20%><col width=20%><col width=20%><col width=20%><col width=20%>
 	<tr>
-		<th>Battle Mode</th><th>Weather</th><th>Dodge Bug</th><th>Simulation Type</th>
+		<th>Mode</th><th>Weather</th><th>Dodge Bug</th><th>Repeat</th><th>Report Type</th>
 	</tr>
 	<tr>
 		<td><select id="battleMode"  onchange="setDefenderInput()">
@@ -698,10 +730,12 @@ function clearSimResults(clearAll){
 			</select>
 		</td>
 		<td>
-			<select id="simType">
-				<option value="1">Single Random Battle</option>
-				<option value="2">Average 100</option>
-				<option value="3">Average 1000</option>
+			<input id="simPerConfig" type="number" min="1">
+		</td>
+		<td>
+			<select id="reportType">
+				<option value="enum">Enumerate</option>
+				<option value="avrg">Average</option>
 			</select>
 		</td>
 	</tr>
@@ -714,25 +748,38 @@ function clearSimResults(clearAll){
 
 <h2>Feedback</h2>
 <div id="feedback_message"></div>
+<br>
 <div id="feedback_buttons"></div>
+<br>
 <div id="feedback_table1"></div>
+<br>
 <div id="feedback_table2"></div>
+<br>
 <div id="feedback_table3"></div>
 
 
 <script type="text/javascript">
 
-var MAX_QUEUE_SIZE = 1024;
+var RELEVANT_ATTACKERS_DEX = [3, 6, 45, 59, 62, 65, 68, 71, 76, 91, 94, 103, 112, 114, 123, 124, 127, 130, 131, 134, 135, 136, 139, 144, 145, 146, 149, 150, 157, 160, 196, 212, 214, 217, 221, 229, 232, 243, 244, 248, 249, 250, 254, 257, 260, 275, 282, 286, 289, 297, 302, 319, 332, 337, 338, 342, 350, 354, 359, 365, 373, 376, 382, 383, 384];
+
+const MAX_QUEUE_SIZE = 65536;
+const MAX_SIM_PER_CONFIG = 1024;
+
 var totalAtkrTeamCount = 0;
-var MasterSummaryTableMetrics = ['battle_result','duration','dfdr_HP_lost_percent','total_deaths'];
-var MasterSummaryTableMetricHeaders = ['Outcome','Time','EnemyHPLost%','#Death'];
 var simQueue = []; // Batch individual sims configurations here
 var simResults = []; // This is used to store many sims result
 var configStack = []; // Store temporary user configurations
 
+var MaxResultsPerPage = 30;
+var pageStart = 0;
+
+var MasterSummaryTableMetrics = ['battle_result','duration','dfdr_HP_lost_percent','total_deaths'];
+var MasterSummaryTableMetricHeaders = ['Outcome','Time','Progress','#Death'];
 var MasterSummaryTableMetricsSorted = {};
 for (var i = 0; i < MasterSummaryTableMetrics.length; i++)
 	MasterSummaryTableMetricsSorted[MasterSummaryTableMetrics[i]] = 0;
+
+	
 
 initDataList();
 addTeam();
@@ -740,7 +787,11 @@ setDefenderInput();
 
 // Debug
 var dbgs = {
-	generalSettings : {battleMode: "raid", weather : "CLOUDY", dodgeBug: 0, simType : 1},
+	generalSettings : {battleMode: "raid", 
+						weather : "CLOUDY", 
+						dodgeBug: 0, 
+						simPerConfig : 5,
+						reportType : "enum"},
 	atkrSettings : [[{	
 						copies: 6,
 						species_name: "machamp", 

@@ -178,7 +178,7 @@ function pokemon_img_by_id(dex, size){
 /* Class <Pokemon> and <PokemonSpecies> */
 // constructor
 function Pokemon(pd){
-	var i = get_species_index_by_name(pd.species_name);
+	var i = pd.dex || get_species_index_by_name(pd.species_name);
 	this.dex = POKEMON_SPECIES_DATA[i]['dex'];
 	this.species_name = POKEMON_SPECIES_DATA[i]['name'];
 	this.pokeType1 = POKEMON_SPECIES_DATA[i]['pokeType1'];
