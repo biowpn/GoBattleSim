@@ -122,41 +122,30 @@ function damage(dmg_giver, dmg_taker, move, weather){
  }
  
 function get_species_index_by_name(name) {
-	var i = 0;
-	while (i < POKEMON_SPECIES_DATA.length){
-		if (name.toLowerCase() == POKEMON_SPECIES_DATA[i]['name'])
-			break;
-		++i;
+	name = name.toLowerCase();
+	for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++){
+		if (name == POKEMON_SPECIES_DATA[i].name)
+			return i;
 	}
-	if (i == POKEMON_SPECIES_DATA.length)
-		throw new Error("<" + name + ">: Pokemon Species Not Found");
-	return i;
+	return -1;
  }
  
-function get_fmove_object_by_name(name){
+function get_fmove_index_by_name(name){
 	name = name.toLowerCase();
-	var i = 0;
-	while (i < FAST_MOVE_DATA.length){
+	for (var i = 0; i < FAST_MOVE_DATA.length; i++){
 		if (name == FAST_MOVE_DATA[i].name)
-			break;
-		++i;
+			return i;
 	}
-	if (i == FAST_MOVE_DATA.length)
-		throw new Error("Fast Move <" + name + ">: Move Not Found");
-	return FAST_MOVE_DATA[i];
+	return -1;
  }
  
-function get_cmove_object_by_name(name){
+function get_cmove_index_by_name(name){
 	name = name.toLowerCase();
-	var i = 0;
-	while (i < CHARGED_MOVE_DATA.length){
+	for (var i = 0; i < CHARGED_MOVE_DATA.length; i++){
 		if (name == CHARGED_MOVE_DATA[i].name)
-			break;
-		++i;
+			return i;
 	}
-	if (i == CHARGED_MOVE_DATA.length)
-		throw new Error("Charged Move <" + name + ">: Move Not Found");
-	return CHARGED_MOVE_DATA[i];
+	return -1;
  }
 
 function pokemon_img_by_id(dex, size){
@@ -178,7 +167,7 @@ function pokemon_img_by_id(dex, size){
 /* Class <Pokemon> and <PokemonSpecies> */
 // constructor
 function Pokemon(pd){
-	var i = pd.dex || get_species_index_by_name(pd.species_name);
+	var i = (pd.index >= 0) ? pd.index : get_species_index_by_name(pd.species_name);
 	this.dex = POKEMON_SPECIES_DATA[i]['dex'];
 	this.species_name = POKEMON_SPECIES_DATA[i]['name'];
 	this.pokeType1 = POKEMON_SPECIES_DATA[i]['pokeType1'];
@@ -188,14 +177,19 @@ function Pokemon(pd){
 	this.baseStm = POKEMON_SPECIES_DATA[i]['baseStm'];
 	this.fastMoves = POKEMON_SPECIES_DATA[i]['fastMoves'];
 	this.chargedMoves = POKEMON_SPECIES_DATA[i]['chargedMoves'];
+	this.fastMoves_legacy = POKEMON_SPECIES_DATA[i]['fastMoves_legacy'] || [];
+	this.chargedMoves_legacy = POKEMON_SPECIES_DATA[i]['chargedMoves_legacy'] || [];
 	
 	this.name = pd.nickname || this.species_name;
 	this.ivAtk = pd.atkiv;
 	this.ivDef = pd.defiv;
 	this.ivStm = pd.stmiv;
 	this.cpm = CPM_TABLE[Math.round(2*pd.level-2)];
-	this.fmove = pd.fmove_obj || get_fmove_object_by_name(pd.fmove);
-	this.cmove = pd.cmove_obj || get_cmove_object_by_name(pd.cmove);
+	
+	var fmoveIndex = (pd.fmove_index >= 0) ? pd.fmove_index : get_fmove_index_by_name(pd.fmove);
+	var cmoveIndex = (pd.cmove_index >= 0) ? pd.cmove_index : get_cmove_index_by_name(pd.cmove);
+	this.fmove = FAST_MOVE_DATA[fmoveIndex];
+	this.cmove = CHARGED_MOVE_DATA[cmoveIndex];
 	
 	this.Atk = (this.baseAtk + this.ivAtk) * this.cpm;
 	this.Def = (this.baseDef + this.ivDef) * this.cpm;

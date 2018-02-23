@@ -278,6 +278,9 @@ function parseAttackerInput(section){
 	var row2 = section.children[1].children[1];
 	var row3 = section.children[2].children[1];
 	var pkm = {
+		index : -1,
+		fmove_index : -1,
+		cmove_index : -1,
 		species_name: row1.children[0].children[0].value.trim(),
 		copies: row1.children[1].children[0].valueAsNumber || 1,
 		level: Math.max(1, Math.min(40,row2.children[0].children[0].valueAsNumber)),
@@ -297,6 +300,9 @@ function parseDefenderInput(section){
 	var row2 = section.children[1].children[1];
 	var row3 = section.children[2].children[1];
 	var pkm = {
+		index : -1,
+		fmove_index : -1,
+		cmove_index : -1,
 		team_idx : -1,
 		species_name: row1.children[0].children[0].value.trim(),
 		level : 1,
@@ -459,7 +465,7 @@ function createMasterSummaryTable(sims){
 			else
 				row.push(sim.output.generalStat[m]);
 		}
-		row.push("<p onclick='displayDetail("+i+")'>Detail</p>");
+		row.push("<a onclick='displayDetail("+i+")'>Detail</a>");
 		table.appendChild(createRow(row, "td"));
 	}
 	return table;
@@ -539,7 +545,7 @@ function main(){
 		processQueue(simQueue.shift());
 
 	const sample_sim = simResults[simResults.length - 1];
-	for (enumerator in sample_sim['input']['enumeratedValues']){
+	for (var enumerator in sample_sim['input']['enumeratedValues']){
 		MasterSummaryTableMetrics.push(enumerator);
 		MasterSummaryTableHeaders.push(enumerator);
 		MasterSummaryTableMetricsIncluded[enumerator] = true;
@@ -557,51 +563,144 @@ function enqueueSim(cfg){
 		send_feedback("Too many sims to unpack. Try to use less enumerators");
 }
 
+function parseSpeciesNameExpression(str){
+	var index = get_species_index_by_name(str);
+	var pokemonIndices = [];
+	if (index >= 0)
+		return [index];
+	else if (str[0] == '*'){
+		str = str.slice(1).toLowerCase();
+		if (str == '' || str == 'rlvt')
+			return RELEVANT_ATTACKERS_INDICES;
+		else if (str == 'babt')
+			return BEST_ATTACKERS_BY_TYPE_INDICES;
+		else if (str == 't1')
+			return TIER1_BOSSES_CURRENT_INDICES;
+		else if (str == 't2')
+			return TIER2_BOSSES_CURRENT_INDICES;
+		else if (str == 't3')
+			return TIER3_BOSSES_CURRENT_INDICES;
+		else if (str == 't4')
+			return TIER4_BOSSES_CURRENT_INDICES;
+		else if (str == 't5')
+			return TIER5_BOSSES_CURRENT_INDICES;
+		else if (str == 'all'){
+			for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++)
+				pokemonIndices.push(i);
+		}
+	}
+	return pokemonIndices;		
+}
+
+function parseMoveExpression(str, moveType, pkmIndex){
+	var MovesData = (moveType == 'f') ? FAST_MOVE_DATA : CHARGED_MOVE_DATA;
+	var prefix = (moveType == 'f') ? "fast" : "charged";
+	pred = (moveType == 'f') ? get_fmove_index_by_name : get_cmove_index_by_name;
+	
+	var index = pred(str);
+	var MoveIndices = [];
+	if (index >= 0)
+		return [index];
+	else if (str[0] == '*'){
+		str = str.slice(1).toLowerCase();
+		var moveNames = [];
+		if (str == '' || str == 'cur')
+			moveNames = POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves"];
+		else if (str == 'aggr')
+			moveNames = POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves"].concat(POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves_legacy"]);
+		else if (str == 'all'){
+			for (var i = 0; i < MovesData.length; i++)
+				MoveIndices.push(i);
+		}
+		for (var i = 0; i < moveNames.length; i++)
+			MoveIndices.push(pred(moveNames[i]));
+	}
+	return MoveIndices;
+}
+
+function enumerateSpecies(cfg, pkmInfo, enumPrefix){
+	if (pkmInfo.index >= 0)
+		return 0;
+
+	var index = get_species_index_by_name(pkmInfo.species_name);
+	if (index < 0){
+		var indices = parseSpeciesNameExpression(pkmInfo.species_name);
+		if (indices.length == 0){
+			send_feedback(pkmInfo.species_name + " parsed to none");
+			return -1;
+		}
+		else if (indices.length > 1){
+			for (var k = 0; k < indices.length; k++){
+				pkmInfo.index = indices[k];
+				pkmInfo.species_name = POKEMON_SPECIES_DATA[indices[k]].name;
+				cfg['enumeratedValues']['*' + enumPrefix + '.s'] = pkmInfo.species_name;
+				enqueueSim(cfg);
+			}
+			return -1;
+		}else{
+			cfg['enumeratedValues']['*' + enumPrefix + '.s'] = POKEMON_SPECIES_DATA[indices[0]].name;
+			pkmInfo.index = indices[0];
+			index = indices[0];
+		}		
+	}
+	pkmInfo.index = index;
+	return 0;
+}
+
+function enumerateMoves(cfg, pkmInfo, enumPrefix, moveType){
+	if (pkmInfo[moveType+'move_index'] >= 0)
+		return 0;
+
+	pred = (moveType == 'f') ? get_fmove_index_by_name : get_cmove_index_by_name;
+	var MovesData = (moveType == 'f') ? FAST_MOVE_DATA : CHARGED_MOVE_DATA;
+	var moveIndex = pred(pkmInfo[moveType+'move']);
+	if (moveIndex < 0){
+		var moveIndices = parseMoveExpression(pkmInfo[moveType+'move'], moveType, pkmInfo.index);
+		if (moveIndices.length == 0){
+			send_feedback(pkmInfo[moveType+'move'] + " parsed to none");
+			return -1;
+		}
+		else if (moveIndices.length > 1){
+			for (var k = 0; k < moveIndices.length; k++){
+				pkmInfo[moveType+'move_index'] = moveIndices[k];
+				pkmInfo[moveType+'move'] = MovesData[moveIndices[k]].name;
+				cfg['enumeratedValues']['*' + enumPrefix+'.'+moveType] = pkmInfo[moveType+'move'];
+				enqueueSim(cfg);
+			}
+			return -1;
+		}else{
+			cfg['enumeratedValues']['*' + enumPrefix+'.'+moveType] = MovesData[moveIndices[0]].name;
+			pkmInfo[moveType+'move_index'] = moveIndices[0];
+			moveIndex = moveIndices[0];
+		}
+	}
+	pkmInfo[moveType+'move_index'] = moveIndex;
+	return 0;
+}
+
+function enumeratePokemon(cfg, pkmInfo, enumPrefix){
+	if (enumerateSpecies(cfg, pkmInfo, enumPrefix) == -1)
+		return -1;
+	if (enumerateMoves(cfg, pkmInfo, enumPrefix, 'f') == -1)
+		return -1;
+	if (enumerateMoves(cfg, pkmInfo, enumPrefix, 'c') == -1)
+		return -1;
+
+	return 0;
+}
+
 
 // Unpack enumerated sim, or run fully an unpacked one
 function processQueue(cfg){
 	for (var i = 0; i < cfg['atkrSettings'].length; i++){
 		for (var j = 0; j < cfg['atkrSettings'][i].length; j++){
-			var dex = get_species_index_by_name(cfg['atkrSettings'][i][j].species_name);
-			if (cfg['atkrSettings'][i][j].fmove == '*'){
-				var fmoves = POKEMON_SPECIES_DATA[dex].fastMoves;
-				for (var k = 0; k < fmoves.length; k++){
-					cfg['atkrSettings'][i][j].fmove = fmoves[k];
-					cfg['enumeratedValues']['*'+i+','+j+'.f'] = fmoves[k];
-					enqueueSim(cfg);
-				}
+			if (enumeratePokemon(cfg, cfg['atkrSettings'][i][j], '('+i+','+j+')') == -1)
 				return;
-			}
-			if (cfg['atkrSettings'][i][j].cmove == '*'){
-				var cmoves = POKEMON_SPECIES_DATA[dex].chargedMoves;
-				for (var k = 0; k < cmoves.length; k++){
-					cfg['atkrSettings'][i][j].cmove = cmoves[k];
-					cfg['enumeratedValues']['*'+i+','+j+'.c'] = cmoves[k];
-					enqueueSim(cfg);
-				}
-				return;
-			}
 		}
-	}	
-	var dex = get_species_index_by_name(cfg['dfdrSettings'].species_name);
-	if (cfg['dfdrSettings'].fmove == '*'){
-		var fmoves = POKEMON_SPECIES_DATA[dex].fastMoves;
-		for (var k = 0; k < fmoves.length; k++){
-			cfg['dfdrSettings'].fmove = fmoves[k];
-			cfg['enumeratedValues']['*d.f'] = fmoves[k];
-			enqueueSim(cfg);
-		}
-		return;
 	}
-	if (cfg['dfdrSettings'].cmove == '*'){
-		var cmoves = POKEMON_SPECIES_DATA[dex].chargedMoves;
-		for (var k = 0; k < cmoves.length; k++){
-			cfg['dfdrSettings'].cmove = cmoves[k];
-			cfg['enumeratedValues']['*d.c'] = cmoves[k];
-			enqueueSim(cfg);
-		}
+	if (enumeratePokemon(cfg, cfg['dfdrSettings'], 'd') == -1)
 		return;
-	}
+		
 	runSim(cfg);
 }
 
@@ -815,7 +914,14 @@ function clearSims(all){
 
 <script type="text/javascript">
 
-var RELEVANT_ATTACKERS_DEX = [3, 6, 45, 59, 62, 65, 68, 71, 76, 91, 94, 103, 112, 114, 123, 124, 127, 130, 131, 134, 135, 136, 139, 144, 145, 146, 149, 150, 157, 160, 196, 212, 214, 217, 221, 229, 232, 243, 244, 248, 249, 250, 254, 257, 260, 275, 282, 286, 289, 297, 302, 319, 332, 337, 338, 342, 350, 354, 359, 365, 373, 376, 382, 383, 384];
+// Pre-defined collections of Pokemon
+var RELEVANT_ATTACKERS_INDICES = [2, 5, 44, 58, 61, 64, 67, 70, 75, 90, 93, 102, 111, 113, 122, 123, 126, 129, 130, 133, 134, 135, 138, 143, 144, 145, 148, 149, 156, 159, 195, 211, 213, 216, 220, 228, 231, 242, 243, 247, 248, 249, 253, 256, 259, 274, 281, 285, 288, 296, 301, 318, 331, 336, 337, 341, 349, 353, 358, 364, 372, 375, 381, 382, 383];
+var BEST_ATTACKERS_BY_TYPE_INDICES = [211, 247, 383, 242, 281, 67, 145, 243, 93, 102, 382, 143, 142, 88, 149, 75, 375, 381];
+var TIER1_BOSSES_CURRENT_INDICES = [128, 319, 332, 360];
+var TIER2_BOSSES_CURRENT_INDICES = [86, 90, 301, 302];
+var TIER3_BOSSES_CURRENT_INDICES = [67, 123, 183, 220];
+var TIER4_BOSSES_CURRENT_INDICES = [130, 142, 159, 247, 305, 358];
+var TIER5_BOSSES_CURRENT_INDICES = [149, 383];
 
 const MAX_QUEUE_SIZE = 65536;
 const MAX_SIM_PER_CONFIG = 1024;
