@@ -24,8 +24,8 @@ var TIMELIMIT_GYM_MS = 100000;
 var REJOIN_TIME_MS = 10000;
 var EACH_MAX_REVIVE_TIME_MS = 700;
 
-var MAX_POKEMON_PER_PARTY = 6;
-var MAX_NUMBER_OF_TEAMS = 20;
+const MAX_POKEMON_PER_PARTY = 6;
+const MAX_NUMBER_OF_TEAMS = 20;
 var TIMELIMIT_RAID_MS = [180000, 180000, 180000, 180000, 300000];
 
 /* 
@@ -167,9 +167,9 @@ function pokemon_img_by_id(dex, size){
 /* Class <Pokemon> and <PokemonSpecies> */
 // constructor
 function Pokemon(pd){
-	var i = (pd.index >= 0) ? pd.index : get_species_index_by_name(pd.species_name);
+	var i = (pd.index >= 0) ? pd.index : get_species_index_by_name(pd.species);
 	this.dex = POKEMON_SPECIES_DATA[i]['dex'];
-	this.species_name = POKEMON_SPECIES_DATA[i]['name'];
+	this.species = POKEMON_SPECIES_DATA[i]['name'];
 	this.pokeType1 = POKEMON_SPECIES_DATA[i]['pokeType1'];
 	this.pokeType2 = POKEMON_SPECIES_DATA[i]['pokeType2'];
 	this.baseAtk = POKEMON_SPECIES_DATA[i]['baseAtk'];
@@ -180,7 +180,7 @@ function Pokemon(pd){
 	this.fastMoves_legacy = POKEMON_SPECIES_DATA[i]['fastMoves_legacy'] || [];
 	this.chargedMoves_legacy = POKEMON_SPECIES_DATA[i]['chargedMoves_legacy'] || [];
 	
-	this.name = pd.nickname || this.species_name;
+	this.name = pd.nickname || this.species;
 	this.ivAtk = pd.atkiv;
 	this.ivDef = pd.defiv;
 	this.ivStm = pd.stmiv;
