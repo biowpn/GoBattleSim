@@ -467,8 +467,7 @@ function filterAllSimsBy(filter){
 				if (simSelectedByMetric[metric].includes(thisValue)){
 					sim.included = false;
 					break;
-				}else
-					simSelectedByMetric[metric].push(thisValue);
+				}
 			}
 			else if (filter != thisValue){
 				sim.included = false;
@@ -477,6 +476,7 @@ function filterAllSimsBy(filter){
 		}
 		if (sim.included){
 			simResultsFiltered.push(sim);
+			simSelectedByMetric[metric].push(thisValue);
 			simMetricAndValues.forEach(function(kv){
 				MasterSummaryTableMetricsValues[kv[0]].add(kv[1]);
 			});
@@ -487,7 +487,6 @@ function filterAllSimsBy(filter){
 	pageNumberMax = Math.max(Math.ceil((simResultsFiltered.length-1)/MaxResultsPerPage), 1);
 	pageStart = 0;
 }
-
 
 function createMasterSummaryTable(){
 	//console.log("createMasterSummaryTable()");
