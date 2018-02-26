@@ -476,7 +476,14 @@ function filterAllSimsBy(filter){
 		}
 		if (sim.included){
 			simResultsFiltered.push(sim);
-			simSelectedByMetric[metric].push(thisValue);
+			for (var j = 0; j < MasterSummaryTableMetrics.length; j++){
+				var metric = MasterSummaryTableMetrics[j];
+				var filter = MasterSummaryTableMetricsFilter[metric];
+				if (filter == '*first'){
+					var thisValue = (metric[0] == '*') ? sim.input.enumeratedValues[metric] : sim.output.generalStat[metric];
+					simSelectedByMetric[metric].push(thisValue);
+				}
+			}	
 			simMetricAndValues.forEach(function(kv){
 				MasterSummaryTableMetricsValues[kv[0]].add(kv[1]);
 			});
