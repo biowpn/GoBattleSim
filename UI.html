@@ -443,26 +443,37 @@ function createNewMetric(metric, nameDisplayed){
 	MasterSummaryTableHeaders[metric] = nameDisplayed || metric;
 }
 
-
 function filterAllSimsBy(filter){
 	//console.log("filterAllSimsBy()");
 	filter = filter || MasterSummaryTableMetricsFilter;
 	
 	simResultsFiltered = [];
+	var simSelectedByMetric = {};
+	for (var j = 0; j < MasterSummaryTableMetrics.length; j++){
+		simSelectedByMetric[MasterSummaryTableMetrics[j]] = [];
+	}
 	for (var i = 0; i < simResults.length; i++){
 		var sim = simResults[i];
 		var simMetricAndValues = [];
 		sim.included = true;
 		for (var j = 0; j < MasterSummaryTableMetrics.length; j++){
 			var metric = MasterSummaryTableMetrics[j];
-			var enumValue = (metric[0] == '*') ? sim.input.enumeratedValues[metric] : sim.output.generalStat[metric];
-			if (MasterSummaryTableMetricsFilter[metric] != '*'){
-				if (MasterSummaryTableMetricsFilter[metric] != enumValue){
+			var thisValue = (metric[0] == '*') ? sim.input.enumeratedValues[metric] : sim.output.generalStat[metric];
+			var filter = MasterSummaryTableMetricsFilter[metric];
+			simMetricAndValues.push([metric, thisValue]);
+			if (filter == '*')
+				continue;
+			else if (filter == '*first'){
+				if (simSelectedByMetric[metric].includes(thisValue)){
 					sim.included = false;
 					break;
-				}
+				}else
+					simSelectedByMetric[metric].push(thisValue);
 			}
-			simMetricAndValues.push([metric, enumValue]);
+			else if (filter != thisValue){
+				sim.included = false;
+				break;
+			}
 		}
 		if (sim.included){
 			simResultsFiltered.push(sim);
@@ -871,10 +882,12 @@ function displayMetricsControlTable(){
 		td.appendChild(checkedBoxObj);
 		row.appendChild(td);
 		
-		var selectObj = createElement("select","<option value='*'>*</option>");
-		MasterSummaryTableMetricsValues[metric].forEach(function(enumValue){
-			var option = createElement("option", enumValue);
-			option.value = enumValue;
+		var selectObj = createElement("select","<option value='*'>*</option><option value='*first'>*first</option>");
+		var options = Array.from(MasterSummaryTableMetricsValues[metric]);
+		options.sort();
+		options.forEach(function(opt){
+			var option = createElement("option", opt);
+			option.value = opt;
 			selectObj.appendChild(option);
 		});
 		selectObj.value = MasterSummaryTableMetricsFilter[metric];
