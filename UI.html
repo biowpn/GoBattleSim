@@ -621,71 +621,62 @@ function enqueueSim(cfg){
 		send_feedback("Too many sims to unpack. Try to use less enumerators");
 }
 
-function parseSpeciesNameExpression(str){
-	var index = get_species_index_by_name(str);
-	var pokemonIndices = [];
-	if (index >= 0)
-		return [index];
-	else if (str[0] == '*'){
-		str = str.slice(1).toLowerCase();
-		if (str == '' || str == 'rlvt')
-			return RELEVANT_ATTACKERS_INDICES;
-		else if (str == 'babt')
-			return BEST_ATTACKERS_BY_TYPE_INDICES;
-		else if (str == 't1')
-			return TIER1_BOSSES_CURRENT_INDICES;
-		else if (str == 't2')
-			return TIER2_BOSSES_CURRENT_INDICES;
-		else if (str == 't3')
-			return TIER3_BOSSES_CURRENT_INDICES;
-		else if (str == 't4')
-			return TIER4_BOSSES_CURRENT_INDICES;
-		else if (str == 't5')
-			return TIER5_BOSSES_CURRENT_INDICES;
-		else if (str == 'all'){
-			for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++)
-				pokemonIndices.push(i);
-		}
+function unpackSpeciesNameEnumerator(str){
+	str = str.toLowerCase();
+	if (str == '' || str == 'rlvt')
+		return RELEVANT_ATTACKERS_INDICES;
+	else if (str == 'babt')
+		return BEST_ATTACKERS_BY_TYPE_INDICES;
+	else if (str == 't1')
+		return TIER1_BOSSES_CURRENT_INDICES;
+	else if (str == 't2')
+		return TIER2_BOSSES_CURRENT_INDICES;
+	else if (str == 't3')
+		return TIER3_BOSSES_CURRENT_INDICES;
+	else if (str == 't4')
+		return TIER4_BOSSES_CURRENT_INDICES;
+	else if (str == 't5')
+		return TIER5_BOSSES_CURRENT_INDICES;
+	else if (str == 'all'){
+		var pokemonIndices = [];
+		for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++)
+			pokemonIndices.push(i);
+		return pokemonIndices;
 	}
-	return pokemonIndices;		
 }
 
-function parseMoveExpression(str, moveType, pkmIndex){
-	var MovesData = (moveType == 'f') ? FAST_MOVE_DATA : CHARGED_MOVE_DATA;
+function unpackMoveEnumerator(str, moveType, pkmIndex){
 	var prefix = (moveType == 'f') ? "fast" : "charged";
+	var MovesData = (moveType == 'f') ? FAST_MOVE_DATA : CHARGED_MOVE_DATA;
 	pred = (moveType == 'f') ? get_fmove_index_by_name : get_cmove_index_by_name;
-	
-	var index = pred(str);
-	var MoveIndices = [];
-	if (index >= 0)
-		return [index];
-	else if (str[0] == '*'){
-		str = str.slice(1).toLowerCase();
-		var moveNames = [];
-		if (str == '' || str == 'cur')
-			moveNames = POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves"];
-		else if (str == 'aggr')
-			moveNames = POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves"].concat(POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves_legacy"]);
-		else if (str == 'all'){
-			for (var i = 0; i < MovesData.length; i++)
-				MoveIndices.push(i);
-		}
-		for (var i = 0; i < moveNames.length; i++)
-			MoveIndices.push(pred(moveNames[i]));
+
+	str = str.toLowerCase();
+	var moveIndices = [];
+	var moveNames = [];
+	if (str == '' || str == 'cur')
+		moveNames = POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves"];
+	else if (str == 'aggr')
+		moveNames = POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves"].concat(POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves_legacy"]);
+	else if (str == 'all'){
+		for (var i = 0; i < MovesData.length; i++)
+			moveIndices.push(i);
 	}
-	return MoveIndices;
+	
+	for (var i = 0; i < moveNames.length; i++)
+		moveIndices.push(pred(moveNames[i]));
+	return moveIndices;
 }
 
-function enumerateSpecies(cfg, pkmInfo, enumPrefix){
+function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
 	if (pkmInfo.index >= 0)
 		return 0;
-	var enumVariableName = '*' + enumPrefix + '.species';
+	var expressionStr = pkmInfo.species;
 
-	var index = get_species_index_by_name(pkmInfo.species);
-	if (index < 0){ // A new enumerator created
-		var indices = parseSpeciesNameExpression(pkmInfo.species);
+	if (expressionStr[0] == '*'){// Enumerator
+		var enumVariableName = '*' + enumPrefix + '.species';
+		var indices = unpackSpeciesNameEnumerator(expressionStr.slice(1));
 		if (indices.length == 0){
-			send_feedback(pkmInfo.species + " parsed to none");
+			send_feedback(expressionStr + " parsed to none", true);
 			return -1;
 		}
 		if (!MasterSummaryTableMetrics.includes(enumVariableName))
@@ -699,25 +690,35 @@ function enumerateSpecies(cfg, pkmInfo, enumPrefix){
 			MasterSummaryTableMetricsValues[enumVariableName].add(pkmInfo.species);
 		}
 		return -1;
+	}else if (expressionStr[0] == '='){// Dynamic Assignment Operator
+		try{
+			var arr = expressionStr.slice(1).split(',');
+			var teamIdx = parseInt(arr[0].trim()), pkmIdx = parseInt(arr[1].trim());
+			pkmInfo.index = cfg['atkrSettings'][teamIdx][pkmIdx].index;
+			pkmInfo.species = cfg['atkrSettings'][teamIdx][pkmIdx].species;
+			enqueueSim(cfg);
+			return -1;
+		}catch(err){
+			console.log(err);
+		}
 	}else{
-		pkmInfo.index = index;
-		return 0;		
+		pkmInfo.index = get_species_index_by_name(expressionStr);		
 	}
 	
+	return (pkmInfo.index >= 0) ? 0 : -1;
 }
 
-function enumerateMoves(cfg, pkmInfo, enumPrefix, moveType){
+function parseMoveExpression(cfg, pkmInfo, enumPrefix, moveType){
 	if (pkmInfo[moveType+'move_index'] >= 0)
 		return 0;
-	var enumVariableName = '*' + enumPrefix + '.' + moveType + 'move';
-	pred = (moveType == 'f') ? get_fmove_index_by_name : get_cmove_index_by_name;
+	var expressionStr = pkmInfo[moveType+'move'];
 	var MovesData = (moveType == 'f') ? FAST_MOVE_DATA : CHARGED_MOVE_DATA;
 	
-	var moveIndex = pred(pkmInfo[moveType+'move']);
-	if (moveIndex < 0){
-		var moveIndices = parseMoveExpression(pkmInfo[moveType+'move'], moveType, pkmInfo.index);
+	if (expressionStr[0] == '*'){ // Enumerator
+		var enumVariableName = '*' + enumPrefix + '.' + moveType + 'move';
+		var moveIndices = unpackMoveEnumerator(expressionStr.slice(1), moveType, pkmInfo.index);
 		if (moveIndices.length == 0){
-			send_feedback(pkmInfo[moveType+'move'] + " parsed to none");
+			send_feedback(expressionStr + " parsed to none", true);
 			return -1;
 		}
 		if (!MasterSummaryTableMetrics.includes(enumVariableName))
@@ -730,19 +731,30 @@ function enumerateMoves(cfg, pkmInfo, enumPrefix, moveType){
 			MasterSummaryTableMetricsValues[enumVariableName].add(pkmInfo[moveType+'move']);
 		}
 		return -1;
+	}else if (expressionStr[0] == '='){// Dynamic Assignment Operator
+		try{
+			var arr = expressionStr.slice(1).split(',');
+			var teamIdx = parseInt(arr[0].trim()), pkmIdx = parseInt(arr[1].trim());
+			pkmInfo[moveType+'move_index'] = cfg['atkrSettings'][teamIdx][pkmIdx][moveType+'move_index'];
+			pkmInfo[moveType+'move'] = cfg['atkrSettings'][teamIdx][pkmIdx][moveType+'move'];
+			enqueueSim(cfg);
+			return -1;
+		}catch(err){
+			console.log(err);
+		}
 	}else{
-		pkmInfo[moveType+'move_index'] = moveIndex;
-		return 0;
+		pred = (moveType == 'f') ? get_fmove_index_by_name : get_cmove_index_by_name;
+		pkmInfo[moveType+'move_index'] = pred(expressionStr);
 	}
-	
+	return (pkmInfo[moveType+'move_index'] >= 0) ? 0 : -1;
 }
 
 function enumeratePokemon(cfg, pkmInfo, enumPrefix){
-	if (enumerateSpecies(cfg, pkmInfo, enumPrefix) == -1)
+	if (parseSpeciesExpression(cfg, pkmInfo, enumPrefix) == -1)
 		return -1;	
-	if (enumerateMoves(cfg, pkmInfo, enumPrefix, 'f') == -1)
+	if (parseMoveExpression(cfg, pkmInfo, enumPrefix, 'f') == -1)
 		return -1;
-	if (enumerateMoves(cfg, pkmInfo, enumPrefix, 'c') == -1)
+	if (parseMoveExpression(cfg, pkmInfo, enumPrefix, 'c') == -1)
 		return -1;
 	return 0;
 }
@@ -760,7 +772,7 @@ function processQueue(cfg){
 	if (enumDefender == 0 && enumeratePokemon(cfg, cfg['dfdrSettings'], 'd') == -1)
 		return -1;
 	enumDefender++;
-	
+
 	return 0;
 }
 
@@ -950,6 +962,7 @@ function main(){
 	enumPokemonStart = 0;
 	enumDefender = 0;
 	simQueue.push(readUserInput());
+	send_feedback("");
 	while (simQueue.length > 0){
 		var cfg = simQueue[0];
 		if (processQueue(cfg) == -1)
@@ -961,7 +974,7 @@ function main(){
 	filterAllSimsBy();
 	displayMetricsControlTable();
 	displayMasterSummaryTable();
-	send_feedback("Simulation done.");
+	send_feedback(simResults.length + " simulations were done.", true);
 }
 </script>
 </script>
