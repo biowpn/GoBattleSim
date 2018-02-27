@@ -1,12 +1,21 @@
 
-<style>
-	.block{
-		width: 100%;
-	}
-</style>
 
 
-<table>
-<col width=30%><col width=30%><col width=40%>
-<tr> <td><button>&uarr;</button></td><td><button>&darr;</button></td><td><button>X</button></td></tr>
-</table>
+
+
+<div id="buttons">
+
+</div>
+
+<script type="text/javascript">
+
+
+var s = document.createElement("select");
+s.innerHTML = "<option value='1'>1</option><option value='2'>2</option>";
+s.onchange = function(){
+	console.log(this.value);
+};
+document.getElementById("buttons").appendChild(s);
+	
+
+</script>

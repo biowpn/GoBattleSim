@@ -51,18 +51,30 @@ function initMasterSummaryTableMetrics(){
 	MasterSummaryTableMetricsSorted = {};
 	MasterSummaryTableMetricsFilter = {};
 	MasterSummaryTableMetricsValues = {};
-	for (var i = 0; i < MasterSummaryTableMetrics.length; i++){
-		MasterSummaryTableMetricsIncluded[MasterSummaryTableMetrics[i]] = true;
-		MasterSummaryTableMetricsSorted[MasterSummaryTableMetrics[i]] = 0;
-		MasterSummaryTableMetricsFilter[MasterSummaryTableMetrics[i]] = '*';
-		MasterSummaryTableMetricsValues[MasterSummaryTableMetrics[i]] = new Set();
-	}
+	
+	MasterSummaryTableMetrics.forEach(function(m){
+		MasterSummaryTableMetricsIncluded[m] = true;
+		MasterSummaryTableMetricsSorted[m] = 0;
+		MasterSummaryTableMetricsFilter[m] = '*';
+		MasterSummaryTableMetricsValues[m] = new Set();
+	});
 }
 
 function createElement(type, innerHTML){
 	var e = document.createElement(type);
 	e.innerHTML = innerHTML;
 	return e;
+}
+
+function createRow(rowData, type){
+	type = type || "td";
+	var row = document.createElement("tr");
+	for (var i = 0; i < rowData.length; i++){
+		var d = document.createElement(type);
+		d.innerHTML = rowData[i];
+		row.appendChild(d);
+	}
+	return row;
 }
 
 function createPokemonTemplate(){
@@ -113,119 +125,6 @@ function createTeamButtonTable(i){
 	row.children[1].appendChild(b2);
 	tb.appendChild(row);
 	return tb;
-}
-
-// Re positioning all Pokemon from Team (start+1) up to but excluding Team (end+1)
-function repositionAllPokemon(start, end){
-	var teams = document.getElementById("AttackerInput");
-	start = start || 0;
-	end = end || teams.children.length;
-	for (var i = start; i < end; i++){
-		const iii = i;
-		var team = teams.children[i];
-		team.children[0].innerHTML = "Team " + (i+1);
-		for (var j = 1; j < team.children.length - 1; j++){
-			const jjj = j;
-			var symsbolsAndFunctions = [["&larr;", function(){pastePokemon(iii, jjj);}],
-										["&rarr;", function(){copyPokemon(iii, jjj);}],		
-										["&uarr;", function(){movePokemonUp(iii, jjj);}],
-										["&darr;", function(){movePokemonDown(iii, jjj);}],
-										["&#10006;", function(){removePokemon(iii, jjj);}]];
-			for (var k = 0; k < symsbolsAndFunctions.length; k++){
-				var td = team.children[j].children[0].children[1].children[k+2];
-				var b = createElement("a", symsbolsAndFunctions[k][0]);
-				b.addEventListener("click", symsbolsAndFunctions[k][1]);
-				td.removeChild(td.children[0]);
-				td.appendChild(b);
-			}
-		}
-		team.removeChild(team.children[team.children.length - 1]);
-		team.appendChild(createTeamButtonTable(i));
-	}
-}
-
-function addPokemon(i){
-	var team = document.getElementById("AttackerInput").children[i];
-	team.removeChild(team.children[team.children.length - 1]);
-	team.appendChild(createPokemonTemplate());
-	team.appendChild(createElement("div",""));
-	repositionAllPokemon(i, i+1);
-}
-
-function removePokemon(i, j){
-	var team = document.getElementById("AttackerInput").children[i];
-	if (team.children.length > 3){
-		team.removeChild(team.children[j]);
-		repositionAllPokemon(i, i+1);
-	}else
-		send_feedback("Can't remove the only attacker in the team. Use Remove Team instead");
-}
-
-function swapChildren(parent, i1, i2){
-	var children = [];
-	while (parent.children.length > 0){
-		children.push(parent.children[0]);
-		parent.removeChild(parent.children[0]);
-	}
-	var intermediate = children[i1];
-	children[i1] = children[i2];
-	children[i2] = intermediate;
-	for (var k = 0; k < children.length; k++)
-		parent.appendChild(children[k]);
-}
-
-function movePokemonUp(i, j){
-	var team = document.getElementById("AttackerInput").children[i];
-	if (j > 1){
-		swapChildren(team, j, j - 1);
-		repositionAllPokemon(i, i + 1);
-	}
-}
-
-function movePokemonDown(i, j){
-	var team = document.getElementById("AttackerInput").children[i];
-	if (j < team.children.length - 2){
-		swapChildren(team, j, j + 1);
-		repositionAllPokemon(i, i + 1);
-	}
-}
-
-function copyPokemon(i, j){
-	var pkmSection = document.getElementById("AttackerInput").children[i].children[j];
-	atkrCopyPasteClipboard = parseAttackerInput(pkmSection);
-}
-
-function pastePokemon(i, j){
-	if (atkrCopyPasteClipboard){
-		var pkmSection = document.getElementById("AttackerInput").children[i].children[j];
-		writeAttackerInput(pkmSection, atkrCopyPasteClipboard);
-	}
-}
-
-function addTeam(){
-	if (totalAtkrTeamCount < MAX_NUMBER_OF_TEAMS){
-		var teams = document.getElementById("AttackerInput");
-		var newTeam = document.createElement("div");
-		newTeam.appendChild(createElement("h3","Team" + (totalAtkrTeamCount+1)));
-		newTeam.appendChild(createPokemonTemplate());
-		newTeam.appendChild(createElement("div",""));
-		teams.appendChild(newTeam);
-		totalAtkrTeamCount++;
-		repositionAllPokemon(totalAtkrTeamCount - 1);
-	}else{
-		send_feedback("exceeding maximum parties allowed");
-	}
-}
-
-function removeTeam(i){
-	if (totalAtkrTeamCount >= 2){
-		var teams = document.getElementById("AttackerInput");
-		teams.removeChild(teams.children[i]);
-		totalAtkrTeamCount--;
-		repositionAllPokemon(i);
-	}
-	else
-		send_feedback("Can't remove the only team");
 }
 
 function setDefenderInput(){
@@ -395,6 +294,120 @@ function readUserInput(){
 			};
 }
 
+
+function repositionAllPokemon(start, end){
+	var teams = document.getElementById("AttackerInput");
+	start = start || 0;
+	end = end || teams.children.length;
+	for (var i = start; i < end; i++){
+		const iii = i;
+		var team = teams.children[i];
+		team.children[0].innerHTML = "Team " + (i+1);
+		for (var j = 1; j < team.children.length - 1; j++){
+			const jjj = j;
+			var symsbolsAndFunctions = [["&larr;", function(){pastePokemon(iii, jjj);}],
+										["&rarr;", function(){copyPokemon(iii, jjj);}],		
+										["&uarr;", function(){movePokemonUp(iii, jjj);}],
+										["&darr;", function(){movePokemonDown(iii, jjj);}],
+										["&#10006;", function(){removePokemon(iii, jjj);}]];
+			for (var k = 0; k < symsbolsAndFunctions.length; k++){
+				var td = team.children[j].children[0].children[1].children[k+2];
+				var b = createElement("a", symsbolsAndFunctions[k][0]);
+				b.addEventListener("click", symsbolsAndFunctions[k][1]);
+				td.removeChild(td.children[0]);
+				td.appendChild(b);
+			}
+		}
+		team.removeChild(team.children[team.children.length - 1]);
+		team.appendChild(createTeamButtonTable(i));
+	}
+}
+
+function addPokemon(i){
+	var team = document.getElementById("AttackerInput").children[i];
+	team.removeChild(team.children[team.children.length - 1]);
+	team.appendChild(createPokemonTemplate());
+	team.appendChild(createElement("div",""));
+	repositionAllPokemon(i, i+1);
+}
+
+function removePokemon(i, j){
+	var team = document.getElementById("AttackerInput").children[i];
+	if (team.children.length > 3){
+		team.removeChild(team.children[j]);
+		repositionAllPokemon(i, i+1);
+	}else
+		send_feedback("Can't remove the only attacker in the team. Use Remove Team instead");
+}
+
+function swapChildren(parent, i1, i2){
+	var children = [];
+	while (parent.children.length > 0){
+		children.push(parent.children[0]);
+		parent.removeChild(parent.children[0]);
+	}
+	var intermediate = children[i1];
+	children[i1] = children[i2];
+	children[i2] = intermediate;
+	for (var k = 0; k < children.length; k++)
+		parent.appendChild(children[k]);
+}
+
+function movePokemonUp(i, j){
+	var team = document.getElementById("AttackerInput").children[i];
+	if (j > 1){
+		swapChildren(team, j, j - 1);
+		repositionAllPokemon(i, i + 1);
+	}
+}
+
+function movePokemonDown(i, j){
+	var team = document.getElementById("AttackerInput").children[i];
+	if (j < team.children.length - 2){
+		swapChildren(team, j, j + 1);
+		repositionAllPokemon(i, i + 1);
+	}
+}
+
+function copyPokemon(i, j){
+	var pkmSection = document.getElementById("AttackerInput").children[i].children[j];
+	atkrCopyPasteClipboard = parseAttackerInput(pkmSection);
+}
+
+function pastePokemon(i, j){
+	if (atkrCopyPasteClipboard){
+		var pkmSection = document.getElementById("AttackerInput").children[i].children[j];
+		writeAttackerInput(pkmSection, atkrCopyPasteClipboard);
+	}
+}
+
+function addTeam(){
+	if (totalAtkrTeamCount < MAX_NUMBER_OF_TEAMS){
+		var teams = document.getElementById("AttackerInput");
+		var newTeam = document.createElement("div");
+		newTeam.appendChild(createElement("h3","Team" + (totalAtkrTeamCount+1)));
+		newTeam.appendChild(createPokemonTemplate());
+		newTeam.appendChild(createElement("div",""));
+		teams.appendChild(newTeam);
+		totalAtkrTeamCount++;
+		repositionAllPokemon(totalAtkrTeamCount - 1);
+	}else{
+		send_feedback("exceeding maximum parties allowed");
+	}
+}
+
+function removeTeam(i){
+	if (totalAtkrTeamCount >= 2){
+		var teams = document.getElementById("AttackerInput");
+		teams.removeChild(teams.children[i]);
+		totalAtkrTeamCount--;
+		repositionAllPokemon(i);
+	}
+	else
+		send_feedback("Can't remove the only team");
+}
+
+
 function writeUserInput(cfg){
 	document.getElementById("battleMode").value = (cfg['generalSettings']['raidTier'] == -1) ? "gym" : "raid";
 	document.getElementById("weather").value = cfg['generalSettings']['weather'];
@@ -421,52 +434,90 @@ function writeUserInput(cfg){
 	writeDefenderInput(defenderSection, cfg['dfdrSettings']);
 }
 
-function createRow(rowData, type){
-	type = type || "td";
-	var row = document.createElement("tr");
-	for (var i = 0; i < rowData.length; i++){
-		var d = document.createElement(type);
-		d.style
-		d.innerHTML = rowData[i];
-		row.appendChild(d);
-	}
-	return row;
+function createNewMetric(metric, nameDisplayed){
+	MasterSummaryTableMetrics.push(metric);
+	MasterSummaryTableMetricsIncluded[metric] = false;
+	MasterSummaryTableMetricsSorted[metric] = 0;
+	MasterSummaryTableMetricsFilter[metric] = '*';
+	MasterSummaryTableMetricsValues[metric] = new Set();
+	MasterSummaryTableHeaders[metric] = nameDisplayed || metric;
 }
 
-function updateMasterSummaryTableMetricsStatus(){
-	var table = document.getElementById("MetricsControlTable");
-	for (var i = 0; i < table.children.length - 2; i++){
-		var row = table.children[i + 2];
-		var metric = MasterSummaryTableMetrics[parseInt(row.children[0].innerHTML)];
-		MasterSummaryTableMetricsIncluded[metric] = row.children[2].children[0].checked;
-		MasterSummaryTableMetricsFilter[metric] = row.children[3].children[0].value;
-	}
+function sortByDeepAttr(data, attrs, reversed){
+	data.sort(function(a, b){
+		for (var i = 0; i < attrs.length; i++){
+			a = a[attrs[i]];
+			b = b[attrs[i]];
+		}
+		return ((a == b) ? 0 : (a < b ? -1 : 1)) * reversed;
+	});
+}
+
+function filterAllSimsBy(filter){
+	filter = filter || MasterSummaryTableMetricsFilter;
 	
-	simResultsFilted = [];
+	simResultsFiltered = [];
+	var simSelectedByMetric = {};
+	for (var j = 0; j < MasterSummaryTableMetrics.length; j++){
+		simSelectedByMetric[MasterSummaryTableMetrics[j]] = [];
+	}
 	for (var i = 0; i < simResults.length; i++){
 		var sim = simResults[i];
+		var simMetricAndValues = {};
 		sim.included = true;
-		
 		for (var j = 0; j < MasterSummaryTableMetrics.length; j++){
-			const m = MasterSummaryTableMetrics[j];
-			if (MasterSummaryTableMetricsFilter[m] == '*')
+			var metric = MasterSummaryTableMetrics[j];
+			var thisValue = (metric[0] == '*') ? sim.input.enumeratedValues[metric] : sim.output.generalStat[metric];
+			var filter = MasterSummaryTableMetricsFilter[metric];
+			simMetricAndValues[metric] = thisValue;
+			if (filter == '*')
 				continue;
-			var enumValue = (m[0] == '*') ? sim.input.enumeratedValues[m] : sim.output.generalStat[m];
-			if (MasterSummaryTableMetricsFilter[m] != enumValue){
+			else if (filter == '*first'){
+				if (simSelectedByMetric[metric].includes(thisValue)){
+					sim.included = false;
+					break;
+				}
+			}
+			else if (filter != thisValue){
 				sim.included = false;
 				break;
 			}
 		}
-		
 		if (sim.included){
-			simResultsFilted.push(sim);
+			simResultsFiltered.push(sim);
+			MasterSummaryTableMetrics.forEach(function(metric){
+				MasterSummaryTableMetricsValues[metric].add(simMetricAndValues[metric]);		
+				var filter = MasterSummaryTableMetricsFilter[metric];
+				if (filter == '*first'){
+					var thisValue = (metric[0] == '*') ? sim.input.enumeratedValues[metric] : sim.output.generalStat[metric];
+					simSelectedByMetric[metric].push(thisValue);
+				}
+			});
 		}
 	}
 	pageNumber = 1;
-	pageNumberMax = Math.max(Math.ceil((simResultsFilted.length-1)/MaxResultsPerPage), 1);
+	pageNumberMax = Math.max(Math.ceil((simResultsFiltered.length-1)/MaxResultsPerPage), 1);
 	pageStart = 0;
 }
 
+function sortAllSimsBy(attr){
+	if (MasterSummaryTableMetricsSorted[attr] == 0)
+		MasterSummaryTableMetricsSorted[attr] = 1;
+	if (attr[0] == '*')
+		sortByDeepAttr(simResults, ['input', 'enumeratedValues', attr], MasterSummaryTableMetricsSorted[attr]);
+	else
+		sortByDeepAttr(simResults, ['output', 'generalStat', attr], MasterSummaryTableMetricsSorted[attr]);
+	MasterSummaryTableMetricsSorted[attr] *= -1;
+}
+
+function clearAllSims(){
+	simResults = [];
+	simResultsFiltered = [];
+	pageStart = 0;
+	pageNumber = 1;
+	pageNumberMax = 1;
+	displayMasterSummaryTable();
+}
 
 function createMasterSummaryTable(){
 	var table = document.createElement("table");
@@ -476,20 +527,22 @@ function createMasterSummaryTable(){
 		const metric = MasterSummaryTableMetrics[i];
 		if (MasterSummaryTableMetricsIncluded[metric]){
 			selectedMetrics.push(metric);
-			selectedHeaders.push(MasterSummaryTableHeaders[i]);
-			selectedSortedFunctions.push(function(){sortMasterSummaryTable(metric);});
+			selectedHeaders.push(MasterSummaryTableHeaders[metric]);
+			selectedSortedFunctions.push(function(){
+				sortAllSimsBy(metric);
+				filterAllSimsBy();
+				displayMasterSummaryTable();
+			});
 		}
 	}
-	
 	var headers = createRow(selectedHeaders.concat(["Details"]),"th");
 	for (var i = 0; i < headers.children.length - 1; i++){
 		headers.children[i].onclick = selectedSortedFunctions[i];
 	}
 	table.appendChild(headers);
-	
 	var resultCountCurrentPage = 0;
-	for (var i = pageStart; i < simResultsFilted.length && resultCountCurrentPage < MaxResultsPerPage; i++){
-		var sim = simResultsFilted[i];
+	for (var i = pageStart; i < simResultsFiltered.length && resultCountCurrentPage < MaxResultsPerPage; i++){
+		var sim = simResultsFiltered[i];
 		if (sim.included){
 			var row = [];
 			for (var j = 0; j < selectedMetrics.length; j++){
@@ -504,18 +557,6 @@ function createMasterSummaryTable(){
 	}
 	return table;
 }
-
-function sortMasterSummaryTable(attr){
-	if (MasterSummaryTableMetricsSorted[attr] == 0)
-		MasterSummaryTableMetricsSorted[attr] = 1;
-	if (attr[0] == '*')
-		sortByDeepAttr(simResultsFilted, ['input', 'enumeratedValues', attr], MasterSummaryTableMetricsSorted[attr]);
-	else
-		sortByDeepAttr(simResultsFilted, ['output', 'generalStat', attr], MasterSummaryTableMetricsSorted[attr]);
-	MasterSummaryTableMetricsSorted[attr] *= -1;
-	displayMasterSummaryTable();
-}
-
 
 function createTeamStatisticsTable(simRes){
 	var table = document.createElement("table");
@@ -570,34 +611,6 @@ function createBattleLogTable(simRes){
 		}
 	}
 	return table;
-}
-
-function main(){
-	initMasterSummaryTableMetrics();
-	enumTeamStart = 0;
-	enumPokemonStart = 0;
-	enumDefender = 0;
-	simQueue.push(readUserInput());
-	while (simQueue.length > 0){
-		var cfg = simQueue[0];
-		if (processQueue(cfg) == -1)
-			simQueue.shift();
-		else
-			runSim(simQueue.shift());
-	}
-
-	const sample_sim = simResults[simResults.length - 1];
-	for (var enumerator in sample_sim['input']['enumeratedValues']){
-		MasterSummaryTableMetrics.push(enumerator);
-		MasterSummaryTableHeaders.push(enumerator);
-		MasterSummaryTableMetricsIncluded[enumerator] = false;
-		MasterSummaryTableMetricsSorted[enumerator] = 0;
-	}
-	clearFeedbackTables();
-	displayMetricsControlTable();
-	updateMasterSummaryTableMetricsStatus();
-	displayMasterSummaryTable();
-	send_feedback("Simulation done.");
 }
 
 function enqueueSim(cfg){
@@ -669,13 +682,15 @@ function enumerateSpecies(cfg, pkmInfo, enumPrefix){
 	var enumVariableName = '*' + enumPrefix + '.species';
 
 	var index = get_species_index_by_name(pkmInfo.species);
-	if (index < 0){
+	if (index < 0){ // A new enumerator created
 		var indices = parseSpeciesNameExpression(pkmInfo.species);
 		if (indices.length == 0){
 			send_feedback(pkmInfo.species + " parsed to none");
 			return -1;
 		}
-		MasterSummaryTableMetricsValues[enumVariableName] = new Set();
+		if (!MasterSummaryTableMetrics.includes(enumVariableName))
+			createNewMetric(enumVariableName);
+				
 		for (var k = 0; k < indices.length; k++){
 			pkmInfo.index = indices[k];
 			pkmInfo.species = POKEMON_SPECIES_DATA[indices[k]].name;
@@ -705,8 +720,8 @@ function enumerateMoves(cfg, pkmInfo, enumPrefix, moveType){
 			send_feedback(pkmInfo[moveType+'move'] + " parsed to none");
 			return -1;
 		}
-		if (!MasterSummaryTableMetricsValues.hasOwnProperty(enumVariableName))
-			MasterSummaryTableMetricsValues[enumVariableName] = new Set();
+		if (!MasterSummaryTableMetrics.includes(enumVariableName))
+			createNewMetric(enumVariableName);
 		for (var k = 0; k < moveIndices.length; k++){
 			pkmInfo[moveType+'move_index'] = moveIndices[k];
 			pkmInfo[moveType+'move'] = MovesData[moveIndices[k]].name;
@@ -732,8 +747,6 @@ function enumeratePokemon(cfg, pkmInfo, enumPrefix){
 	return 0;
 }
 
-
-// Unpack enumerated sim
 function processQueue(cfg){
 	for (var i = enumTeamStart; i < cfg['atkrSettings'].length; i++){
 		for (var j = enumPokemonStart; j < cfg['atkrSettings'][i].length; j++){
@@ -751,7 +764,6 @@ function processQueue(cfg){
 	return 0;
 }
 
-// Running a specific sim without any enumerator and push result(s) to simResults
 function runSim(cfg){
 	var interResults = [];
 	for (var i = 0; i < cfg['generalSettings']['simPerConfig']; i++){
@@ -764,11 +776,10 @@ function runSim(cfg){
 		simResults.push({input: cfg, output: averageResults(interResults)});
 	else if (cfg['generalSettings']['reportType'] == 'enum'){
 		for (var i = 0; i < interResults.length; i++)
-			simResults.push({input: cfg, output: interResults[i]});
+			simResults.push({input: cfg, output: interResults[i], included: true});
 	}
 }
 
-// Averaging some key performance metrics
 function averageResults(results){
 	var avrgResult = results[0];
 	var numResults = results.length;
@@ -782,7 +793,7 @@ function averageResults(results){
 		sumDeaths += gs['total_deaths'];
 	}
 	if (numResults > 1){
-		avrgResult['generalStat']['battle_result'] = Math.round(sumWin/numResults*1000)/10 + "%Win";
+		avrgResult['generalStat']['battle_result'] = Math.round(sumWin/numResults*10)/10 + "Win";
 	}else{
 		avrgResult['generalStat']['battle_result'] = results[0]['generalStat']['battle_result'];
 	}
@@ -793,15 +804,6 @@ function averageResults(results){
 	return avrgResult;
 }
 
-function sortByDeepAttr(data, attrs, reversed){
-	data.sort(function(a, b){
-		for (var i = 0; i < attrs.length; i++){
-			a = a[attrs[i]];
-			b = b[attrs[i]];
-		}
-		return ((a == b) ? 0 : (a < b ? -1 : 1)) * reversed;
-	});
-}
 
 function clearFeedbackTables(){
 	document.getElementById("feedback_table1").innerHTML = "";
@@ -810,8 +812,7 @@ function clearFeedbackTables(){
 }
 
 function turnPage(command){
-	
-	if (command == 1 && pageStart + MaxResultsPerPage < simResultsFilted.length){
+	if (command == 1 && pageStart + MaxResultsPerPage < simResultsFiltered.length){
 		pageStart += MaxResultsPerPage;
 		pageNumber++;
 	}
@@ -821,7 +822,7 @@ function turnPage(command){
 	}
 	else if (command == 2){
 		pageNumber = 1;
-		while (pageStart + MaxResultsPerPage < simResultsFilted.length){
+		while (pageStart + MaxResultsPerPage < simResultsFiltered.length){
 			pageNumber++;
 			pageStart += MaxResultsPerPage;
 		}
@@ -829,64 +830,79 @@ function turnPage(command){
 	else if (command == -2){
 		pageStart = 0;
 		pageNumber = 1;
-	}
-		
+	}	
 	displayMasterSummaryTable();
 }
 
 function displayMetricsControlTable(){
-	
+	document.getElementById("feedback_table1").innerHTML = "";
 	var table = createElement("table","<col width=10%><col width=25%><col width=15%><col width=50%>");
 	table.id = "MetricsControlTable";
 	table.appendChild(createRow(["Index", "Metric", "Included", "Filter"],"th"));
 
 	for (var i = 0; i < MasterSummaryTableMetrics.length; i++){
-		var row = createElement("tr","");
-		const m = MasterSummaryTableMetrics[i];
-		row.appendChild(createElement("td", i));
-		row.appendChild(createElement("td", MasterSummaryTableHeaders[i]));
-		if (i < DEFAULT_SUMMARY_TABLE_METRICS.length)
-			row.appendChild(createElement("td","<input type='checkbox' checked></input>"));
-		else
-			row.appendChild(createElement("td","<input type='checkbox'></input>"));
+		const metric = MasterSummaryTableMetrics[i];
 		
-		var filterTd = createElement("td","");
-		var selectObj = createElement("select","<option value='*'>*</option>");
-		MasterSummaryTableMetricsValues[m].forEach(function(enumValue){
-			var option = createElement("option", enumValue);
-			option.value = enumValue;
+		var row = createElement("tr","");
+		row.appendChild(createElement("td", i));
+		row.appendChild(createElement("td", MasterSummaryTableHeaders[metric]));
+		
+		var checkedBoxObj = createElement("input","");
+		checkedBoxObj.type = 'checkbox';
+		checkedBoxObj.onclick = function(){
+			MasterSummaryTableMetricsIncluded[metric] = this.checked;
+			displayMasterSummaryTable();
+		};
+		checkedBoxObj.checked = MasterSummaryTableMetricsIncluded[metric];
+		var td = createElement("td","");
+		td.appendChild(checkedBoxObj);
+		row.appendChild(td);
+		
+		var selectObj = createElement("select","<option value='*'>*</option><option value='*first'>*first</option>");
+		var options = Array.from(MasterSummaryTableMetricsValues[metric]);
+		options.sort();
+		options.forEach(function(opt){
+			var option = createElement("option", opt);
+			option.value = opt;
 			selectObj.appendChild(option);
 		});
-		if (m == 'battle_result'){
-			var optionWin = createElement("option", "Win");
-			var optionLose = createElement("option", "Lose");
-			selectObj.appendChild(optionWin);
-			selectObj.appendChild(optionLose);
-		}		
+		selectObj.value = MasterSummaryTableMetricsFilter[metric];
+		selectObj.onchange = function(){
+			var metricChangedIndex = MasterSummaryTableMetricsFilterOrder.indexOf(metric);
+			if (metricChangedIndex == -1){ // A new layer of filter
+				MasterSummaryTableMetricsFilterOrder.push(metric);
+				metricChangedIndex = MasterSummaryTableMetricsFilterOrder.length - 1;
+			}
+			MasterSummaryTableMetricsFilter[metric] = this.value; //update the filter
+			if (this.value == '*'){ // Remove this and deeper layers of filters
+				for (var j = MasterSummaryTableMetricsFilterOrder.length - metricChangedIndex; j > 0; j--){
+					var metricToRemove = MasterSummaryTableMetricsFilterOrder.pop();
+					MasterSummaryTableMetricsFilter[metricToRemove] = '*';
+				}
+			}
+			MasterSummaryTableMetrics.forEach(function(m){
+				if (!MasterSummaryTableMetricsFilterOrder.includes(m)){
+					MasterSummaryTableMetricsValues[m] = new Set();
+				}
+			});
+			filterAllSimsBy();
+			displayMetricsControlTable();
+			displayMasterSummaryTable();
+		};
+		
+		var filterTd = createElement("td","");
 		filterTd.appendChild(selectObj);
 		row.appendChild(filterTd);
+		
 		table.append(row);
 	}
-	
 	document.getElementById("feedback_table1").appendChild(table);
-	
-	var b = createElement("button","Refresh");
-	b.onclick = function(){
-		updateMasterSummaryTableMetricsStatus();
-		displayMasterSummaryTable();
-	}
-	document.getElementById("feedback_table1").appendChild(b);
 }
-
 
 function displayMasterSummaryTable(){
 	document.getElementById("feedback_table2").innerHTML = "";
 	document.getElementById("feedback_table3").innerHTML = "";
-	/*if (configStack.length > 0)
-		writeUserInput(configStack.pop());*/
-		
-	document.getElementById("feedback_buttons").innerHTML = "<button onclick='clearSims(true)'>Clear All</button>";
-
+	document.getElementById("feedback_buttons").innerHTML = "<button onclick='clearAllSims()'>Clear All</button>";
 	document.getElementById("feedback_table2").appendChild(createMasterSummaryTable());
 	var tb2 = createElement("table","<col width=20%><col width=20%><col width=20%><col width=20%><col width=20%>");
 	var tr2 = createElement("tr","");
@@ -901,8 +917,7 @@ function displayMasterSummaryTable(){
 
 function displayDetail(i){
 	clearFeedbackTables();
-	// configStack.push(readUserInput(simResultsFilted[i]['input']));
-	writeUserInput(simResultsFilted[i]['input']);
+	writeUserInput(simResultsFiltered[i]['input']);
 	document.getElementById("feedback_buttons").innerHTML = "";
 	var b = createElement("button","Back");
 	b.onclick = function(){
@@ -911,15 +926,15 @@ function displayDetail(i){
 		displayMasterSummaryTable();
 	}
 	document.getElementById("feedback_buttons").appendChild(b);
-	document.getElementById("feedback_table1").appendChild(createTeamStatisticsTable(simResultsFilted[i]));
-	document.getElementById("feedback_table2").appendChild(createPokemonStatisticsTable(simResultsFilted[i]));
+	document.getElementById("feedback_table1").appendChild(createTeamStatisticsTable(simResultsFiltered[i]));
+	document.getElementById("feedback_table2").appendChild(createPokemonStatisticsTable(simResultsFiltered[i]));
 	document.getElementById("feedback_table3").innerHTML = "<button onclick='displayBattleLog("+i+")'>Display Battle Log</button>";
 	
 }
 
 function displayBattleLog(i){
 	document.getElementById("feedback_table3").innerHTML = "";
-	document.getElementById("feedback_table3").appendChild(createBattleLogTable(simResults[i]));
+	document.getElementById("feedback_table3").appendChild(createBattleLogTable(simResultsFiltered[i]));
 }
 
 function send_feedback(msg, appending){
@@ -929,15 +944,26 @@ function send_feedback(msg, appending){
 		document.getElementById("feedback_message").innerHTML = msg;
 }
 
-function clearSims(all){
-	simResults = [];
-	pageStart = 0;
-	pageNumber = 1;
-	pageNumberMax = 1;
+function main(){
+	initMasterSummaryTableMetrics();
+	enumTeamStart = 0;
+	enumPokemonStart = 0;
+	enumDefender = 0;
+	simQueue.push(readUserInput());
+	while (simQueue.length > 0){
+		var cfg = simQueue[0];
+		if (processQueue(cfg) == -1)
+			simQueue.shift();
+		else
+			runSim(simQueue.shift());
+	}
+	clearFeedbackTables();
+	filterAllSimsBy();
+	displayMetricsControlTable();
 	displayMasterSummaryTable();
+	send_feedback("Simulation done.");
 }
-
-
+</script>
 </script>
 
 <h2>Attacker Information</h2>
@@ -1027,12 +1053,15 @@ var TIER5_BOSSES_CURRENT_INDICES = [149, 383];
 const MAX_QUEUE_SIZE = 65536;
 const MAX_SIM_PER_CONFIG = 1024;
 const DEFAULT_SUMMARY_TABLE_METRICS = ['battle_result','duration','dfdr_HP_lost_percent','total_deaths'];
-const DEFAULT_SUMMARY_TABLE_HEADERS = ['Outcome','Time','Progress','#Death'];
+const DEFAULT_SUMMARY_TABLE_HEADERS = {'battle_result': 'Outcome',
+										'duration': 'Time',
+										'dfdr_HP_lost_percent': 'Progress',
+										'total_deaths': '#Death'};
 
 var totalAtkrTeamCount = 0;
 var simQueue = []; // Batch individual sims configurations here
 var simResults = []; // This is used to store all sims
-var simResultsFilted = []; // This is used to store filted sims
+var simResultsFiltered = []; // This is used to store filted sims
 var atkrCopyPasteClipboard = null;
 
 var MaxResultsPerPage = 30;
@@ -1044,10 +1073,11 @@ var enumTeamStart = 0;
 var enumPokemonStart = 0;
 var enumDefender = 0;
 var MasterSummaryTableMetrics = [];
-var MasterSummaryTableHeaders = [];
+var MasterSummaryTableHeaders = {};
 var MasterSummaryTableMetricsIncluded = {};
 var MasterSummaryTableMetricsSorted = {};
 var MasterSummaryTableMetricsFilter = {};
+var MasterSummaryTableMetricsFilterOrder = [];
 var MasterSummaryTableMetricsValues = {};
 
 initDataList();
