@@ -1,0 +1,22 @@
+
+
+
+
+
+
+f(a):
+	Q = [a]
+	flag <- true
+	while flag:
+		flag <- false
+		element <- Q.top()
+		for i = 0 to (element.size - 1):
+			if (element[i] == '*')
+				Q.dequeue()
+				element[i] <- 0
+				Q.enqueue(element.copy())
+				element[i] <- 1
+				Q.enqueue(element.copy())
+				flag <- true
+				break
+	return Q

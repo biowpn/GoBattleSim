@@ -1,0 +1,102 @@
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="GoBattleSimLib.js"></script>
+<script type="text/javascript" src="UI.js"></script>
+<script type="text/javascript" src="Populate_local.js"></script>
+
+<style>
+	table{
+		width: 100%;
+	}
+	
+	th, td {
+		vertical-align: center;
+		text-align: center;
+	}
+	
+	input, select {
+		width: 100%;
+	}
+	
+	button {
+		width: 100%;
+	}
+}
+</style>
+
+<datalist id="SpeciesNameDataList"></datalist>
+<datalist id="FMovesDataList"></datalist>
+<datalist id="CMovesDataList"></datalist>
+
+<button onclick="importPokemonFromBox()" id="ImportPokemonButton">Import Pokemon from my Box</button>
+
+<h2>Attacker Information</h2>
+<button onclick="javascript:addTeam()">Add Team</button>
+<br>
+
+<div id="AttackerInput">
+</div>
+
+
+<h2>Defender Information</h2>
+<div id="DefenderInput">
+</div>
+
+
+<h2>General Settings</h2>
+<div id="GeneralSettings">
+	<table>
+	<col width=20%><col width=20%><col width=20%><col width=20%><col width=20%>
+	<tr>
+		<th>Mode</th><th>Weather</th><th>Dodge Bug</th><th>Repeat</th><th>Report Type</th>
+	</tr>
+	<tr>
+		<td><select id="battleMode"  onchange="setDefenderInput()">
+				<option value="gym">Gym</option>
+				<option value="raid">Raid</option>
+			</select>
+		</td>
+		<td>
+			<select id="weather">
+				<option value="EXTREME">Extreme</option>
+				<option value="SUNNY_CLEAR">Sunner/Clear</option>
+				<option value="RAIN">Rain</option>
+				<option value="PARTLY_CLOUDY">Party Cloudy</option>
+				<option value="CLOUDY">Cloudy</option>
+				<option value="WINDY">Windy</option>
+				<option value="SNOW">Snow</option>
+				<option value="FOG">Fog</option>
+			</select>
+		</td>
+		<td>
+			<select id="dodgeBug">
+				<option value="0">Absent</option>
+				<option value="1">Present</option>
+			</select>
+		</td>
+		<td>
+			<input id="simPerConfig" type="number" min="1">
+		</td>
+		<td>
+			<select id="reportType">
+				<option value="enum">Enumerate</option>
+				<option value="avrg">Average</option>
+			</select>
+		</td>
+	</tr>
+	</table>
+</div>
+
+<br>
+<button onclick="main()" id="GoButton">Go</button>
+
+
+<h2>Feedback</h2>
+<div id="feedback_message"></div>
+<br>
+<div id="feedback_buttons"></div>
+<br>
+<div id="feedback_table1"></div>
+<br>
+<div id="feedback_table2"></div>
+<br>
+<div id="feedback_table3"></div>
