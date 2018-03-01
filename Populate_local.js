@@ -14,46 +14,9422 @@ var CHARGED_MOVE_DATA = [{"name": "wrap", "moveType": "c", "power": 60.0, "pokeT
 
 
 
-var POKEMON_SPECIES_DATA = [{"dex": 1, "name": "bulbasaur", "pokeType1": "grass", "pokeType2": "poison", "baseAtk": 118, "baseDef": 118, "baseStm": 90, "fastMoves": ["vine whip", "tackle"], "chargedMoves": ["sludge bomb", "seed bomb", "power whip"]}, {"dex": 2, "name": "ivysaur", "pokeType1": "grass", "pokeType2": "poison", "baseAtk": 151, "baseDef": 151, "baseStm": 120, "fastMoves": ["razor leaf", "vine whip"], "chargedMoves": ["sludge bomb", "solar beam", "power whip"]}, {"dex": 3, "name": "venusaur", "pokeType1": "grass", "pokeType2": "poison", "baseAtk": 198, "baseDef": 198, "baseStm": 160, "fastMoves": ["razor leaf", "vine whip"], "chargedMoves": ["sludge bomb", "petal blizzard", "solar beam"]}, {"dex": 4, "name": "charmander", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 116, "baseDef": 96, "baseStm": 78, "fastMoves": ["ember", "scratch"], "chargedMoves": ["flame charge", "flame burst", "flamethrower"]}, {"dex": 5, "name": "charmeleon", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 158, "baseDef": 129, "baseStm": 116, "fastMoves": ["ember", "fire fang"], "chargedMoves": ["fire punch", "flame burst", "flamethrower"]}, {"dex": 6, "name": "charizard", "pokeType1": "fire", "pokeType2": "flying", "baseAtk": 223, "baseDef": 176, "baseStm": 156, "fastMoves": ["fire spin", "air slash"], "chargedMoves": ["fire blast", "dragon claw", "overheat"]}, {"dex": 7, "name": "squirtle", "pokeType1": "water", "pokeType2": "none", "baseAtk": 94, "baseDef": 122, "baseStm": 88, "fastMoves": ["bubble", "tackle"], "chargedMoves": ["aqua jet", "aqua tail", "water pulse"]}, {"dex": 8, "name": "wartortle", "pokeType1": "water", "pokeType2": "none", "baseAtk": 126, "baseDef": 155, "baseStm": 118, "fastMoves": ["water gun", "bite"], "chargedMoves": ["aqua jet", "ice beam", "hydro pump"]}, {"dex": 9, "name": "blastoise", "pokeType1": "water", "pokeType2": "none", "baseAtk": 171, "baseDef": 210, "baseStm": 158, "fastMoves": ["water gun", "bite"], "chargedMoves": ["flash cannon", "ice beam", "hydro pump"]}, {"dex": 10, "name": "caterpie", "pokeType1": "bug", "pokeType2": "none", "baseAtk": 55, "baseDef": 62, "baseStm": 90, "fastMoves": ["bug bite", "tackle"], "chargedMoves": ["struggle"]}, {"dex": 11, "name": "metapod", "pokeType1": "bug", "pokeType2": "none", "baseAtk": 45, "baseDef": 94, "baseStm": 100, "fastMoves": ["bug bite", "tackle"], "chargedMoves": ["struggle"]}, {"dex": 12, "name": "butterfree", "pokeType1": "bug", "pokeType2": "flying", "baseAtk": 167, "baseDef": 151, "baseStm": 120, "fastMoves": ["struggle bug", "confusion"], "chargedMoves": ["bug buzz", "psychic", "signal beam"]}, {"dex": 13, "name": "weedle", "pokeType1": "bug", "pokeType2": "poison", "baseAtk": 63, "baseDef": 55, "baseStm": 80, "fastMoves": ["bug bite", "poison sting"], "chargedMoves": ["struggle"]}, {"dex": 14, "name": "kakuna", "pokeType1": "bug", "pokeType2": "poison", "baseAtk": 46, "baseDef": 86, "baseStm": 90, "fastMoves": ["bug bite", "poison sting"], "chargedMoves": ["struggle"]}, {"dex": 15, "name": "beedrill", "pokeType1": "bug", "pokeType2": "poison", "baseAtk": 169, "baseDef": 150, "baseStm": 130, "fastMoves": ["infestation", "poison jab"], "chargedMoves": ["sludge bomb", "aerial ace", "x scissor"]}, {"dex": 16, "name": "pidgey", "pokeType1": "normal", "pokeType2": "flying", "baseAtk": 85, "baseDef": 76, "baseStm": 80, "fastMoves": ["quick attack", "tackle"], "chargedMoves": ["twister", "aerial ace", "air cutter"]}, {"dex": 17, "name": "pidgeotto", "pokeType1": "normal", "pokeType2": "flying", "baseAtk": 117, "baseDef": 108, "baseStm": 126, "fastMoves": ["wing attack", "steel wing"], "chargedMoves": ["twister", "aerial ace", "air cutter"]}, {"dex": 18, "name": "pidgeot", "pokeType1": "normal", "pokeType2": "flying", "baseAtk": 166, "baseDef": 157, "baseStm": 166, "fastMoves": ["air slash", "steel wing"], "chargedMoves": ["hurricane", "aerial ace", "brave bird"]}, {"dex": 19, "name": "rattata", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 103, "baseDef": 70, "baseStm": 60, "fastMoves": ["tackle", "quick attack"], "chargedMoves": ["dig", "hyper fang", "body slam"]}, {"dex": 20, "name": "raticate", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 161, "baseDef": 144, "baseStm": 110, "fastMoves": ["bite", "quick attack"], "chargedMoves": ["dig", "hyper fang", "hyper beam"]}, {"dex": 21, "name": "spearow", "pokeType1": "normal", "pokeType2": "flying", "baseAtk": 112, "baseDef": 61, "baseStm": 80, "fastMoves": ["peck", "quick attack"], "chargedMoves": ["aerial ace", "drill peck", "sky attack"]}, {"dex": 22, "name": "fearow", "pokeType1": "normal", "pokeType2": "flying", "baseAtk": 182, "baseDef": 135, "baseStm": 130, "fastMoves": ["peck", "steel wing"], "chargedMoves": ["aerial ace", "drill run", "sky attack"]}, {"dex": 23, "name": "ekans", "pokeType1": "poison", "pokeType2": "none", "baseAtk": 110, "baseDef": 102, "baseStm": 70, "fastMoves": ["poison sting", "acid"], "chargedMoves": ["wrap", "poison fang", "sludge bomb"]}, {"dex": 24, "name": "arbok", "pokeType1": "poison", "pokeType2": "none", "baseAtk": 167, "baseDef": 158, "baseStm": 120, "fastMoves": ["bite", "acid"], "chargedMoves": ["dark pulse", "sludge wave", "gunk shot"]}, {"dex": 25, "name": "pikachu", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 112, "baseDef": 101, "baseStm": 70, "fastMoves": ["thunder shock", "quick attack"], "chargedMoves": ["discharge", "thunderbolt", "wild charge"]}, {"dex": 26, "name": "raichu", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 193, "baseDef": 165, "baseStm": 120, "fastMoves": ["volt switch", "spark"], "chargedMoves": ["brick break", "thunder punch", "wild charge"]}, {"dex": 27, "name": "sandshrew", "pokeType1": "ground", "pokeType2": "none", "baseAtk": 126, "baseDef": 145, "baseStm": 100, "fastMoves": ["scratch", "mud shot"], "chargedMoves": ["dig", "rock slide", "sand tomb"]}, {"dex": 28, "name": "sandslash", "pokeType1": "ground", "pokeType2": "none", "baseAtk": 182, "baseDef": 202, "baseStm": 150, "fastMoves": ["metal claw", "mud shot"], "chargedMoves": ["earthquake", "rock tomb", "bulldoze"]}, {"dex": 29, "name": "nidoran female", "pokeType1": "poison", "pokeType2": "none", "baseAtk": 86, "baseDef": 94, "baseStm": 110, "fastMoves": ["bite", "poison sting"], "chargedMoves": ["poison fang", "body slam", "sludge bomb"]}, {"dex": 30, "name": "nidorina", "pokeType1": "poison", "pokeType2": "none", "baseAtk": 117, "baseDef": 126, "baseStm": 140, "fastMoves": ["bite", "poison sting"], "chargedMoves": ["poison fang", "dig", "sludge bomb"]}, {"dex": 31, "name": "nidoqueen", "pokeType1": "poison", "pokeType2": "ground", "baseAtk": 180, "baseDef": 174, "baseStm": 180, "fastMoves": ["poison jab", "bite"], "chargedMoves": ["earthquake", "sludge wave", "stone edge"]}, {"dex": 32, "name": "nidoran male", "pokeType1": "poison", "pokeType2": "none", "baseAtk": 105, "baseDef": 76, "baseStm": 92, "fastMoves": ["peck", "poison sting"], "chargedMoves": ["horn attack", "body slam", "sludge bomb"]}, {"dex": 33, "name": "nidorino", "pokeType1": "poison", "pokeType2": "none", "baseAtk": 137, "baseDef": 112, "baseStm": 122, "fastMoves": ["poison jab", "poison sting"], "chargedMoves": ["horn attack", "dig", "sludge bomb"]}, {"dex": 34, "name": "nidoking", "pokeType1": "poison", "pokeType2": "ground", "baseAtk": 204, "baseDef": 157, "baseStm": 162, "fastMoves": ["poison jab", "iron tail"], "chargedMoves": ["earthquake", "sludge wave", "megahorn"]}, {"dex": 35, "name": "clefairy", "pokeType1": "fairy", "pokeType2": "none", "baseAtk": 107, "baseDef": 116, "baseStm": 140, "fastMoves": ["pound", "zen headbutt"], "chargedMoves": ["disarming voice", "body slam", "moonblast"]}, {"dex": 36, "name": "clefable", "pokeType1": "fairy", "pokeType2": "none", "baseAtk": 178, "baseDef": 171, "baseStm": 190, "fastMoves": ["charge beam", "zen headbutt"], "chargedMoves": ["dazzling gleam", "psychic", "moonblast"]}, {"dex": 37, "name": "vulpix", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 96, "baseDef": 122, "baseStm": 76, "fastMoves": ["quick attack", "ember"], "chargedMoves": ["body slam", "flamethrower", "flame charge"]}, {"dex": 38, "name": "ninetales", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 169, "baseDef": 204, "baseStm": 146, "fastMoves": ["feint attack", "fire spin"], "chargedMoves": ["heat wave", "overheat", "solar beam"]}, {"dex": 39, "name": "jigglypuff", "pokeType1": "normal", "pokeType2": "fairy", "baseAtk": 80, "baseDef": 44, "baseStm": 230, "fastMoves": ["pound", "feint attack"], "chargedMoves": ["disarming voice", "gyro ball", "dazzling gleam"]}, {"dex": 40, "name": "wigglytuff", "pokeType1": "normal", "pokeType2": "fairy", "baseAtk": 156, "baseDef": 93, "baseStm": 280, "fastMoves": ["pound", "feint attack"], "chargedMoves": ["dazzling gleam", "hyper beam", "play rough"]}, {"dex": 41, "name": "zubat", "pokeType1": "poison", "pokeType2": "flying", "baseAtk": 83, "baseDef": 76, "baseStm": 80, "fastMoves": ["quick attack", "bite"], "chargedMoves": ["poison fang", "air cutter", "swift"]}, {"dex": 42, "name": "golbat", "pokeType1": "poison", "pokeType2": "flying", "baseAtk": 161, "baseDef": 153, "baseStm": 150, "fastMoves": ["wing attack", "bite"], "chargedMoves": ["shadow ball", "air cutter", "poison fang"]}, {"dex": 43, "name": "oddish", "pokeType1": "grass", "pokeType2": "poison", "baseAtk": 131, "baseDef": 116, "baseStm": 90, "fastMoves": ["razor leaf", "acid"], "chargedMoves": ["seed bomb", "sludge bomb", "moonblast"]}, {"dex": 44, "name": "gloom", "pokeType1": "grass", "pokeType2": "poison", "baseAtk": 153, "baseDef": 139, "baseStm": 120, "fastMoves": ["razor leaf", "acid"], "chargedMoves": ["petal blizzard", "sludge bomb", "moonblast"]}, {"dex": 45, "name": "vileplume", "pokeType1": "grass", "pokeType2": "poison", "baseAtk": 202, "baseDef": 170, "baseStm": 150, "fastMoves": ["razor leaf", "acid"], "chargedMoves": ["petal blizzard", "solar beam", "moonblast"]}, {"dex": 46, "name": "paras", "pokeType1": "bug", "pokeType2": "grass", "baseAtk": 121, "baseDef": 99, "baseStm": 70, "fastMoves": ["scratch", "bug bite"], "chargedMoves": ["cross poison", "x scissor", "seed bomb"]}, {"dex": 47, "name": "parasect", "pokeType1": "bug", "pokeType2": "grass", "baseAtk": 165, "baseDef": 146, "baseStm": 120, "fastMoves": ["struggle bug", "fury cutter"], "chargedMoves": ["cross poison", "x scissor", "solar beam"]}, {"dex": 48, "name": "venonat", "pokeType1": "bug", "pokeType2": "poison", "baseAtk": 100, "baseDef": 102, "baseStm": 120, "fastMoves": ["bug bite", "confusion"], "chargedMoves": ["poison fang", "psybeam", "signal beam"]}, {"dex": 49, "name": "venomoth", "pokeType1": "bug", "pokeType2": "poison", "baseAtk": 179, "baseDef": 150, "baseStm": 140, "fastMoves": ["infestation", "confusion"], "chargedMoves": ["silver wind", "psychic", "bug buzz"]}, {"dex": 50, "name": "diglett", "pokeType1": "ground", "pokeType2": "none", "baseAtk": 109, "baseDef": 88, "baseStm": 20, "fastMoves": ["mud slap", "scratch"], "chargedMoves": ["dig", "mud bomb", "rock tomb"]}, {"dex": 51, "name": "dugtrio", "pokeType1": "ground", "pokeType2": "none", "baseAtk": 167, "baseDef": 147, "baseStm": 70, "fastMoves": ["sucker punch", "mud slap"], "chargedMoves": ["earthquake", "mud bomb", "stone edge"]}, {"dex": 52, "name": "meowth", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 92, "baseDef": 81, "baseStm": 80, "fastMoves": ["scratch", "bite"], "chargedMoves": ["night slash", "dark pulse", "foul play"]}, {"dex": 53, "name": "persian", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 150, "baseDef": 139, "baseStm": 130, "fastMoves": ["scratch", "feint attack"], "chargedMoves": ["foul play", "power gem", "play rough"]}, {"dex": 54, "name": "psyduck", "pokeType1": "water", "pokeType2": "none", "baseAtk": 122, "baseDef": 96, "baseStm": 100, "fastMoves": ["water gun", "zen headbutt"], "chargedMoves": ["psybeam", "aqua tail", "cross chop"]}, {"dex": 55, "name": "golduck", "pokeType1": "water", "pokeType2": "none", "baseAtk": 191, "baseDef": 163, "baseStm": 160, "fastMoves": ["water gun", "confusion"], "chargedMoves": ["psychic", "hydro pump", "ice beam"]}, {"dex": 56, "name": "mankey", "pokeType1": "fighting", "pokeType2": "none", "baseAtk": 148, "baseDef": 87, "baseStm": 80, "fastMoves": ["karate chop", "scratch"], "chargedMoves": ["cross chop", "low sweep", "brick break"]}, {"dex": 57, "name": "primeape", "pokeType1": "fighting", "pokeType2": "none", "baseAtk": 207, "baseDef": 144, "baseStm": 130, "fastMoves": ["low kick", "counter"], "chargedMoves": ["close combat", "low sweep", "night slash"]}, {"dex": 58, "name": "growlithe", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 136, "baseDef": 96, "baseStm": 110, "fastMoves": ["ember", "bite"], "chargedMoves": ["flame wheel", "body slam", "flamethrower"]}, {"dex": 59, "name": "arcanine", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 227, "baseDef": 166, "baseStm": 180, "fastMoves": ["fire fang", "snarl"], "chargedMoves": ["fire blast", "wild charge", "crunch"]}, {"dex": 60, "name": "poliwag", "pokeType1": "water", "pokeType2": "none", "baseAtk": 101, "baseDef": 82, "baseStm": 80, "fastMoves": ["bubble", "mud shot"], "chargedMoves": ["bubble beam", "mud bomb", "body slam"]}, {"dex": 61, "name": "poliwhirl", "pokeType1": "water", "pokeType2": "none", "baseAtk": 130, "baseDef": 130, "baseStm": 130, "fastMoves": ["bubble", "mud shot"], "chargedMoves": ["water pulse", "mud bomb", "bubble beam"]}, {"dex": 62, "name": "poliwrath", "pokeType1": "water", "pokeType2": "fighting", "baseAtk": 182, "baseDef": 187, "baseStm": 180, "fastMoves": ["bubble", "rock smash"], "chargedMoves": ["hydro pump", "dynamic punch", "ice punch"]}, {"dex": 63, "name": "abra", "pokeType1": "psychic", "pokeType2": "none", "baseAtk": 195, "baseDef": 103, "baseStm": 50, "fastMoves": ["zen headbutt", "charge beam"], "chargedMoves": ["psyshock", "signal beam", "shadow ball"]}, {"dex": 64, "name": "kadabra", "pokeType1": "psychic", "pokeType2": "none", "baseAtk": 232, "baseDef": 138, "baseStm": 80, "fastMoves": ["psycho cut", "confusion"], "chargedMoves": ["psybeam", "dazzling gleam", "shadow ball"]}, {"dex": 65, "name": "alakazam", "pokeType1": "psychic", "pokeType2": "none", "baseAtk": 271, "baseDef": 194, "baseStm": 110, "fastMoves": ["psycho cut", "confusion"], "chargedMoves": ["futuresight", "focus blast", "shadow ball"]}, {"dex": 66, "name": "machop", "pokeType1": "fighting", "pokeType2": "none", "baseAtk": 137, "baseDef": 88, "baseStm": 140, "fastMoves": ["rock smash", "karate chop"], "chargedMoves": ["low sweep", "brick break", "cross chop"]}, {"dex": 67, "name": "machoke", "pokeType1": "fighting", "pokeType2": "none", "baseAtk": 177, "baseDef": 130, "baseStm": 160, "fastMoves": ["low kick", "karate chop"], "chargedMoves": ["submission", "brick break", "dynamic punch"]}, {"dex": 68, "name": "machamp", "pokeType1": "fighting", "pokeType2": "none", "baseAtk": 234, "baseDef": 162, "baseStm": 180, "fastMoves": ["bullet punch", "counter"], "chargedMoves": ["heavy slam", "dynamic punch", "close combat"]}, {"dex": 69, "name": "bellsprout", "pokeType1": "grass", "pokeType2": "poison", "baseAtk": 139, "baseDef": 64, "baseStm": 100, "fastMoves": ["vine whip", "acid"], "chargedMoves": ["power whip", "sludge bomb", "wrap"]}, {"dex": 70, "name": "weepinbell", "pokeType1": "grass", "pokeType2": "poison", "baseAtk": 172, "baseDef": 95, "baseStm": 130, "fastMoves": ["bullet seed", "acid"], "chargedMoves": ["power whip", "sludge bomb", "seed bomb"]}, {"dex": 71, "name": "victreebel", "pokeType1": "grass", "pokeType2": "poison", "baseAtk": 207, "baseDef": 138, "baseStm": 160, "fastMoves": ["razor leaf", "acid"], "chargedMoves": ["leaf blade", "sludge bomb", "solar beam"]}, {"dex": 72, "name": "tentacool", "pokeType1": "water", "pokeType2": "poison", "baseAtk": 97, "baseDef": 182, "baseStm": 80, "fastMoves": ["bubble", "poison sting"], "chargedMoves": ["bubble beam", "water pulse", "wrap"]}, {"dex": 73, "name": "tentacruel", "pokeType1": "water", "pokeType2": "poison", "baseAtk": 166, "baseDef": 237, "baseStm": 160, "fastMoves": ["acid", "poison jab"], "chargedMoves": ["hydro pump", "sludge wave", "blizzard"]}, {"dex": 74, "name": "geodude", "pokeType1": "rock", "pokeType2": "ground", "baseAtk": 132, "baseDef": 163, "baseStm": 80, "fastMoves": ["rock throw", "tackle"], "chargedMoves": ["rock slide", "rock tomb", "dig"]}, {"dex": 75, "name": "graveler", "pokeType1": "rock", "pokeType2": "ground", "baseAtk": 164, "baseDef": 196, "baseStm": 110, "fastMoves": ["rock throw", "mud slap"], "chargedMoves": ["dig", "stone edge", "rock blast"]}, {"dex": 76, "name": "golem", "pokeType1": "rock", "pokeType2": "ground", "baseAtk": 211, "baseDef": 229, "baseStm": 160, "fastMoves": ["rock throw", "mud slap"], "chargedMoves": ["stone edge", "rock blast", "earthquake"]}, {"dex": 77, "name": "ponyta", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 170, "baseDef": 132, "baseStm": 100, "fastMoves": ["tackle", "ember"], "chargedMoves": ["flame charge", "flame wheel", "stomp"]}, {"dex": 78, "name": "rapidash", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 207, "baseDef": 167, "baseStm": 130, "fastMoves": ["low kick", "fire spin"], "chargedMoves": ["fire blast", "drill run", "heat wave"]}, {"dex": 79, "name": "slowpoke", "pokeType1": "water", "pokeType2": "psychic", "baseAtk": 109, "baseDef": 109, "baseStm": 180, "fastMoves": ["water gun", "confusion"], "chargedMoves": ["water pulse", "psyshock", "psychic"]}, {"dex": 80, "name": "slowbro", "pokeType1": "water", "pokeType2": "psychic", "baseAtk": 177, "baseDef": 194, "baseStm": 190, "fastMoves": ["water gun", "confusion"], "chargedMoves": ["water pulse", "psychic", "ice beam"]}, {"dex": 81, "name": "magnemite", "pokeType1": "electric", "pokeType2": "steel", "baseAtk": 165, "baseDef": 128, "baseStm": 50, "fastMoves": ["spark", "thunder shock"], "chargedMoves": ["discharge", "magnet bomb", "thunderbolt"]}, {"dex": 82, "name": "magneton", "pokeType1": "electric", "pokeType2": "steel", "baseAtk": 223, "baseDef": 182, "baseStm": 100, "fastMoves": ["spark", "charge beam"], "chargedMoves": ["zap cannon", "magnet bomb", "flash cannon"]}, {"dex": 83, "name": "farfetchd", "pokeType1": "normal", "pokeType2": "flying", "baseAtk": 124, "baseDef": 118, "baseStm": 104, "fastMoves": ["air slash", "fury cutter"], "chargedMoves": ["aerial ace", "air cutter", "leaf blade"]}, {"dex": 84, "name": "doduo", "pokeType1": "normal", "pokeType2": "flying", "baseAtk": 158, "baseDef": 88, "baseStm": 70, "fastMoves": ["peck", "quick attack"], "chargedMoves": ["drill peck", "aerial ace", "brave bird"]}, {"dex": 85, "name": "dodrio", "pokeType1": "normal", "pokeType2": "flying", "baseAtk": 218, "baseDef": 145, "baseStm": 120, "fastMoves": ["feint attack", "steel wing"], "chargedMoves": ["drill peck", "aerial ace", "brave bird"]}, {"dex": 86, "name": "seel", "pokeType1": "water", "pokeType2": "none", "baseAtk": 85, "baseDef": 128, "baseStm": 130, "fastMoves": ["ice shard", "lick"], "chargedMoves": ["aurora beam", "icy wind", "aqua tail"]}, {"dex": 87, "name": "dewgong", "pokeType1": "water", "pokeType2": "ice", "baseAtk": 139, "baseDef": 184, "baseStm": 180, "fastMoves": ["frost breath", "iron tail"], "chargedMoves": ["aurora beam", "water pulse", "blizzard"]}, {"dex": 88, "name": "grimer", "pokeType1": "poison", "pokeType2": "none", "baseAtk": 135, "baseDef": 90, "baseStm": 160, "fastMoves": ["poison jab", "mud slap"], "chargedMoves": ["sludge", "mud bomb", "sludge bomb"]}, {"dex": 89, "name": "muk", "pokeType1": "poison", "pokeType2": "none", "baseAtk": 190, "baseDef": 184, "baseStm": 210, "fastMoves": ["infestation", "poison jab"], "chargedMoves": ["dark pulse", "gunk shot", "sludge wave"]}, {"dex": 90, "name": "shellder", "pokeType1": "water", "pokeType2": "none", "baseAtk": 116, "baseDef": 168, "baseStm": 60, "fastMoves": ["ice shard", "tackle"], "chargedMoves": ["bubble beam", "water pulse", "icy wind"]}, {"dex": 91, "name": "cloyster", "pokeType1": "water", "pokeType2": "ice", "baseAtk": 186, "baseDef": 323, "baseStm": 100, "fastMoves": ["frost breath", "ice shard"], "chargedMoves": ["aurora beam", "hydro pump", "avalanche"]}, {"dex": 92, "name": "gastly", "pokeType1": "ghost", "pokeType2": "poison", "baseAtk": 186, "baseDef": 70, "baseStm": 60, "fastMoves": ["lick", "astonish"], "chargedMoves": ["night shade", "dark pulse", "sludge bomb"]}, {"dex": 93, "name": "haunter", "pokeType1": "ghost", "pokeType2": "poison", "baseAtk": 223, "baseDef": 112, "baseStm": 90, "fastMoves": ["shadow claw", "astonish"], "chargedMoves": ["shadow punch", "dark pulse", "sludge bomb"]}, {"dex": 94, "name": "gengar", "pokeType1": "ghost", "pokeType2": "poison", "baseAtk": 261, "baseDef": 156, "baseStm": 120, "fastMoves": ["sucker punch", "hex"], "chargedMoves": ["shadow ball", "focus blast", "sludge bomb"]}, {"dex": 95, "name": "onix", "pokeType1": "rock", "pokeType2": "ground", "baseAtk": 85, "baseDef": 288, "baseStm": 70, "fastMoves": ["rock throw", "tackle"], "chargedMoves": ["sand tomb", "stone edge", "heavy slam"]}, {"dex": 96, "name": "drowzee", "pokeType1": "psychic", "pokeType2": "none", "baseAtk": 89, "baseDef": 158, "baseStm": 120, "fastMoves": ["pound", "confusion"], "chargedMoves": ["psybeam", "psyshock", "psychic"]}, {"dex": 97, "name": "hypno", "pokeType1": "psychic", "pokeType2": "none", "baseAtk": 144, "baseDef": 215, "baseStm": 170, "fastMoves": ["zen headbutt", "confusion"], "chargedMoves": ["futuresight", "psychic", "focus blast"]}, {"dex": 98, "name": "krabby", "pokeType1": "water", "pokeType2": "none", "baseAtk": 181, "baseDef": 156, "baseStm": 60, "fastMoves": ["bubble", "mud shot"], "chargedMoves": ["vice grip", "bubble beam", "water pulse"]}, {"dex": 99, "name": "kingler", "pokeType1": "water", "pokeType2": "none", "baseAtk": 240, "baseDef": 214, "baseStm": 110, "fastMoves": ["bubble", "metal claw"], "chargedMoves": ["vice grip", "x scissor", "water pulse"]}, {"dex": 100, "name": "voltorb", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 109, "baseDef": 114, "baseStm": 80, "fastMoves": ["spark", "tackle"], "chargedMoves": ["discharge", "thunderbolt", "gyro ball"]}, {"dex": 101, "name": "electrode", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 173, "baseDef": 179, "baseStm": 120, "fastMoves": ["spark", "volt switch"], "chargedMoves": ["discharge", "thunderbolt", "hyper beam"]}, {"dex": 102, "name": "exeggcute", "pokeType1": "grass", "pokeType2": "psychic", "baseAtk": 107, "baseDef": 140, "baseStm": 120, "fastMoves": ["confusion", "bullet seed"], "chargedMoves": ["seed bomb", "psychic", "ancient power"]}, {"dex": 103, "name": "exeggutor", "pokeType1": "grass", "pokeType2": "psychic", "baseAtk": 233, "baseDef": 158, "baseStm": 190, "fastMoves": ["bullet seed", "extrasensory"], "chargedMoves": ["seed bomb", "psychic", "solar beam"]}, {"dex": 104, "name": "cubone", "pokeType1": "ground", "pokeType2": "none", "baseAtk": 90, "baseDef": 165, "baseStm": 100, "fastMoves": ["mud slap", "rock smash"], "chargedMoves": ["bone club", "dig", "bulldoze"]}, {"dex": 105, "name": "marowak", "pokeType1": "ground", "pokeType2": "none", "baseAtk": 144, "baseDef": 200, "baseStm": 120, "fastMoves": ["mud slap", "rock smash"], "chargedMoves": ["bone club", "dig", "earthquake"]}, {"dex": 106, "name": "hitmonlee", "pokeType1": "fighting", "pokeType2": "none", "baseAtk": 224, "baseDef": 211, "baseStm": 100, "fastMoves": ["low kick", "rock smash"], "chargedMoves": ["close combat", "low sweep", "stone edge"]}, {"dex": 107, "name": "hitmonchan", "pokeType1": "fighting", "pokeType2": "none", "baseAtk": 193, "baseDef": 212, "baseStm": 100, "fastMoves": ["bullet punch", "counter"], "chargedMoves": ["fire punch", "ice punch", "thunder punch", "close combat"]}, {"dex": 108, "name": "lickitung", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 108, "baseDef": 137, "baseStm": 180, "fastMoves": ["lick", "zen headbutt"], "chargedMoves": ["hyper beam", "stomp", "power whip"]}, {"dex": 109, "name": "koffing", "pokeType1": "poison", "pokeType2": "none", "baseAtk": 119, "baseDef": 164, "baseStm": 80, "fastMoves": ["tackle", "infestation"], "chargedMoves": ["sludge", "sludge bomb", "dark pulse"]}, {"dex": 110, "name": "weezing", "pokeType1": "poison", "pokeType2": "none", "baseAtk": 174, "baseDef": 221, "baseStm": 130, "fastMoves": ["tackle", "infestation"], "chargedMoves": ["sludge bomb", "shadow ball", "dark pulse"]}, {"dex": 111, "name": "rhyhorn", "pokeType1": "ground", "pokeType2": "rock", "baseAtk": 140, "baseDef": 157, "baseStm": 160, "fastMoves": ["mud slap", "rock smash"], "chargedMoves": ["bulldoze", "horn attack", "stomp"]}, {"dex": 112, "name": "rhydon", "pokeType1": "ground", "pokeType2": "rock", "baseAtk": 222, "baseDef": 206, "baseStm": 210, "fastMoves": ["mud slap", "rock smash"], "chargedMoves": ["surf", "earthquake", "stone edge"]}, {"dex": 113, "name": "chansey", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 60, "baseDef": 176, "baseStm": 500, "fastMoves": ["pound", "zen headbutt"], "chargedMoves": ["psychic", "hyper beam", "dazzling gleam"]}, {"dex": 114, "name": "tangela", "pokeType1": "grass", "pokeType2": "none", "baseAtk": 183, "baseDef": 205, "baseStm": 130, "fastMoves": ["vine whip", "infestation"], "chargedMoves": ["grass knot", "sludge bomb", "solar beam"]}, {"dex": 115, "name": "kangaskhan", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 181, "baseDef": 165, "baseStm": 210, "fastMoves": ["mud slap", "low kick"], "chargedMoves": ["crunch", "earthquake", "outrage"]}, {"dex": 116, "name": "horsea", "pokeType1": "water", "pokeType2": "none", "baseAtk": 129, "baseDef": 125, "baseStm": 60, "fastMoves": ["water gun", "bubble"], "chargedMoves": ["bubble beam", "dragon pulse", "flash cannon"]}, {"dex": 117, "name": "seadra", "pokeType1": "water", "pokeType2": "none", "baseAtk": 187, "baseDef": 182, "baseStm": 110, "fastMoves": ["water gun", "dragon breath"], "chargedMoves": ["aurora beam", "dragon pulse", "hydro pump"]}, {"dex": 118, "name": "goldeen", "pokeType1": "water", "pokeType2": "none", "baseAtk": 123, "baseDef": 115, "baseStm": 90, "fastMoves": ["peck", "mud shot"], "chargedMoves": ["water pulse", "horn attack", "aqua tail"]}, {"dex": 119, "name": "seaking", "pokeType1": "water", "pokeType2": "none", "baseAtk": 175, "baseDef": 154, "baseStm": 160, "fastMoves": ["peck", "waterfall"], "chargedMoves": ["ice beam", "water pulse", "megahorn"]}, {"dex": 120, "name": "staryu", "pokeType1": "water", "pokeType2": "none", "baseAtk": 137, "baseDef": 112, "baseStm": 60, "fastMoves": ["tackle", "water gun"], "chargedMoves": ["swift", "bubble beam", "power gem"]}, {"dex": 121, "name": "starmie", "pokeType1": "water", "pokeType2": "psychic", "baseAtk": 210, "baseDef": 184, "baseStm": 120, "fastMoves": ["hidden power", "water gun"], "chargedMoves": ["hydro pump", "power gem", "psychic"]}, {"dex": 122, "name": "mr mime", "pokeType1": "psychic", "pokeType2": "fairy", "baseAtk": 192, "baseDef": 233, "baseStm": 80, "fastMoves": ["confusion", "zen headbutt"], "chargedMoves": ["psybeam", "psychic", "shadow ball"]}, {"dex": 123, "name": "scyther", "pokeType1": "bug", "pokeType2": "flying", "baseAtk": 218, "baseDef": 170, "baseStm": 140, "fastMoves": ["fury cutter", "air slash"], "chargedMoves": ["night slash", "x scissor", "aerial ace"]}, {"dex": 124, "name": "jynx", "pokeType1": "ice", "pokeType2": "psychic", "baseAtk": 223, "baseDef": 182, "baseStm": 130, "fastMoves": ["frost breath", "confusion"], "chargedMoves": ["draining kiss", "avalanche", "psyshock"]}, {"dex": 125, "name": "electabuzz", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 198, "baseDef": 173, "baseStm": 130, "fastMoves": ["thunder shock", "low kick"], "chargedMoves": ["thunder punch", "thunderbolt", "thunder"]}, {"dex": 126, "name": "magmar", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 206, "baseDef": 169, "baseStm": 130, "fastMoves": ["ember", "karate chop"], "chargedMoves": ["fire blast", "fire punch", "flamethrower"]}, {"dex": 127, "name": "pinsir", "pokeType1": "bug", "pokeType2": "none", "baseAtk": 238, "baseDef": 197, "baseStm": 130, "fastMoves": ["rock smash", "bug bite"], "chargedMoves": ["vice grip", "x scissor", "close combat"]}, {"dex": 128, "name": "tauros", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 198, "baseDef": 197, "baseStm": 150, "fastMoves": ["tackle", "zen headbutt"], "chargedMoves": ["horn attack", "iron head", "earthquake"]}, {"dex": 129, "name": "magikarp", "pokeType1": "water", "pokeType2": "none", "baseAtk": 29, "baseDef": 102, "baseStm": 40, "fastMoves": ["splash"], "chargedMoves": ["struggle"]}, {"dex": 130, "name": "gyarados", "pokeType1": "water", "pokeType2": "flying", "baseAtk": 237, "baseDef": 197, "baseStm": 190, "fastMoves": ["bite", "waterfall"], "chargedMoves": ["hydro pump", "crunch", "outrage"]}, {"dex": 131, "name": "lapras", "pokeType1": "water", "pokeType2": "ice", "baseAtk": 165, "baseDef": 180, "baseStm": 260, "fastMoves": ["frost breath", "water gun"], "chargedMoves": ["hydro pump", "surf", "blizzard"]}, {"dex": 132, "name": "ditto", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 91, "baseDef": 91, "baseStm": 96, "fastMoves": ["transform"], "chargedMoves": ["struggle"]}, {"dex": 133, "name": "eevee", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 104, "baseDef": 121, "baseStm": 110, "fastMoves": ["quick attack", "tackle"], "chargedMoves": ["dig", "swift"]}, {"dex": 134, "name": "vaporeon", "pokeType1": "water", "pokeType2": "none", "baseAtk": 205, "baseDef": 177, "baseStm": 260, "fastMoves": ["water gun"], "chargedMoves": ["water pulse", "hydro pump", "aqua tail"]}, {"dex": 135, "name": "jolteon", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 232, "baseDef": 201, "baseStm": 130, "fastMoves": ["thunder shock", "volt switch"], "chargedMoves": ["discharge", "thunderbolt", "thunder"]}, {"dex": 136, "name": "flareon", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 246, "baseDef": 204, "baseStm": 130, "fastMoves": ["ember", "fire spin"], "chargedMoves": ["fire blast", "flamethrower", "overheat"]}, {"dex": 137, "name": "porygon", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 153, "baseDef": 139, "baseStm": 130, "fastMoves": ["charge beam", "hidden power"], "chargedMoves": ["solar beam", "hyper beam", "zap cannon"]}, {"dex": 138, "name": "omanyte", "pokeType1": "rock", "pokeType2": "water", "baseAtk": 155, "baseDef": 174, "baseStm": 70, "fastMoves": ["water gun", "mud shot"], "chargedMoves": ["ancient power", "bubble beam", "rock blast"]}, {"dex": 139, "name": "omastar", "pokeType1": "rock", "pokeType2": "water", "baseAtk": 207, "baseDef": 227, "baseStm": 140, "fastMoves": ["mud shot", "water gun"], "chargedMoves": ["ancient power", "hydro pump", "rock blast"]}, {"dex": 140, "name": "kabuto", "pokeType1": "rock", "pokeType2": "water", "baseAtk": 148, "baseDef": 162, "baseStm": 60, "fastMoves": ["scratch", "mud shot"], "chargedMoves": ["ancient power", "aqua jet", "rock tomb"]}, {"dex": 141, "name": "kabutops", "pokeType1": "rock", "pokeType2": "water", "baseAtk": 220, "baseDef": 203, "baseStm": 120, "fastMoves": ["mud shot", "rock smash"], "chargedMoves": ["ancient power", "water pulse", "stone edge"]}, {"dex": 142, "name": "aerodactyl", "pokeType1": "rock", "pokeType2": "flying", "baseAtk": 221, "baseDef": 164, "baseStm": 160, "fastMoves": ["steel wing", "bite"], "chargedMoves": ["ancient power", "iron head", "hyper beam"]}, {"dex": 143, "name": "snorlax", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 190, "baseDef": 190, "baseStm": 320, "fastMoves": ["zen headbutt", "lick"], "chargedMoves": ["heavy slam", "hyper beam", "earthquake"]}, {"dex": 144, "name": "articuno", "pokeType1": "ice", "pokeType2": "flying", "baseAtk": 192, "baseDef": 249, "baseStm": 180, "fastMoves": ["frost breath"], "chargedMoves": ["ice beam", "icy wind", "blizzard"]}, {"dex": 145, "name": "zapdos", "pokeType1": "electric", "pokeType2": "flying", "baseAtk": 253, "baseDef": 188, "baseStm": 180, "fastMoves": ["charge beam"], "chargedMoves": ["zap cannon", "thunderbolt", "thunder"]}, {"dex": 146, "name": "moltres", "pokeType1": "fire", "pokeType2": "flying", "baseAtk": 251, "baseDef": 184, "baseStm": 180, "fastMoves": ["fire spin"], "chargedMoves": ["fire blast", "heat wave", "overheat"]}, {"dex": 147, "name": "dratini", "pokeType1": "dragon", "pokeType2": "none", "baseAtk": 119, "baseDef": 94, "baseStm": 82, "fastMoves": ["dragon breath", "iron tail"], "chargedMoves": ["wrap", "twister", "aqua tail"]}, {"dex": 148, "name": "dragonair", "pokeType1": "dragon", "pokeType2": "none", "baseAtk": 163, "baseDef": 138, "baseStm": 122, "fastMoves": ["dragon breath", "iron tail"], "chargedMoves": ["wrap", "aqua tail", "dragon pulse"]}, {"dex": 149, "name": "dragonite", "pokeType1": "dragon", "pokeType2": "flying", "baseAtk": 263, "baseDef": 201, "baseStm": 182, "fastMoves": ["dragon tail", "steel wing"], "chargedMoves": ["hurricane", "hyper beam", "outrage"]}, {"dex": 150, "name": "mewtwo", "pokeType1": "psychic", "pokeType2": "none", "baseAtk": 300, "baseDef": 182, "baseStm": 193, "fastMoves": ["psycho cut", "confusion"], "chargedMoves": ["psychic", "shadow ball", "hyper beam", "focus blast"]}, {"dex": 151, "name": "mew", "pokeType1": "psychic", "pokeType2": "none", "baseAtk": 210, "baseDef": 210, "baseStm": 200, "fastMoves": ["pound"], "chargedMoves": ["blizzard", "earthquake", "psychic", "focus blast", "thunder", "fire blast", "solar beam", "hyper beam"]}, {"dex": 152, "name": "chikorita", "pokeType1": "grass", "pokeType2": "none", "baseAtk": 92, "baseDef": 122, "baseStm": 90, "fastMoves": ["vine whip", "tackle"], "chargedMoves": ["energy ball", "grass knot", "body slam"]}, {"dex": 153, "name": "bayleef", "pokeType1": "grass", "pokeType2": "none", "baseAtk": 122, "baseDef": 155, "baseStm": 120, "fastMoves": ["razor leaf", "tackle"], "chargedMoves": ["energy ball", "grass knot", "ancient power"]}, {"dex": 154, "name": "meganium", "pokeType1": "grass", "pokeType2": "none", "baseAtk": 168, "baseDef": 202, "baseStm": 160, "fastMoves": ["razor leaf", "vine whip"], "chargedMoves": ["petal blizzard", "solar beam", "earthquake"]}, {"dex": 155, "name": "cyndaquil", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 116, "baseDef": 96, "baseStm": 78, "fastMoves": ["ember", "tackle"], "chargedMoves": ["flame charge", "swift", "flamethrower"]}, {"dex": 156, "name": "quilava", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 158, "baseDef": 129, "baseStm": 116, "fastMoves": ["ember", "tackle"], "chargedMoves": ["flame charge", "dig", "flamethrower"]}, {"dex": 157, "name": "typhlosion", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 223, "baseDef": 176, "baseStm": 156, "fastMoves": ["ember", "shadow claw"], "chargedMoves": ["fire blast", "overheat", "solar beam"]}, {"dex": 158, "name": "totodile", "pokeType1": "water", "pokeType2": "none", "baseAtk": 117, "baseDef": 116, "baseStm": 100, "fastMoves": ["water gun", "scratch"], "chargedMoves": ["crunch", "aqua jet", "water pulse"]}, {"dex": 159, "name": "croconaw", "pokeType1": "water", "pokeType2": "none", "baseAtk": 150, "baseDef": 151, "baseStm": 130, "fastMoves": ["water gun", "scratch"], "chargedMoves": ["crunch", "ice punch", "water pulse"]}, {"dex": 160, "name": "feraligatr", "pokeType1": "water", "pokeType2": "none", "baseAtk": 205, "baseDef": 197, "baseStm": 170, "fastMoves": ["waterfall", "bite"], "chargedMoves": ["crunch", "hydro pump", "ice beam"]}, {"dex": 161, "name": "sentret", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 79, "baseDef": 77, "baseStm": 70, "fastMoves": ["scratch", "quick attack"], "chargedMoves": ["dig", "brick break", "grass knot"]}, {"dex": 162, "name": "furret", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 148, "baseDef": 130, "baseStm": 170, "fastMoves": ["quick attack", "sucker punch"], "chargedMoves": ["dig", "brick break", "hyper beam"]}, {"dex": 163, "name": "hoothoot", "pokeType1": "normal", "pokeType2": "flying", "baseAtk": 67, "baseDef": 101, "baseStm": 120, "fastMoves": ["feint attack", "peck"], "chargedMoves": ["aerial ace", "sky attack", "night shade"]}, {"dex": 164, "name": "noctowl", "pokeType1": "normal", "pokeType2": "flying", "baseAtk": 145, "baseDef": 179, "baseStm": 200, "fastMoves": ["wing attack", "extrasensory"], "chargedMoves": ["psychic", "sky attack", "night shade"]}, {"dex": 165, "name": "ledyba", "pokeType1": "bug", "pokeType2": "flying", "baseAtk": 72, "baseDef": 142, "baseStm": 80, "fastMoves": ["tackle", "bug bite"], "chargedMoves": ["silver wind", "swift", "aerial ace"]}, {"dex": 166, "name": "ledian", "pokeType1": "bug", "pokeType2": "flying", "baseAtk": 107, "baseDef": 209, "baseStm": 110, "fastMoves": ["struggle bug", "bug bite"], "chargedMoves": ["bug buzz", "silver wind", "aerial ace"]}, {"dex": 167, "name": "spinarak", "pokeType1": "bug", "pokeType2": "poison", "baseAtk": 105, "baseDef": 73, "baseStm": 80, "fastMoves": ["poison sting", "bug bite"], "chargedMoves": ["night slash", "signal beam", "cross poison"]}, {"dex": 168, "name": "ariados", "pokeType1": "bug", "pokeType2": "poison", "baseAtk": 161, "baseDef": 128, "baseStm": 140, "fastMoves": ["poison sting", "infestation"], "chargedMoves": ["shadow sneak", "megahorn", "cross poison"]}, {"dex": 169, "name": "crobat", "pokeType1": "poison", "pokeType2": "flying", "baseAtk": 194, "baseDef": 178, "baseStm": 170, "fastMoves": ["air slash", "bite"], "chargedMoves": ["shadow ball", "air cutter", "sludge bomb"]}, {"dex": 170, "name": "chinchou", "pokeType1": "water", "pokeType2": "electric", "baseAtk": 106, "baseDef": 106, "baseStm": 150, "fastMoves": ["bubble", "spark"], "chargedMoves": ["water pulse", "thunderbolt", "bubble beam"]}, {"dex": 171, "name": "lanturn", "pokeType1": "water", "pokeType2": "electric", "baseAtk": 146, "baseDef": 146, "baseStm": 250, "fastMoves": ["water gun", "charge beam"], "chargedMoves": ["hydro pump", "thunderbolt", "thunder"]}, {"dex": 172, "name": "pichu", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 77, "baseDef": 63, "baseStm": 40, "fastMoves": ["thunder shock"], "chargedMoves": ["thunderbolt", "disarming voice", "thunder punch"]}, {"dex": 173, "name": "cleffa", "pokeType1": "fairy", "pokeType2": "none", "baseAtk": 75, "baseDef": 91, "baseStm": 100, "fastMoves": ["pound", "zen headbutt"], "chargedMoves": ["grass knot", "psyshock", "signal beam"]}, {"dex": 174, "name": "igglybuff", "pokeType1": "normal", "pokeType2": "fairy", "baseAtk": 69, "baseDef": 34, "baseStm": 180, "fastMoves": ["pound", "feint attack"], "chargedMoves": ["wild charge", "shadow ball", "psychic"]}, {"dex": 175, "name": "togepi", "pokeType1": "fairy", "pokeType2": "none", "baseAtk": 67, "baseDef": 116, "baseStm": 70, "fastMoves": ["hidden power", "peck"], "chargedMoves": ["ancient power", "psyshock", "dazzling gleam"]}, {"dex": 176, "name": "togetic", "pokeType1": "fairy", "pokeType2": "flying", "baseAtk": 139, "baseDef": 191, "baseStm": 110, "fastMoves": ["extrasensory", "hidden power"], "chargedMoves": ["ancient power", "dazzling gleam", "aerial ace"]}, {"dex": 177, "name": "natu", "pokeType1": "psychic", "pokeType2": "flying", "baseAtk": 134, "baseDef": 89, "baseStm": 80, "fastMoves": ["peck", "quick attack"], "chargedMoves": ["night shade", "psyshock", "drill peck"]}, {"dex": 178, "name": "xatu", "pokeType1": "psychic", "pokeType2": "flying", "baseAtk": 192, "baseDef": 146, "baseStm": 130, "fastMoves": ["air slash", "feint attack"], "chargedMoves": ["ominous wind", "futuresight", "aerial ace"]}, {"dex": 179, "name": "mareep", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 114, "baseDef": 82, "baseStm": 110, "fastMoves": ["tackle", "thunder shock"], "chargedMoves": ["body slam", "thunderbolt", "discharge"]}, {"dex": 180, "name": "flaaffy", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 145, "baseDef": 112, "baseStm": 140, "fastMoves": ["tackle", "charge beam"], "chargedMoves": ["power gem", "thunderbolt", "discharge"]}, {"dex": 181, "name": "ampharos", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 211, "baseDef": 172, "baseStm": 180, "fastMoves": ["charge beam", "volt switch"], "chargedMoves": ["zap cannon", "focus blast", "thunder"]}, {"dex": 182, "name": "bellossom", "pokeType1": "grass", "pokeType2": "none", "baseAtk": 169, "baseDef": 189, "baseStm": 150, "fastMoves": ["razor leaf", "acid"], "chargedMoves": ["leaf blade", "petal blizzard", "dazzling gleam"]}, {"dex": 183, "name": "marill", "pokeType1": "water", "pokeType2": "fairy", "baseAtk": 37, "baseDef": 93, "baseStm": 140, "fastMoves": ["tackle", "bubble"], "chargedMoves": ["bubble beam", "aqua tail", "body slam"]}, {"dex": 184, "name": "azumarill", "pokeType1": "water", "pokeType2": "fairy", "baseAtk": 112, "baseDef": 152, "baseStm": 200, "fastMoves": ["rock smash", "bubble"], "chargedMoves": ["play rough", "hydro pump", "ice beam"]}, {"dex": 185, "name": "sudowoodo", "pokeType1": "rock", "pokeType2": "none", "baseAtk": 167, "baseDef": 198, "baseStm": 140, "fastMoves": ["rock throw", "counter"], "chargedMoves": ["stone edge", "earthquake", "rock slide"]}, {"dex": 186, "name": "politoed", "pokeType1": "water", "pokeType2": "none", "baseAtk": 174, "baseDef": 192, "baseStm": 180, "fastMoves": ["mud shot", "bubble"], "chargedMoves": ["hydro pump", "blizzard", "surf"]}, {"dex": 187, "name": "hoppip", "pokeType1": "grass", "pokeType2": "flying", "baseAtk": 67, "baseDef": 101, "baseStm": 70, "fastMoves": ["tackle", "bullet seed"], "chargedMoves": ["grass knot", "dazzling gleam", "seed bomb"]}, {"dex": 188, "name": "skiploom", "pokeType1": "grass", "pokeType2": "flying", "baseAtk": 91, "baseDef": 127, "baseStm": 110, "fastMoves": ["tackle", "bullet seed"], "chargedMoves": ["grass knot", "dazzling gleam", "energy ball"]}, {"dex": 189, "name": "jumpluff", "pokeType1": "grass", "pokeType2": "flying", "baseAtk": 118, "baseDef": 197, "baseStm": 150, "fastMoves": ["infestation", "bullet seed"], "chargedMoves": ["energy ball", "dazzling gleam", "solar beam"]}, {"dex": 190, "name": "aipom", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 136, "baseDef": 112, "baseStm": 110, "fastMoves": ["scratch", "astonish"], "chargedMoves": ["low sweep", "swift", "aerial ace"]}, {"dex": 191, "name": "sunkern", "pokeType1": "grass", "pokeType2": "none", "baseAtk": 55, "baseDef": 55, "baseStm": 60, "fastMoves": ["razor leaf", "cut"], "chargedMoves": ["energy ball", "grass knot", "seed bomb"]}, {"dex": 192, "name": "sunflora", "pokeType1": "grass", "pokeType2": "none", "baseAtk": 185, "baseDef": 148, "baseStm": 150, "fastMoves": ["razor leaf", "bullet seed"], "chargedMoves": ["solar beam", "petal blizzard", "sludge bomb"]}, {"dex": 193, "name": "yanma", "pokeType1": "bug", "pokeType2": "flying", "baseAtk": 154, "baseDef": 94, "baseStm": 130, "fastMoves": ["quick attack", "wing attack"], "chargedMoves": ["ancient power", "aerial ace", "silver wind"]}, {"dex": 194, "name": "wooper", "pokeType1": "water", "pokeType2": "ground", "baseAtk": 75, "baseDef": 75, "baseStm": 110, "fastMoves": ["water gun", "mud shot"], "chargedMoves": ["mud bomb", "dig", "body slam"]}, {"dex": 195, "name": "quagsire", "pokeType1": "water", "pokeType2": "ground", "baseAtk": 152, "baseDef": 152, "baseStm": 190, "fastMoves": ["water gun", "mud shot"], "chargedMoves": ["sludge bomb", "earthquake", "stone edge"]}, {"dex": 196, "name": "espeon", "pokeType1": "psychic", "pokeType2": "none", "baseAtk": 261, "baseDef": 194, "baseStm": 130, "fastMoves": ["confusion", "zen headbutt"], "chargedMoves": ["psybeam", "psychic", "futuresight"]}, {"dex": 197, "name": "umbreon", "pokeType1": "dark", "pokeType2": "none", "baseAtk": 126, "baseDef": 250, "baseStm": 190, "fastMoves": ["feint attack", "snarl"], "chargedMoves": ["dark pulse", "foul play"]}, {"dex": 198, "name": "murkrow", "pokeType1": "dark", "pokeType2": "flying", "baseAtk": 175, "baseDef": 87, "baseStm": 120, "fastMoves": ["peck", "feint attack"], "chargedMoves": ["drill peck", "foul play", "dark pulse"]}, {"dex": 199, "name": "slowking", "pokeType1": "water", "pokeType2": "psychic", "baseAtk": 177, "baseDef": 194, "baseStm": 190, "fastMoves": ["water gun", "confusion"], "chargedMoves": ["blizzard", "psychic", "fire blast"]}, {"dex": 200, "name": "misdreavus", "pokeType1": "ghost", "pokeType2": "none", "baseAtk": 167, "baseDef": 167, "baseStm": 120, "fastMoves": ["astonish", "hex"], "chargedMoves": ["shadow sneak", "dark pulse", "ominous wind"]}, {"dex": 201, "name": "unown", "pokeType1": "psychic", "pokeType2": "none", "baseAtk": 136, "baseDef": 91, "baseStm": 96, "fastMoves": ["hidden power"], "chargedMoves": ["struggle"]}, {"dex": 202, "name": "wobbuffet", "pokeType1": "psychic", "pokeType2": "none", "baseAtk": 60, "baseDef": 106, "baseStm": 380, "fastMoves": ["counter", "splash"], "chargedMoves": ["mirror coat"]}, {"dex": 203, "name": "girafarig", "pokeType1": "normal", "pokeType2": "psychic", "baseAtk": 182, "baseDef": 133, "baseStm": 140, "fastMoves": ["tackle", "confusion"], "chargedMoves": ["psychic", "thunderbolt", "mirror coat"]}, {"dex": 204, "name": "pineco", "pokeType1": "bug", "pokeType2": "none", "baseAtk": 108, "baseDef": 146, "baseStm": 100, "fastMoves": ["tackle", "bug bite"], "chargedMoves": ["gyro ball", "rock tomb", "sand tomb"]}, {"dex": 205, "name": "forretress", "pokeType1": "bug", "pokeType2": "steel", "baseAtk": 161, "baseDef": 242, "baseStm": 150, "fastMoves": ["bug bite", "struggle bug"], "chargedMoves": ["heavy slam", "earthquake", "rock tomb"]}, {"dex": 206, "name": "dunsparce", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 131, "baseDef": 131, "baseStm": 200, "fastMoves": ["bite", "astonish"], "chargedMoves": ["dig", "rock slide", "drill run"]}, {"dex": 207, "name": "gligar", "pokeType1": "ground", "pokeType2": "flying", "baseAtk": 143, "baseDef": 204, "baseStm": 130, "fastMoves": ["fury cutter", "wing attack"], "chargedMoves": ["dig", "aerial ace", "night slash"]}, {"dex": 208, "name": "steelix", "pokeType1": "steel", "pokeType2": "ground", "baseAtk": 148, "baseDef": 333, "baseStm": 150, "fastMoves": ["iron tail", "dragon tail"], "chargedMoves": ["earthquake", "heavy slam", "crunch"]}, {"dex": 209, "name": "snubbull", "pokeType1": "fairy", "pokeType2": "none", "baseAtk": 137, "baseDef": 89, "baseStm": 120, "fastMoves": ["tackle", "bite"], "chargedMoves": ["crunch", "dazzling gleam", "brick break"]}, {"dex": 210, "name": "granbull", "pokeType1": "fairy", "pokeType2": "none", "baseAtk": 212, "baseDef": 137, "baseStm": 180, "fastMoves": ["bite", "snarl"], "chargedMoves": ["crunch", "play rough", "close combat"]}, {"dex": 211, "name": "qwilfish", "pokeType1": "water", "pokeType2": "poison", "baseAtk": 184, "baseDef": 148, "baseStm": 130, "fastMoves": ["poison sting", "water gun"], "chargedMoves": ["aqua tail", "ice beam", "sludge wave"]}, {"dex": 212, "name": "scizor", "pokeType1": "bug", "pokeType2": "steel", "baseAtk": 236, "baseDef": 191, "baseStm": 140, "fastMoves": ["bullet punch", "fury cutter"], "chargedMoves": ["x scissor", "iron head", "night slash"]}, {"dex": 213, "name": "shuckle", "pokeType1": "bug", "pokeType2": "rock", "baseAtk": 17, "baseDef": 396, "baseStm": 40, "fastMoves": ["struggle bug", "rock throw"], "chargedMoves": ["rock blast", "stone edge", "gyro ball"]}, {"dex": 214, "name": "heracross", "pokeType1": "bug", "pokeType2": "fighting", "baseAtk": 234, "baseDef": 189, "baseStm": 160, "fastMoves": ["counter", "struggle bug"], "chargedMoves": ["megahorn", "close combat", "earthquake"]}, {"dex": 215, "name": "sneasel", "pokeType1": "dark", "pokeType2": "ice", "baseAtk": 189, "baseDef": 157, "baseStm": 110, "fastMoves": ["ice shard", "feint attack"], "chargedMoves": ["avalanche", "ice punch", "foul play"]}, {"dex": 216, "name": "teddiursa", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 142, "baseDef": 93, "baseStm": 120, "fastMoves": ["scratch", "lick"], "chargedMoves": ["cross chop", "crunch", "play rough"]}, {"dex": 217, "name": "ursaring", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 236, "baseDef": 144, "baseStm": 180, "fastMoves": ["metal claw", "counter"], "chargedMoves": ["close combat", "hyper beam", "play rough"]}, {"dex": 218, "name": "slugma", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 118, "baseDef": 71, "baseStm": 80, "fastMoves": ["ember", "rock throw"], "chargedMoves": ["flame burst", "flame charge", "rock slide"]}, {"dex": 219, "name": "magcargo", "pokeType1": "fire", "pokeType2": "rock", "baseAtk": 139, "baseDef": 209, "baseStm": 100, "fastMoves": ["ember", "rock throw"], "chargedMoves": ["heat wave", "overheat", "stone edge"]}, {"dex": 220, "name": "swinub", "pokeType1": "ice", "pokeType2": "ground", "baseAtk": 90, "baseDef": 74, "baseStm": 100, "fastMoves": ["tackle", "powder snow"], "chargedMoves": ["icy wind", "body slam", "rock slide"]}, {"dex": 221, "name": "piloswine", "pokeType1": "ice", "pokeType2": "ground", "baseAtk": 181, "baseDef": 147, "baseStm": 200, "fastMoves": ["ice shard", "powder snow"], "chargedMoves": ["avalanche", "bulldoze", "stone edge"]}, {"dex": 222, "name": "corsola", "pokeType1": "water", "pokeType2": "rock", "baseAtk": 118, "baseDef": 156, "baseStm": 110, "fastMoves": ["tackle", "bubble"], "chargedMoves": ["rock blast", "power gem", "bubble beam"]}, {"dex": 223, "name": "remoraid", "pokeType1": "water", "pokeType2": "none", "baseAtk": 127, "baseDef": 69, "baseStm": 70, "fastMoves": ["water gun", "mud shot"], "chargedMoves": ["aurora beam", "water pulse", "rock blast"]}, {"dex": 224, "name": "octillery", "pokeType1": "water", "pokeType2": "none", "baseAtk": 197, "baseDef": 141, "baseStm": 150, "fastMoves": ["water gun", "mud shot"], "chargedMoves": ["gunk shot", "water pulse", "aurora beam"]}, {"dex": 225, "name": "delibird", "pokeType1": "ice", "pokeType2": "flying", "baseAtk": 128, "baseDef": 90, "baseStm": 90, "fastMoves": ["present"], "chargedMoves": ["ice punch", "icy wind", "aerial ace"]}, {"dex": 226, "name": "mantine", "pokeType1": "water", "pokeType2": "flying", "baseAtk": 148, "baseDef": 260, "baseStm": 130, "fastMoves": ["bubble", "wing attack"], "chargedMoves": ["water pulse", "ice beam", "aerial ace"]}, {"dex": 227, "name": "skarmory", "pokeType1": "steel", "pokeType2": "flying", "baseAtk": 148, "baseDef": 260, "baseStm": 130, "fastMoves": ["steel wing", "air slash"], "chargedMoves": ["brave bird", "sky attack", "flash cannon"]}, {"dex": 228, "name": "houndour", "pokeType1": "dark", "pokeType2": "fire", "baseAtk": 152, "baseDef": 93, "baseStm": 90, "fastMoves": ["feint attack", "ember"], "chargedMoves": ["crunch", "flamethrower", "dark pulse"]}, {"dex": 229, "name": "houndoom", "pokeType1": "dark", "pokeType2": "fire", "baseAtk": 224, "baseDef": 159, "baseStm": 150, "fastMoves": ["snarl", "fire fang"], "chargedMoves": ["crunch", "fire blast", "foul play"]}, {"dex": 230, "name": "kingdra", "pokeType1": "water", "pokeType2": "dragon", "baseAtk": 194, "baseDef": 194, "baseStm": 150, "fastMoves": ["waterfall", "dragon breath"], "chargedMoves": ["hydro pump", "blizzard", "outrage"]}, {"dex": 231, "name": "phanpy", "pokeType1": "ground", "pokeType2": "none", "baseAtk": 107, "baseDef": 107, "baseStm": 180, "fastMoves": ["tackle", "rock smash"], "chargedMoves": ["bulldoze", "rock slide", "body slam"]}, {"dex": 232, "name": "donphan", "pokeType1": "ground", "pokeType2": "none", "baseAtk": 214, "baseDef": 214, "baseStm": 180, "fastMoves": ["tackle", "counter"], "chargedMoves": ["earthquake", "heavy slam", "play rough"]}, {"dex": 233, "name": "porygon2", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 198, "baseDef": 183, "baseStm": 170, "fastMoves": ["hidden power", "charge beam"], "chargedMoves": ["solar beam", "hyper beam", "zap cannon"]}, {"dex": 234, "name": "stantler", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 192, "baseDef": 132, "baseStm": 146, "fastMoves": ["tackle", "zen headbutt"], "chargedMoves": ["stomp", "wild charge", "megahorn"]}, {"dex": 235, "name": "smeargle", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 40, "baseDef": 88, "baseStm": 110, "fastMoves": ["tackle"], "chargedMoves": ["struggle"]}, {"dex": 236, "name": "tyrogue", "pokeType1": "fighting", "pokeType2": "none", "baseAtk": 64, "baseDef": 64, "baseStm": 70, "fastMoves": ["rock smash", "tackle"], "chargedMoves": ["brick break", "rock slide", "low sweep"]}, {"dex": 237, "name": "hitmontop", "pokeType1": "fighting", "pokeType2": "none", "baseAtk": 173, "baseDef": 214, "baseStm": 100, "fastMoves": ["rock smash", "counter"], "chargedMoves": ["close combat", "gyro ball", "stone edge"]}, {"dex": 238, "name": "smoochum", "pokeType1": "ice", "pokeType2": "psychic", "baseAtk": 153, "baseDef": 116, "baseStm": 90, "fastMoves": ["powder snow", "pound"], "chargedMoves": ["ice beam", "ice punch", "psyshock"]}, {"dex": 239, "name": "elekid", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 135, "baseDef": 110, "baseStm": 90, "fastMoves": ["thunder shock", "low kick"], "chargedMoves": ["thunder punch", "brick break", "discharge"]}, {"dex": 240, "name": "magby", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 151, "baseDef": 108, "baseStm": 90, "fastMoves": ["ember", "karate chop"], "chargedMoves": ["brick break", "fire punch", "flame burst"]}, {"dex": 241, "name": "miltank", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 157, "baseDef": 211, "baseStm": 190, "fastMoves": ["tackle", "zen headbutt"], "chargedMoves": ["stomp", "body slam", "gyro ball"]}, {"dex": 242, "name": "blissey", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 129, "baseDef": 229, "baseStm": 510, "fastMoves": ["pound", "zen headbutt"], "chargedMoves": ["psychic", "hyper beam", "dazzling gleam"]}, {"dex": 243, "name": "raikou", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 241, "baseDef": 210, "baseStm": 180, "fastMoves": ["thunder shock", "volt switch"], "chargedMoves": ["thunder", "thunderbolt", "wild charge"]}, {"dex": 244, "name": "entei", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 235, "baseDef": 176, "baseStm": 230, "fastMoves": ["fire spin", "fire fang"], "chargedMoves": ["flamethrower", "fire blast", "overheat"]}, {"dex": 245, "name": "suicune", "pokeType1": "water", "pokeType2": "none", "baseAtk": 180, "baseDef": 235, "baseStm": 200, "fastMoves": ["extrasensory", "snarl"], "chargedMoves": ["hydro pump", "bubble beam", "water pulse"]}, {"dex": 246, "name": "larvitar", "pokeType1": "rock", "pokeType2": "ground", "baseAtk": 115, "baseDef": 93, "baseStm": 100, "fastMoves": ["bite", "rock smash"], "chargedMoves": ["stomp", "crunch", "ancient power"]}, {"dex": 247, "name": "pupitar", "pokeType1": "rock", "pokeType2": "ground", "baseAtk": 155, "baseDef": 133, "baseStm": 140, "fastMoves": ["bite", "rock smash"], "chargedMoves": ["dig", "crunch", "ancient power"]}, {"dex": 248, "name": "tyranitar", "pokeType1": "rock", "pokeType2": "dark", "baseAtk": 251, "baseDef": 212, "baseStm": 200, "fastMoves": ["bite", "iron tail"], "chargedMoves": ["fire blast", "crunch", "stone edge"]}, {"dex": 249, "name": "lugia", "pokeType1": "psychic", "pokeType2": "flying", "baseAtk": 193, "baseDef": 323, "baseStm": 212, "fastMoves": ["extrasensory", "dragon tail"], "chargedMoves": ["sky attack", "hydro pump", "futuresight"]}, {"dex": 250, "name": "ho oh", "pokeType1": "fire", "pokeType2": "flying", "baseAtk": 239, "baseDef": 274, "baseStm": 193, "fastMoves": ["extrasensory", "steel wing"], "chargedMoves": ["brave bird", "fire blast", "solar beam"]}, {"dex": 251, "name": "celebi", "pokeType1": "psychic", "pokeType2": "grass", "baseAtk": 210, "baseDef": 210, "baseStm": 200, "fastMoves": ["confusion", "charge beam"], "chargedMoves": ["hyper beam", "psychic", "dazzling gleam"]}, {"dex": 252, "name": "treecko", "pokeType1": "grass", "pokeType2": "none", "baseAtk": 124, "baseDef": 104, "baseStm": 80, "fastMoves": ["pound", "bullet seed"], "chargedMoves": ["energy ball", "aerial ace", "grass knot"]}, {"dex": 253, "name": "grovyle", "pokeType1": "grass", "pokeType2": "none", "baseAtk": 172, "baseDef": 130, "baseStm": 100, "fastMoves": ["quick attack", "bullet seed"], "chargedMoves": ["leaf blade", "aerial ace", "grass knot"]}, {"dex": 254, "name": "sceptile", "pokeType1": "grass", "pokeType2": "none", "baseAtk": 223, "baseDef": 180, "baseStm": 140, "fastMoves": ["fury cutter", "bullet seed"], "chargedMoves": ["leaf blade", "aerial ace", "earthquake"]}, {"dex": 255, "name": "torchic", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 130, "baseDef": 92, "baseStm": 90, "fastMoves": ["scratch", "ember"], "chargedMoves": ["flame charge", "flamethrower", "rock tomb"]}, {"dex": 256, "name": "combusken", "pokeType1": "fire", "pokeType2": "fighting", "baseAtk": 163, "baseDef": 115, "baseStm": 120, "fastMoves": ["peck", "ember"], "chargedMoves": ["flame charge", "flamethrower", "rock slide"]}, {"dex": 257, "name": "blaziken", "pokeType1": "fire", "pokeType2": "fighting", "baseAtk": 240, "baseDef": 141, "baseStm": 160, "fastMoves": ["counter", "fire spin"], "chargedMoves": ["focus blast", "overheat", "brave bird"]}, {"dex": 258, "name": "mudkip", "pokeType1": "water", "pokeType2": "none", "baseAtk": 126, "baseDef": 93, "baseStm": 100, "fastMoves": ["tackle", "water gun"], "chargedMoves": ["dig", "sludge", "stomp"]}, {"dex": 259, "name": "marshtomp", "pokeType1": "water", "pokeType2": "ground", "baseAtk": 156, "baseDef": 133, "baseStm": 140, "fastMoves": ["mud shot", "water gun"], "chargedMoves": ["mud bomb", "sludge", "surf"]}, {"dex": 260, "name": "swampert", "pokeType1": "water", "pokeType2": "ground", "baseAtk": 208, "baseDef": 175, "baseStm": 200, "fastMoves": ["mud shot", "water gun"], "chargedMoves": ["earthquake", "sludge wave", "surf"]}, {"dex": 261, "name": "poochyena", "pokeType1": "dark", "pokeType2": "none", "baseAtk": 96, "baseDef": 63, "baseStm": 70, "fastMoves": ["tackle", "snarl"], "chargedMoves": ["crunch", "dig", "poison fang"]}, {"dex": 262, "name": "mightyena", "pokeType1": "dark", "pokeType2": "none", "baseAtk": 171, "baseDef": 137, "baseStm": 140, "fastMoves": ["bite", "fire fang"], "chargedMoves": ["crunch", "play rough", "poison fang"]}, {"dex": 263, "name": "zigzagoon", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 58, "baseDef": 80, "baseStm": 76, "fastMoves": ["tackle", "rock smash"], "chargedMoves": ["dig", "grass knot", "thunderbolt"]}, {"dex": 264, "name": "linoone", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 142, "baseDef": 128, "baseStm": 156, "fastMoves": ["shadow claw", "tackle"], "chargedMoves": ["dig", "grass knot", "thunder"]}, {"dex": 265, "name": "wurmple", "pokeType1": "bug", "pokeType2": "none", "baseAtk": 75, "baseDef": 61, "baseStm": 90, "fastMoves": ["tackle", "bug bite"], "chargedMoves": ["struggle"]}, {"dex": 266, "name": "silcoon", "pokeType1": "bug", "pokeType2": "none", "baseAtk": 60, "baseDef": 91, "baseStm": 100, "fastMoves": ["poison sting", "bug bite"], "chargedMoves": ["struggle"]}, {"dex": 267, "name": "beautifly", "pokeType1": "bug", "pokeType2": "flying", "baseAtk": 189, "baseDef": 98, "baseStm": 120, "fastMoves": ["struggle bug", "infestation"], "chargedMoves": ["silver wind", "air cutter", "bug buzz"]}, {"dex": 268, "name": "cascoon", "pokeType1": "bug", "pokeType2": "none", "baseAtk": 60, "baseDef": 91, "baseStm": 100, "fastMoves": ["poison sting", "bug bite"], "chargedMoves": ["struggle"]}, {"dex": 269, "name": "dustox", "pokeType1": "bug", "pokeType2": "poison", "baseAtk": 98, "baseDef": 172, "baseStm": 120, "fastMoves": ["struggle bug", "confusion"], "chargedMoves": ["silver wind", "sludge bomb", "bug buzz"]}, {"dex": 270, "name": "lotad", "pokeType1": "water", "pokeType2": "grass", "baseAtk": 71, "baseDef": 86, "baseStm": 80, "fastMoves": ["water gun", "razor leaf"], "chargedMoves": ["bubble beam", "energy ball"]}, {"dex": 271, "name": "lombre", "pokeType1": "water", "pokeType2": "grass", "baseAtk": 112, "baseDef": 128, "baseStm": 120, "fastMoves": ["bubble", "razor leaf"], "chargedMoves": ["bubble beam", "ice beam", "grass knot"]}, {"dex": 272, "name": "ludicolo", "pokeType1": "water", "pokeType2": "grass", "baseAtk": 173, "baseDef": 191, "baseStm": 160, "fastMoves": ["bubble", "razor leaf"], "chargedMoves": ["hydro pump", "blizzard", "solar beam"]}, {"dex": 273, "name": "seedot", "pokeType1": "grass", "pokeType2": "none", "baseAtk": 71, "baseDef": 86, "baseStm": 80, "fastMoves": ["bullet seed", "quick attack"], "chargedMoves": ["energy ball", "grass knot", "foul play"]}, {"dex": 274, "name": "nuzleaf", "pokeType1": "grass", "pokeType2": "dark", "baseAtk": 134, "baseDef": 78, "baseStm": 140, "fastMoves": ["razor leaf", "feint attack"], "chargedMoves": ["leaf blade", "grass knot", "foul play"]}, {"dex": 275, "name": "shiftry", "pokeType1": "grass", "pokeType2": "dark", "baseAtk": 200, "baseDef": 121, "baseStm": 180, "fastMoves": ["razor leaf", "feint attack"], "chargedMoves": ["leaf blade", "hurricane", "foul play"]}, {"dex": 276, "name": "taillow", "pokeType1": "normal", "pokeType2": "flying", "baseAtk": 106, "baseDef": 61, "baseStm": 80, "fastMoves": ["peck", "quick attack"], "chargedMoves": ["aerial ace"]}, {"dex": 277, "name": "swellow", "pokeType1": "normal", "pokeType2": "flying", "baseAtk": 185, "baseDef": 130, "baseStm": 120, "fastMoves": ["wing attack", "steel wing"], "chargedMoves": ["aerial ace", "brave bird", "sky attack"]}, {"dex": 278, "name": "wingull", "pokeType1": "water", "pokeType2": "flying", "baseAtk": 106, "baseDef": 61, "baseStm": 80, "fastMoves": ["water gun", "quick attack"], "chargedMoves": ["water pulse", "air cutter", "ice beam"]}, {"dex": 279, "name": "pelipper", "pokeType1": "water", "pokeType2": "flying", "baseAtk": 175, "baseDef": 189, "baseStm": 120, "fastMoves": ["water gun", "wing attack"], "chargedMoves": ["hydro pump", "hurricane", "blizzard"]}, {"dex": 280, "name": "ralts", "pokeType1": "psychic", "pokeType2": "fairy", "baseAtk": 79, "baseDef": 63, "baseStm": 56, "fastMoves": ["confusion", "charge beam"], "chargedMoves": ["psyshock", "disarming voice", "shadow sneak"]}, {"dex": 281, "name": "kirlia", "pokeType1": "psychic", "pokeType2": "fairy", "baseAtk": 117, "baseDef": 100, "baseStm": 76, "fastMoves": ["confusion", "charge beam"], "chargedMoves": ["psychic", "disarming voice", "shadow sneak"]}, {"dex": 282, "name": "gardevoir", "pokeType1": "psychic", "pokeType2": "fairy", "baseAtk": 237, "baseDef": 220, "baseStm": 136, "fastMoves": ["confusion", "charge beam"], "chargedMoves": ["psychic", "dazzling gleam", "shadow ball"]}, {"dex": 283, "name": "surskit", "pokeType1": "bug", "pokeType2": "water", "baseAtk": 93, "baseDef": 97, "baseStm": 80, "fastMoves": ["bubble", "bug bite"], "chargedMoves": ["aqua jet", "bubble beam", "signal beam"]}, {"dex": 284, "name": "masquerain", "pokeType1": "bug", "pokeType2": "flying", "baseAtk": 192, "baseDef": 161, "baseStm": 140, "fastMoves": ["infestation", "air slash"], "chargedMoves": ["air cutter", "ominous wind", "silver wind"]}, {"dex": 285, "name": "shroomish", "pokeType1": "grass", "pokeType2": "none", "baseAtk": 74, "baseDef": 110, "baseStm": 120, "fastMoves": ["tackle", "bullet seed"], "chargedMoves": ["seed bomb", "grass knot", "energy ball"]}, {"dex": 286, "name": "breloom", "pokeType1": "grass", "pokeType2": "fighting", "baseAtk": 241, "baseDef": 153, "baseStm": 120, "fastMoves": ["counter", "bullet seed"], "chargedMoves": ["dynamic punch", "seed bomb", "sludge bomb"]}, {"dex": 287, "name": "slakoth", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 104, "baseDef": 104, "baseStm": 120, "fastMoves": ["yawn"], "chargedMoves": ["body slam", "night slash", "brick break"]}, {"dex": 288, "name": "vigoroth", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 159, "baseDef": 159, "baseStm": 160, "fastMoves": ["scratch", "counter"], "chargedMoves": ["body slam", "bulldoze", "brick break"]}, {"dex": 289, "name": "slaking", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 290, "baseDef": 183, "baseStm": 273, "fastMoves": ["yawn"], "chargedMoves": ["hyper beam", "play rough", "earthquake"]}, {"dex": 290, "name": "nincada", "pokeType1": "bug", "pokeType2": "ground", "baseAtk": 80, "baseDef": 153, "baseStm": 62, "fastMoves": ["scratch", "bug bite"], "chargedMoves": ["night slash", "bug buzz", "aerial ace"]}, {"dex": 291, "name": "ninjask", "pokeType1": "bug", "pokeType2": "flying", "baseAtk": 196, "baseDef": 114, "baseStm": 122, "fastMoves": ["fury cutter", "metal claw"], "chargedMoves": ["shadow ball", "bug buzz", "aerial ace"]}, {"dex": 292, "name": "shedinja", "pokeType1": "bug", "pokeType2": "ghost", "baseAtk": 153, "baseDef": 80, "baseStm": 2, "fastMoves": ["bite", "struggle bug"], "chargedMoves": ["shadow sneak", "aerial ace", "dig"]}, {"dex": 293, "name": "whismur", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 92, "baseDef": 42, "baseStm": 128, "fastMoves": ["pound", "astonish"], "chargedMoves": ["stomp", "disarming voice", "flamethrower"]}, {"dex": 294, "name": "loudred", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 134, "baseDef": 81, "baseStm": 168, "fastMoves": ["bite", "rock smash"], "chargedMoves": ["crunch", "disarming voice", "flamethrower"]}, {"dex": 295, "name": "exploud", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 179, "baseDef": 142, "baseStm": 208, "fastMoves": ["bite", "astonish"], "chargedMoves": ["crunch", "disarming voice", "fire blast"]}, {"dex": 296, "name": "makuhita", "pokeType1": "fighting", "pokeType2": "none", "baseAtk": 99, "baseDef": 54, "baseStm": 144, "fastMoves": ["rock smash", "tackle"], "chargedMoves": ["heavy slam", "low sweep", "cross chop"]}, {"dex": 297, "name": "hariyama", "pokeType1": "fighting", "pokeType2": "none", "baseAtk": 209, "baseDef": 114, "baseStm": 288, "fastMoves": ["counter", "bullet punch"], "chargedMoves": ["heavy slam", "close combat", "dynamic punch"]}, {"dex": 298, "name": "azurill", "pokeType1": "normal", "pokeType2": "fairy", "baseAtk": 36, "baseDef": 71, "baseStm": 100, "fastMoves": ["splash", "bubble"], "chargedMoves": ["bubble beam", "ice beam", "body slam"]}, {"dex": 299, "name": "nosepass", "pokeType1": "rock", "pokeType2": "none", "baseAtk": 82, "baseDef": 236, "baseStm": 60, "fastMoves": ["rock throw", "spark"], "chargedMoves": ["rock blast", "rock slide", "thunderbolt"]}, {"dex": 300, "name": "skitty", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 84, "baseDef": 84, "baseStm": 100, "fastMoves": ["feint attack", "tackle"], "chargedMoves": ["dig", "disarming voice", "wild charge"]}, {"dex": 301, "name": "delcatty", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 132, "baseDef": 132, "baseStm": 140, "fastMoves": ["feint attack", "zen headbutt"], "chargedMoves": ["play rough", "disarming voice", "wild charge"]}, {"dex": 302, "name": "sableye", "pokeType1": "dark", "pokeType2": "ghost", "baseAtk": 141, "baseDef": 141, "baseStm": 100, "fastMoves": ["shadow claw", "feint attack"], "chargedMoves": ["power gem", "foul play", "shadow sneak"]}, {"dex": 303, "name": "mawile", "pokeType1": "steel", "pokeType2": "fairy", "baseAtk": 155, "baseDef": 155, "baseStm": 100, "fastMoves": ["bite", "astonish"], "chargedMoves": ["play rough", "vice grip", "iron head"]}, {"dex": 304, "name": "aron", "pokeType1": "steel", "pokeType2": "rock", "baseAtk": 121, "baseDef": 168, "baseStm": 100, "fastMoves": ["tackle", "metal claw"], "chargedMoves": ["iron head", "rock tomb", "body slam"]}, {"dex": 305, "name": "lairon", "pokeType1": "steel", "pokeType2": "rock", "baseAtk": 158, "baseDef": 240, "baseStm": 120, "fastMoves": ["metal claw", "iron tail"], "chargedMoves": ["body slam", "rock slide", "heavy slam"]}, {"dex": 306, "name": "aggron", "pokeType1": "steel", "pokeType2": "rock", "baseAtk": 198, "baseDef": 314, "baseStm": 140, "fastMoves": ["dragon tail", "iron tail"], "chargedMoves": ["thunder", "stone edge", "heavy slam"]}, {"dex": 307, "name": "meditite", "pokeType1": "fighting", "pokeType2": "psychic", "baseAtk": 78, "baseDef": 107, "baseStm": 60, "fastMoves": ["confusion", "rock smash"], "chargedMoves": ["ice punch", "psyshock", "low sweep"]}, {"dex": 308, "name": "medicham", "pokeType1": "fighting", "pokeType2": "psychic", "baseAtk": 121, "baseDef": 152, "baseStm": 120, "fastMoves": ["psycho cut", "counter"], "chargedMoves": ["ice punch", "psychic", "dynamic punch"]}, {"dex": 309, "name": "electrike", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 123, "baseDef": 78, "baseStm": 80, "fastMoves": ["quick attack", "spark"], "chargedMoves": ["thunderbolt", "discharge", "swift"]}, {"dex": 310, "name": "manectric", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 215, "baseDef": 127, "baseStm": 140, "fastMoves": ["snarl", "charge beam"], "chargedMoves": ["thunder", "wild charge", "flame burst"]}, {"dex": 311, "name": "plusle", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 167, "baseDef": 147, "baseStm": 120, "fastMoves": ["spark", "quick attack"], "chargedMoves": ["thunderbolt", "discharge", "swift"]}, {"dex": 312, "name": "minun", "pokeType1": "electric", "pokeType2": "none", "baseAtk": 147, "baseDef": 167, "baseStm": 120, "fastMoves": ["spark", "quick attack"], "chargedMoves": ["thunderbolt", "discharge", "swift"]}, {"dex": 313, "name": "volbeat", "pokeType1": "bug", "pokeType2": "none", "baseAtk": 143, "baseDef": 171, "baseStm": 130, "fastMoves": ["struggle bug", "tackle"], "chargedMoves": ["signal beam", "bug buzz", "thunderbolt"]}, {"dex": 314, "name": "illumise", "pokeType1": "bug", "pokeType2": "none", "baseAtk": 143, "baseDef": 171, "baseStm": 130, "fastMoves": ["struggle bug", "tackle"], "chargedMoves": ["silver wind", "bug buzz", "dazzling gleam"]}, {"dex": 315, "name": "roselia", "pokeType1": "grass", "pokeType2": "poison", "baseAtk": 186, "baseDef": 148, "baseStm": 100, "fastMoves": ["poison jab", "razor leaf"], "chargedMoves": ["petal blizzard", "sludge bomb", "dazzling gleam"]}, {"dex": 316, "name": "gulpin", "pokeType1": "poison", "pokeType2": "none", "baseAtk": 80, "baseDef": 99, "baseStm": 140, "fastMoves": ["pound", "rock smash"], "chargedMoves": ["sludge", "gunk shot", "ice beam"]}, {"dex": 317, "name": "swalot", "pokeType1": "poison", "pokeType2": "none", "baseAtk": 140, "baseDef": 159, "baseStm": 200, "fastMoves": ["rock smash", "infestation"], "chargedMoves": ["gunk shot", "sludge bomb", "ice beam"]}, {"dex": 318, "name": "carvanha", "pokeType1": "water", "pokeType2": "dark", "baseAtk": 171, "baseDef": 39, "baseStm": 90, "fastMoves": ["bite", "snarl"], "chargedMoves": ["aqua jet", "crunch", "poison fang"]}, {"dex": 319, "name": "sharpedo", "pokeType1": "water", "pokeType2": "dark", "baseAtk": 243, "baseDef": 83, "baseStm": 140, "fastMoves": ["bite", "waterfall"], "chargedMoves": ["hydro pump", "crunch", "poison fang"]}, {"dex": 320, "name": "wailmer", "pokeType1": "water", "pokeType2": "none", "baseAtk": 136, "baseDef": 68, "baseStm": 260, "fastMoves": ["splash", "water gun"], "chargedMoves": ["heavy slam", "water pulse", "body slam"]}, {"dex": 321, "name": "wailord", "pokeType1": "water", "pokeType2": "none", "baseAtk": 175, "baseDef": 87, "baseStm": 340, "fastMoves": ["zen headbutt", "water gun"], "chargedMoves": ["surf", "blizzard", "hyper beam"]}, {"dex": 322, "name": "numel", "pokeType1": "fire", "pokeType2": "ground", "baseAtk": 119, "baseDef": 82, "baseStm": 120, "fastMoves": ["ember", "tackle"], "chargedMoves": ["bulldoze", "heat wave", "stomp"]}, {"dex": 323, "name": "camerupt", "pokeType1": "fire", "pokeType2": "ground", "baseAtk": 194, "baseDef": 139, "baseStm": 140, "fastMoves": ["ember", "rock smash"], "chargedMoves": ["earthquake", "overheat", "solar beam"]}, {"dex": 324, "name": "torkoal", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 151, "baseDef": 234, "baseStm": 140, "fastMoves": ["fire spin", "ember"], "chargedMoves": ["overheat", "solar beam", "earthquake"]}, {"dex": 325, "name": "spoink", "pokeType1": "psychic", "pokeType2": "none", "baseAtk": 125, "baseDef": 145, "baseStm": 120, "fastMoves": ["splash", "zen headbutt"], "chargedMoves": ["psybeam", "shadow ball", "mirror coat"]}, {"dex": 326, "name": "grumpig", "pokeType1": "psychic", "pokeType2": "none", "baseAtk": 171, "baseDef": 211, "baseStm": 160, "fastMoves": ["charge beam", "extrasensory"], "chargedMoves": ["psychic", "shadow ball", "mirror coat"]}, {"dex": 327, "name": "spinda", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 116, "baseDef": 116, "baseStm": 120, "fastMoves": ["sucker punch", "psycho cut"], "chargedMoves": ["dig", "rock tomb", "icy wind"]}, {"dex": 328, "name": "trapinch", "pokeType1": "ground", "pokeType2": "none", "baseAtk": 162, "baseDef": 78, "baseStm": 90, "fastMoves": ["mud shot", "struggle bug"], "chargedMoves": ["sand tomb", "dig", "crunch"]}, {"dex": 329, "name": "vibrava", "pokeType1": "ground", "pokeType2": "dragon", "baseAtk": 134, "baseDef": 99, "baseStm": 100, "fastMoves": ["mud shot", "dragon breath"], "chargedMoves": ["sand tomb", "bulldoze", "bug buzz"]}, {"dex": 330, "name": "flygon", "pokeType1": "ground", "pokeType2": "dragon", "baseAtk": 205, "baseDef": 168, "baseStm": 160, "fastMoves": ["mud shot", "dragon tail"], "chargedMoves": ["earthquake", "dragon claw", "stone edge"]}, {"dex": 331, "name": "cacnea", "pokeType1": "grass", "pokeType2": "none", "baseAtk": 156, "baseDef": 74, "baseStm": 100, "fastMoves": ["poison sting", "sucker punch"], "chargedMoves": ["grass knot", "brick break", "seed bomb"]}, {"dex": 332, "name": "cacturne", "pokeType1": "grass", "pokeType2": "dark", "baseAtk": 221, "baseDef": 115, "baseStm": 140, "fastMoves": ["poison jab", "sucker punch"], "chargedMoves": ["dark pulse", "dynamic punch", "grass knot"]}, {"dex": 333, "name": "swablu", "pokeType1": "normal", "pokeType2": "flying", "baseAtk": 76, "baseDef": 139, "baseStm": 90, "fastMoves": ["peck", "astonish"], "chargedMoves": ["disarming voice", "aerial ace", "ice beam"]}, {"dex": 334, "name": "altaria", "pokeType1": "dragon", "pokeType2": "flying", "baseAtk": 141, "baseDef": 208, "baseStm": 150, "fastMoves": ["peck", "dragon breath"], "chargedMoves": ["sky attack", "dazzling gleam", "dragon pulse"]}, {"dex": 335, "name": "zangoose", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 222, "baseDef": 124, "baseStm": 146, "fastMoves": ["fury cutter", "shadow claw"], "chargedMoves": ["close combat", "night slash", "dig"]}, {"dex": 336, "name": "seviper", "pokeType1": "poison", "pokeType2": "none", "baseAtk": 196, "baseDef": 118, "baseStm": 146, "fastMoves": ["poison jab", "iron tail"], "chargedMoves": ["poison fang", "crunch", "wrap"]}, {"dex": 337, "name": "lunatone", "pokeType1": "rock", "pokeType2": "psychic", "baseAtk": 178, "baseDef": 163, "baseStm": 180, "fastMoves": ["rock throw", "confusion"], "chargedMoves": ["psychic", "rock slide", "moonblast"]}, {"dex": 338, "name": "solrock", "pokeType1": "rock", "pokeType2": "psychic", "baseAtk": 178, "baseDef": 163, "baseStm": 180, "fastMoves": ["rock throw", "confusion"], "chargedMoves": ["psychic", "rock slide", "solar beam"]}, {"dex": 339, "name": "barboach", "pokeType1": "water", "pokeType2": "ground", "baseAtk": 93, "baseDef": 83, "baseStm": 100, "fastMoves": ["water gun", "mud shot"], "chargedMoves": ["aqua tail", "ice beam", "mud bomb"]}, {"dex": 340, "name": "whiscash", "pokeType1": "water", "pokeType2": "ground", "baseAtk": 151, "baseDef": 142, "baseStm": 220, "fastMoves": ["water gun", "mud shot"], "chargedMoves": ["water pulse", "blizzard", "mud bomb"]}, {"dex": 341, "name": "corphish", "pokeType1": "water", "pokeType2": "none", "baseAtk": 141, "baseDef": 113, "baseStm": 86, "fastMoves": ["bubble", "rock smash"], "chargedMoves": ["vice grip", "bubble beam", "aqua jet"]}, {"dex": 342, "name": "crawdaunt", "pokeType1": "water", "pokeType2": "dark", "baseAtk": 224, "baseDef": 156, "baseStm": 126, "fastMoves": ["waterfall", "snarl"], "chargedMoves": ["vice grip", "bubble beam", "night slash"]}, {"dex": 343, "name": "baltoy", "pokeType1": "ground", "pokeType2": "psychic", "baseAtk": 77, "baseDef": 131, "baseStm": 80, "fastMoves": ["confusion", "extrasensory"], "chargedMoves": ["gyro ball", "psybeam", "dig"]}, {"dex": 344, "name": "claydol", "pokeType1": "ground", "pokeType2": "psychic", "baseAtk": 140, "baseDef": 236, "baseStm": 120, "fastMoves": ["extrasensory", "confusion"], "chargedMoves": ["gyro ball", "psychic", "earthquake"]}, {"dex": 345, "name": "lileep", "pokeType1": "rock", "pokeType2": "grass", "baseAtk": 105, "baseDef": 154, "baseStm": 132, "fastMoves": ["acid", "infestation"], "chargedMoves": ["grass knot", "mirror coat", "ancient power"]}, {"dex": 346, "name": "cradily", "pokeType1": "rock", "pokeType2": "grass", "baseAtk": 152, "baseDef": 198, "baseStm": 172, "fastMoves": ["acid", "infestation"], "chargedMoves": ["grass knot", "bulldoze", "stone edge"]}, {"dex": 347, "name": "anorith", "pokeType1": "rock", "pokeType2": "bug", "baseAtk": 176, "baseDef": 100, "baseStm": 90, "fastMoves": ["struggle bug", "scratch"], "chargedMoves": ["cross poison", "aqua jet", "ancient power"]}, {"dex": 348, "name": "armaldo", "pokeType1": "rock", "pokeType2": "bug", "baseAtk": 222, "baseDef": 183, "baseStm": 150, "fastMoves": ["fury cutter", "struggle bug"], "chargedMoves": ["cross poison", "water pulse", "rock blast"]}, {"dex": 349, "name": "feebas", "pokeType1": "water", "pokeType2": "none", "baseAtk": 29, "baseDef": 102, "baseStm": 40, "fastMoves": ["splash", "tackle"], "chargedMoves": ["mirror coat"]}, {"dex": 350, "name": "milotic", "pokeType1": "water", "pokeType2": "none", "baseAtk": 192, "baseDef": 242, "baseStm": 190, "fastMoves": ["waterfall", "dragon tail"], "chargedMoves": ["surf", "blizzard", "hyper beam"]}, {"dex": 351, "name": "castform", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["bite", "rock smash"], "chargedMoves": ["stomp", "crunch", "ancient power"]}, {"dex": 352, "name": "kecleon", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 161, "baseDef": 212, "baseStm": 120, "fastMoves": ["lick", "sucker punch"], "chargedMoves": ["foul play", "flamethrower", "thunder", "ice beam", "aerial ace", "shadow sneak"]}, {"dex": 353, "name": "shuppet", "pokeType1": "ghost", "pokeType2": "none", "baseAtk": 138, "baseDef": 66, "baseStm": 88, "fastMoves": ["feint attack", "astonish"], "chargedMoves": ["ominous wind", "night shade", "shadow sneak"]}, {"dex": 354, "name": "banette", "pokeType1": "ghost", "pokeType2": "none", "baseAtk": 218, "baseDef": 127, "baseStm": 128, "fastMoves": ["hex", "shadow claw"], "chargedMoves": ["shadow ball", "dazzling gleam", "thunder"]}, {"dex": 355, "name": "duskull", "pokeType1": "ghost", "pokeType2": "none", "baseAtk": 70, "baseDef": 162, "baseStm": 40, "fastMoves": ["hex", "astonish"], "chargedMoves": ["ominous wind", "night shade", "shadow sneak"]}, {"dex": 356, "name": "dusclops", "pokeType1": "ghost", "pokeType2": "none", "baseAtk": 124, "baseDef": 234, "baseStm": 80, "fastMoves": ["hex", "feint attack"], "chargedMoves": ["shadow punch", "ice punch", "fire punch"]}, {"dex": 357, "name": "tropius", "pokeType1": "grass", "pokeType2": "flying", "baseAtk": 136, "baseDef": 165, "baseStm": 198, "fastMoves": ["air slash", "razor leaf"], "chargedMoves": ["stomp", "aerial ace", "leaf blade"]}, {"dex": 358, "name": "chimecho", "pokeType1": "psychic", "pokeType2": "none", "baseAtk": 175, "baseDef": 174, "baseStm": 150, "fastMoves": ["extrasensory", "astonish"], "chargedMoves": ["energy ball", "shadow ball", "psyshock"]}, {"dex": 359, "name": "absol", "pokeType1": "dark", "pokeType2": "none", "baseAtk": 246, "baseDef": 120, "baseStm": 130, "fastMoves": ["psycho cut", "snarl"], "chargedMoves": ["dark pulse", "thunder", "megahorn"]}, {"dex": 360, "name": "wynaut", "pokeType1": "psychic", "pokeType2": "none", "baseAtk": 41, "baseDef": 86, "baseStm": 190, "fastMoves": ["splash", "counter"], "chargedMoves": ["mirror coat"]}, {"dex": 361, "name": "snorunt", "pokeType1": "ice", "pokeType2": "none", "baseAtk": 95, "baseDef": 95, "baseStm": 100, "fastMoves": ["powder snow", "hex"], "chargedMoves": ["avalanche", "icy wind", "shadow ball"]}, {"dex": 362, "name": "glalie", "pokeType1": "ice", "pokeType2": "none", "baseAtk": 162, "baseDef": 162, "baseStm": 160, "fastMoves": ["ice shard", "frost breath"], "chargedMoves": ["avalanche", "gyro ball", "shadow ball"]}, {"dex": 363, "name": "spheal", "pokeType1": "ice", "pokeType2": "water", "baseAtk": 95, "baseDef": 90, "baseStm": 140, "fastMoves": ["water gun", "rock smash"], "chargedMoves": ["aurora beam", "body slam", "water pulse"]}, {"dex": 364, "name": "sealeo", "pokeType1": "ice", "pokeType2": "water", "baseAtk": 137, "baseDef": 132, "baseStm": 180, "fastMoves": ["water gun", "powder snow"], "chargedMoves": ["aurora beam", "body slam", "water pulse"]}, {"dex": 365, "name": "walrein", "pokeType1": "ice", "pokeType2": "water", "baseAtk": 182, "baseDef": 176, "baseStm": 220, "fastMoves": ["waterfall", "frost breath"], "chargedMoves": ["blizzard", "earthquake", "water pulse"]}, {"dex": 366, "name": "clamperl", "pokeType1": "water", "pokeType2": "none", "baseAtk": 133, "baseDef": 149, "baseStm": 70, "fastMoves": ["water gun"], "chargedMoves": ["body slam", "ice beam", "water pulse"]}, {"dex": 367, "name": "huntail", "pokeType1": "water", "pokeType2": "none", "baseAtk": 197, "baseDef": 194, "baseStm": 110, "fastMoves": ["water gun", "bite"], "chargedMoves": ["crunch", "ice beam", "aqua tail"]}, {"dex": 368, "name": "gorebyss", "pokeType1": "water", "pokeType2": "none", "baseAtk": 211, "baseDef": 194, "baseStm": 110, "fastMoves": ["water gun", "confusion"], "chargedMoves": ["draining kiss", "psychic", "water pulse"]}, {"dex": 369, "name": "relicanth", "pokeType1": "water", "pokeType2": "rock", "baseAtk": 162, "baseDef": 234, "baseStm": 200, "fastMoves": ["water gun", "zen headbutt"], "chargedMoves": ["ancient power", "aqua tail", "hydro pump"]}, {"dex": 370, "name": "luvdisc", "pokeType1": "water", "pokeType2": "none", "baseAtk": 81, "baseDef": 134, "baseStm": 86, "fastMoves": ["water gun", "splash"], "chargedMoves": ["draining kiss", "water pulse", "aqua jet"]}, {"dex": 371, "name": "bagon", "pokeType1": "dragon", "pokeType2": "none", "baseAtk": 134, "baseDef": 107, "baseStm": 90, "fastMoves": ["bite", "ember"], "chargedMoves": ["flamethrower", "twister", "crunch"]}, {"dex": 372, "name": "shelgon", "pokeType1": "dragon", "pokeType2": "none", "baseAtk": 172, "baseDef": 179, "baseStm": 130, "fastMoves": ["ember", "dragon breath"], "chargedMoves": ["flamethrower", "dragon pulse", "twister"]}, {"dex": 373, "name": "salamence", "pokeType1": "dragon", "pokeType2": "flying", "baseAtk": 277, "baseDef": 168, "baseStm": 190, "fastMoves": ["dragon tail", "fire fang"], "chargedMoves": ["fire blast", "hydro pump", "draco meteor"]}, {"dex": 374, "name": "beldum", "pokeType1": "steel", "pokeType2": "psychic", "baseAtk": 96, "baseDef": 141, "baseStm": 80, "fastMoves": ["take down"], "chargedMoves": ["struggle"]}, {"dex": 375, "name": "metang", "pokeType1": "steel", "pokeType2": "psychic", "baseAtk": 138, "baseDef": 185, "baseStm": 120, "fastMoves": ["zen headbutt", "metal claw"], "chargedMoves": ["psychic", "gyro ball", "psyshock"]}, {"dex": 376, "name": "metagross", "pokeType1": "steel", "pokeType2": "psychic", "baseAtk": 257, "baseDef": 247, "baseStm": 160, "fastMoves": ["bullet punch", "zen headbutt"], "chargedMoves": ["psychic", "flash cannon", "earthquake"]}, {"dex": 377, "name": "regirock", "pokeType1": "rock", "pokeType2": "none", "baseAtk": 179, "baseDef": 356, "baseStm": 160, "fastMoves": ["rock throw", "rock smash"], "chargedMoves": ["stone edge", "zap cannon", "focus blast"]}, {"dex": 378, "name": "regice", "pokeType1": "ice", "pokeType2": "none", "baseAtk": 179, "baseDef": 356, "baseStm": 160, "fastMoves": ["frost breath", "rock smash"], "chargedMoves": ["blizzard", "earthquake", "focus blast"]}, {"dex": 379, "name": "registeel", "pokeType1": "steel", "pokeType2": "none", "baseAtk": 143, "baseDef": 285, "baseStm": 160, "fastMoves": ["metal claw", "rock smash"], "chargedMoves": ["flash cannon", "hyper beam", "focus blast"]}, {"dex": 380, "name": "latias", "pokeType1": "dragon", "pokeType2": "psychic", "baseAtk": 228, "baseDef": 268, "baseStm": 160, "fastMoves": ["dragon breath", "zen headbutt"], "chargedMoves": ["psychic", "dragon claw", "thunder"]}, {"dex": 381, "name": "latios", "pokeType1": "dragon", "pokeType2": "psychic", "baseAtk": 268, "baseDef": 228, "baseStm": 160, "fastMoves": ["dragon breath", "zen headbutt"], "chargedMoves": ["psychic", "dragon claw", "solar beam"]}, {"dex": 382, "name": "kyogre", "pokeType1": "water", "pokeType2": "none", "baseAtk": 270, "baseDef": 251, "baseStm": 182, "fastMoves": ["waterfall"], "chargedMoves": ["hydro pump", "blizzard", "thunder"]}, {"dex": 383, "name": "groudon", "pokeType1": "ground", "pokeType2": "none", "baseAtk": 270, "baseDef": 251, "baseStm": 182, "fastMoves": ["mud shot", "dragon tail"], "chargedMoves": ["earthquake", "fire blast", "solar beam"]}, {"dex": 384, "name": "rayquaza", "pokeType1": "dragon", "pokeType2": "flying", "baseAtk": 284, "baseDef": 170, "baseStm": 191, "fastMoves": ["air slash", "dragon tail"], "chargedMoves": ["outrage", "aerial ace", "ancient power"]}, {"dex": 385, "name": "jirachi", "pokeType1": "steel", "pokeType2": "psychic", "baseAtk": 210, "baseDef": 210, "baseStm": 200, "fastMoves": ["confusion", "charge beam"], "chargedMoves": ["dazzling gleam", "psychic", "doom desire"]}, {"dex": 386, "name": "deoxys", "pokeType1": "psychic", "pokeType2": "none", "baseAtk": 1, "baseDef": 1, "baseStm": 1, "fastMoves": ["zen headbutt", "counter"], "chargedMoves": ["psycho boost", "zap cannon", "swift"]}];
+var POKEMON_SPECIES_DATA = [
+  {
+    "dex": 1,
+    "name": "bulbasaur",
+    "pokeType1": "grass",
+    "pokeType2": "poison",
+    "baseAtk": 118,
+    "baseDef": 118,
+    "baseStm": 90,
+    "fastMoves": [
+      "tackle",
+      "vine whip"
+    ],
+    "chargedMoves": [
+      "power whip",
+      "seed bomb",
+      "sludge bomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 2,
+    "name": "ivysaur",
+    "pokeType1": "grass",
+    "pokeType2": "poison",
+    "baseAtk": 151,
+    "baseDef": 151,
+    "baseStm": 120,
+    "fastMoves": [
+      "razor leaf",
+      "vine whip"
+    ],
+    "chargedMoves": [
+      "power whip",
+      "sludge bomb",
+      "solar beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 3,
+    "name": "venusaur",
+    "pokeType1": "grass",
+    "pokeType2": "poison",
+    "baseAtk": 198,
+    "baseDef": 198,
+    "baseStm": 160,
+    "fastMoves": [
+      "razor leaf",
+      "vine whip"
+    ],
+    "chargedMoves": [
+      "petal blizzard",
+      "sludge bomb",
+      "solar beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 4,
+    "name": "charmander",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 116,
+    "baseDef": 96,
+    "baseStm": 78,
+    "fastMoves": [
+      "ember",
+      "scratch"
+    ],
+    "chargedMoves": [
+      "flame burst",
+      "flamethrower",
+      "flame charge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 5,
+    "name": "charmeleon",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 158,
+    "baseDef": 129,
+    "baseStm": 116,
+    "fastMoves": [
+      "ember",
+      "fire fang"
+    ],
+    "chargedMoves": [
+      "fire punch",
+      "flame burst",
+      "flamethrower"
+    ],
+    "fastMoves_legacy": [
+      "scratch"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 6,
+    "name": "charizard",
+    "pokeType1": "fire",
+    "pokeType2": "flying",
+    "baseAtk": 223,
+    "baseDef": 176,
+    "baseStm": 156,
+    "fastMoves": [
+      "fire spin",
+      "air slash"
+    ],
+    "chargedMoves": [
+      "dragon claw",
+      "fire blast",
+      "overheat"
+    ],
+    "fastMoves_legacy": [
+      "ember",
+      "wing attack"
+    ],
+    "chargedMoves_legacy": [
+      "flamethrower"
+    ]
+  },
+  {
+    "dex": 7,
+    "name": "squirtle",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 94,
+    "baseDef": 122,
+    "baseStm": 88,
+    "fastMoves": [
+      "tackle",
+      "bubble"
+    ],
+    "chargedMoves": [
+      "aqua jet",
+      "aqua tail",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 8,
+    "name": "wartortle",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 126,
+    "baseDef": 155,
+    "baseStm": 118,
+    "fastMoves": [
+      "bite",
+      "water gun"
+    ],
+    "chargedMoves": [
+      "aqua jet",
+      "hydro pump",
+      "ice beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 9,
+    "name": "blastoise",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 171,
+    "baseDef": 210,
+    "baseStm": 158,
+    "fastMoves": [
+      "bite",
+      "water gun"
+    ],
+    "chargedMoves": [
+      "flash cannon",
+      "hydro pump",
+      "ice beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 10,
+    "name": "caterpie",
+    "pokeType1": "bug",
+    "pokeType2": "none",
+    "baseAtk": 55,
+    "baseDef": 62,
+    "baseStm": 90,
+    "fastMoves": [
+      "tackle",
+      "bug bite"
+    ],
+    "chargedMoves": [
+      "struggle"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 11,
+    "name": "metapod",
+    "pokeType1": "bug",
+    "pokeType2": "none",
+    "baseAtk": 45,
+    "baseDef": 94,
+    "baseStm": 100,
+    "fastMoves": [
+      "tackle",
+      "bug bite"
+    ],
+    "chargedMoves": [
+      "struggle"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 12,
+    "name": "butterfree",
+    "pokeType1": "bug",
+    "pokeType2": "flying",
+    "baseAtk": 167,
+    "baseDef": 151,
+    "baseStm": 120,
+    "fastMoves": [
+      "struggle bug",
+      "confusion"
+    ],
+    "chargedMoves": [
+      "bug buzz",
+      "psychic",
+      "signal beam"
+    ],
+    "fastMoves_legacy": [
+      "bug bite"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 13,
+    "name": "weedle",
+    "pokeType1": "bug",
+    "pokeType2": "poison",
+    "baseAtk": 63,
+    "baseDef": 55,
+    "baseStm": 80,
+    "fastMoves": [
+      "bug bite",
+      "poison sting"
+    ],
+    "chargedMoves": [
+      "struggle"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 14,
+    "name": "kakuna",
+    "pokeType1": "bug",
+    "pokeType2": "poison",
+    "baseAtk": 46,
+    "baseDef": 86,
+    "baseStm": 90,
+    "fastMoves": [
+      "bug bite",
+      "poison sting"
+    ],
+    "chargedMoves": [
+      "struggle"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 15,
+    "name": "beedrill",
+    "pokeType1": "bug",
+    "pokeType2": "poison",
+    "baseAtk": 169,
+    "baseDef": 150,
+    "baseStm": 130,
+    "fastMoves": [
+      "infestation",
+      "poison jab"
+    ],
+    "chargedMoves": [
+      "aerial ace",
+      "sludge bomb",
+      "x-scissor"
+    ],
+    "fastMoves_legacy": [
+      "bug bite"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 16,
+    "name": "pidgey",
+    "pokeType1": "flying",
+    "pokeType2": "normal",
+    "baseAtk": 85,
+    "baseDef": 76,
+    "baseStm": 80,
+    "fastMoves": [
+      "tackle",
+      "quick attack"
+    ],
+    "chargedMoves": [
+      "aerial ace",
+      "air cutter",
+      "twister"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 17,
+    "name": "pidgeotto",
+    "pokeType1": "flying",
+    "pokeType2": "normal",
+    "baseAtk": 117,
+    "baseDef": 108,
+    "baseStm": 126,
+    "fastMoves": [
+      "steel wing",
+      "wing attack"
+    ],
+    "chargedMoves": [
+      "aerial ace",
+      "air cutter",
+      "twister"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 18,
+    "name": "pidgeot",
+    "pokeType1": "flying",
+    "pokeType2": "normal",
+    "baseAtk": 166,
+    "baseDef": 157,
+    "baseStm": 166,
+    "fastMoves": [
+      "steel wing",
+      "air slash"
+    ],
+    "chargedMoves": [
+      "aerial ace",
+      "brave bird",
+      "hurricane"
+    ],
+    "fastMoves_legacy": [
+      "wing attack"
+    ],
+    "chargedMoves_legacy": [
+      "air cutter"
+    ]
+  },
+  {
+    "dex": 19,
+    "name": "rattata",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 103,
+    "baseDef": 70,
+    "baseStm": 60,
+    "fastMoves": [
+      "tackle",
+      "quick attack"
+    ],
+    "chargedMoves": [
+      "body slam",
+      "dig",
+      "hyper fang"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 20,
+    "name": "raticate",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 161,
+    "baseDef": 144,
+    "baseStm": 110,
+    "fastMoves": [
+      "bite",
+      "quick attack"
+    ],
+    "chargedMoves": [
+      "dig",
+      "hyper beam",
+      "hyper fang"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 21,
+    "name": "spearow",
+    "pokeType1": "flying",
+    "pokeType2": "normal",
+    "baseAtk": 112,
+    "baseDef": 61,
+    "baseStm": 80,
+    "fastMoves": [
+      "peck",
+      "quick attack"
+    ],
+    "chargedMoves": [
+      "aerial ace",
+      "drill peck",
+      "sky attack"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "twister"
+    ]
+  },
+  {
+    "dex": 22,
+    "name": "fearow",
+    "pokeType1": "flying",
+    "pokeType2": "normal",
+    "baseAtk": 182,
+    "baseDef": 135,
+    "baseStm": 130,
+    "fastMoves": [
+      "peck",
+      "steel wing"
+    ],
+    "chargedMoves": [
+      "aerial ace",
+      "sky attack",
+      "drill run"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "twister"
+    ]
+  },
+  {
+    "dex": 23,
+    "name": "ekans",
+    "pokeType1": "poison",
+    "pokeType2": "none",
+    "baseAtk": 110,
+    "baseDef": 102,
+    "baseStm": 70,
+    "fastMoves": [
+      "acid",
+      "poison sting"
+    ],
+    "chargedMoves": [
+      "poison fang",
+      "sludge bomb",
+      "wrap"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "gunk shot"
+    ]
+  },
+  {
+    "dex": 24,
+    "name": "arbok",
+    "pokeType1": "poison",
+    "pokeType2": "none",
+    "baseAtk": 167,
+    "baseDef": 158,
+    "baseStm": 120,
+    "fastMoves": [
+      "acid",
+      "bite"
+    ],
+    "chargedMoves": [
+      "dark pulse",
+      "gunk shot",
+      "sludge wave"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 25,
+    "name": "pikachu",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 112,
+    "baseDef": 101,
+    "baseStm": 70,
+    "fastMoves": [
+      "quick attack",
+      "thunder shock",
+      "present"
+    ],
+    "chargedMoves": [
+      "discharge",
+      "wild charge",
+      "thunderbolt"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "thunder"
+    ]
+  },
+  {
+    "dex": 26,
+    "name": "raichu",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 193,
+    "baseDef": 165,
+    "baseStm": 120,
+    "fastMoves": [
+      "spark",
+      "volt switch"
+    ],
+    "chargedMoves": [
+      "brick break",
+      "wild charge",
+      "thunder punch"
+    ],
+    "fastMoves_legacy": [
+      "thunder shock"
+    ],
+    "chargedMoves_legacy": [
+      "thunder"
+    ]
+  },
+  {
+    "dex": 27,
+    "name": "sandshrew",
+    "pokeType1": "ground",
+    "pokeType2": "none",
+    "baseAtk": 126,
+    "baseDef": 145,
+    "baseStm": 100,
+    "fastMoves": [
+      "mud shot",
+      "scratch"
+    ],
+    "chargedMoves": [
+      "dig",
+      "rock slide",
+      "sand tomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "rock tomb"
+    ]
+  },
+  {
+    "dex": 28,
+    "name": "sandslash",
+    "pokeType1": "ground",
+    "pokeType2": "none",
+    "baseAtk": 182,
+    "baseDef": 202,
+    "baseStm": 150,
+    "fastMoves": [
+      "metal claw",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "bulldoze",
+      "earthquake",
+      "rock tomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 29,
+    "name": "nidoran♀",
+    "pokeType1": "poison",
+    "pokeType2": "none",
+    "baseAtk": 86,
+    "baseDef": 94,
+    "baseStm": 110,
+    "fastMoves": [
+      "bite",
+      "poison sting"
+    ],
+    "chargedMoves": [
+      "body slam",
+      "poison fang",
+      "sludge bomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 30,
+    "name": "nidorina",
+    "pokeType1": "poison",
+    "pokeType2": "none",
+    "baseAtk": 117,
+    "baseDef": 126,
+    "baseStm": 140,
+    "fastMoves": [
+      "bite",
+      "poison sting"
+    ],
+    "chargedMoves": [
+      "dig",
+      "poison fang",
+      "sludge bomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 31,
+    "name": "nidoqueen",
+    "pokeType1": "ground",
+    "pokeType2": "poison",
+    "baseAtk": 180,
+    "baseDef": 174,
+    "baseStm": 180,
+    "fastMoves": [
+      "bite",
+      "poison jab"
+    ],
+    "chargedMoves": [
+      "earthquake",
+      "sludge wave",
+      "stone edge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 32,
+    "name": "nidoran♂",
+    "pokeType1": "poison",
+    "pokeType2": "none",
+    "baseAtk": 105,
+    "baseDef": 76,
+    "baseStm": 92,
+    "fastMoves": [
+      "peck",
+      "poison sting"
+    ],
+    "chargedMoves": [
+      "body slam",
+      "horn attack",
+      "sludge bomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 33,
+    "name": "nidorino",
+    "pokeType1": "poison",
+    "pokeType2": "none",
+    "baseAtk": 137,
+    "baseDef": 112,
+    "baseStm": 122,
+    "fastMoves": [
+      "poison sting",
+      "poison jab"
+    ],
+    "chargedMoves": [
+      "dig",
+      "horn attack",
+      "sludge bomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 34,
+    "name": "nidoking",
+    "pokeType1": "ground",
+    "pokeType2": "poison",
+    "baseAtk": 204,
+    "baseDef": 157,
+    "baseStm": 162,
+    "fastMoves": [
+      "iron tail",
+      "poison jab"
+    ],
+    "chargedMoves": [
+      "earthquake",
+      "megahorn",
+      "sludge wave"
+    ],
+    "fastMoves_legacy": [
+      "fury cutter"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 35,
+    "name": "clefairy",
+    "pokeType1": "fairy",
+    "pokeType2": "none",
+    "baseAtk": 107,
+    "baseDef": 116,
+    "baseStm": 140,
+    "fastMoves": [
+      "pound",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "body slam",
+      "disarming voice",
+      "moonblast"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 36,
+    "name": "clefable",
+    "pokeType1": "fairy",
+    "pokeType2": "none",
+    "baseAtk": 178,
+    "baseDef": 171,
+    "baseStm": 190,
+    "fastMoves": [
+      "charge beam",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "dazzling gleam",
+      "moonblast",
+      "psychic"
+    ],
+    "fastMoves_legacy": [
+      "pound"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 37,
+    "name": "vulpix",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 96,
+    "baseDef": 122,
+    "baseStm": 76,
+    "fastMoves": [
+      "ember",
+      "quick attack"
+    ],
+    "chargedMoves": [
+      "body slam",
+      "flamethrower",
+      "flame charge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 38,
+    "name": "ninetales",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 169,
+    "baseDef": 204,
+    "baseStm": 146,
+    "fastMoves": [
+      "fire spin",
+      "feint attack"
+    ],
+    "chargedMoves": [
+      "overheat",
+      "solar beam",
+      "heat wave"
+    ],
+    "fastMoves_legacy": [
+      "ember"
+    ],
+    "chargedMoves_legacy": [
+      "fire blast",
+      "flamethrower"
+    ]
+  },
+  {
+    "dex": 39,
+    "name": "jigglypuff",
+    "pokeType1": "fairy",
+    "pokeType2": "normal",
+    "baseAtk": 80,
+    "baseDef": 44,
+    "baseStm": 230,
+    "fastMoves": [
+      "feint attack",
+      "pound"
+    ],
+    "chargedMoves": [
+      "gyro ball",
+      "dazzling gleam",
+      "disarming voice"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "play rough",
+      "body slam"
+    ]
+  },
+  {
+    "dex": 40,
+    "name": "wigglytuff",
+    "pokeType1": "fairy",
+    "pokeType2": "normal",
+    "baseAtk": 156,
+    "baseDef": 93,
+    "baseStm": 280,
+    "fastMoves": [
+      "feint attack",
+      "pound"
+    ],
+    "chargedMoves": [
+      "dazzling gleam",
+      "hyper beam",
+      "play rough"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 41,
+    "name": "zubat",
+    "pokeType1": "flying",
+    "pokeType2": "poison",
+    "baseAtk": 83,
+    "baseDef": 76,
+    "baseStm": 80,
+    "fastMoves": [
+      "bite",
+      "quick attack"
+    ],
+    "chargedMoves": [
+      "air cutter",
+      "poison fang",
+      "swift"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "sludge bomb"
+    ]
+  },
+  {
+    "dex": 42,
+    "name": "golbat",
+    "pokeType1": "flying",
+    "pokeType2": "poison",
+    "baseAtk": 161,
+    "baseDef": 153,
+    "baseStm": 150,
+    "fastMoves": [
+      "bite",
+      "wing attack"
+    ],
+    "chargedMoves": [
+      "air cutter",
+      "poison fang",
+      "shadow ball"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "ominous wind"
+    ]
+  },
+  {
+    "dex": 43,
+    "name": "oddish",
+    "pokeType1": "grass",
+    "pokeType2": "poison",
+    "baseAtk": 131,
+    "baseDef": 116,
+    "baseStm": 90,
+    "fastMoves": [
+      "acid",
+      "razor leaf"
+    ],
+    "chargedMoves": [
+      "moonblast",
+      "seed bomb",
+      "sludge bomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 44,
+    "name": "gloom",
+    "pokeType1": "grass",
+    "pokeType2": "poison",
+    "baseAtk": 153,
+    "baseDef": 139,
+    "baseStm": 120,
+    "fastMoves": [
+      "acid",
+      "razor leaf"
+    ],
+    "chargedMoves": [
+      "moonblast",
+      "petal blizzard",
+      "sludge bomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 45,
+    "name": "vileplume",
+    "pokeType1": "grass",
+    "pokeType2": "poison",
+    "baseAtk": 202,
+    "baseDef": 170,
+    "baseStm": 150,
+    "fastMoves": [
+      "acid",
+      "razor leaf"
+    ],
+    "chargedMoves": [
+      "moonblast",
+      "petal blizzard",
+      "solar beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 46,
+    "name": "paras",
+    "pokeType1": "bug",
+    "pokeType2": "grass",
+    "baseAtk": 121,
+    "baseDef": 99,
+    "baseStm": 70,
+    "fastMoves": [
+      "bug bite",
+      "scratch"
+    ],
+    "chargedMoves": [
+      "cross poison",
+      "seed bomb",
+      "x-scissor"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 47,
+    "name": "parasect",
+    "pokeType1": "bug",
+    "pokeType2": "grass",
+    "baseAtk": 165,
+    "baseDef": 146,
+    "baseStm": 120,
+    "fastMoves": [
+      "struggle bug",
+      "fury cutter"
+    ],
+    "chargedMoves": [
+      "cross poison",
+      "solar beam",
+      "x-scissor"
+    ],
+    "fastMoves_legacy": [
+      "bug bite"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 48,
+    "name": "venonat",
+    "pokeType1": "bug",
+    "pokeType2": "poison",
+    "baseAtk": 100,
+    "baseDef": 102,
+    "baseStm": 120,
+    "fastMoves": [
+      "bug bite",
+      "confusion"
+    ],
+    "chargedMoves": [
+      "poison fang",
+      "psybeam",
+      "signal beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 49,
+    "name": "venomoth",
+    "pokeType1": "bug",
+    "pokeType2": "poison",
+    "baseAtk": 179,
+    "baseDef": 150,
+    "baseStm": 140,
+    "fastMoves": [
+      "infestation",
+      "confusion"
+    ],
+    "chargedMoves": [
+      "bug buzz",
+      "silver wind",
+      "psychic"
+    ],
+    "fastMoves_legacy": [
+      "bug bite"
+    ],
+    "chargedMoves_legacy": [
+      "poison fang"
+    ]
+  },
+  {
+    "dex": 50,
+    "name": "diglett",
+    "pokeType1": "ground",
+    "pokeType2": "none",
+    "baseAtk": 109,
+    "baseDef": 88,
+    "baseStm": 20,
+    "fastMoves": [
+      "mud slap",
+      "scratch"
+    ],
+    "chargedMoves": [
+      "dig",
+      "mud bomb",
+      "rock tomb"
+    ],
+    "fastMoves_legacy": [
+      "mud shot"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 51,
+    "name": "dugtrio",
+    "pokeType1": "ground",
+    "pokeType2": "none",
+    "baseAtk": 167,
+    "baseDef": 147,
+    "baseStm": 70,
+    "fastMoves": [
+      "mud slap",
+      "sucker punch"
+    ],
+    "chargedMoves": [
+      "earthquake",
+      "mud bomb",
+      "stone edge"
+    ],
+    "fastMoves_legacy": [
+      "mud shot"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 52,
+    "name": "meowth",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 92,
+    "baseDef": 81,
+    "baseStm": 80,
+    "fastMoves": [
+      "bite",
+      "scratch"
+    ],
+    "chargedMoves": [
+      "foul play",
+      "dark pulse",
+      "night slash"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "body slam"
+    ]
+  },
+  {
+    "dex": 53,
+    "name": "persian",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 150,
+    "baseDef": 139,
+    "baseStm": 130,
+    "fastMoves": [
+      "feint attack",
+      "scratch"
+    ],
+    "chargedMoves": [
+      "foul play",
+      "play rough",
+      "power gem"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "night slash"
+    ]
+  },
+  {
+    "dex": 54,
+    "name": "psyduck",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 122,
+    "baseDef": 96,
+    "baseStm": 100,
+    "fastMoves": [
+      "water gun",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "aqua tail",
+      "cross chop",
+      "psybeam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 55,
+    "name": "golduck",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 191,
+    "baseDef": 163,
+    "baseStm": 160,
+    "fastMoves": [
+      "confusion",
+      "water gun"
+    ],
+    "chargedMoves": [
+      "hydro pump",
+      "ice beam",
+      "psychic"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 56,
+    "name": "mankey",
+    "pokeType1": "fighting",
+    "pokeType2": "none",
+    "baseAtk": 148,
+    "baseDef": 87,
+    "baseStm": 80,
+    "fastMoves": [
+      "karate chop",
+      "scratch"
+    ],
+    "chargedMoves": [
+      "brick break",
+      "cross chop",
+      "low sweep"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 57,
+    "name": "primeape",
+    "pokeType1": "fighting",
+    "pokeType2": "none",
+    "baseAtk": 207,
+    "baseDef": 144,
+    "baseStm": 130,
+    "fastMoves": [
+      "counter",
+      "low kick"
+    ],
+    "chargedMoves": [
+      "close combat",
+      "low sweep",
+      "night slash"
+    ],
+    "fastMoves_legacy": [
+      "karate chop"
+    ],
+    "chargedMoves_legacy": [
+      "cross chop"
+    ]
+  },
+  {
+    "dex": 58,
+    "name": "growlithe",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 136,
+    "baseDef": 96,
+    "baseStm": 110,
+    "fastMoves": [
+      "bite",
+      "ember"
+    ],
+    "chargedMoves": [
+      "body slam",
+      "flame wheel",
+      "flamethrower"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 59,
+    "name": "arcanine",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 227,
+    "baseDef": 166,
+    "baseStm": 180,
+    "fastMoves": [
+      "snarl",
+      "fire fang"
+    ],
+    "chargedMoves": [
+      "crunch",
+      "fire blast",
+      "wild charge"
+    ],
+    "fastMoves_legacy": [
+      "bite"
+    ],
+    "chargedMoves_legacy": [
+      "bulldoze",
+      "flamethrower"
+    ]
+  },
+  {
+    "dex": 60,
+    "name": "poliwag",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 101,
+    "baseDef": 82,
+    "baseStm": 80,
+    "fastMoves": [
+      "bubble",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "body slam",
+      "bubble beam",
+      "mud bomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 61,
+    "name": "poliwhirl",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 130,
+    "baseDef": 130,
+    "baseStm": 130,
+    "fastMoves": [
+      "bubble",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "bubble beam",
+      "mud bomb",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "scald"
+    ]
+  },
+  {
+    "dex": 62,
+    "name": "poliwrath",
+    "pokeType1": "fighting",
+    "pokeType2": "water",
+    "baseAtk": 182,
+    "baseDef": 187,
+    "baseStm": 180,
+    "fastMoves": [
+      "bubble",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "hydro pump",
+      "ice punch",
+      "dynamic punch"
+    ],
+    "fastMoves_legacy": [
+      "mud shot"
+    ],
+    "chargedMoves_legacy": [
+      "submission"
+    ]
+  },
+  {
+    "dex": 63,
+    "name": "abra",
+    "pokeType1": "psychic",
+    "pokeType2": "none",
+    "baseAtk": 195,
+    "baseDef": 103,
+    "baseStm": 50,
+    "fastMoves": [
+      "zen headbutt",
+      "charge beam"
+    ],
+    "chargedMoves": [
+      "psyshock",
+      "shadow ball",
+      "signal beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 64,
+    "name": "kadabra",
+    "pokeType1": "psychic",
+    "pokeType2": "none",
+    "baseAtk": 232,
+    "baseDef": 138,
+    "baseStm": 80,
+    "fastMoves": [
+      "confusion",
+      "psycho cut"
+    ],
+    "chargedMoves": [
+      "dazzling gleam",
+      "psybeam",
+      "shadow ball"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 65,
+    "name": "alakazam",
+    "pokeType1": "psychic",
+    "pokeType2": "none",
+    "baseAtk": 271,
+    "baseDef": 194,
+    "baseStm": 110,
+    "fastMoves": [
+      "confusion",
+      "psycho cut"
+    ],
+    "chargedMoves": [
+      "focus blast",
+      "future sight",
+      "shadow ball"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "dazzling gleam",
+      "psychic"
+    ]
+  },
+  {
+    "dex": 66,
+    "name": "machop",
+    "pokeType1": "fighting",
+    "pokeType2": "none",
+    "baseAtk": 137,
+    "baseDef": 88,
+    "baseStm": 140,
+    "fastMoves": [
+      "karate chop",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "brick break",
+      "cross chop",
+      "low sweep"
+    ],
+    "fastMoves_legacy": [
+      "low kick"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 67,
+    "name": "machoke",
+    "pokeType1": "fighting",
+    "pokeType2": "none",
+    "baseAtk": 177,
+    "baseDef": 130,
+    "baseStm": 160,
+    "fastMoves": [
+      "karate chop",
+      "low kick"
+    ],
+    "chargedMoves": [
+      "brick break",
+      "dynamic punch",
+      "submission"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "cross chop"
+    ]
+  },
+  {
+    "dex": 68,
+    "name": "machamp",
+    "pokeType1": "fighting",
+    "pokeType2": "none",
+    "baseAtk": 234,
+    "baseDef": 162,
+    "baseStm": 180,
+    "fastMoves": [
+      "bullet punch",
+      "counter"
+    ],
+    "chargedMoves": [
+      "heavy slam",
+      "dynamic punch",
+      "close combat"
+    ],
+    "fastMoves_legacy": [
+      "karate chop"
+    ],
+    "chargedMoves_legacy": [
+      "cross chop",
+      "stone edge",
+      "submission"
+    ]
+  },
+  {
+    "dex": 69,
+    "name": "bellsprout",
+    "pokeType1": "grass",
+    "pokeType2": "poison",
+    "baseAtk": 139,
+    "baseDef": 64,
+    "baseStm": 100,
+    "fastMoves": [
+      "acid",
+      "vine whip"
+    ],
+    "chargedMoves": [
+      "power whip",
+      "sludge bomb",
+      "wrap"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 70,
+    "name": "weepinbell",
+    "pokeType1": "grass",
+    "pokeType2": "poison",
+    "baseAtk": 172,
+    "baseDef": 95,
+    "baseStm": 130,
+    "fastMoves": [
+      "acid",
+      "bullet seed"
+    ],
+    "chargedMoves": [
+      "power whip",
+      "seed bomb",
+      "sludge bomb"
+    ],
+    "fastMoves_legacy": [
+      "razor leaf"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 71,
+    "name": "victreebel",
+    "pokeType1": "grass",
+    "pokeType2": "poison",
+    "baseAtk": 207,
+    "baseDef": 138,
+    "baseStm": 160,
+    "fastMoves": [
+      "acid",
+      "razor leaf"
+    ],
+    "chargedMoves": [
+      "sludge bomb",
+      "solar beam",
+      "leaf blade"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 72,
+    "name": "tentacool",
+    "pokeType1": "poison",
+    "pokeType2": "water",
+    "baseAtk": 97,
+    "baseDef": 182,
+    "baseStm": 80,
+    "fastMoves": [
+      "bubble",
+      "poison sting"
+    ],
+    "chargedMoves": [
+      "bubble beam",
+      "water pulse",
+      "wrap"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 73,
+    "name": "tentacruel",
+    "pokeType1": "poison",
+    "pokeType2": "water",
+    "baseAtk": 166,
+    "baseDef": 237,
+    "baseStm": 160,
+    "fastMoves": [
+      "acid",
+      "poison jab"
+    ],
+    "chargedMoves": [
+      "blizzard",
+      "hydro pump",
+      "sludge wave"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 74,
+    "name": "geodude",
+    "pokeType1": "ground",
+    "pokeType2": "rock",
+    "baseAtk": 132,
+    "baseDef": 163,
+    "baseStm": 80,
+    "fastMoves": [
+      "tackle",
+      "rock throw"
+    ],
+    "chargedMoves": [
+      "dig",
+      "rock slide",
+      "rock tomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 75,
+    "name": "graveler",
+    "pokeType1": "ground",
+    "pokeType2": "rock",
+    "baseAtk": 164,
+    "baseDef": 196,
+    "baseStm": 110,
+    "fastMoves": [
+      "mud slap",
+      "rock throw"
+    ],
+    "chargedMoves": [
+      "dig",
+      "rock blast",
+      "stone edge"
+    ],
+    "fastMoves_legacy": [
+      "mud shot"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 76,
+    "name": "golem",
+    "pokeType1": "ground",
+    "pokeType2": "rock",
+    "baseAtk": 211,
+    "baseDef": 229,
+    "baseStm": 160,
+    "fastMoves": [
+      "mud slap",
+      "rock throw"
+    ],
+    "chargedMoves": [
+      "rock blast",
+      "earthquake",
+      "stone edge"
+    ],
+    "fastMoves_legacy": [
+      "mud shot"
+    ],
+    "chargedMoves_legacy": [
+      "ancient power"
+    ]
+  },
+  {
+    "dex": 77,
+    "name": "ponyta",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 170,
+    "baseDef": 132,
+    "baseStm": 100,
+    "fastMoves": [
+      "tackle",
+      "ember"
+    ],
+    "chargedMoves": [
+      "stomp",
+      "flame wheel",
+      "flame charge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "fire blast"
+    ]
+  },
+  {
+    "dex": 78,
+    "name": "rapidash",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 207,
+    "baseDef": 167,
+    "baseStm": 130,
+    "fastMoves": [
+      "fire spin",
+      "low kick"
+    ],
+    "chargedMoves": [
+      "fire blast",
+      "heat wave",
+      "drill run"
+    ],
+    "fastMoves_legacy": [
+      "ember"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 79,
+    "name": "slowpoke",
+    "pokeType1": "psychic",
+    "pokeType2": "water",
+    "baseAtk": 109,
+    "baseDef": 109,
+    "baseStm": 180,
+    "fastMoves": [
+      "confusion",
+      "water gun"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "psyshock",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 80,
+    "name": "slowbro",
+    "pokeType1": "psychic",
+    "pokeType2": "water",
+    "baseAtk": 177,
+    "baseDef": 194,
+    "baseStm": 190,
+    "fastMoves": [
+      "confusion",
+      "water gun"
+    ],
+    "chargedMoves": [
+      "ice beam",
+      "psychic",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 81,
+    "name": "magnemite",
+    "pokeType1": "electric",
+    "pokeType2": "steel",
+    "baseAtk": 165,
+    "baseDef": 128,
+    "baseStm": 50,
+    "fastMoves": [
+      "spark",
+      "thunder shock"
+    ],
+    "chargedMoves": [
+      "discharge",
+      "magnet bomb",
+      "thunderbolt"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 82,
+    "name": "magneton",
+    "pokeType1": "electric",
+    "pokeType2": "steel",
+    "baseAtk": 223,
+    "baseDef": 182,
+    "baseStm": 100,
+    "fastMoves": [
+      "spark",
+      "charge beam"
+    ],
+    "chargedMoves": [
+      "zap cannon",
+      "flash cannon",
+      "magnet bomb"
+    ],
+    "fastMoves_legacy": [
+      "thunder shock"
+    ],
+    "chargedMoves_legacy": [
+      "discharge"
+    ]
+  },
+  {
+    "dex": 83,
+    "name": "farfetch&#039;d",
+    "pokeType1": "flying",
+    "pokeType2": "normal",
+    "baseAtk": 124,
+    "baseDef": 118,
+    "baseStm": 104,
+    "fastMoves": [
+      "fury cutter",
+      "air slash"
+    ],
+    "chargedMoves": [
+      "aerial ace",
+      "air cutter",
+      "leaf blade"
+    ],
+    "fastMoves_legacy": [
+      "cut"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 84,
+    "name": "doduo",
+    "pokeType1": "flying",
+    "pokeType2": "normal",
+    "baseAtk": 158,
+    "baseDef": 88,
+    "baseStm": 70,
+    "fastMoves": [
+      "peck",
+      "quick attack"
+    ],
+    "chargedMoves": [
+      "aerial ace",
+      "drill peck",
+      "brave bird"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "swift"
+    ]
+  },
+  {
+    "dex": 85,
+    "name": "dodrio",
+    "pokeType1": "flying",
+    "pokeType2": "normal",
+    "baseAtk": 218,
+    "baseDef": 145,
+    "baseStm": 120,
+    "fastMoves": [
+      "feint attack",
+      "steel wing"
+    ],
+    "chargedMoves": [
+      "aerial ace",
+      "brave bird",
+      "drill peck"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "air cutter"
+    ]
+  },
+  {
+    "dex": 86,
+    "name": "seel",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 85,
+    "baseDef": 128,
+    "baseStm": 130,
+    "fastMoves": [
+      "lick",
+      "ice shard"
+    ],
+    "chargedMoves": [
+      "aurora beam",
+      "aqua tail",
+      "icy wind"
+    ],
+    "fastMoves_legacy": [
+      "water gun"
+    ],
+    "chargedMoves_legacy": [
+      "aqua jet"
+    ]
+  },
+  {
+    "dex": 87,
+    "name": "dewgong",
+    "pokeType1": "ice",
+    "pokeType2": "water",
+    "baseAtk": 139,
+    "baseDef": 184,
+    "baseStm": 180,
+    "fastMoves": [
+      "frost breath",
+      "iron tail"
+    ],
+    "chargedMoves": [
+      "aurora beam",
+      "blizzard",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      "ice shard"
+    ],
+    "chargedMoves_legacy": [
+      "aqua jet",
+      "icy wind"
+    ]
+  },
+  {
+    "dex": 88,
+    "name": "grimer",
+    "pokeType1": "poison",
+    "pokeType2": "none",
+    "baseAtk": 135,
+    "baseDef": 90,
+    "baseStm": 160,
+    "fastMoves": [
+      "mud slap",
+      "poison jab"
+    ],
+    "chargedMoves": [
+      "mud bomb",
+      "sludge",
+      "sludge bomb"
+    ],
+    "fastMoves_legacy": [
+      "acid"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 89,
+    "name": "muk",
+    "pokeType1": "poison",
+    "pokeType2": "none",
+    "baseAtk": 190,
+    "baseDef": 184,
+    "baseStm": 210,
+    "fastMoves": [
+      "infestation",
+      "poison jab"
+    ],
+    "chargedMoves": [
+      "dark pulse",
+      "gunk shot",
+      "sludge wave"
+    ],
+    "fastMoves_legacy": [
+      "acid",
+      "lick"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 90,
+    "name": "shellder",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 116,
+    "baseDef": 168,
+    "baseStm": 60,
+    "fastMoves": [
+      "tackle",
+      "ice shard"
+    ],
+    "chargedMoves": [
+      "bubble beam",
+      "icy wind",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 91,
+    "name": "cloyster",
+    "pokeType1": "ice",
+    "pokeType2": "water",
+    "baseAtk": 186,
+    "baseDef": 323,
+    "baseStm": 100,
+    "fastMoves": [
+      "frost breath",
+      "ice shard"
+    ],
+    "chargedMoves": [
+      "aurora beam",
+      "hydro pump",
+      "avalanche"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "blizzard",
+      "icy wind"
+    ]
+  },
+  {
+    "dex": 92,
+    "name": "gastly",
+    "pokeType1": "ghost",
+    "pokeType2": "poison",
+    "baseAtk": 186,
+    "baseDef": 70,
+    "baseStm": 60,
+    "fastMoves": [
+      "lick",
+      "astonish"
+    ],
+    "chargedMoves": [
+      "dark pulse",
+      "sludge bomb",
+      "night shade"
+    ],
+    "fastMoves_legacy": [
+      "sucker punch"
+    ],
+    "chargedMoves_legacy": [
+      "ominous wind"
+    ]
+  },
+  {
+    "dex": 93,
+    "name": "haunter",
+    "pokeType1": "ghost",
+    "pokeType2": "poison",
+    "baseAtk": 223,
+    "baseDef": 112,
+    "baseStm": 90,
+    "fastMoves": [
+      "astonish",
+      "shadow claw"
+    ],
+    "chargedMoves": [
+      "dark pulse",
+      "shadow punch",
+      "sludge bomb"
+    ],
+    "fastMoves_legacy": [
+      "lick"
+    ],
+    "chargedMoves_legacy": [
+      "shadow ball"
+    ]
+  },
+  {
+    "dex": 94,
+    "name": "gengar",
+    "pokeType1": "ghost",
+    "pokeType2": "poison",
+    "baseAtk": 261,
+    "baseDef": 156,
+    "baseStm": 120,
+    "fastMoves": [
+      "sucker punch",
+      "hex"
+    ],
+    "chargedMoves": [
+      "focus blast",
+      "shadow ball",
+      "sludge bomb"
+    ],
+    "fastMoves_legacy": [
+      "shadow claw"
+    ],
+    "chargedMoves_legacy": [
+      "sludge wave",
+      "dark pulse"
+    ]
+  },
+  {
+    "dex": 95,
+    "name": "onix",
+    "pokeType1": "ground",
+    "pokeType2": "rock",
+    "baseAtk": 85,
+    "baseDef": 288,
+    "baseStm": 70,
+    "fastMoves": [
+      "tackle",
+      "rock throw"
+    ],
+    "chargedMoves": [
+      "sand tomb",
+      "heavy slam",
+      "stone edge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "iron head",
+      "rock slide"
+    ]
+  },
+  {
+    "dex": 96,
+    "name": "drowzee",
+    "pokeType1": "psychic",
+    "pokeType2": "none",
+    "baseAtk": 89,
+    "baseDef": 158,
+    "baseStm": 120,
+    "fastMoves": [
+      "confusion",
+      "pound"
+    ],
+    "chargedMoves": [
+      "psybeam",
+      "psychic",
+      "psyshock"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 97,
+    "name": "hypno",
+    "pokeType1": "psychic",
+    "pokeType2": "none",
+    "baseAtk": 144,
+    "baseDef": 215,
+    "baseStm": 170,
+    "fastMoves": [
+      "confusion",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "future sight",
+      "focus blast"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "psyshock",
+      "shadow ball"
+    ]
+  },
+  {
+    "dex": 98,
+    "name": "krabby",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 181,
+    "baseDef": 156,
+    "baseStm": 60,
+    "fastMoves": [
+      "bubble",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "bubble beam",
+      "vice grip",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 99,
+    "name": "kingler",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 240,
+    "baseDef": 214,
+    "baseStm": 110,
+    "fastMoves": [
+      "metal claw",
+      "bubble"
+    ],
+    "chargedMoves": [
+      "vice grip",
+      "water pulse",
+      "x-scissor"
+    ],
+    "fastMoves_legacy": [
+      "mud shot"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 100,
+    "name": "voltorb",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 109,
+    "baseDef": 114,
+    "baseStm": 80,
+    "fastMoves": [
+      "tackle",
+      "spark"
+    ],
+    "chargedMoves": [
+      "discharge",
+      "gyro ball",
+      "thunderbolt"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "signal beam"
+    ]
+  },
+  {
+    "dex": 101,
+    "name": "electrode",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 173,
+    "baseDef": 179,
+    "baseStm": 120,
+    "fastMoves": [
+      "spark",
+      "volt switch"
+    ],
+    "chargedMoves": [
+      "discharge",
+      "hyper beam",
+      "thunderbolt"
+    ],
+    "fastMoves_legacy": [
+      "tackle"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 102,
+    "name": "exeggcute",
+    "pokeType1": "grass",
+    "pokeType2": "psychic",
+    "baseAtk": 107,
+    "baseDef": 140,
+    "baseStm": 120,
+    "fastMoves": [
+      "confusion",
+      "bullet seed"
+    ],
+    "chargedMoves": [
+      "ancient power",
+      "psychic",
+      "seed bomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 103,
+    "name": "exeggutor",
+    "pokeType1": "grass",
+    "pokeType2": "psychic",
+    "baseAtk": 233,
+    "baseDef": 158,
+    "baseStm": 190,
+    "fastMoves": [
+      "bullet seed",
+      "extrasensory"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "seed bomb",
+      "solar beam"
+    ],
+    "fastMoves_legacy": [
+      "confusion",
+      "zen headbutt"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 104,
+    "name": "cubone",
+    "pokeType1": "ground",
+    "pokeType2": "none",
+    "baseAtk": 90,
+    "baseDef": 165,
+    "baseStm": 100,
+    "fastMoves": [
+      "mud slap",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "bone club",
+      "bulldoze",
+      "dig"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 105,
+    "name": "marowak",
+    "pokeType1": "ground",
+    "pokeType2": "none",
+    "baseAtk": 144,
+    "baseDef": 200,
+    "baseStm": 120,
+    "fastMoves": [
+      "mud slap",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "bone club",
+      "dig",
+      "earthquake"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 106,
+    "name": "hitmonlee",
+    "pokeType1": "fighting",
+    "pokeType2": "none",
+    "baseAtk": 224,
+    "baseDef": 211,
+    "baseStm": 100,
+    "fastMoves": [
+      "low kick",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "close combat",
+      "low sweep",
+      "stone edge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "stomp",
+      "brick break"
+    ]
+  },
+  {
+    "dex": 107,
+    "name": "hitmonchan",
+    "pokeType1": "fighting",
+    "pokeType2": "none",
+    "baseAtk": 193,
+    "baseDef": 212,
+    "baseStm": 100,
+    "fastMoves": [
+      "bullet punch",
+      "counter"
+    ],
+    "chargedMoves": [
+      "fire punch",
+      "thunder punch",
+      "close combat",
+      "ice punch"
+    ],
+    "fastMoves_legacy": [
+      "rock smash"
+    ],
+    "chargedMoves_legacy": [
+      "brick break"
+    ]
+  },
+  {
+    "dex": 108,
+    "name": "lickitung",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 108,
+    "baseDef": 137,
+    "baseStm": 180,
+    "fastMoves": [
+      "lick",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "hyper beam",
+      "power whip",
+      "stomp"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 109,
+    "name": "koffing",
+    "pokeType1": "poison",
+    "pokeType2": "none",
+    "baseAtk": 119,
+    "baseDef": 164,
+    "baseStm": 80,
+    "fastMoves": [
+      "tackle",
+      "infestation"
+    ],
+    "chargedMoves": [
+      "dark pulse",
+      "sludge",
+      "sludge bomb"
+    ],
+    "fastMoves_legacy": [
+      "acid"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 110,
+    "name": "weezing",
+    "pokeType1": "poison",
+    "pokeType2": "none",
+    "baseAtk": 174,
+    "baseDef": 221,
+    "baseStm": 130,
+    "fastMoves": [
+      "tackle",
+      "infestation"
+    ],
+    "chargedMoves": [
+      "dark pulse",
+      "shadow ball",
+      "sludge bomb"
+    ],
+    "fastMoves_legacy": [
+      "acid"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 111,
+    "name": "rhyhorn",
+    "pokeType1": "ground",
+    "pokeType2": "rock",
+    "baseAtk": 140,
+    "baseDef": 157,
+    "baseStm": 160,
+    "fastMoves": [
+      "mud slap",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "bulldoze",
+      "horn attack",
+      "stomp"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 112,
+    "name": "rhydon",
+    "pokeType1": "ground",
+    "pokeType2": "rock",
+    "baseAtk": 222,
+    "baseDef": 206,
+    "baseStm": 210,
+    "fastMoves": [
+      "mud slap",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "earthquake",
+      "surf",
+      "stone edge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "megahorn"
+    ]
+  },
+  {
+    "dex": 113,
+    "name": "chansey",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 60,
+    "baseDef": 176,
+    "baseStm": 500,
+    "fastMoves": [
+      "pound",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "dazzling gleam",
+      "hyper beam",
+      "psychic"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "psybeam"
+    ]
+  },
+  {
+    "dex": 114,
+    "name": "tangela",
+    "pokeType1": "grass",
+    "pokeType2": "none",
+    "baseAtk": 183,
+    "baseDef": 205,
+    "baseStm": 130,
+    "fastMoves": [
+      "vine whip",
+      "infestation"
+    ],
+    "chargedMoves": [
+      "grass knot",
+      "sludge bomb",
+      "solar beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "power whip"
+    ]
+  },
+  {
+    "dex": 115,
+    "name": "kangaskhan",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 181,
+    "baseDef": 165,
+    "baseStm": 210,
+    "fastMoves": [
+      "low kick",
+      "mud slap"
+    ],
+    "chargedMoves": [
+      "crunch",
+      "earthquake",
+      "outrage"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "brick break",
+      "stomp"
+    ]
+  },
+  {
+    "dex": 116,
+    "name": "horsea",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 129,
+    "baseDef": 125,
+    "baseStm": 60,
+    "fastMoves": [
+      "bubble",
+      "water gun"
+    ],
+    "chargedMoves": [
+      "bubble beam",
+      "dragon pulse",
+      "flash cannon"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 117,
+    "name": "seadra",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 187,
+    "baseDef": 182,
+    "baseStm": 110,
+    "fastMoves": [
+      "dragon breath",
+      "water gun"
+    ],
+    "chargedMoves": [
+      "aurora beam",
+      "dragon pulse",
+      "hydro pump"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "blizzard"
+    ]
+  },
+  {
+    "dex": 118,
+    "name": "goldeen",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 123,
+    "baseDef": 115,
+    "baseStm": 90,
+    "fastMoves": [
+      "mud shot",
+      "peck"
+    ],
+    "chargedMoves": [
+      "aqua tail",
+      "horn attack",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 119,
+    "name": "seaking",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 175,
+    "baseDef": 154,
+    "baseStm": 160,
+    "fastMoves": [
+      "peck",
+      "waterfall"
+    ],
+    "chargedMoves": [
+      "ice beam",
+      "megahorn",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      "poison jab"
+    ],
+    "chargedMoves_legacy": [
+      "icy wind",
+      "drill run"
+    ]
+  },
+  {
+    "dex": 120,
+    "name": "staryu",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 137,
+    "baseDef": 112,
+    "baseStm": 60,
+    "fastMoves": [
+      "tackle",
+      "water gun"
+    ],
+    "chargedMoves": [
+      "bubble beam",
+      "power gem",
+      "swift"
+    ],
+    "fastMoves_legacy": [
+      "quick attack"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 121,
+    "name": "starmie",
+    "pokeType1": "psychic",
+    "pokeType2": "water",
+    "baseAtk": 210,
+    "baseDef": 184,
+    "baseStm": 120,
+    "fastMoves": [
+      "hidden power",
+      "water gun"
+    ],
+    "chargedMoves": [
+      "hydro pump",
+      "power gem",
+      "psychic"
+    ],
+    "fastMoves_legacy": [
+      "quick attack",
+      "tackle"
+    ],
+    "chargedMoves_legacy": [
+      "psybeam"
+    ]
+  },
+  {
+    "dex": 122,
+    "name": "mr. mime",
+    "pokeType1": "fairy",
+    "pokeType2": "psychic",
+    "baseAtk": 192,
+    "baseDef": 233,
+    "baseStm": 80,
+    "fastMoves": [
+      "confusion",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "psybeam",
+      "psychic",
+      "shadow ball"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 123,
+    "name": "scyther",
+    "pokeType1": "bug",
+    "pokeType2": "flying",
+    "baseAtk": 218,
+    "baseDef": 170,
+    "baseStm": 140,
+    "fastMoves": [
+      "fury cutter",
+      "air slash"
+    ],
+    "chargedMoves": [
+      "aerial ace",
+      "night slash",
+      "x-scissor"
+    ],
+    "fastMoves_legacy": [
+      "steel wing"
+    ],
+    "chargedMoves_legacy": [
+      "bug buzz"
+    ]
+  },
+  {
+    "dex": 124,
+    "name": "jynx",
+    "pokeType1": "ice",
+    "pokeType2": "psychic",
+    "baseAtk": 223,
+    "baseDef": 182,
+    "baseStm": 130,
+    "fastMoves": [
+      "frost breath",
+      "confusion"
+    ],
+    "chargedMoves": [
+      "draining kiss",
+      "avalanche",
+      "psyshock"
+    ],
+    "fastMoves_legacy": [
+      "pound"
+    ],
+    "chargedMoves_legacy": [
+      "ice punch"
+    ]
+  },
+  {
+    "dex": 125,
+    "name": "electabuzz",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 198,
+    "baseDef": 173,
+    "baseStm": 130,
+    "fastMoves": [
+      "low kick",
+      "thunder shock"
+    ],
+    "chargedMoves": [
+      "thunder",
+      "thunder punch",
+      "thunderbolt"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 126,
+    "name": "magmar",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 206,
+    "baseDef": 169,
+    "baseStm": 130,
+    "fastMoves": [
+      "ember",
+      "karate chop"
+    ],
+    "chargedMoves": [
+      "fire blast",
+      "fire punch",
+      "flamethrower"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 127,
+    "name": "pinsir",
+    "pokeType1": "bug",
+    "pokeType2": "none",
+    "baseAtk": 238,
+    "baseDef": 197,
+    "baseStm": 130,
+    "fastMoves": [
+      "bug bite",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "close combat",
+      "vice grip",
+      "x-scissor"
+    ],
+    "fastMoves_legacy": [
+      "fury cutter"
+    ],
+    "chargedMoves_legacy": [
+      "submission"
+    ]
+  },
+  {
+    "dex": 128,
+    "name": "tauros",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 198,
+    "baseDef": 197,
+    "baseStm": 150,
+    "fastMoves": [
+      "tackle",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "earthquake",
+      "horn attack",
+      "iron head"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 129,
+    "name": "magikarp",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 29,
+    "baseDef": 102,
+    "baseStm": 40,
+    "fastMoves": [
+      "splash"
+    ],
+    "chargedMoves": [
+      "struggle"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 130,
+    "name": "gyarados",
+    "pokeType1": "flying",
+    "pokeType2": "water",
+    "baseAtk": 237,
+    "baseDef": 197,
+    "baseStm": 190,
+    "fastMoves": [
+      "bite",
+      "waterfall"
+    ],
+    "chargedMoves": [
+      "crunch",
+      "hydro pump",
+      "outrage"
+    ],
+    "fastMoves_legacy": [
+      "dragon breath",
+      "dragon tail"
+    ],
+    "chargedMoves_legacy": [
+      "dragon pulse",
+      "twister"
+    ]
+  },
+  {
+    "dex": 131,
+    "name": "lapras",
+    "pokeType1": "ice",
+    "pokeType2": "water",
+    "baseAtk": 165,
+    "baseDef": 180,
+    "baseStm": 260,
+    "fastMoves": [
+      "frost breath",
+      "water gun"
+    ],
+    "chargedMoves": [
+      "blizzard",
+      "hydro pump",
+      "surf"
+    ],
+    "fastMoves_legacy": [
+      "ice shard"
+    ],
+    "chargedMoves_legacy": [
+      "dragon pulse",
+      "ice beam"
+    ]
+  },
+  {
+    "dex": 132,
+    "name": "ditto",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 91,
+    "baseDef": 91,
+    "baseStm": 96,
+    "fastMoves": [
+      "transform"
+    ],
+    "chargedMoves": [
+      "struggle"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 133,
+    "name": "eevee",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 104,
+    "baseDef": 121,
+    "baseStm": 110,
+    "fastMoves": [
+      "tackle",
+      "quick attack"
+    ],
+    "chargedMoves": [
+      "dig",
+      "swift"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "body slam"
+    ]
+  },
+  {
+    "dex": 134,
+    "name": "vaporeon",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 205,
+    "baseDef": 177,
+    "baseStm": 260,
+    "fastMoves": [
+      "water gun"
+    ],
+    "chargedMoves": [
+      "aqua tail",
+      "hydro pump",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 135,
+    "name": "jolteon",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 232,
+    "baseDef": 201,
+    "baseStm": 130,
+    "fastMoves": [
+      "thunder shock",
+      "volt switch"
+    ],
+    "chargedMoves": [
+      "discharge",
+      "thunder",
+      "thunderbolt"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 136,
+    "name": "flareon",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 246,
+    "baseDef": 204,
+    "baseStm": 130,
+    "fastMoves": [
+      "ember",
+      "fire spin"
+    ],
+    "chargedMoves": [
+      "fire blast",
+      "flamethrower",
+      "overheat"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "heat wave"
+    ]
+  },
+  {
+    "dex": 137,
+    "name": "porygon",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 153,
+    "baseDef": 139,
+    "baseStm": 130,
+    "fastMoves": [
+      "charge beam",
+      "hidden power"
+    ],
+    "chargedMoves": [
+      "solar beam",
+      "hyper beam",
+      "zap cannon"
+    ],
+    "fastMoves_legacy": [
+      "quick attack",
+      "tackle",
+      "zen headbutt"
+    ],
+    "chargedMoves_legacy": [
+      "discharge",
+      "psybeam",
+      "signal beam"
+    ]
+  },
+  {
+    "dex": 138,
+    "name": "omanyte",
+    "pokeType1": "rock",
+    "pokeType2": "water",
+    "baseAtk": 155,
+    "baseDef": 174,
+    "baseStm": 70,
+    "fastMoves": [
+      "mud shot",
+      "water gun"
+    ],
+    "chargedMoves": [
+      "ancient power",
+      "bubble beam",
+      "rock blast"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "rock tomb",
+      "brine"
+    ]
+  },
+  {
+    "dex": 139,
+    "name": "omastar",
+    "pokeType1": "rock",
+    "pokeType2": "water",
+    "baseAtk": 207,
+    "baseDef": 227,
+    "baseStm": 140,
+    "fastMoves": [
+      "mud shot",
+      "water gun"
+    ],
+    "chargedMoves": [
+      "ancient power",
+      "hydro pump",
+      "rock blast"
+    ],
+    "fastMoves_legacy": [
+      "rock throw"
+    ],
+    "chargedMoves_legacy": [
+      "rock slide"
+    ]
+  },
+  {
+    "dex": 140,
+    "name": "kabuto",
+    "pokeType1": "rock",
+    "pokeType2": "water",
+    "baseAtk": 148,
+    "baseDef": 162,
+    "baseStm": 60,
+    "fastMoves": [
+      "mud shot",
+      "scratch"
+    ],
+    "chargedMoves": [
+      "ancient power",
+      "aqua jet",
+      "rock tomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 141,
+    "name": "kabutops",
+    "pokeType1": "rock",
+    "pokeType2": "water",
+    "baseAtk": 220,
+    "baseDef": 203,
+    "baseStm": 120,
+    "fastMoves": [
+      "rock smash",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "ancient power",
+      "stone edge",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      "fury cutter"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 142,
+    "name": "aerodactyl",
+    "pokeType1": "flying",
+    "pokeType2": "rock",
+    "baseAtk": 221,
+    "baseDef": 164,
+    "baseStm": 160,
+    "fastMoves": [
+      "bite",
+      "steel wing"
+    ],
+    "chargedMoves": [
+      "ancient power",
+      "hyper beam",
+      "iron head"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 143,
+    "name": "snorlax",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 190,
+    "baseDef": 190,
+    "baseStm": 320,
+    "fastMoves": [
+      "lick",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "heavy slam",
+      "earthquake",
+      "hyper beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "body slam"
+    ]
+  },
+  {
+    "dex": 144,
+    "name": "articuno",
+    "pokeType1": "flying",
+    "pokeType2": "ice",
+    "baseAtk": 192,
+    "baseDef": 249,
+    "baseStm": 180,
+    "fastMoves": [
+      "frost breath"
+    ],
+    "chargedMoves": [
+      "blizzard",
+      "ice beam",
+      "icy wind"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 145,
+    "name": "zapdos",
+    "pokeType1": "electric",
+    "pokeType2": "flying",
+    "baseAtk": 253,
+    "baseDef": 188,
+    "baseStm": 180,
+    "fastMoves": [
+      "charge beam"
+    ],
+    "chargedMoves": [
+      "zap cannon",
+      "thunder",
+      "thunderbolt"
+    ],
+    "fastMoves_legacy": [
+      "thunder shock"
+    ],
+    "chargedMoves_legacy": [
+      "discharge"
+    ]
+  },
+  {
+    "dex": 146,
+    "name": "moltres",
+    "pokeType1": "fire",
+    "pokeType2": "flying",
+    "baseAtk": 251,
+    "baseDef": 184,
+    "baseStm": 180,
+    "fastMoves": [
+      "fire spin"
+    ],
+    "chargedMoves": [
+      "fire blast",
+      "overheat",
+      "heat wave"
+    ],
+    "fastMoves_legacy": [
+      "ember"
+    ],
+    "chargedMoves_legacy": [
+      "flamethrower"
+    ]
+  },
+  {
+    "dex": 147,
+    "name": "dratini",
+    "pokeType1": "dragon",
+    "pokeType2": "none",
+    "baseAtk": 119,
+    "baseDef": 94,
+    "baseStm": 82,
+    "fastMoves": [
+      "dragon breath",
+      "iron tail"
+    ],
+    "chargedMoves": [
+      "aqua tail",
+      "twister",
+      "wrap"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 148,
+    "name": "dragonair",
+    "pokeType1": "dragon",
+    "pokeType2": "none",
+    "baseAtk": 163,
+    "baseDef": 138,
+    "baseStm": 122,
+    "fastMoves": [
+      "dragon breath",
+      "iron tail"
+    ],
+    "chargedMoves": [
+      "aqua tail",
+      "dragon pulse",
+      "wrap"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 149,
+    "name": "dragonite",
+    "pokeType1": "dragon",
+    "pokeType2": "flying",
+    "baseAtk": 263,
+    "baseDef": 201,
+    "baseStm": 182,
+    "fastMoves": [
+      "dragon tail",
+      "steel wing"
+    ],
+    "chargedMoves": [
+      "hurricane",
+      "outrage",
+      "hyper beam"
+    ],
+    "fastMoves_legacy": [
+      "dragon breath"
+    ],
+    "chargedMoves_legacy": [
+      "dragon claw",
+      "dragon pulse"
+    ]
+  },
+  {
+    "dex": 150,
+    "name": "mewtwo",
+    "pokeType1": "psychic",
+    "pokeType2": "none",
+    "baseAtk": 300,
+    "baseDef": 182,
+    "baseStm": 193,
+    "fastMoves": [
+      "confusion",
+      "psycho cut"
+    ],
+    "chargedMoves": [
+      "hyper beam",
+      "psychic",
+      "shadow ball",
+      "focus blast"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 151,
+    "name": "mew",
+    "pokeType1": "psychic",
+    "pokeType2": "none",
+    "baseAtk": 210,
+    "baseDef": 210,
+    "baseStm": 200,
+    "fastMoves": [
+      "pound"
+    ],
+    "chargedMoves": [
+      "blizzard",
+      "earthquake",
+      "psychic",
+      "focus blast",
+      "thunder",
+      "fire blast",
+      "hyper beam",
+      "solar beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "hurricane",
+      "dragon pulse"
+    ]
+  },
+  {
+    "dex": 152,
+    "name": "chikorita",
+    "pokeType1": "grass",
+    "pokeType2": "none",
+    "baseAtk": 92,
+    "baseDef": 122,
+    "baseStm": 90,
+    "fastMoves": [
+      "vine whip",
+      "tackle"
+    ],
+    "chargedMoves": [
+      "energy ball",
+      "grass knot",
+      "body slam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 153,
+    "name": "bayleef",
+    "pokeType1": "grass",
+    "pokeType2": "none",
+    "baseAtk": 122,
+    "baseDef": 155,
+    "baseStm": 120,
+    "fastMoves": [
+      "razor leaf",
+      "tackle"
+    ],
+    "chargedMoves": [
+      "energy ball",
+      "grass knot",
+      "ancient power"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 154,
+    "name": "meganium",
+    "pokeType1": "grass",
+    "pokeType2": "none",
+    "baseAtk": 168,
+    "baseDef": 202,
+    "baseStm": 160,
+    "fastMoves": [
+      "razor leaf",
+      "vine whip"
+    ],
+    "chargedMoves": [
+      "petal blizzard",
+      "solar beam",
+      "earthquake"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 155,
+    "name": "cyndaquil",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 116,
+    "baseDef": 96,
+    "baseStm": 78,
+    "fastMoves": [
+      "ember",
+      "tackle"
+    ],
+    "chargedMoves": [
+      "flame charge",
+      "swift",
+      "flamethrower"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 156,
+    "name": "quilava",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 158,
+    "baseDef": 129,
+    "baseStm": 116,
+    "fastMoves": [
+      "ember",
+      "tackle"
+    ],
+    "chargedMoves": [
+      "flame charge",
+      "dig",
+      "flamethrower"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 157,
+    "name": "typhlosion",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 223,
+    "baseDef": 176,
+    "baseStm": 156,
+    "fastMoves": [
+      "ember",
+      "shadow claw"
+    ],
+    "chargedMoves": [
+      "fire blast",
+      "overheat",
+      "solar beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 158,
+    "name": "totodile",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 117,
+    "baseDef": 116,
+    "baseStm": 100,
+    "fastMoves": [
+      "water gun",
+      "scratch"
+    ],
+    "chargedMoves": [
+      "crunch",
+      "aqua jet",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 159,
+    "name": "croconaw",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 150,
+    "baseDef": 151,
+    "baseStm": 130,
+    "fastMoves": [
+      "water gun",
+      "scratch"
+    ],
+    "chargedMoves": [
+      "crunch",
+      "ice punch",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 160,
+    "name": "feraligatr",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 205,
+    "baseDef": 197,
+    "baseStm": 170,
+    "fastMoves": [
+      "waterfall",
+      "bite"
+    ],
+    "chargedMoves": [
+      "crunch",
+      "hydro pump",
+      "ice beam"
+    ],
+    "fastMoves_legacy": [
+      "water gun"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 161,
+    "name": "sentret",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 79,
+    "baseDef": 77,
+    "baseStm": 70,
+    "fastMoves": [
+      "scratch",
+      "quick attack"
+    ],
+    "chargedMoves": [
+      "dig",
+      "brick break",
+      "grass knot"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 162,
+    "name": "furret",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 148,
+    "baseDef": 130,
+    "baseStm": 170,
+    "fastMoves": [
+      "quick attack",
+      "sucker punch"
+    ],
+    "chargedMoves": [
+      "dig",
+      "brick break",
+      "hyper beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 163,
+    "name": "hoothoot",
+    "pokeType1": "flying",
+    "pokeType2": "normal",
+    "baseAtk": 67,
+    "baseDef": 101,
+    "baseStm": 120,
+    "fastMoves": [
+      "feint attack",
+      "peck"
+    ],
+    "chargedMoves": [
+      "sky attack",
+      "aerial ace",
+      "night shade"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 164,
+    "name": "noctowl",
+    "pokeType1": "flying",
+    "pokeType2": "normal",
+    "baseAtk": 145,
+    "baseDef": 179,
+    "baseStm": 200,
+    "fastMoves": [
+      "wing attack",
+      "extrasensory"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "sky attack",
+      "night shade"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 165,
+    "name": "ledyba",
+    "pokeType1": "bug",
+    "pokeType2": "flying",
+    "baseAtk": 72,
+    "baseDef": 142,
+    "baseStm": 80,
+    "fastMoves": [
+      "tackle",
+      "bug bite"
+    ],
+    "chargedMoves": [
+      "swift",
+      "silver wind",
+      "aerial ace"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 166,
+    "name": "ledian",
+    "pokeType1": "bug",
+    "pokeType2": "flying",
+    "baseAtk": 107,
+    "baseDef": 209,
+    "baseStm": 110,
+    "fastMoves": [
+      "struggle bug",
+      "bug bite"
+    ],
+    "chargedMoves": [
+      "bug buzz",
+      "silver wind",
+      "aerial ace"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 167,
+    "name": "spinarak",
+    "pokeType1": "bug",
+    "pokeType2": "poison",
+    "baseAtk": 105,
+    "baseDef": 73,
+    "baseStm": 80,
+    "fastMoves": [
+      "poison sting",
+      "bug bite"
+    ],
+    "chargedMoves": [
+      "night slash",
+      "signal beam",
+      "cross poison"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 168,
+    "name": "ariados",
+    "pokeType1": "bug",
+    "pokeType2": "poison",
+    "baseAtk": 161,
+    "baseDef": 128,
+    "baseStm": 140,
+    "fastMoves": [
+      "poison sting",
+      "infestation"
+    ],
+    "chargedMoves": [
+      "shadow sneak",
+      "megahorn",
+      "cross poison"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 169,
+    "name": "crobat",
+    "pokeType1": "flying",
+    "pokeType2": "poison",
+    "baseAtk": 194,
+    "baseDef": 178,
+    "baseStm": 170,
+    "fastMoves": [
+      "air slash",
+      "bite"
+    ],
+    "chargedMoves": [
+      "shadow ball",
+      "air cutter",
+      "sludge bomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 170,
+    "name": "chinchou",
+    "pokeType1": "electric",
+    "pokeType2": "water",
+    "baseAtk": 106,
+    "baseDef": 106,
+    "baseStm": 150,
+    "fastMoves": [
+      "bubble",
+      "spark"
+    ],
+    "chargedMoves": [
+      "water pulse",
+      "thunderbolt",
+      "bubble beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 171,
+    "name": "lanturn",
+    "pokeType1": "electric",
+    "pokeType2": "water",
+    "baseAtk": 146,
+    "baseDef": 146,
+    "baseStm": 250,
+    "fastMoves": [
+      "water gun",
+      "charge beam"
+    ],
+    "chargedMoves": [
+      "hydro pump",
+      "thunderbolt",
+      "thunder"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 172,
+    "name": "pichu",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 77,
+    "baseDef": 63,
+    "baseStm": 40,
+    "fastMoves": [
+      "thunder shock"
+    ],
+    "chargedMoves": [
+      "thunderbolt",
+      "disarming voice",
+      "thunder punch"
+    ],
+    "fastMoves_legacy": [
+      "quick attack"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 173,
+    "name": "cleffa",
+    "pokeType1": "fairy",
+    "pokeType2": "none",
+    "baseAtk": 75,
+    "baseDef": 91,
+    "baseStm": 100,
+    "fastMoves": [
+      "zen headbutt",
+      "pound"
+    ],
+    "chargedMoves": [
+      "signal beam",
+      "psyshock",
+      "grass knot"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "psychic",
+      "body slam"
+    ]
+  },
+  {
+    "dex": 174,
+    "name": "igglybuff",
+    "pokeType1": "fairy",
+    "pokeType2": "normal",
+    "baseAtk": 69,
+    "baseDef": 34,
+    "baseStm": 180,
+    "fastMoves": [
+      "pound",
+      "feint attack"
+    ],
+    "chargedMoves": [
+      "shadow ball",
+      "wild charge",
+      "psychic"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "body slam"
+    ]
+  },
+  {
+    "dex": 175,
+    "name": "togepi",
+    "pokeType1": "fairy",
+    "pokeType2": "none",
+    "baseAtk": 67,
+    "baseDef": 116,
+    "baseStm": 70,
+    "fastMoves": [
+      "hidden power",
+      "peck"
+    ],
+    "chargedMoves": [
+      "ancient power",
+      "psyshock",
+      "dazzling gleam"
+    ],
+    "fastMoves_legacy": [
+      "zen headbutt"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 176,
+    "name": "togetic",
+    "pokeType1": "fairy",
+    "pokeType2": "flying",
+    "baseAtk": 139,
+    "baseDef": 191,
+    "baseStm": 110,
+    "fastMoves": [
+      "extrasensory",
+      "hidden power"
+    ],
+    "chargedMoves": [
+      "ancient power",
+      "dazzling gleam",
+      "aerial ace"
+    ],
+    "fastMoves_legacy": [
+      "steel wing",
+      "zen headbutt"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 177,
+    "name": "natu",
+    "pokeType1": "flying",
+    "pokeType2": "psychic",
+    "baseAtk": 134,
+    "baseDef": 89,
+    "baseStm": 80,
+    "fastMoves": [
+      "peck",
+      "quick attack"
+    ],
+    "chargedMoves": [
+      "night shade",
+      "psyshock",
+      "drill peck"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 178,
+    "name": "xatu",
+    "pokeType1": "flying",
+    "pokeType2": "psychic",
+    "baseAtk": 192,
+    "baseDef": 146,
+    "baseStm": 130,
+    "fastMoves": [
+      "air slash",
+      "feint attack"
+    ],
+    "chargedMoves": [
+      "ominous wind",
+      "future sight",
+      "aerial ace"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 179,
+    "name": "mareep",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 114,
+    "baseDef": 82,
+    "baseStm": 110,
+    "fastMoves": [
+      "tackle",
+      "thunder shock"
+    ],
+    "chargedMoves": [
+      "body slam",
+      "thunderbolt",
+      "discharge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 180,
+    "name": "flaaffy",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 145,
+    "baseDef": 112,
+    "baseStm": 140,
+    "fastMoves": [
+      "tackle",
+      "charge beam"
+    ],
+    "chargedMoves": [
+      "power gem",
+      "thunderbolt",
+      "discharge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 181,
+    "name": "ampharos",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 211,
+    "baseDef": 172,
+    "baseStm": 180,
+    "fastMoves": [
+      "charge beam",
+      "volt switch"
+    ],
+    "chargedMoves": [
+      "zap cannon",
+      "focus blast",
+      "thunder"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 182,
+    "name": "bellossom",
+    "pokeType1": "grass",
+    "pokeType2": "none",
+    "baseAtk": 169,
+    "baseDef": 189,
+    "baseStm": 150,
+    "fastMoves": [
+      "razor leaf",
+      "acid"
+    ],
+    "chargedMoves": [
+      "leaf blade",
+      "petal blizzard",
+      "dazzling gleam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 183,
+    "name": "marill",
+    "pokeType1": "fairy",
+    "pokeType2": "water",
+    "baseAtk": 37,
+    "baseDef": 93,
+    "baseStm": 140,
+    "fastMoves": [
+      "tackle",
+      "bubble"
+    ],
+    "chargedMoves": [
+      "bubble beam",
+      "aqua tail",
+      "body slam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 184,
+    "name": "azumarill",
+    "pokeType1": "fairy",
+    "pokeType2": "water",
+    "baseAtk": 112,
+    "baseDef": 152,
+    "baseStm": 200,
+    "fastMoves": [
+      "rock smash",
+      "bubble"
+    ],
+    "chargedMoves": [
+      "play rough",
+      "hydro pump",
+      "ice beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 185,
+    "name": "sudowoodo",
+    "pokeType1": "rock",
+    "pokeType2": "none",
+    "baseAtk": 167,
+    "baseDef": 198,
+    "baseStm": 140,
+    "fastMoves": [
+      "rock throw",
+      "counter"
+    ],
+    "chargedMoves": [
+      "stone edge",
+      "earthquake",
+      "rock slide"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 186,
+    "name": "politoed",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 174,
+    "baseDef": 192,
+    "baseStm": 180,
+    "fastMoves": [
+      "mud shot",
+      "bubble"
+    ],
+    "chargedMoves": [
+      "hydro pump",
+      "blizzard",
+      "surf"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "earthquake"
+    ]
+  },
+  {
+    "dex": 187,
+    "name": "hoppip",
+    "pokeType1": "flying",
+    "pokeType2": "grass",
+    "baseAtk": 67,
+    "baseDef": 101,
+    "baseStm": 70,
+    "fastMoves": [
+      "tackle",
+      "bullet seed"
+    ],
+    "chargedMoves": [
+      "grass knot",
+      "dazzling gleam",
+      "seed bomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 188,
+    "name": "skiploom",
+    "pokeType1": "flying",
+    "pokeType2": "grass",
+    "baseAtk": 91,
+    "baseDef": 127,
+    "baseStm": 110,
+    "fastMoves": [
+      "tackle",
+      "bullet seed"
+    ],
+    "chargedMoves": [
+      "grass knot",
+      "dazzling gleam",
+      "energy ball"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 189,
+    "name": "jumpluff",
+    "pokeType1": "flying",
+    "pokeType2": "grass",
+    "baseAtk": 118,
+    "baseDef": 197,
+    "baseStm": 150,
+    "fastMoves": [
+      "infestation",
+      "bullet seed"
+    ],
+    "chargedMoves": [
+      "energy ball",
+      "dazzling gleam",
+      "solar beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 190,
+    "name": "aipom",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 136,
+    "baseDef": 112,
+    "baseStm": 110,
+    "fastMoves": [
+      "scratch",
+      "astonish"
+    ],
+    "chargedMoves": [
+      "low sweep",
+      "swift",
+      "aerial ace"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 191,
+    "name": "sunkern",
+    "pokeType1": "grass",
+    "pokeType2": "none",
+    "baseAtk": 55,
+    "baseDef": 55,
+    "baseStm": 60,
+    "fastMoves": [
+      "razor leaf",
+      "cut"
+    ],
+    "chargedMoves": [
+      "energy ball",
+      "grass knot",
+      "seed bomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 192,
+    "name": "sunflora",
+    "pokeType1": "grass",
+    "pokeType2": "none",
+    "baseAtk": 185,
+    "baseDef": 148,
+    "baseStm": 150,
+    "fastMoves": [
+      "razor leaf",
+      "bullet seed"
+    ],
+    "chargedMoves": [
+      "solar beam",
+      "petal blizzard",
+      "sludge bomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 193,
+    "name": "yanma",
+    "pokeType1": "bug",
+    "pokeType2": "flying",
+    "baseAtk": 154,
+    "baseDef": 94,
+    "baseStm": 130,
+    "fastMoves": [
+      "quick attack",
+      "wing attack"
+    ],
+    "chargedMoves": [
+      "ancient power",
+      "aerial ace",
+      "silver wind"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 194,
+    "name": "wooper",
+    "pokeType1": "ground",
+    "pokeType2": "water",
+    "baseAtk": 75,
+    "baseDef": 75,
+    "baseStm": 110,
+    "fastMoves": [
+      "water gun",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "mud bomb",
+      "dig",
+      "body slam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 195,
+    "name": "quagsire",
+    "pokeType1": "ground",
+    "pokeType2": "water",
+    "baseAtk": 152,
+    "baseDef": 152,
+    "baseStm": 190,
+    "fastMoves": [
+      "water gun",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "sludge bomb",
+      "earthquake",
+      "stone edge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 196,
+    "name": "espeon",
+    "pokeType1": "psychic",
+    "pokeType2": "none",
+    "baseAtk": 261,
+    "baseDef": 194,
+    "baseStm": 130,
+    "fastMoves": [
+      "confusion",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "psybeam",
+      "psychic",
+      "future sight"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 197,
+    "name": "umbreon",
+    "pokeType1": "dark",
+    "pokeType2": "none",
+    "baseAtk": 126,
+    "baseDef": 250,
+    "baseStm": 190,
+    "fastMoves": [
+      "feint attack",
+      "snarl"
+    ],
+    "chargedMoves": [
+      "dark pulse",
+      "foul play"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 198,
+    "name": "murkrow",
+    "pokeType1": "dark",
+    "pokeType2": "flying",
+    "baseAtk": 175,
+    "baseDef": 87,
+    "baseStm": 120,
+    "fastMoves": [
+      "peck",
+      "feint attack"
+    ],
+    "chargedMoves": [
+      "drill peck",
+      "foul play",
+      "dark pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 199,
+    "name": "slowking",
+    "pokeType1": "psychic",
+    "pokeType2": "water",
+    "baseAtk": 177,
+    "baseDef": 194,
+    "baseStm": 190,
+    "fastMoves": [
+      "water gun",
+      "confusion"
+    ],
+    "chargedMoves": [
+      "blizzard",
+      "psychic",
+      "fire blast"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 200,
+    "name": "misdreavus",
+    "pokeType1": "ghost",
+    "pokeType2": "none",
+    "baseAtk": 167,
+    "baseDef": 167,
+    "baseStm": 120,
+    "fastMoves": [
+      "astonish",
+      "hex"
+    ],
+    "chargedMoves": [
+      "dark pulse",
+      "ominous wind",
+      "shadow sneak"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 201,
+    "name": "unown",
+    "pokeType1": "psychic",
+    "pokeType2": "none",
+    "baseAtk": 136,
+    "baseDef": 91,
+    "baseStm": 96,
+    "fastMoves": [
+      "hidden power"
+    ],
+    "chargedMoves": [
+      "struggle"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 202,
+    "name": "wobbuffet",
+    "pokeType1": "psychic",
+    "pokeType2": "none",
+    "baseAtk": 60,
+    "baseDef": 106,
+    "baseStm": 380,
+    "fastMoves": [
+      "counter",
+      "splash"
+    ],
+    "chargedMoves": [
+      "mirror coat"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 203,
+    "name": "girafarig",
+    "pokeType1": "normal",
+    "pokeType2": "psychic",
+    "baseAtk": 182,
+    "baseDef": 133,
+    "baseStm": 140,
+    "fastMoves": [
+      "tackle",
+      "confusion"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "thunderbolt",
+      "mirror coat"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 204,
+    "name": "pineco",
+    "pokeType1": "bug",
+    "pokeType2": "none",
+    "baseAtk": 108,
+    "baseDef": 146,
+    "baseStm": 100,
+    "fastMoves": [
+      "tackle",
+      "bug bite"
+    ],
+    "chargedMoves": [
+      "gyro ball",
+      "rock tomb",
+      "sand tomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 205,
+    "name": "forretress",
+    "pokeType1": "bug",
+    "pokeType2": "steel",
+    "baseAtk": 161,
+    "baseDef": 242,
+    "baseStm": 150,
+    "fastMoves": [
+      "bug bite",
+      "struggle bug"
+    ],
+    "chargedMoves": [
+      "heavy slam",
+      "earthquake",
+      "rock tomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 206,
+    "name": "dunsparce",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 131,
+    "baseDef": 131,
+    "baseStm": 200,
+    "fastMoves": [
+      "bite",
+      "astonish"
+    ],
+    "chargedMoves": [
+      "dig",
+      "rock slide",
+      "drill run"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 207,
+    "name": "gligar",
+    "pokeType1": "flying",
+    "pokeType2": "ground",
+    "baseAtk": 143,
+    "baseDef": 204,
+    "baseStm": 130,
+    "fastMoves": [
+      "fury cutter",
+      "wing attack"
+    ],
+    "chargedMoves": [
+      "dig",
+      "aerial ace",
+      "night slash"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 208,
+    "name": "steelix",
+    "pokeType1": "ground",
+    "pokeType2": "steel",
+    "baseAtk": 148,
+    "baseDef": 333,
+    "baseStm": 150,
+    "fastMoves": [
+      "iron tail",
+      "dragon tail"
+    ],
+    "chargedMoves": [
+      "earthquake",
+      "heavy slam",
+      "crunch"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 209,
+    "name": "snubbull",
+    "pokeType1": "fairy",
+    "pokeType2": "none",
+    "baseAtk": 137,
+    "baseDef": 89,
+    "baseStm": 120,
+    "fastMoves": [
+      "bite",
+      "tackle"
+    ],
+    "chargedMoves": [
+      "brick break",
+      "crunch",
+      "dazzling gleam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 210,
+    "name": "granbull",
+    "pokeType1": "fairy",
+    "pokeType2": "none",
+    "baseAtk": 212,
+    "baseDef": 137,
+    "baseStm": 180,
+    "fastMoves": [
+      "bite",
+      "snarl"
+    ],
+    "chargedMoves": [
+      "crunch",
+      "play rough",
+      "close combat"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 211,
+    "name": "qwilfish",
+    "pokeType1": "poison",
+    "pokeType2": "water",
+    "baseAtk": 184,
+    "baseDef": 148,
+    "baseStm": 130,
+    "fastMoves": [
+      "poison sting",
+      "water gun"
+    ],
+    "chargedMoves": [
+      "aqua tail",
+      "ice beam",
+      "sludge wave"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 212,
+    "name": "scizor",
+    "pokeType1": "bug",
+    "pokeType2": "steel",
+    "baseAtk": 236,
+    "baseDef": 191,
+    "baseStm": 140,
+    "fastMoves": [
+      "bullet punch",
+      "fury cutter"
+    ],
+    "chargedMoves": [
+      "x-scissor",
+      "iron head",
+      "night slash"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 213,
+    "name": "shuckle",
+    "pokeType1": "bug",
+    "pokeType2": "rock",
+    "baseAtk": 17,
+    "baseDef": 396,
+    "baseStm": 40,
+    "fastMoves": [
+      "struggle bug",
+      "rock throw"
+    ],
+    "chargedMoves": [
+      "rock blast",
+      "stone edge",
+      "gyro ball"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 214,
+    "name": "heracross",
+    "pokeType1": "bug",
+    "pokeType2": "fighting",
+    "baseAtk": 234,
+    "baseDef": 189,
+    "baseStm": 160,
+    "fastMoves": [
+      "counter",
+      "struggle bug"
+    ],
+    "chargedMoves": [
+      "megahorn",
+      "close combat",
+      "earthquake"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 215,
+    "name": "sneasel",
+    "pokeType1": "dark",
+    "pokeType2": "ice",
+    "baseAtk": 189,
+    "baseDef": 157,
+    "baseStm": 110,
+    "fastMoves": [
+      "ice shard",
+      "feint attack"
+    ],
+    "chargedMoves": [
+      "avalanche",
+      "ice punch",
+      "foul play"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 216,
+    "name": "teddiursa",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 142,
+    "baseDef": 93,
+    "baseStm": 120,
+    "fastMoves": [
+      "scratch",
+      "lick"
+    ],
+    "chargedMoves": [
+      "cross chop",
+      "crunch",
+      "play rough"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 217,
+    "name": "ursaring",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 236,
+    "baseDef": 144,
+    "baseStm": 180,
+    "fastMoves": [
+      "metal claw",
+      "counter"
+    ],
+    "chargedMoves": [
+      "close combat",
+      "hyper beam",
+      "play rough"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 218,
+    "name": "slugma",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 118,
+    "baseDef": 71,
+    "baseStm": 80,
+    "fastMoves": [
+      "ember",
+      "rock throw"
+    ],
+    "chargedMoves": [
+      "flame burst",
+      "flame charge",
+      "rock slide"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 219,
+    "name": "magcargo",
+    "pokeType1": "fire",
+    "pokeType2": "rock",
+    "baseAtk": 139,
+    "baseDef": 209,
+    "baseStm": 100,
+    "fastMoves": [
+      "ember",
+      "rock throw"
+    ],
+    "chargedMoves": [
+      "heat wave",
+      "overheat",
+      "stone edge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 220,
+    "name": "swinub",
+    "pokeType1": "ground",
+    "pokeType2": "ice",
+    "baseAtk": 90,
+    "baseDef": 74,
+    "baseStm": 100,
+    "fastMoves": [
+      "tackle",
+      "powder snow"
+    ],
+    "chargedMoves": [
+      "icy wind",
+      "body slam",
+      "rock slide"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 221,
+    "name": "piloswine",
+    "pokeType1": "ground",
+    "pokeType2": "ice",
+    "baseAtk": 181,
+    "baseDef": 147,
+    "baseStm": 200,
+    "fastMoves": [
+      "ice shard",
+      "powder snow"
+    ],
+    "chargedMoves": [
+      "avalanche",
+      "bulldoze",
+      "stone edge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 222,
+    "name": "corsola",
+    "pokeType1": "rock",
+    "pokeType2": "water",
+    "baseAtk": 118,
+    "baseDef": 156,
+    "baseStm": 110,
+    "fastMoves": [
+      "tackle",
+      "bubble"
+    ],
+    "chargedMoves": [
+      "rock blast",
+      "power gem",
+      "bubble beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 223,
+    "name": "remoraid",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 127,
+    "baseDef": 69,
+    "baseStm": 70,
+    "fastMoves": [
+      "water gun",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "aurora beam",
+      "water pulse",
+      "rock blast"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 224,
+    "name": "octillery",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 197,
+    "baseDef": 141,
+    "baseStm": 150,
+    "fastMoves": [
+      "water gun",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "gunk shot",
+      "water pulse",
+      "aurora beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 225,
+    "name": "delibird",
+    "pokeType1": "flying",
+    "pokeType2": "ice",
+    "baseAtk": 128,
+    "baseDef": 90,
+    "baseStm": 90,
+    "fastMoves": [
+      "present"
+    ],
+    "chargedMoves": [
+      "ice punch",
+      "icy wind",
+      "aerial ace"
+    ],
+    "fastMoves_legacy": [
+      "ice shard",
+      "quick attack"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 226,
+    "name": "mantine",
+    "pokeType1": "flying",
+    "pokeType2": "water",
+    "baseAtk": 148,
+    "baseDef": 260,
+    "baseStm": 130,
+    "fastMoves": [
+      "bubble",
+      "wing attack"
+    ],
+    "chargedMoves": [
+      "water pulse",
+      "ice beam",
+      "aerial ace"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 227,
+    "name": "skarmory",
+    "pokeType1": "flying",
+    "pokeType2": "steel",
+    "baseAtk": 148,
+    "baseDef": 260,
+    "baseStm": 130,
+    "fastMoves": [
+      "steel wing",
+      "air slash"
+    ],
+    "chargedMoves": [
+      "brave bird",
+      "sky attack",
+      "flash cannon"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 228,
+    "name": "houndour",
+    "pokeType1": "dark",
+    "pokeType2": "fire",
+    "baseAtk": 152,
+    "baseDef": 93,
+    "baseStm": 90,
+    "fastMoves": [
+      "feint attack",
+      "ember"
+    ],
+    "chargedMoves": [
+      "crunch",
+      "flamethrower",
+      "dark pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 229,
+    "name": "houndoom",
+    "pokeType1": "dark",
+    "pokeType2": "fire",
+    "baseAtk": 224,
+    "baseDef": 159,
+    "baseStm": 150,
+    "fastMoves": [
+      "snarl",
+      "fire fang"
+    ],
+    "chargedMoves": [
+      "crunch",
+      "fire blast",
+      "foul play"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 230,
+    "name": "kingdra",
+    "pokeType1": "dragon",
+    "pokeType2": "water",
+    "baseAtk": 194,
+    "baseDef": 194,
+    "baseStm": 150,
+    "fastMoves": [
+      "waterfall",
+      "dragon breath"
+    ],
+    "chargedMoves": [
+      "hydro pump",
+      "blizzard",
+      "outrage"
+    ],
+    "fastMoves_legacy": [
+      "water gun"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 231,
+    "name": "phanpy",
+    "pokeType1": "ground",
+    "pokeType2": "none",
+    "baseAtk": 107,
+    "baseDef": 107,
+    "baseStm": 180,
+    "fastMoves": [
+      "tackle",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "bulldoze",
+      "rock slide",
+      "body slam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 232,
+    "name": "donphan",
+    "pokeType1": "ground",
+    "pokeType2": "none",
+    "baseAtk": 214,
+    "baseDef": 214,
+    "baseStm": 180,
+    "fastMoves": [
+      "tackle",
+      "counter"
+    ],
+    "chargedMoves": [
+      "earthquake",
+      "heavy slam",
+      "play rough"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 233,
+    "name": "porygon2",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 198,
+    "baseDef": 183,
+    "baseStm": 170,
+    "fastMoves": [
+      "hidden power",
+      "charge beam"
+    ],
+    "chargedMoves": [
+      "solar beam",
+      "hyper beam",
+      "zap cannon"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 234,
+    "name": "stantler",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 192,
+    "baseDef": 132,
+    "baseStm": 146,
+    "fastMoves": [
+      "tackle",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "stomp",
+      "wild charge",
+      "megahorn"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 235,
+    "name": "smeargle",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 40,
+    "baseDef": 88,
+    "baseStm": 110,
+    "fastMoves": [
+      "tackle"
+    ],
+    "chargedMoves": [
+      "struggle"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 236,
+    "name": "tyrogue",
+    "pokeType1": "fighting",
+    "pokeType2": "none",
+    "baseAtk": 64,
+    "baseDef": 64,
+    "baseStm": 70,
+    "fastMoves": [
+      "rock smash",
+      "tackle"
+    ],
+    "chargedMoves": [
+      "brick break",
+      "rock slide",
+      "low sweep"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 237,
+    "name": "hitmontop",
+    "pokeType1": "fighting",
+    "pokeType2": "none",
+    "baseAtk": 173,
+    "baseDef": 214,
+    "baseStm": 100,
+    "fastMoves": [
+      "rock smash",
+      "counter"
+    ],
+    "chargedMoves": [
+      "close combat",
+      "gyro ball",
+      "stone edge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 238,
+    "name": "smoochum",
+    "pokeType1": "ice",
+    "pokeType2": "psychic",
+    "baseAtk": 153,
+    "baseDef": 116,
+    "baseStm": 90,
+    "fastMoves": [
+      "powder snow",
+      "pound"
+    ],
+    "chargedMoves": [
+      "ice beam",
+      "ice punch",
+      "psyshock"
+    ],
+    "fastMoves_legacy": [
+      "frost breath"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 239,
+    "name": "elekid",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 135,
+    "baseDef": 110,
+    "baseStm": 90,
+    "fastMoves": [
+      "thunder shock",
+      "low kick"
+    ],
+    "chargedMoves": [
+      "thunder punch",
+      "brick break",
+      "discharge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "thunderbolt"
+    ]
+  },
+  {
+    "dex": 240,
+    "name": "magby",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 151,
+    "baseDef": 108,
+    "baseStm": 90,
+    "fastMoves": [
+      "ember",
+      "karate chop"
+    ],
+    "chargedMoves": [
+      "brick break",
+      "fire punch",
+      "flame burst"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "flamethrower"
+    ]
+  },
+  {
+    "dex": 241,
+    "name": "miltank",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 157,
+    "baseDef": 211,
+    "baseStm": 190,
+    "fastMoves": [
+      "tackle",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "stomp",
+      "body slam",
+      "gyro ball"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 242,
+    "name": "blissey",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 129,
+    "baseDef": 229,
+    "baseStm": 510,
+    "fastMoves": [
+      "pound",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "dazzling gleam",
+      "hyper beam",
+      "psychic"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 243,
+    "name": "raikou",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 241,
+    "baseDef": 210,
+    "baseStm": 180,
+    "fastMoves": [
+      "thunder shock",
+      "volt switch"
+    ],
+    "chargedMoves": [
+      "thunder",
+      "thunderbolt",
+      "wild charge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 244,
+    "name": "entei",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 235,
+    "baseDef": 176,
+    "baseStm": 230,
+    "fastMoves": [
+      "fire spin",
+      "fire fang"
+    ],
+    "chargedMoves": [
+      "flamethrower",
+      "fire blast",
+      "overheat"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 245,
+    "name": "suicune",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 180,
+    "baseDef": 235,
+    "baseStm": 200,
+    "fastMoves": [
+      "extrasensory",
+      "snarl"
+    ],
+    "chargedMoves": [
+      "hydro pump",
+      "bubble beam",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      "hidden power"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 246,
+    "name": "larvitar",
+    "pokeType1": "ground",
+    "pokeType2": "rock",
+    "baseAtk": 115,
+    "baseDef": 93,
+    "baseStm": 100,
+    "fastMoves": [
+      "bite",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "stomp",
+      "crunch",
+      "ancient power"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 247,
+    "name": "pupitar",
+    "pokeType1": "ground",
+    "pokeType2": "rock",
+    "baseAtk": 155,
+    "baseDef": 133,
+    "baseStm": 140,
+    "fastMoves": [
+      "bite",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "dig",
+      "crunch",
+      "ancient power"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 248,
+    "name": "tyranitar",
+    "pokeType1": "dark",
+    "pokeType2": "rock",
+    "baseAtk": 251,
+    "baseDef": 212,
+    "baseStm": 200,
+    "fastMoves": [
+      "bite",
+      "iron tail"
+    ],
+    "chargedMoves": [
+      "fire blast",
+      "crunch",
+      "stone edge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 249,
+    "name": "lugia",
+    "pokeType1": "flying",
+    "pokeType2": "psychic",
+    "baseAtk": 193,
+    "baseDef": 323,
+    "baseStm": 212,
+    "fastMoves": [
+      "extrasensory",
+      "dragon tail"
+    ],
+    "chargedMoves": [
+      "sky attack",
+      "hydro pump",
+      "future sight"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 250,
+    "name": "ho-oh",
+    "pokeType1": "fire",
+    "pokeType2": "flying",
+    "baseAtk": 239,
+    "baseDef": 274,
+    "baseStm": 193,
+    "fastMoves": [
+      "extrasensory",
+      "steel wing"
+    ],
+    "chargedMoves": [
+      "brave bird",
+      "fire blast",
+      "solar beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 251,
+    "name": "celebi",
+    "pokeType1": "grass",
+    "pokeType2": "psychic",
+    "baseAtk": 210,
+    "baseDef": 210,
+    "baseStm": 200,
+    "fastMoves": [
+      "confusion",
+      "charge beam"
+    ],
+    "chargedMoves": [
+      "hyper beam",
+      "psychic",
+      "dazzling gleam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 252,
+    "name": "treecko",
+    "pokeType1": "grass",
+    "pokeType2": "none",
+    "baseAtk": 124,
+    "baseDef": 104,
+    "baseStm": 80,
+    "fastMoves": [
+      "pound",
+      "bullet seed"
+    ],
+    "chargedMoves": [
+      "grass knot",
+      "energy ball",
+      "aerial ace"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 253,
+    "name": "grovyle",
+    "pokeType1": "grass",
+    "pokeType2": "none",
+    "baseAtk": 172,
+    "baseDef": 130,
+    "baseStm": 100,
+    "fastMoves": [
+      "quick attack",
+      "bullet seed"
+    ],
+    "chargedMoves": [
+      "grass knot",
+      "leaf blade",
+      "aerial ace"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 254,
+    "name": "sceptile",
+    "pokeType1": "grass",
+    "pokeType2": "none",
+    "baseAtk": 223,
+    "baseDef": 180,
+    "baseStm": 140,
+    "fastMoves": [
+      "fury cutter",
+      "bullet seed"
+    ],
+    "chargedMoves": [
+      "leaf blade",
+      "earthquake",
+      "aerial ace"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 255,
+    "name": "torchic",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 130,
+    "baseDef": 92,
+    "baseStm": 90,
+    "fastMoves": [
+      "scratch",
+      "ember"
+    ],
+    "chargedMoves": [
+      "flamethrower",
+      "flame charge",
+      "rock tomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 256,
+    "name": "combusken",
+    "pokeType1": "fighting",
+    "pokeType2": "fire",
+    "baseAtk": 163,
+    "baseDef": 115,
+    "baseStm": 120,
+    "fastMoves": [
+      "ember",
+      "peck"
+    ],
+    "chargedMoves": [
+      "flamethrower",
+      "rock slide",
+      "flame charge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 257,
+    "name": "blaziken",
+    "pokeType1": "fighting",
+    "pokeType2": "fire",
+    "baseAtk": 240,
+    "baseDef": 141,
+    "baseStm": 160,
+    "fastMoves": [
+      "counter",
+      "fire spin"
+    ],
+    "chargedMoves": [
+      "overheat",
+      "brave bird",
+      "focus blast"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "stone edge"
+    ]
+  },
+  {
+    "dex": 258,
+    "name": "mudkip",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 126,
+    "baseDef": 93,
+    "baseStm": 100,
+    "fastMoves": [
+      "tackle",
+      "water gun"
+    ],
+    "chargedMoves": [
+      "stomp",
+      "sludge",
+      "dig"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 259,
+    "name": "marshtomp",
+    "pokeType1": "ground",
+    "pokeType2": "water",
+    "baseAtk": 156,
+    "baseDef": 133,
+    "baseStm": 140,
+    "fastMoves": [
+      "water gun",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "surf",
+      "mud bomb",
+      "sludge"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 260,
+    "name": "swampert",
+    "pokeType1": "ground",
+    "pokeType2": "water",
+    "baseAtk": 208,
+    "baseDef": 175,
+    "baseStm": 200,
+    "fastMoves": [
+      "water gun",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "surf",
+      "earthquake",
+      "sludge wave"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 261,
+    "name": "poochyena",
+    "pokeType1": "dark",
+    "pokeType2": "none",
+    "baseAtk": 96,
+    "baseDef": 63,
+    "baseStm": 70,
+    "fastMoves": [
+      "snarl",
+      "tackle"
+    ],
+    "chargedMoves": [
+      "crunch",
+      "dig",
+      "poison fang"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 262,
+    "name": "mightyena",
+    "pokeType1": "dark",
+    "pokeType2": "none",
+    "baseAtk": 171,
+    "baseDef": 137,
+    "baseStm": 140,
+    "fastMoves": [
+      "bite",
+      "fire fang"
+    ],
+    "chargedMoves": [
+      "play rough",
+      "crunch",
+      "poison fang"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 263,
+    "name": "zigzagoon",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 58,
+    "baseDef": 80,
+    "baseStm": 76,
+    "fastMoves": [
+      "tackle",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "grass knot",
+      "thunderbolt",
+      "dig"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 264,
+    "name": "linoone",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 142,
+    "baseDef": 128,
+    "baseStm": 156,
+    "fastMoves": [
+      "shadow claw",
+      "tackle"
+    ],
+    "chargedMoves": [
+      "thunder",
+      "grass knot",
+      "dig"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 265,
+    "name": "wurmple",
+    "pokeType1": "bug",
+    "pokeType2": "none",
+    "baseAtk": 75,
+    "baseDef": 61,
+    "baseStm": 90,
+    "fastMoves": [
+      "bug bite",
+      "tackle"
+    ],
+    "chargedMoves": [
+      "struggle"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 266,
+    "name": "silcoon",
+    "pokeType1": "bug",
+    "pokeType2": "none",
+    "baseAtk": 60,
+    "baseDef": 91,
+    "baseStm": 100,
+    "fastMoves": [
+      "bug bite",
+      "poison sting"
+    ],
+    "chargedMoves": [
+      "struggle"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 267,
+    "name": "beautifly",
+    "pokeType1": "bug",
+    "pokeType2": "flying",
+    "baseAtk": 189,
+    "baseDef": 98,
+    "baseStm": 120,
+    "fastMoves": [
+      "struggle bug",
+      "infestation"
+    ],
+    "chargedMoves": [
+      "bug buzz",
+      "air cutter",
+      "silver wind"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 268,
+    "name": "cascoon",
+    "pokeType1": "bug",
+    "pokeType2": "none",
+    "baseAtk": 60,
+    "baseDef": 91,
+    "baseStm": 100,
+    "fastMoves": [
+      "bug bite",
+      "poison sting"
+    ],
+    "chargedMoves": [
+      "struggle"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 269,
+    "name": "dustox",
+    "pokeType1": "bug",
+    "pokeType2": "poison",
+    "baseAtk": 98,
+    "baseDef": 172,
+    "baseStm": 120,
+    "fastMoves": [
+      "confusion",
+      "struggle bug"
+    ],
+    "chargedMoves": [
+      "sludge bomb",
+      "bug buzz",
+      "silver wind"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 270,
+    "name": "lotad",
+    "pokeType1": "grass",
+    "pokeType2": "water",
+    "baseAtk": 71,
+    "baseDef": 86,
+    "baseStm": 80,
+    "fastMoves": [
+      "water gun",
+      "razor leaf"
+    ],
+    "chargedMoves": [
+      "bubble beam",
+      "energy ball"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 271,
+    "name": "lombre",
+    "pokeType1": "grass",
+    "pokeType2": "water",
+    "baseAtk": 112,
+    "baseDef": 128,
+    "baseStm": 120,
+    "fastMoves": [
+      "razor leaf",
+      "bubble"
+    ],
+    "chargedMoves": [
+      "grass knot",
+      "bubble beam",
+      "ice beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 272,
+    "name": "ludicolo",
+    "pokeType1": "grass",
+    "pokeType2": "water",
+    "baseAtk": 173,
+    "baseDef": 191,
+    "baseStm": 160,
+    "fastMoves": [
+      "razor leaf",
+      "bubble"
+    ],
+    "chargedMoves": [
+      "hydro pump",
+      "solar beam",
+      "blizzard"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 273,
+    "name": "seedot",
+    "pokeType1": "grass",
+    "pokeType2": "none",
+    "baseAtk": 71,
+    "baseDef": 86,
+    "baseStm": 80,
+    "fastMoves": [
+      "quick attack",
+      "bullet seed"
+    ],
+    "chargedMoves": [
+      "grass knot",
+      "foul play",
+      "energy ball"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 274,
+    "name": "nuzleaf",
+    "pokeType1": "dark",
+    "pokeType2": "grass",
+    "baseAtk": 134,
+    "baseDef": 78,
+    "baseStm": 140,
+    "fastMoves": [
+      "razor leaf",
+      "feint attack"
+    ],
+    "chargedMoves": [
+      "foul play",
+      "grass knot",
+      "leaf blade"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 275,
+    "name": "shiftry",
+    "pokeType1": "dark",
+    "pokeType2": "grass",
+    "baseAtk": 200,
+    "baseDef": 121,
+    "baseStm": 180,
+    "fastMoves": [
+      "razor leaf",
+      "feint attack"
+    ],
+    "chargedMoves": [
+      "foul play",
+      "hurricane",
+      "leaf blade"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 276,
+    "name": "taillow",
+    "pokeType1": "flying",
+    "pokeType2": "normal",
+    "baseAtk": 106,
+    "baseDef": 61,
+    "baseStm": 80,
+    "fastMoves": [
+      "quick attack",
+      "peck"
+    ],
+    "chargedMoves": [
+      "aerial ace"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 277,
+    "name": "swellow",
+    "pokeType1": "flying",
+    "pokeType2": "normal",
+    "baseAtk": 185,
+    "baseDef": 130,
+    "baseStm": 120,
+    "fastMoves": [
+      "steel wing",
+      "wing attack"
+    ],
+    "chargedMoves": [
+      "brave bird",
+      "sky attack",
+      "aerial ace"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 278,
+    "name": "wingull",
+    "pokeType1": "flying",
+    "pokeType2": "water",
+    "baseAtk": 106,
+    "baseDef": 61,
+    "baseStm": 80,
+    "fastMoves": [
+      "water gun",
+      "quick attack"
+    ],
+    "chargedMoves": [
+      "ice beam",
+      "air cutter",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 279,
+    "name": "pelipper",
+    "pokeType1": "flying",
+    "pokeType2": "water",
+    "baseAtk": 175,
+    "baseDef": 189,
+    "baseStm": 120,
+    "fastMoves": [
+      "water gun",
+      "wing attack"
+    ],
+    "chargedMoves": [
+      "hurricane",
+      "hydro pump",
+      "blizzard"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 280,
+    "name": "ralts",
+    "pokeType1": "fairy",
+    "pokeType2": "psychic",
+    "baseAtk": 79,
+    "baseDef": 63,
+    "baseStm": 56,
+    "fastMoves": [
+      "confusion",
+      "charge beam"
+    ],
+    "chargedMoves": [
+      "psyshock",
+      "disarming voice",
+      "shadow sneak"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 281,
+    "name": "kirlia",
+    "pokeType1": "fairy",
+    "pokeType2": "psychic",
+    "baseAtk": 117,
+    "baseDef": 100,
+    "baseStm": 76,
+    "fastMoves": [
+      "confusion",
+      "charge beam"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "disarming voice",
+      "shadow sneak"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 282,
+    "name": "gardevoir",
+    "pokeType1": "fairy",
+    "pokeType2": "psychic",
+    "baseAtk": 237,
+    "baseDef": 220,
+    "baseStm": 136,
+    "fastMoves": [
+      "confusion",
+      "charge beam"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "dazzling gleam",
+      "shadow ball"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 283,
+    "name": "surskit",
+    "pokeType1": "bug",
+    "pokeType2": "water",
+    "baseAtk": 93,
+    "baseDef": 97,
+    "baseStm": 80,
+    "fastMoves": [
+      "bug bite",
+      "bubble"
+    ],
+    "chargedMoves": [
+      "signal beam",
+      "bubble beam",
+      "aqua jet"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 284,
+    "name": "masquerain",
+    "pokeType1": "bug",
+    "pokeType2": "flying",
+    "baseAtk": 192,
+    "baseDef": 161,
+    "baseStm": 140,
+    "fastMoves": [
+      "air slash",
+      "infestation"
+    ],
+    "chargedMoves": [
+      "air cutter",
+      "silver wind",
+      "ominous wind"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 285,
+    "name": "shroomish",
+    "pokeType1": "grass",
+    "pokeType2": "none",
+    "baseAtk": 74,
+    "baseDef": 110,
+    "baseStm": 120,
+    "fastMoves": [
+      "tackle",
+      "bullet seed"
+    ],
+    "chargedMoves": [
+      "grass knot",
+      "seed bomb",
+      "energy ball"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 286,
+    "name": "breloom",
+    "pokeType1": "fighting",
+    "pokeType2": "grass",
+    "baseAtk": 241,
+    "baseDef": 153,
+    "baseStm": 120,
+    "fastMoves": [
+      "counter",
+      "bullet seed"
+    ],
+    "chargedMoves": [
+      "dynamic punch",
+      "sludge bomb",
+      "seed bomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 287,
+    "name": "slakoth",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 104,
+    "baseDef": 104,
+    "baseStm": 120,
+    "fastMoves": [
+      "yawn"
+    ],
+    "chargedMoves": [
+      "body slam",
+      "brick break",
+      "night slash"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 288,
+    "name": "vigoroth",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 159,
+    "baseDef": 159,
+    "baseStm": 160,
+    "fastMoves": [
+      "scratch",
+      "counter"
+    ],
+    "chargedMoves": [
+      "body slam",
+      "brick break",
+      "bulldoze"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 289,
+    "name": "slaking",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 290,
+    "baseDef": 183,
+    "baseStm": 273,
+    "fastMoves": [
+      "yawn"
+    ],
+    "chargedMoves": [
+      "hyper beam",
+      "earthquake",
+      "play rough"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 290,
+    "name": "nincada",
+    "pokeType1": "bug",
+    "pokeType2": "ground",
+    "baseAtk": 80,
+    "baseDef": 153,
+    "baseStm": 62,
+    "fastMoves": [
+      "scratch",
+      "bug bite"
+    ],
+    "chargedMoves": [
+      "bug buzz",
+      "aerial ace",
+      "night slash"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 291,
+    "name": "ninjask",
+    "pokeType1": "bug",
+    "pokeType2": "flying",
+    "baseAtk": 196,
+    "baseDef": 114,
+    "baseStm": 122,
+    "fastMoves": [
+      "metal claw",
+      "fury cutter"
+    ],
+    "chargedMoves": [
+      "shadow ball",
+      "bug buzz",
+      "aerial ace"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 292,
+    "name": "shedinja",
+    "pokeType1": "bug",
+    "pokeType2": "ghost",
+    "baseAtk": 153,
+    "baseDef": 80,
+    "baseStm": 2,
+    "fastMoves": [
+      "bite",
+      "struggle bug"
+    ],
+    "chargedMoves": [
+      "aerial ace",
+      "dig",
+      "shadow sneak"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 293,
+    "name": "whismur",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 92,
+    "baseDef": 42,
+    "baseStm": 128,
+    "fastMoves": [
+      "pound",
+      "astonish"
+    ],
+    "chargedMoves": [
+      "stomp",
+      "flamethrower",
+      "disarming voice"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 294,
+    "name": "loudred",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 134,
+    "baseDef": 81,
+    "baseStm": 168,
+    "fastMoves": [
+      "bite",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "flamethrower",
+      "stomp",
+      "disarming voice"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      "crunch"
+    ]
+  },
+  {
+    "dex": 295,
+    "name": "exploud",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 179,
+    "baseDef": 142,
+    "baseStm": 208,
+    "fastMoves": [
+      "bite",
+      "astonish"
+    ],
+    "chargedMoves": [
+      "fire blast",
+      "crunch",
+      "disarming voice"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 296,
+    "name": "makuhita",
+    "pokeType1": "fighting",
+    "pokeType2": "none",
+    "baseAtk": 99,
+    "baseDef": 54,
+    "baseStm": 144,
+    "fastMoves": [
+      "rock smash",
+      "tackle"
+    ],
+    "chargedMoves": [
+      "cross chop",
+      "heavy slam",
+      "low sweep"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 297,
+    "name": "hariyama",
+    "pokeType1": "fighting",
+    "pokeType2": "none",
+    "baseAtk": 209,
+    "baseDef": 114,
+    "baseStm": 288,
+    "fastMoves": [
+      "counter",
+      "bullet punch"
+    ],
+    "chargedMoves": [
+      "close combat",
+      "dynamic punch",
+      "heavy slam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 298,
+    "name": "azurill",
+    "pokeType1": "fairy",
+    "pokeType2": "normal",
+    "baseAtk": 36,
+    "baseDef": 71,
+    "baseStm": 100,
+    "fastMoves": [
+      "bubble",
+      "splash"
+    ],
+    "chargedMoves": [
+      "body slam",
+      "ice beam",
+      "bubble beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 299,
+    "name": "nosepass",
+    "pokeType1": "rock",
+    "pokeType2": "none",
+    "baseAtk": 82,
+    "baseDef": 236,
+    "baseStm": 60,
+    "fastMoves": [
+      "rock throw",
+      "spark"
+    ],
+    "chargedMoves": [
+      "rock slide",
+      "thunderbolt",
+      "rock blast"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 300,
+    "name": "skitty",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 84,
+    "baseDef": 84,
+    "baseStm": 100,
+    "fastMoves": [
+      "tackle",
+      "feint attack"
+    ],
+    "chargedMoves": [
+      "wild charge",
+      "dig",
+      "disarming voice"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 301,
+    "name": "delcatty",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 132,
+    "baseDef": 132,
+    "baseStm": 140,
+    "fastMoves": [
+      "feint attack",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "wild charge",
+      "play rough",
+      "disarming voice"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 302,
+    "name": "sableye",
+    "pokeType1": "dark",
+    "pokeType2": "ghost",
+    "baseAtk": 141,
+    "baseDef": 141,
+    "baseStm": 100,
+    "fastMoves": [
+      "shadow claw",
+      "feint attack"
+    ],
+    "chargedMoves": [
+      "power gem",
+      "foul play",
+      "shadow sneak"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 303,
+    "name": "mawile",
+    "pokeType1": "fairy",
+    "pokeType2": "steel",
+    "baseAtk": 155,
+    "baseDef": 155,
+    "baseStm": 100,
+    "fastMoves": [
+      "bite",
+      "astonish"
+    ],
+    "chargedMoves": [
+      "iron head",
+      "play rough",
+      "vice grip"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 304,
+    "name": "aron",
+    "pokeType1": "rock",
+    "pokeType2": "steel",
+    "baseAtk": 121,
+    "baseDef": 168,
+    "baseStm": 100,
+    "fastMoves": [
+      "metal claw",
+      "tackle"
+    ],
+    "chargedMoves": [
+      "iron head",
+      "body slam",
+      "rock tomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 305,
+    "name": "lairon",
+    "pokeType1": "rock",
+    "pokeType2": "steel",
+    "baseAtk": 158,
+    "baseDef": 240,
+    "baseStm": 120,
+    "fastMoves": [
+      "iron tail",
+      "metal claw"
+    ],
+    "chargedMoves": [
+      "heavy slam",
+      "rock slide",
+      "body slam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 306,
+    "name": "aggron",
+    "pokeType1": "rock",
+    "pokeType2": "steel",
+    "baseAtk": 198,
+    "baseDef": 314,
+    "baseStm": 140,
+    "fastMoves": [
+      "iron tail",
+      "dragon tail"
+    ],
+    "chargedMoves": [
+      "stone edge",
+      "thunder",
+      "heavy slam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 307,
+    "name": "meditite",
+    "pokeType1": "fighting",
+    "pokeType2": "psychic",
+    "baseAtk": 78,
+    "baseDef": 107,
+    "baseStm": 60,
+    "fastMoves": [
+      "confusion",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "psyshock",
+      "ice punch",
+      "low sweep"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 308,
+    "name": "medicham",
+    "pokeType1": "fighting",
+    "pokeType2": "psychic",
+    "baseAtk": 121,
+    "baseDef": 152,
+    "baseStm": 120,
+    "fastMoves": [
+      "counter",
+      "psycho cut"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "dynamic punch",
+      "ice punch"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 309,
+    "name": "electrike",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 123,
+    "baseDef": 78,
+    "baseStm": 80,
+    "fastMoves": [
+      "spark",
+      "quick attack"
+    ],
+    "chargedMoves": [
+      "thunderbolt",
+      "discharge",
+      "swift"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 310,
+    "name": "manectric",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 215,
+    "baseDef": 127,
+    "baseStm": 140,
+    "fastMoves": [
+      "snarl",
+      "charge beam"
+    ],
+    "chargedMoves": [
+      "thunder",
+      "wild charge",
+      "flame burst"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 311,
+    "name": "plusle",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 167,
+    "baseDef": 147,
+    "baseStm": 120,
+    "fastMoves": [
+      "spark",
+      "quick attack"
+    ],
+    "chargedMoves": [
+      "thunderbolt",
+      "discharge",
+      "swift"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 312,
+    "name": "minun",
+    "pokeType1": "electric",
+    "pokeType2": "none",
+    "baseAtk": 147,
+    "baseDef": 167,
+    "baseStm": 120,
+    "fastMoves": [
+      "spark",
+      "quick attack"
+    ],
+    "chargedMoves": [
+      "thunderbolt",
+      "discharge",
+      "swift"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 313,
+    "name": "volbeat",
+    "pokeType1": "bug",
+    "pokeType2": "none",
+    "baseAtk": 143,
+    "baseDef": 171,
+    "baseStm": 130,
+    "fastMoves": [
+      "struggle bug",
+      "tackle"
+    ],
+    "chargedMoves": [
+      "thunderbolt",
+      "signal beam",
+      "bug buzz"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 314,
+    "name": "illumise",
+    "pokeType1": "bug",
+    "pokeType2": "none",
+    "baseAtk": 143,
+    "baseDef": 171,
+    "baseStm": 130,
+    "fastMoves": [
+      "struggle bug",
+      "tackle"
+    ],
+    "chargedMoves": [
+      "bug buzz",
+      "dazzling gleam",
+      "silver wind"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 315,
+    "name": "roselia",
+    "pokeType1": "grass",
+    "pokeType2": "poison",
+    "baseAtk": 186,
+    "baseDef": 148,
+    "baseStm": 100,
+    "fastMoves": [
+      "poison jab",
+      "razor leaf"
+    ],
+    "chargedMoves": [
+      "petal blizzard",
+      "sludge bomb",
+      "dazzling gleam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 316,
+    "name": "gulpin",
+    "pokeType1": "poison",
+    "pokeType2": "none",
+    "baseAtk": 80,
+    "baseDef": 99,
+    "baseStm": 140,
+    "fastMoves": [
+      "rock smash",
+      "pound"
+    ],
+    "chargedMoves": [
+      "gunk shot",
+      "sludge",
+      "ice beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 317,
+    "name": "swalot",
+    "pokeType1": "poison",
+    "pokeType2": "none",
+    "baseAtk": 140,
+    "baseDef": 159,
+    "baseStm": 200,
+    "fastMoves": [
+      "rock smash",
+      "infestation"
+    ],
+    "chargedMoves": [
+      "gunk shot",
+      "sludge bomb",
+      "ice beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 318,
+    "name": "carvanha",
+    "pokeType1": "dark",
+    "pokeType2": "water",
+    "baseAtk": 171,
+    "baseDef": 39,
+    "baseStm": 90,
+    "fastMoves": [
+      "bite",
+      "snarl"
+    ],
+    "chargedMoves": [
+      "crunch",
+      "aqua jet",
+      "poison fang"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 319,
+    "name": "sharpedo",
+    "pokeType1": "dark",
+    "pokeType2": "water",
+    "baseAtk": 243,
+    "baseDef": 83,
+    "baseStm": 140,
+    "fastMoves": [
+      "waterfall",
+      "bite"
+    ],
+    "chargedMoves": [
+      "hydro pump",
+      "crunch",
+      "poison fang"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 320,
+    "name": "wailmer",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 136,
+    "baseDef": 68,
+    "baseStm": 260,
+    "fastMoves": [
+      "water gun",
+      "splash"
+    ],
+    "chargedMoves": [
+      "heavy slam",
+      "body slam",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 321,
+    "name": "wailord",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 175,
+    "baseDef": 87,
+    "baseStm": 340,
+    "fastMoves": [
+      "water gun",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "surf",
+      "blizzard",
+      "hyper beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 322,
+    "name": "numel",
+    "pokeType1": "fire",
+    "pokeType2": "ground",
+    "baseAtk": 119,
+    "baseDef": 82,
+    "baseStm": 120,
+    "fastMoves": [
+      "ember",
+      "tackle"
+    ],
+    "chargedMoves": [
+      "heat wave",
+      "stomp",
+      "bulldoze"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 323,
+    "name": "camerupt",
+    "pokeType1": "fire",
+    "pokeType2": "ground",
+    "baseAtk": 194,
+    "baseDef": 139,
+    "baseStm": 140,
+    "fastMoves": [
+      "ember",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "overheat",
+      "earthquake",
+      "solar beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 324,
+    "name": "torkoal",
+    "pokeType1": "fire",
+    "pokeType2": "none",
+    "baseAtk": 151,
+    "baseDef": 234,
+    "baseStm": 140,
+    "fastMoves": [
+      "fire spin",
+      "ember"
+    ],
+    "chargedMoves": [
+      "overheat",
+      "solar beam",
+      "earthquake"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 325,
+    "name": "spoink",
+    "pokeType1": "psychic",
+    "pokeType2": "none",
+    "baseAtk": 125,
+    "baseDef": 145,
+    "baseStm": 120,
+    "fastMoves": [
+      "zen headbutt",
+      "splash"
+    ],
+    "chargedMoves": [
+      "shadow ball",
+      "mirror coat",
+      "psybeam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 326,
+    "name": "grumpig",
+    "pokeType1": "psychic",
+    "pokeType2": "none",
+    "baseAtk": 171,
+    "baseDef": 211,
+    "baseStm": 160,
+    "fastMoves": [
+      "extrasensory",
+      "charge beam"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "shadow ball",
+      "mirror coat"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 327,
+    "name": "spinda",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 116,
+    "baseDef": 116,
+    "baseStm": 120,
+    "fastMoves": [
+      "sucker punch",
+      "psycho cut"
+    ],
+    "chargedMoves": [
+      "rock tomb",
+      "dig",
+      "icy wind"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 328,
+    "name": "trapinch",
+    "pokeType1": "ground",
+    "pokeType2": "none",
+    "baseAtk": 162,
+    "baseDef": 78,
+    "baseStm": 90,
+    "fastMoves": [
+      "struggle bug",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "dig",
+      "sand tomb",
+      "crunch"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 329,
+    "name": "vibrava",
+    "pokeType1": "dragon",
+    "pokeType2": "ground",
+    "baseAtk": 134,
+    "baseDef": 99,
+    "baseStm": 100,
+    "fastMoves": [
+      "dragon breath",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "bulldoze",
+      "bug buzz",
+      "sand tomb"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 330,
+    "name": "flygon",
+    "pokeType1": "dragon",
+    "pokeType2": "ground",
+    "baseAtk": 205,
+    "baseDef": 168,
+    "baseStm": 160,
+    "fastMoves": [
+      "dragon tail",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "stone edge",
+      "earthquake",
+      "dragon claw"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 331,
+    "name": "cacnea",
+    "pokeType1": "grass",
+    "pokeType2": "none",
+    "baseAtk": 156,
+    "baseDef": 74,
+    "baseStm": 100,
+    "fastMoves": [
+      "sucker punch",
+      "poison sting"
+    ],
+    "chargedMoves": [
+      "grass knot",
+      "seed bomb",
+      "brick break"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 332,
+    "name": "cacturne",
+    "pokeType1": "dark",
+    "pokeType2": "grass",
+    "baseAtk": 221,
+    "baseDef": 115,
+    "baseStm": 140,
+    "fastMoves": [
+      "poison jab",
+      "sucker punch"
+    ],
+    "chargedMoves": [
+      "grass knot",
+      "dynamic punch",
+      "dark pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 333,
+    "name": "swablu",
+    "pokeType1": "flying",
+    "pokeType2": "normal",
+    "baseAtk": 76,
+    "baseDef": 139,
+    "baseStm": 90,
+    "fastMoves": [
+      "peck",
+      "astonish"
+    ],
+    "chargedMoves": [
+      "aerial ace",
+      "ice beam",
+      "disarming voice"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 334,
+    "name": "altaria",
+    "pokeType1": "dragon",
+    "pokeType2": "flying",
+    "baseAtk": 141,
+    "baseDef": 208,
+    "baseStm": 150,
+    "fastMoves": [
+      "dragon breath",
+      "peck"
+    ],
+    "chargedMoves": [
+      "sky attack",
+      "dragon pulse",
+      "dazzling gleam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 335,
+    "name": "zangoose",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 222,
+    "baseDef": 124,
+    "baseStm": 146,
+    "fastMoves": [
+      "shadow claw",
+      "fury cutter"
+    ],
+    "chargedMoves": [
+      "close combat",
+      "night slash",
+      "dig"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 336,
+    "name": "seviper",
+    "pokeType1": "poison",
+    "pokeType2": "none",
+    "baseAtk": 196,
+    "baseDef": 118,
+    "baseStm": 146,
+    "fastMoves": [
+      "poison jab",
+      "iron tail"
+    ],
+    "chargedMoves": [
+      "poison fang",
+      "crunch",
+      "wrap"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 337,
+    "name": "lunatone",
+    "pokeType1": "psychic",
+    "pokeType2": "rock",
+    "baseAtk": 178,
+    "baseDef": 163,
+    "baseStm": 180,
+    "fastMoves": [
+      "rock throw",
+      "confusion"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "rock slide",
+      "moonblast"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 338,
+    "name": "solrock",
+    "pokeType1": "psychic",
+    "pokeType2": "rock",
+    "baseAtk": 178,
+    "baseDef": 163,
+    "baseStm": 180,
+    "fastMoves": [
+      "rock throw",
+      "confusion"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "solar beam",
+      "rock slide"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 339,
+    "name": "barboach",
+    "pokeType1": "ground",
+    "pokeType2": "water",
+    "baseAtk": 93,
+    "baseDef": 83,
+    "baseStm": 100,
+    "fastMoves": [
+      "water gun",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "aqua tail",
+      "mud bomb",
+      "ice beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 340,
+    "name": "whiscash",
+    "pokeType1": "ground",
+    "pokeType2": "water",
+    "baseAtk": 151,
+    "baseDef": 142,
+    "baseStm": 220,
+    "fastMoves": [
+      "water gun",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "blizzard",
+      "mud bomb",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 341,
+    "name": "corphish",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 141,
+    "baseDef": 113,
+    "baseStm": 86,
+    "fastMoves": [
+      "bubble",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "aqua jet",
+      "vice grip"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 342,
+    "name": "crawdaunt",
+    "pokeType1": "dark",
+    "pokeType2": "water",
+    "baseAtk": 224,
+    "baseDef": 156,
+    "baseStm": 126,
+    "fastMoves": [
+      "waterfall",
+      "snarl"
+    ],
+    "chargedMoves": [
+      "bubble beam",
+      "night slash",
+      "vice grip"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 343,
+    "name": "baltoy",
+    "pokeType1": "ground",
+    "pokeType2": "psychic",
+    "baseAtk": 77,
+    "baseDef": 131,
+    "baseStm": 80,
+    "fastMoves": [
+      "confusion",
+      "extrasensory"
+    ],
+    "chargedMoves": [
+      "psybeam",
+      "dig",
+      "gyro ball"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 344,
+    "name": "claydol",
+    "pokeType1": "ground",
+    "pokeType2": "psychic",
+    "baseAtk": 140,
+    "baseDef": 236,
+    "baseStm": 120,
+    "fastMoves": [
+      "confusion",
+      "extrasensory"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "earthquake",
+      "gyro ball"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 345,
+    "name": "lileep",
+    "pokeType1": "grass",
+    "pokeType2": "rock",
+    "baseAtk": 105,
+    "baseDef": 154,
+    "baseStm": 132,
+    "fastMoves": [
+      "acid",
+      "infestation"
+    ],
+    "chargedMoves": [
+      "grass knot",
+      "ancient power",
+      "mirror coat"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 346,
+    "name": "cradily",
+    "pokeType1": "grass",
+    "pokeType2": "rock",
+    "baseAtk": 152,
+    "baseDef": 198,
+    "baseStm": 172,
+    "fastMoves": [
+      "acid",
+      "infestation"
+    ],
+    "chargedMoves": [
+      "stone edge",
+      "grass knot",
+      "bulldoze"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 347,
+    "name": "anorith",
+    "pokeType1": "bug",
+    "pokeType2": "rock",
+    "baseAtk": 176,
+    "baseDef": 100,
+    "baseStm": 90,
+    "fastMoves": [
+      "scratch",
+      "struggle bug"
+    ],
+    "chargedMoves": [
+      "cross poison",
+      "ancient power",
+      "aqua jet"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 348,
+    "name": "armaldo",
+    "pokeType1": "bug",
+    "pokeType2": "rock",
+    "baseAtk": 222,
+    "baseDef": 183,
+    "baseStm": 150,
+    "fastMoves": [
+      "struggle bug",
+      "fury cutter"
+    ],
+    "chargedMoves": [
+      "rock blast",
+      "cross poison",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 349,
+    "name": "feebas",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 29,
+    "baseDef": 102,
+    "baseStm": 40,
+    "fastMoves": [
+      "tackle",
+      "splash"
+    ],
+    "chargedMoves": [
+      "mirror coat"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 350,
+    "name": "milotic",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 192,
+    "baseDef": 242,
+    "baseStm": 190,
+    "fastMoves": [
+      "dragon tail",
+      "waterfall"
+    ],
+    "chargedMoves": [
+      "surf",
+      "blizzard",
+      "hyper beam"
+    ],
+    "fastMoves_legacy": [
+      "water gun"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 351,
+    "name": "castform",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 139,
+    "baseDef": 139,
+    "baseStm": 140,
+    "fastMoves": [
+      "tackle",
+      "hex",
+      "water gun",
+      "powder snow",
+      "ember"
+    ],
+    "chargedMoves": [
+      "hurricane",
+      "energy ball",
+      "hydro pump",
+      "thunder",
+      "blizzard",
+      "ice beam",
+      "fire blast",
+      "solar beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 352,
+    "name": "kecleon",
+    "pokeType1": "normal",
+    "pokeType2": "none",
+    "baseAtk": 161,
+    "baseDef": 212,
+    "baseStm": 120,
+    "fastMoves": [
+      "lick",
+      "sucker punch"
+    ],
+    "chargedMoves": [
+      "thunder",
+      "foul play",
+      "flamethrower",
+      "ice beam",
+      "aerial ace",
+      "shadow sneak"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 353,
+    "name": "shuppet",
+    "pokeType1": "ghost",
+    "pokeType2": "none",
+    "baseAtk": 138,
+    "baseDef": 66,
+    "baseStm": 88,
+    "fastMoves": [
+      "feint attack",
+      "astonish"
+    ],
+    "chargedMoves": [
+      "ominous wind",
+      "night shade",
+      "shadow sneak"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 354,
+    "name": "banette",
+    "pokeType1": "ghost",
+    "pokeType2": "none",
+    "baseAtk": 218,
+    "baseDef": 127,
+    "baseStm": 128,
+    "fastMoves": [
+      "hex",
+      "shadow claw"
+    ],
+    "chargedMoves": [
+      "shadow ball",
+      "dazzling gleam",
+      "thunder"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 355,
+    "name": "duskull",
+    "pokeType1": "ghost",
+    "pokeType2": "none",
+    "baseAtk": 70,
+    "baseDef": 162,
+    "baseStm": 40,
+    "fastMoves": [
+      "hex",
+      "astonish"
+    ],
+    "chargedMoves": [
+      "ominous wind",
+      "night shade",
+      "shadow sneak"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 356,
+    "name": "dusclops",
+    "pokeType1": "ghost",
+    "pokeType2": "none",
+    "baseAtk": 124,
+    "baseDef": 234,
+    "baseStm": 80,
+    "fastMoves": [
+      "hex",
+      "feint attack"
+    ],
+    "chargedMoves": [
+      "shadow punch",
+      "ice punch",
+      "fire punch"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 357,
+    "name": "tropius",
+    "pokeType1": "flying",
+    "pokeType2": "grass",
+    "baseAtk": 136,
+    "baseDef": 165,
+    "baseStm": 198,
+    "fastMoves": [
+      "razor leaf",
+      "air slash"
+    ],
+    "chargedMoves": [
+      "leaf blade",
+      "stomp",
+      "aerial ace"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 358,
+    "name": "chimecho",
+    "pokeType1": "psychic",
+    "pokeType2": "none",
+    "baseAtk": 175,
+    "baseDef": 174,
+    "baseStm": 150,
+    "fastMoves": [
+      "extrasensory",
+      "astonish"
+    ],
+    "chargedMoves": [
+      "shadow ball",
+      "psyshock",
+      "energy ball"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 359,
+    "name": "absol",
+    "pokeType1": "dark",
+    "pokeType2": "none",
+    "baseAtk": 246,
+    "baseDef": 120,
+    "baseStm": 130,
+    "fastMoves": [
+      "snarl",
+      "psycho cut"
+    ],
+    "chargedMoves": [
+      "thunder",
+      "megahorn",
+      "dark pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 360,
+    "name": "wynaut",
+    "pokeType1": "psychic",
+    "pokeType2": "none",
+    "baseAtk": 41,
+    "baseDef": 86,
+    "baseStm": 190,
+    "fastMoves": [
+      "counter",
+      "splash"
+    ],
+    "chargedMoves": [
+      "mirror coat"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 361,
+    "name": "snorunt",
+    "pokeType1": "ice",
+    "pokeType2": "none",
+    "baseAtk": 95,
+    "baseDef": 95,
+    "baseStm": 100,
+    "fastMoves": [
+      "hex",
+      "powder snow"
+    ],
+    "chargedMoves": [
+      "avalanche",
+      "shadow ball",
+      "icy wind"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 362,
+    "name": "glalie",
+    "pokeType1": "ice",
+    "pokeType2": "none",
+    "baseAtk": 162,
+    "baseDef": 162,
+    "baseStm": 160,
+    "fastMoves": [
+      "frost breath",
+      "ice shard"
+    ],
+    "chargedMoves": [
+      "avalanche",
+      "shadow ball",
+      "gyro ball"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 363,
+    "name": "spheal",
+    "pokeType1": "ice",
+    "pokeType2": "water",
+    "baseAtk": 95,
+    "baseDef": 90,
+    "baseStm": 140,
+    "fastMoves": [
+      "rock smash",
+      "water gun"
+    ],
+    "chargedMoves": [
+      "aurora beam",
+      "body slam",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 364,
+    "name": "sealeo",
+    "pokeType1": "ice",
+    "pokeType2": "water",
+    "baseAtk": 137,
+    "baseDef": 132,
+    "baseStm": 180,
+    "fastMoves": [
+      "water gun",
+      "powder snow"
+    ],
+    "chargedMoves": [
+      "aurora beam",
+      "body slam",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 365,
+    "name": "walrein",
+    "pokeType1": "ice",
+    "pokeType2": "water",
+    "baseAtk": 182,
+    "baseDef": 176,
+    "baseStm": 220,
+    "fastMoves": [
+      "waterfall",
+      "frost breath"
+    ],
+    "chargedMoves": [
+      "blizzard",
+      "earthquake",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 366,
+    "name": "clamperl",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 133,
+    "baseDef": 149,
+    "baseStm": 70,
+    "fastMoves": [
+      "water gun"
+    ],
+    "chargedMoves": [
+      "ice beam",
+      "body slam",
+      "water pulse"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 367,
+    "name": "huntail",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 197,
+    "baseDef": 194,
+    "baseStm": 110,
+    "fastMoves": [
+      "water gun",
+      "bite"
+    ],
+    "chargedMoves": [
+      "aqua tail",
+      "ice beam",
+      "crunch"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 368,
+    "name": "gorebyss",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 211,
+    "baseDef": 194,
+    "baseStm": 110,
+    "fastMoves": [
+      "water gun",
+      "confusion"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "water pulse",
+      "draining kiss"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 369,
+    "name": "relicanth",
+    "pokeType1": "rock",
+    "pokeType2": "water",
+    "baseAtk": 162,
+    "baseDef": 234,
+    "baseStm": 200,
+    "fastMoves": [
+      "water gun",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "hydro pump",
+      "aqua tail",
+      "ancient power"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 370,
+    "name": "luvdisc",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 81,
+    "baseDef": 134,
+    "baseStm": 86,
+    "fastMoves": [
+      "water gun",
+      "splash"
+    ],
+    "chargedMoves": [
+      "water pulse",
+      "draining kiss",
+      "aqua jet"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 371,
+    "name": "bagon",
+    "pokeType1": "dragon",
+    "pokeType2": "none",
+    "baseAtk": 134,
+    "baseDef": 107,
+    "baseStm": 90,
+    "fastMoves": [
+      "bite",
+      "ember"
+    ],
+    "chargedMoves": [
+      "flamethrower",
+      "crunch",
+      "twister"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 372,
+    "name": "shelgon",
+    "pokeType1": "dragon",
+    "pokeType2": "none",
+    "baseAtk": 172,
+    "baseDef": 179,
+    "baseStm": 130,
+    "fastMoves": [
+      "dragon breath",
+      "ember"
+    ],
+    "chargedMoves": [
+      "flamethrower",
+      "dragon pulse",
+      "twister"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 373,
+    "name": "salamence",
+    "pokeType1": "dragon",
+    "pokeType2": "flying",
+    "baseAtk": 277,
+    "baseDef": 168,
+    "baseStm": 190,
+    "fastMoves": [
+      "dragon tail",
+      "fire fang"
+    ],
+    "chargedMoves": [
+      "draco meteor",
+      "hydro pump",
+      "fire blast"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 374,
+    "name": "beldum",
+    "pokeType1": "psychic",
+    "pokeType2": "steel",
+    "baseAtk": 96,
+    "baseDef": 141,
+    "baseStm": 80,
+    "fastMoves": [
+      "take down"
+    ],
+    "chargedMoves": [
+      "struggle"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 375,
+    "name": "metang",
+    "pokeType1": "psychic",
+    "pokeType2": "steel",
+    "baseAtk": 138,
+    "baseDef": 185,
+    "baseStm": 120,
+    "fastMoves": [
+      "metal claw",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "gyro ball",
+      "psyshock"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 376,
+    "name": "metagross",
+    "pokeType1": "psychic",
+    "pokeType2": "steel",
+    "baseAtk": 257,
+    "baseDef": 247,
+    "baseStm": 160,
+    "fastMoves": [
+      "zen headbutt",
+      "bullet punch"
+    ],
+    "chargedMoves": [
+      "flash cannon",
+      "psychic",
+      "earthquake"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 377,
+    "name": "regirock",
+    "pokeType1": "rock",
+    "pokeType2": "none",
+    "baseAtk": 179,
+    "baseDef": 356,
+    "baseStm": 160,
+    "fastMoves": [
+      "rock throw",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "stone edge",
+      "focus blast",
+      "zap cannon"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 378,
+    "name": "regice",
+    "pokeType1": "ice",
+    "pokeType2": "none",
+    "baseAtk": 179,
+    "baseDef": 356,
+    "baseStm": 160,
+    "fastMoves": [
+      "frost breath",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "blizzard",
+      "focus blast",
+      "earthquake"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 379,
+    "name": "registeel",
+    "pokeType1": "steel",
+    "pokeType2": "none",
+    "baseAtk": 143,
+    "baseDef": 285,
+    "baseStm": 160,
+    "fastMoves": [
+      "metal claw",
+      "rock smash"
+    ],
+    "chargedMoves": [
+      "flash cannon",
+      "focus blast",
+      "hyper beam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 380,
+    "name": "latias",
+    "pokeType1": "dragon",
+    "pokeType2": "psychic",
+    "baseAtk": 228,
+    "baseDef": 268,
+    "baseStm": 160,
+    "fastMoves": [
+      "dragon breath",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "thunder",
+      "dragon claw"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 381,
+    "name": "latios",
+    "pokeType1": "dragon",
+    "pokeType2": "psychic",
+    "baseAtk": 268,
+    "baseDef": 228,
+    "baseStm": 160,
+    "fastMoves": [
+      "dragon breath",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "psychic",
+      "solar beam",
+      "dragon claw"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 382,
+    "name": "kyogre",
+    "pokeType1": "water",
+    "pokeType2": "none",
+    "baseAtk": 270,
+    "baseDef": 251,
+    "baseStm": 182,
+    "fastMoves": [
+      "waterfall"
+    ],
+    "chargedMoves": [
+      "hydro pump",
+      "blizzard",
+      "thunder"
+    ],
+    "fastMoves_legacy": [
+      "dragon tail"
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 383,
+    "name": "groudon",
+    "pokeType1": "ground",
+    "pokeType2": "none",
+    "baseAtk": 270,
+    "baseDef": 251,
+    "baseStm": 182,
+    "fastMoves": [
+      "dragon tail",
+      "mud shot"
+    ],
+    "chargedMoves": [
+      "earthquake",
+      "solar beam",
+      "fire blast"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 384,
+    "name": "rayquaza",
+    "pokeType1": "dragon",
+    "pokeType2": "flying",
+    "baseAtk": 284,
+    "baseDef": 170,
+    "baseStm": 191,
+    "fastMoves": [
+      "dragon tail",
+      "air slash"
+    ],
+    "chargedMoves": [
+      "outrage",
+      "aerial ace",
+      "ancient power"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 385,
+    "name": "jirachi",
+    "pokeType1": "psychic",
+    "pokeType2": "steel",
+    "baseAtk": 210,
+    "baseDef": 210,
+    "baseStm": 200,
+    "fastMoves": [
+      "confusion",
+      "charge beam"
+    ],
+    "chargedMoves": [
+      "doom desire",
+      "psychic",
+      "dazzling gleam"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 386,
+    "name": "deoxys",
+    "pokeType1": "psychic",
+    "pokeType2": "none",
+    "baseAtk": 345,
+    "baseDef": 115,
+    "baseStm": 100,
+    "fastMoves": [
+      "counter",
+      "zen headbutt"
+    ],
+    "chargedMoves": [
+      "swift",
+      "zap cannon",
+      "psycho boost"
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 483,
+    "name": "dialga",
+    "pokeType1": "dragon",
+    "pokeType2": "steel",
+    "baseAtk": 302,
+    "baseDef": 242,
+    "baseStm": 200,
+    "fastMoves": [
+      ""
+    ],
+    "chargedMoves": [
+      ""
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 484,
+    "name": "palkia",
+    "pokeType1": "",
+    "pokeType2": "none",
+    "baseAtk": 308,
+    "baseDef": 247,
+    "baseStm": 180,
+    "fastMoves": [
+      ""
+    ],
+    "chargedMoves": [
+      ""
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 487,
+    "name": "giratina",
+    "pokeType1": "",
+    "pokeType2": "none",
+    "baseAtk": 206,
+    "baseDef": 247,
+    "baseStm": 300,
+    "fastMoves": [
+      ""
+    ],
+    "chargedMoves": [
+      ""
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 643,
+    "name": "reshiram",
+    "pokeType1": "",
+    "pokeType2": "none",
+    "baseAtk": 302,
+    "baseDef": 242,
+    "baseStm": 200,
+    "fastMoves": [
+      ""
+    ],
+    "chargedMoves": [
+      ""
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 644,
+    "name": "zekrom",
+    "pokeType1": "",
+    "pokeType2": "none",
+    "baseAtk": 302,
+    "baseDef": 242,
+    "baseStm": 200,
+    "fastMoves": [
+      ""
+    ],
+    "chargedMoves": [
+      ""
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 646,
+    "name": "kyurem",
+    "pokeType1": "",
+    "pokeType2": "none",
+    "baseAtk": 270,
+    "baseDef": 187,
+    "baseStm": 250,
+    "fastMoves": [
+      ""
+    ],
+    "chargedMoves": [
+      ""
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  },
+  {
+    "dex": 718,
+    "name": "zygarde",
+    "pokeType1": "",
+    "pokeType2": "none",
+    "baseAtk": 203,
+    "baseDef": 245,
+    "baseStm": 216,
+    "fastMoves": [
+      ""
+    ],
+    "chargedMoves": [
+      ""
+    ],
+    "fastMoves_legacy": [
+      ""
+    ],
+    "chargedMoves_legacy": [
+      ""
+    ]
+  }
+];
 	
 
 	
 
 	
-$(document).ready(function(){
-	
-	// Debug
-	var dbgs = {
-		generalSettings : {battleMode: "raid", 
-							weather : "CLOUDY", 
-							dodgeBug: 0, 
-							simPerConfig : 1,
-							reportType : "enum"},
-		atkrSettings : [[{	
-							copies: 6,
-							species: "machamp", 
-							level: 40,
-							atkiv: 15,
-							defiv: 15,
-							stmiv: 15,
-							fmove: "counter",
-							cmove: "dynamic punch",
-							dodge: 1
-						}]],
-		dfdrSettings : {	
-							species: "blissey", 
-							fmove: "pound",
-							cmove: "dazzling gleam",
-							raid_tier: 3
-						}
-	};
-
-	writeUserInput(dbgs);
-
-
-});
-
-
 $(document).ready(function(){
 
 	// Populate datalists
@@ -91,7 +9467,237 @@ $(document).ready(function(){
 
 
 
+$(document).ready(function(){
+	
+	// Debug
+	var dbgs = {
+		generalSettings : {battleMode: "raid", 
+							weather : "CLOUDY", 
+							dodgeBug: 0, 
+							simPerConfig : 1,
+							reportType : "enum"},
+		atkrSettings : [[{	
+							copies: 6,
+							species: "machamp", 
+							level: 40,
+							atkiv: 15,
+							defiv: 15,
+							stmiv: 15,
+							fmove: "counter",
+							cmove: "dynamic punch",
+							dodge: 1
+						}]],
+		dfdrSettings : {	
+							species: "blissey", 
+							fmove: "pound",
+							cmove: "dazzling gleam",
+							raid_tier: 3
+						}
+	};
 
+	writeUserInput(dbgs);
+	
+	
+USER_POKEBOX = [
+  {
+    "species": "rayquaza",
+    "copies": 1,
+    "level": 20,
+    "baseStm": 191,
+    "baseAtk": 284,
+    "baseDef": 170,
+    "stmiv": 14,
+    "atkiv": 15,
+    "defiv": 13,
+    "fmove": "dragon tail",
+    "cmove": "outrage",
+    "dodge": 0,
+    "nickname": "Test"
+  },
+  {
+    "species": "gengar",
+    "copies": 1,
+    "level": 40,
+    "baseStm": 120,
+    "baseAtk": 261,
+    "baseDef": 156,
+    "stmiv": 14,
+    "atkiv": 15,
+    "defiv": 15,
+    "fmove": "shadow claw",
+    "cmove": "shadow ball",
+    "dodge": 0,
+    "nickname": "Gengar"
+  },
+  {
+    "species": "rhydon",
+    "copies": 1,
+    "level": 40,
+    "baseStm": 210,
+    "baseAtk": 222,
+    "baseDef": 206,
+    "stmiv": 13,
+    "atkiv": 15,
+    "defiv": 15,
+    "fmove": "mud slap",
+    "cmove": "earthquake",
+    "dodge": 0,
+    "nickname": "Ground Specialist"
+  },
+  {
+    "species": "dragonite",
+    "copies": 1,
+    "level": 40,
+    "baseStm": 182,
+    "baseAtk": 263,
+    "baseDef": 201,
+    "stmiv": 15,
+    "atkiv": 14,
+    "defiv": 15,
+    "fmove": "dragon tail",
+    "cmove": "outrage",
+    "dodge": 0,
+    "nickname": "Sweeper"
+  },
+  {
+    "species": "tyranitar",
+    "copies": 1,
+    "level": 40,
+    "baseStm": 200,
+    "baseAtk": 251,
+    "baseDef": 212,
+    "stmiv": 10,
+    "atkiv": 15,
+    "defiv": 15,
+    "fmove": "bite",
+    "cmove": "crunch",
+    "dodge": 0,
+    "nickname": "Dark Specialist"
+  },
+  {
+    "species": "machamp",
+    "copies": 1,
+    "level": 40,
+    "baseStm": 180,
+    "baseAtk": 234,
+    "baseDef": 162,
+    "stmiv": 14,
+    "atkiv": 15,
+    "defiv": 14,
+    "fmove": "counter",
+    "cmove": "dynamic punch",
+    "dodge": 0,
+    "nickname": "Fighting Specialist"
+  },
+  {
+    "species": "exeggutor",
+    "copies": 1,
+    "level": 39,
+    "baseStm": 190,
+    "baseAtk": 233,
+    "baseDef": 158,
+    "stmiv": 12,
+    "atkiv": 14,
+    "defiv": 15,
+    "fmove": "bullet seed",
+    "cmove": "solar beam",
+    "dodge": 0,
+    "nickname": "Grass Specialist"
+  },
+  {
+    "species": "raikou",
+    "copies": 1,
+    "level": 40,
+    "baseStm": 180,
+    "baseAtk": 241,
+    "baseDef": 210,
+    "stmiv": 15,
+    "atkiv": 15,
+    "defiv": 14,
+    "fmove": "thunder shock",
+    "cmove": "wild charge",
+    "dodge": 0,
+    "nickname": "Electric Specialist"
+  },
+  {
+    "species": "espeon",
+    "copies": 1,
+    "level": 39,
+    "baseStm": 130,
+    "baseAtk": 261,
+    "baseDef": 194,
+    "stmiv": 15,
+    "atkiv": 15,
+    "defiv": 15,
+    "fmove": "confusion",
+    "cmove": "futuresight",
+    "dodge": 0,
+    "nickname": "Psychic Specialist"
+  },
+  {
+    "species": "dragonite",
+    "copies": 1,
+    "level": 39,
+    "baseStm": 182,
+    "baseAtk": 263,
+    "baseDef": 201,
+    "stmiv": 15,
+    "atkiv": 15,
+    "defiv": 15,
+    "fmove": "dragon breath",
+    "cmove": "dragon claw",
+    "dodge": 0,
+    "nickname": "Chief Generalist"
+  },
+  {
+    "species": "vaporeon",
+    "copies": 1,
+    "level": 39,
+    "baseStm": 260,
+    "baseAtk": 205,
+    "baseDef": 177,
+    "stmiv": 14,
+    "atkiv": 15,
+    "defiv": 15,
+    "fmove": "water gun",
+    "cmove": "hydro pump",
+    "dodge": 0,
+    "nickname": "Water Specialist"
+  },
+  {
+    "species": "moltres",
+    "copies": 1,
+    "level": 40,
+    "baseStm": 180,
+    "baseAtk": 251,
+    "baseDef": 184,
+    "stmiv": 13,
+    "atkiv": 15,
+    "defiv": 15,
+    "fmove": "fire spin",
+    "cmove": "overheat",
+    "dodge": 0,
+    "nickname": "Fire Specialist"
+  },
+  {
+    "species": "dragonite",
+    "copies": 1,
+    "level": 39,
+    "baseStm": 182,
+    "baseAtk": 263,
+    "baseDef": 201,
+    "stmiv": 14,
+    "atkiv": 15,
+    "defiv": 13,
+    "fmove": "dragon breath",
+    "cmove": "outrage",
+    "dodge": 0,
+    "nickname": "Vice Generalist"
+  }
+]
+
+
+});
 
 
 

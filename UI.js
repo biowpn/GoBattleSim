@@ -328,7 +328,7 @@ function readUserInput(){
 		gSettings['raidTier'] = -1;
 	gSettings['weather'] = document.getElementById("weather").value;
 	gSettings['dodgeBug'] = parseInt(document.getElementById("dodgeBug").value);
-	gSettings['simPerConfig'] = Math.max(0, Math.min(MAX_SIM_PER_CONFIG, document.getElementById("simPerConfig").valueAsNumber));
+	gSettings['simPerConfig'] = Math.max(1, Math.min(MAX_SIM_PER_CONFIG, document.getElementById("simPerConfig").valueAsNumber));
 	gSettings['reportType'] = document.getElementById("reportType").value;
 	if (gSettings['reportType'] == 'avrg')
 		gSettings['logStyle'] = 0;
@@ -355,6 +355,20 @@ function readUserInput(){
 			};
 }
 
+function copyAllInfo(pkm_to, pkm_from){
+	pkm_to.nickname = pkm_from.nickname;
+	pkm_to.box_index = pkm_from.box_index;
+	pkm_to.species = pkm_from.species;
+	pkm_to.index = get_species_index_by_name(pkm_from.species);
+	pkm_to.level = pkm_from.level;
+	pkm_to.atkiv = pkm_from.atkiv;
+	pkm_to.defiv = pkm_from.defiv;
+	pkm_to.stmiv = pkm_from.stmiv;
+	pkm_to.fmove = pkm_from.fmove;
+	pkm_to.fmove_index = get_fmove_index_by_name(pkm_to.fmove);
+	pkm_to.cmove = pkm_from.cmove;
+	pkm_to.cmove_index = get_cmove_index_by_name(pkm_to.cmove);
+}
 
 function repositionAllPokemon(start, end){
 	var teams = document.getElementById("AttackerInput");
@@ -674,6 +688,7 @@ function createBattleLogTable(simRes){
 	return table;
 }
 
+
 function enqueueSim(cfg){
 	if (simQueue.length < MAX_QUEUE_SIZE){
 		var cfg_copy = JSON.parse(JSON.stringify(cfg));
@@ -686,6 +701,18 @@ function unpackSpeciesNameEnumerator(str){
 	str = str.toLowerCase();
 	if (str == '' || str == 'rlvt')
 		return RELEVANT_ATTACKERS_INDICES;
+	else if (str[0] == '{' && str[str.length - 1] == '}'){
+		var names = str.slice(1, str.length - 1).trim().split(',');
+		var indices = [];
+		for (var i = 0; i < names.length; i++){
+			var pkm_idx = get_species_index_by_name(names[i].trim());
+			if (pkm_idx >= 0)
+				indices.push(pkm_idx);
+			else
+				send_feedback(names[i].trim() + " parsed to none inside list intializer", true);
+		}
+		return indices;
+	}
 	else if (str == 'babt')
 		return BEST_ATTACKERS_BY_TYPE_INDICES;
 	else if (str == 't1')
@@ -718,13 +745,24 @@ function unpackMoveEnumerator(str, moveType, pkmIndex){
 		moveNames = POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves"];
 	else if (str == 'aggr')
 		moveNames = POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves"].concat(POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves_legacy"]);
+	else if (str[0] == '{' && str[str.length - 1] == '}'){
+		var names = str.slice(1, str.length - 1).trim().split(',');
+		for (var i = 0; i < names.length; i++){
+			var move_idx = pred(names[i].trim());
+			if (move_idx >= 0)
+				moveIndices.push(move_idx);
+			else
+				send_feedback(names[i].trim() + " parsed to none inside list intializer", true);
+		}
+	}
 	else if (str == 'all'){
 		for (var i = 0; i < MovesData.length; i++)
 			moveIndices.push(i);
 	}
 	
 	for (var i = 0; i < moveNames.length; i++)
-		moveIndices.push(pred(moveNames[i]));
+		if (moveNames[i].length > 0)
+			moveIndices.push(pred(moveNames[i]));
 	return moveIndices;
 }
 
@@ -735,20 +773,32 @@ function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
 
 	if (expressionStr[0] == '*'){// Enumerator
 		var enumVariableName = '*' + enumPrefix + '.species';
-		var indices = unpackSpeciesNameEnumerator(expressionStr.slice(1));
-		if (indices.length == 0){
-			send_feedback(expressionStr + " parsed to none", true);
-			return -1;
-		}
-		if (!MasterSummaryTableMetrics.includes(enumVariableName))
-			createNewMetric(enumVariableName);
-				
-		for (var k = 0; k < indices.length; k++){
-			pkmInfo.index = indices[k];
-			pkmInfo.species = POKEMON_SPECIES_DATA[indices[k]].name;
-			cfg['enumeratedValues'][enumVariableName] = pkmInfo.species;
-			enqueueSim(cfg);
-			MasterSummaryTableMetricsValues[enumVariableName].add(pkmInfo.species);
+		if (expressionStr[1] == '$'){ // Special case: User Pokebox. Also set the Level, IVs and moves
+			if (USER_POKEBOX.length > 0 && !MasterSummaryTableMetrics.includes(enumVariableName))
+				createNewMetric(enumVariableName);
+			for (var i = 0; i < USER_POKEBOX.length; i++){
+				copyAllInfo(pkmInfo, USER_POKEBOX[i]);
+				pkmInfo.box_index = i;
+				cfg['enumeratedValues'][enumVariableName] = '$' + i + ' ' + USER_POKEBOX[i].nickname;
+				enqueueSim(cfg);
+				MasterSummaryTableMetricsValues[enumVariableName].add(cfg['enumeratedValues'][enumVariableName]);
+			}
+		}else{
+			var indices = unpackSpeciesNameEnumerator(expressionStr.slice(1));
+			if (indices.length == 0){
+				send_feedback(expressionStr + " parsed to none", true);
+				return -1;
+			}
+			if (!MasterSummaryTableMetrics.includes(enumVariableName))
+				createNewMetric(enumVariableName);
+					
+			for (var k = 0; k < indices.length; k++){
+				pkmInfo.index = indices[k];
+				pkmInfo.species = POKEMON_SPECIES_DATA[indices[k]].name;
+				cfg['enumeratedValues'][enumVariableName] = pkmInfo.species;
+				enqueueSim(cfg);
+				MasterSummaryTableMetricsValues[enumVariableName].add(pkmInfo.species);
+			}
 		}
 		return -1;
 	}else if (expressionStr[0] == '='){// Dynamic Assignment Operator
@@ -757,6 +807,10 @@ function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
 			var teamIdx = parseInt(arr[0].trim()), pkmIdx = parseInt(arr[1].trim());
 			pkmInfo.index = cfg['atkrSettings'][teamIdx][pkmIdx].index;
 			pkmInfo.species = cfg['atkrSettings'][teamIdx][pkmIdx].species;
+			
+			if (cfg['atkrSettings'][teamIdx][pkmIdx].box_index >= 0){
+				copyAllInfo(pkmInfo, cfg['atkrSettings'][teamIdx][pkmIdx]);
+			}
 			enqueueSim(cfg);
 			return -1;
 		}catch(err){
@@ -1041,6 +1095,13 @@ function main(){
 
 function importPokemonFromBox(){
 	var speciesNameDataList = document.getElementById("SpeciesNameDataList");
+	if (speciesNameDataList.children.length > 0){
+		var lastChild = speciesNameDataList.children[speciesNameDataList.children.length - 1];
+		while (lastChild.value[0] == '$'){
+			speciesNameDataList.removeChild(lastChild);
+			lastChild = speciesNameDataList.children[speciesNameDataList.children.length - 1];
+		}
+	}
 	
 	for (var i = 0; i < USER_POKEBOX.length; i++){
 		USER_POKEBOX[i].box_index = i;
@@ -1049,5 +1110,5 @@ function importPokemonFromBox(){
 		speciesNameDataList.appendChild(nameOption);
 	}
 	
-	send_feedback("Sucessfully imported " + USER_POKEBOX.length + " Pokemon from your Pokebox");
+	send_feedback("Sucessfully imported " + USER_POKEBOX.length + " Pokemon from your Pokebox. Start with a '$' in the species input field to use your Pokemon.");
 }

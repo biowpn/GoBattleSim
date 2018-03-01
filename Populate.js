@@ -90,6 +90,7 @@ $(document).ready(function(){
 				var species_idx = get_species_index_by_name(data[i].species.toLowerCase());
 				if (species_idx >= 0){
 					var pkmRaw = {
+						index : species_idx,
 						species : data[i].species.toLowerCase(),
 						copies: 1,
 						level: 0,
@@ -100,11 +101,25 @@ $(document).ready(function(){
 						atkiv: parseInt(data[i].atk),
 						defiv: parseInt(data[i].def),
 						fmove: data[i].fast_move.toLowerCase(),
+						fmove_index : get_fmove_index_by_name(data[i].fast_move.toLowerCase()),
 						cmove: data[i].charge_move.toLowerCase(),
+						cmove_index : get_cmove_index_by_name(data[i].charge_move.toLowerCase()),
 						dodge: 0,
 						nickname : data[i].nickname
 					};
+					
+					if (pkmRaw.fmove_index < 0){
+						console.log("Move data not found: " + pkmRaw.fmove);
+						continue;
+					}
+					
+					if (pkmRaw.cmove_index < 0){
+						console.log("Move data not found: " + pkmRaw.cmove);
+						continue;
+					}
+					
 					pkmRaw.level = calculateLevelByCP(pkmRaw, parseInt(data[i].cp));
+					
 					USER_POKEBOX.push(pkmRaw);
 				}
 			}			
