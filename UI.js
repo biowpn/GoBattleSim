@@ -1,48 +1,59 @@
-<style>
-	table{
-		width: 100%;
-	}
-	
-	th, td {
-		vertical-align: center;
-		text-align: center;
-	}
-	
-	input, select {
-		width: 100%;
-	}
-	
-	button {
-		width: 100%;
-	}
-}
-</style>
 
-<datalist id="SpeciesNameDataList"></datalist>
-<datalist id="FMovesDataList"></datalist>
-<datalist id="CMovesDataList"></datalist>
+/* 
+ * GLOBAL VARIABLES 
+ */
 
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.min.js"></script>
-<script type="text/javascript" src="GoBattleSim.js"></script>
-<script type="text/javascript">
+// Storing user's Pokebox
+var USER_POKEBOX = [];
 
-function initDataList(){
-	var speciesOptions = "";
-	for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++)
-		speciesOptions += '<option value="'+ POKEMON_SPECIES_DATA[i].name +'" />';
-	document.getElementById("SpeciesNameDataList").innerHTML = speciesOptions;
-	
-	var fmoveOptions = "";
-	for (var i = 0; i < FAST_MOVE_DATA.length; i++)
-		fmoveOptions += '<option value="'+ FAST_MOVE_DATA[i].name +'" />';
-	document.getElementById("FMovesDataList").innerHTML = fmoveOptions;
-	
-	var cmoveOptions = "";
-	for (var i = 0; i < CHARGED_MOVE_DATA.length; i++)
-		cmoveOptions += '<option value="'+ CHARGED_MOVE_DATA[i].name +'" />';
-	document.getElementById("CMovesDataList").innerHTML = cmoveOptions;
-}
+// Pre-defined collections of Pokemon
+var BEST_ATTACKERS_BY_TYPE_INDICES = [211, 247, 383, 242, 281, 67, 145, 243, 93, 102, 382, 143, 142, 88, 149, 75, 375, 381];
+var TIER1_BOSSES_CURRENT_INDICES = [128, 319, 332, 360];
+var TIER2_BOSSES_CURRENT_INDICES = [86, 90, 301, 302];
+var TIER3_BOSSES_CURRENT_INDICES = [67, 123, 183, 220];
+var TIER4_BOSSES_CURRENT_INDICES = [130, 142, 159, 247, 305, 358];
+var TIER5_BOSSES_CURRENT_INDICES = [149, 383];
+
+// To be populated dynamically
+var RELEVANT_ATTACKERS_INDICES = [];
+var POKEMON_BY_TYPE_INDICES = {}; 
+
+const MAX_QUEUE_SIZE = 65536;
+const MAX_SIM_PER_CONFIG = 1024;
+const DEFAULT_SUMMARY_TABLE_METRICS = ['battle_result','duration','dfdr_HP_lost_percent','total_deaths'];
+const DEFAULT_SUMMARY_TABLE_HEADERS = {'battle_result': 'Outcome',
+										'duration': 'Time',
+										'dfdr_HP_lost_percent': 'Progress',
+										'total_deaths': '#Death'};
+
+var totalAtkrTeamCount = 0;
+var simQueue = []; // Batch individual sims configurations here
+var simResults = []; // This is used to store all sims
+var simResultsFiltered = []; // This is used to store filted sims
+var atkrCopyPasteClipboard = null;
+
+var MaxResultsPerPage = 30;
+var pageStart = 0;
+var pageNumber = 1;
+var pageNumberMax = 1;
+
+var enumTeamStart = 0;
+var enumPokemonStart = 0;
+var enumDefender = 0;
+var MasterSummaryTableMetrics = [];
+var MasterSummaryTableHeaders = {};
+var MasterSummaryTableMetricsIncluded = {};
+var MasterSummaryTableMetricsSorted = {};
+var MasterSummaryTableMetricsFilter = {};
+var MasterSummaryTableMetricsFilterOrder = [];
+var MasterSummaryTableMetricsValues = {};
+
+
+
+
+/* 
+ * UI CORE FUNCTIONS 
+ */
 
 function initMasterSummaryTableMetrics(){
 	MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
@@ -77,7 +88,7 @@ function createRow(rowData, type){
 	return row;
 }
 
-function createPokemonTemplate(){
+function createAttackerInputTemplate(i, j){
 	var pkm = document.createElement("div");
 
 	var row1 = document.createElement("tr");
@@ -85,7 +96,22 @@ function createPokemonTemplate(){
 	var row3 = document.createElement("tr");
 	
 	var tb1 = createElement("table", "<col width=50%><col width=20%><col width=6%><col width=6%><col width=6%><col width=6%><col width=6%>");
-	row1.appendChild(createElement('td',"<input type='text' placeholder='Species' list='SpeciesNameDataList'>"));
+
+	var td = createElement('td',"");
+	var nameInput = createElement("input","");
+	nameInput.type = 'text';
+	nameInput.placeholder = 'Species';
+	nameInput.setAttribute('list', 'SpeciesNameDataList');
+	const ii = i, jj = j;
+	nameInput.onchange = function(){
+		if (this.value[0] == '$' && USER_POKEBOX.length > 0){
+			var idx = parseInt(this.value.slice(1).split(' ')[0]);
+			writeAttackerInput(document.getElementById("AttackerInput").children[ii].children[jj], USER_POKEBOX[idx]);
+		}
+	}
+	td.appendChild(nameInput);
+	row1.appendChild(td);
+	
 	row1.appendChild(createElement('td',"<input type='number' placeholder='Copies' min='1' max='6'>"));
 	row1.appendChild(createElement('td',"<a></a>"));
 	row1.appendChild(createElement('td',"<a></a>"));
@@ -128,6 +154,7 @@ function createTeamButtonTable(i){
 }
 
 function setDefenderInput(){
+
 	var mode = document.getElementById("battleMode").value;
 	var dfdrSection = document.getElementById("DefenderInput");
 	var tb1 = createElement("table", "<col width=100%>");
@@ -141,7 +168,20 @@ function setDefenderInput(){
 		tb1 = dfdrSection.children[0];
 		tb3 = dfdrSection.children[2];
 	}else{
-		row1.appendChild(createElement('td',"<input type='text' placeholder='Species' list='SpeciesNameDataList'>"));
+		var td = createElement('td',"");
+		var nameInput = createElement("input","");
+		nameInput.type = 'text';
+		nameInput.placeholder = 'Species';
+		nameInput.setAttribute('list', 'SpeciesNameDataList');
+		nameInput.onchange = function(){
+			if (this.value[0] == '$' && USER_POKEBOX.length > 0){
+				var idx = parseInt(this.value.slice(1).split(' ')[0]);
+				writeDefenderInput(document.getElementById("DefenderInput"), USER_POKEBOX[idx]);
+			}
+		}
+		td.appendChild(nameInput);
+		row1.appendChild(td);
+
 		tb1.appendChild(row1);
 		row3.appendChild(createElement('td',"<input type='text' placeholder='Fast Move' list='FMovesDataList'>"));
 		row3.appendChild(createElement('td',"<input type='text' placeholder='Charged Move' list='CMovesDataList'>"));
@@ -178,11 +218,19 @@ function parseAttackerInput(section){
 	var row1 = section.children[0].children[1];
 	var row2 = section.children[1].children[1];
 	var row3 = section.children[2].children[1];
+	
+	var box_idx = -1;
+	var nameInputValue = row1.children[0].children[0].value.trim();
+	if (nameInputValue[0] == '$')
+		box_idx = parseInt(nameInputValue.slice(1).split(' ')[0]);
+	
 	var pkm = {
+		box_index : box_idx,
 		index : -1,
 		fmove_index : -1,
 		cmove_index : -1,
-		species: row1.children[0].children[0].value.trim(),
+		nickname : box_idx >= 0 ? USER_POKEBOX[box_idx].nickname : null,
+		species: box_idx >= 0 ? USER_POKEBOX[box_idx].species : nameInputValue,
 		copies: row1.children[1].children[0].valueAsNumber || 1,
 		level: Math.max(1, Math.min(40,row2.children[0].children[0].valueAsNumber)),
 		stmiv: Math.max(0, Math.min(15,row2.children[1].children[0].valueAsNumber)),
@@ -200,12 +248,20 @@ function parseDefenderInput(section){
 	var row1 = section.children[0].children[1];
 	var row2 = section.children[1].children[1];
 	var row3 = section.children[2].children[1];
+	
+	var box_idx = -1;
+	var nameInputValue = row1.children[0].children[0].value.trim();
+	if (nameInputValue[0] == '$')
+		box_idx = parseInt(nameInputValue.slice(1).split(' ')[0]);
+	
 	var pkm = {
+		box_index : box_idx,
 		index : -1,
 		fmove_index : -1,
 		cmove_index : -1,
 		team_idx : -1,
-		species: row1.children[0].children[0].value.trim(),
+		nickname : box_idx >= 0 ? USER_POKEBOX[box_idx].nickname : null,
+		species: box_idx >= 0 ? USER_POKEBOX[box_idx].species : nameInputValue,
 		level : 1,
 		atkiv : 0,
 		defiv : 0,
@@ -230,7 +286,11 @@ function writeAttackerInput(section, pkm){
 	var row2 = section.children[1].children[1];
 	var row3 = section.children[2].children[1];
 	
-	row1.children[0].children[0].value = pkm.species;
+	if (pkm.box_index >= 0)
+		row1.children[0].children[0].value = '$' + pkm.box_index + ' ' + pkm.nickname + ' (' + pkm.species +')';
+	else
+		row1.children[0].children[0].value = pkm.species;
+	
 	row1.children[1].children[0].value = pkm.copies;
 	row2.children[0].children[0].value = pkm.level;
 	row2.children[1].children[0].value = pkm.stmiv;
@@ -246,7 +306,11 @@ function writeDefenderInput(section, pkm){
 	var row2 = section.children[1].children[1];
 	var row3 = section.children[2].children[1];
 	
-	row1.children[0].children[0].value = pkm['species'];
+	if (pkm.box_index >= 0)
+		row1.children[0].children[0].value = '$' + pkm.box_index + ' ' + pkm.nickname + ' (' + pkm.species +')';
+	else
+		row1.children[0].children[0].value = pkm['species'];
+	
 	row3.children[0].children[0].value = pkm['fmove'];
 	row3.children[1].children[0].value = pkm['cmove'];
 	if (document.getElementById("battleMode").value == "gym"){
@@ -267,7 +331,7 @@ function readUserInput(){
 		gSettings['raidTier'] = -1;
 	gSettings['weather'] = document.getElementById("weather").value;
 	gSettings['dodgeBug'] = parseInt(document.getElementById("dodgeBug").value);
-	gSettings['simPerConfig'] = Math.max(0, Math.min(MAX_SIM_PER_CONFIG, document.getElementById("simPerConfig").valueAsNumber));
+	gSettings['simPerConfig'] = Math.max(1, Math.min(MAX_SIM_PER_CONFIG, document.getElementById("simPerConfig").valueAsNumber));
 	gSettings['reportType'] = document.getElementById("reportType").value;
 	if (gSettings['reportType'] == 'avrg')
 		gSettings['logStyle'] = 0;
@@ -294,6 +358,20 @@ function readUserInput(){
 			};
 }
 
+function copyAllInfo(pkm_to, pkm_from){
+	pkm_to.nickname = pkm_from.nickname;
+	pkm_to.box_index = pkm_from.box_index;
+	pkm_to.species = pkm_from.species;
+	pkm_to.index = get_species_index_by_name(pkm_from.species);
+	pkm_to.level = pkm_from.level;
+	pkm_to.atkiv = pkm_from.atkiv;
+	pkm_to.defiv = pkm_from.defiv;
+	pkm_to.stmiv = pkm_from.stmiv;
+	pkm_to.fmove = pkm_from.fmove;
+	pkm_to.fmove_index = get_fmove_index_by_name(pkm_to.fmove);
+	pkm_to.cmove = pkm_from.cmove;
+	pkm_to.cmove_index = get_cmove_index_by_name(pkm_to.cmove);
+}
 
 function repositionAllPokemon(start, end){
 	var teams = document.getElementById("AttackerInput");
@@ -326,7 +404,7 @@ function repositionAllPokemon(start, end){
 function addPokemon(i){
 	var team = document.getElementById("AttackerInput").children[i];
 	team.removeChild(team.children[team.children.length - 1]);
-	team.appendChild(createPokemonTemplate());
+	team.appendChild(createAttackerInputTemplate(i, team.children.length));
 	team.appendChild(createElement("div",""));
 	repositionAllPokemon(i, i+1);
 }
@@ -386,7 +464,7 @@ function addTeam(){
 		var teams = document.getElementById("AttackerInput");
 		var newTeam = document.createElement("div");
 		newTeam.appendChild(createElement("h3","Team" + (totalAtkrTeamCount+1)));
-		newTeam.appendChild(createPokemonTemplate());
+		newTeam.appendChild(createAttackerInputTemplate(totalAtkrTeamCount, 1));
 		newTeam.appendChild(createElement("div",""));
 		teams.appendChild(newTeam);
 		totalAtkrTeamCount++;
@@ -613,6 +691,7 @@ function createBattleLogTable(simRes){
 	return table;
 }
 
+
 function enqueueSim(cfg){
 	if (simQueue.length < MAX_QUEUE_SIZE){
 		var cfg_copy = JSON.parse(JSON.stringify(cfg));
@@ -621,11 +700,22 @@ function enqueueSim(cfg){
 		send_feedback("Too many sims to unpack. Try to use less enumerators");
 }
 
-function unpackSpeciesNameEnumerator(str){
-	str = str.toLowerCase();
+function unpackSpeciesKeyword(str){
+	str = str.trim().toLowerCase();
 	if (str == '' || str == 'rlvt')
 		return RELEVANT_ATTACKERS_INDICES;
-	else if (str == 'babt')
+	else if (str[0] == '{' && str[str.length - 1] == '}'){
+		var names = str.slice(1, str.length - 1).trim().split(',');
+		var indices = [];
+		for (var i = 0; i < names.length; i++){
+			var pkm_idx = get_species_index_by_name(names[i].trim());
+			if (pkm_idx >= 0)
+				indices.push(pkm_idx);
+			else
+				send_feedback(names[i].trim() + " parsed to none inside list intializer", true);
+		}
+		return indices;
+	}else if (str == 'babt')
 		return BEST_ATTACKERS_BY_TYPE_INDICES;
 	else if (str == 't1')
 		return TIER1_BOSSES_CURRENT_INDICES;
@@ -642,28 +732,42 @@ function unpackSpeciesNameEnumerator(str){
 		for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++)
 			pokemonIndices.push(i);
 		return pokemonIndices;
-	}
+	}else if (POKEMON_BY_TYPE_INDICES.hasOwnProperty(str))
+		return POKEMON_BY_TYPE_INDICES[str];
 }
 
-function unpackMoveEnumerator(str, moveType, pkmIndex){
+function unpackMoveKeyword(str, moveType, pkmIndex){
 	var prefix = (moveType == 'f') ? "fast" : "charged";
-	var MovesData = (moveType == 'f') ? FAST_MOVE_DATA : CHARGED_MOVE_DATA;
 	pred = (moveType == 'f') ? get_fmove_index_by_name : get_cmove_index_by_name;
 
 	str = str.toLowerCase();
 	var moveIndices = [];
 	var moveNames = [];
-	if (str == '' || str == 'cur')
+	if (str == '' || str == 'aggr'){
 		moveNames = POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves"];
-	else if (str == 'aggr')
-		moveNames = POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves"].concat(POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves_legacy"]);
+		moveNames = moveNames.concat(POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves_legacy"]);
+		var exMoveNames = POKEMON_SPECIES_DATA[pkmIndex].exclusiveMoves;
+		for (var i = 0; i < exMoveNames.length; i++){
+			var move_idx = pred(exMoveNames[i].trim());
+			if (move_idx >= 0)
+				moveIndices.push(move_idx);
+		}
+	}
+	else if (str == 'cur')
+		moveNames = POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves"];
+	else if (str[0] == '{' && str[str.length - 1] == '}')
+		moveNames = str.slice(1, str.length - 1).split(',');
 	else if (str == 'all'){
+		var MovesData = (moveType == 'f') ? FAST_MOVE_DATA : CHARGED_MOVE_DATA;
 		for (var i = 0; i < MovesData.length; i++)
 			moveIndices.push(i);
 	}
 	
-	for (var i = 0; i < moveNames.length; i++)
-		moveIndices.push(pred(moveNames[i]));
+	for (var i = 0; i < moveNames.length; i++){
+		var move_idx = pred(moveNames[i].trim());
+		if (move_idx >= 0)
+			moveIndices.push(move_idx);
+	}
 	return moveIndices;
 }
 
@@ -674,20 +778,32 @@ function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
 
 	if (expressionStr[0] == '*'){// Enumerator
 		var enumVariableName = '*' + enumPrefix + '.species';
-		var indices = unpackSpeciesNameEnumerator(expressionStr.slice(1));
-		if (indices.length == 0){
-			send_feedback(expressionStr + " parsed to none", true);
-			return -1;
-		}
-		if (!MasterSummaryTableMetrics.includes(enumVariableName))
-			createNewMetric(enumVariableName);
-				
-		for (var k = 0; k < indices.length; k++){
-			pkmInfo.index = indices[k];
-			pkmInfo.species = POKEMON_SPECIES_DATA[indices[k]].name;
-			cfg['enumeratedValues'][enumVariableName] = pkmInfo.species;
-			enqueueSim(cfg);
-			MasterSummaryTableMetricsValues[enumVariableName].add(pkmInfo.species);
+		if (expressionStr[1] == '$'){ // Special case: User Pokebox. Also set the Level, IVs and moves
+			if (USER_POKEBOX.length > 0 && !MasterSummaryTableMetrics.includes(enumVariableName))
+				createNewMetric(enumVariableName);
+			for (var i = 0; i < USER_POKEBOX.length; i++){
+				copyAllInfo(pkmInfo, USER_POKEBOX[i]);
+				pkmInfo.box_index = i;
+				cfg['enumeratedValues'][enumVariableName] = '$' + i + ' ' + USER_POKEBOX[i].nickname;
+				enqueueSim(cfg);
+				MasterSummaryTableMetricsValues[enumVariableName].add(cfg['enumeratedValues'][enumVariableName]);
+			}
+		}else{
+			var indices = unpackSpeciesKeyword(expressionStr.slice(1));
+			if (indices.length == 0){
+				send_feedback(expressionStr + " parsed to none", true);
+				return -1;
+			}
+			if (!MasterSummaryTableMetrics.includes(enumVariableName))
+				createNewMetric(enumVariableName);
+					
+			for (var k = 0; k < indices.length; k++){
+				pkmInfo.index = indices[k];
+				pkmInfo.species = POKEMON_SPECIES_DATA[indices[k]].name;
+				cfg['enumeratedValues'][enumVariableName] = pkmInfo.species;
+				enqueueSim(cfg);
+				MasterSummaryTableMetricsValues[enumVariableName].add(pkmInfo.species);
+			}
 		}
 		return -1;
 	}else if (expressionStr[0] == '='){// Dynamic Assignment Operator
@@ -696,6 +812,10 @@ function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
 			var teamIdx = parseInt(arr[0].trim()), pkmIdx = parseInt(arr[1].trim());
 			pkmInfo.index = cfg['atkrSettings'][teamIdx][pkmIdx].index;
 			pkmInfo.species = cfg['atkrSettings'][teamIdx][pkmIdx].species;
+			
+			if (cfg['atkrSettings'][teamIdx][pkmIdx].box_index >= 0){
+				copyAllInfo(pkmInfo, cfg['atkrSettings'][teamIdx][pkmIdx]);
+			}
 			enqueueSim(cfg);
 			return -1;
 		}catch(err){
@@ -716,7 +836,7 @@ function parseMoveExpression(cfg, pkmInfo, enumPrefix, moveType){
 	
 	if (expressionStr[0] == '*'){ // Enumerator
 		var enumVariableName = '*' + enumPrefix + '.' + moveType + 'move';
-		var moveIndices = unpackMoveEnumerator(expressionStr.slice(1), moveType, pkmInfo.index);
+		var moveIndices = unpackMoveKeyword(expressionStr.slice(1), moveType, pkmInfo.index);
 		if (moveIndices.length == 0){
 			send_feedback(expressionStr + " parsed to none", true);
 			return -1;
@@ -976,153 +1096,24 @@ function main(){
 	displayMasterSummaryTable();
 	send_feedback(simResults.length + " simulations were done.", true);
 }
-</script>
-</script>
-
-<h2>Attacker Information</h2>
-<button onclick="javascript:addTeam()">Add Team</button>
-<br>
-
-<div id="AttackerInput">
-</div>
 
 
-<h2>Defender Information</h2>
-<div id="DefenderInput">
-</div>
-
-
-<h2>General Settings</h2>
-<div id="GeneralSettings">
-	<table>
-	<col width=20%><col width=20%><col width=20%><col width=20%><col width=20%>
-	<tr>
-		<th>Mode</th><th>Weather</th><th>Dodge Bug</th><th>Repeat</th><th>Report Type</th>
-	</tr>
-	<tr>
-		<td><select id="battleMode"  onchange="setDefenderInput()">
-				<option value="gym">Gym</option>
-				<option value="raid">Raid</option>
-			</select>
-		</td>
-		<td>
-			<select id="weather">
-				<option value="EXTREME">Extreme</option>
-				<option value="SUNNY_CLEAR">Sunner/Clear</option>
-				<option value="RAIN">Rain</option>
-				<option value="PARTLY_CLOUDY">Party Cloudy</option>
-				<option value="CLOUDY">Cloudy</option>
-				<option value="WINDY">Windy</option>
-				<option value="SNOW">Snow</option>
-				<option value="FOG">Fog</option>
-			</select>
-		</td>
-		<td>
-			<select id="dodgeBug">
-				<option value="0">Absent</option>
-				<option value="1">Present</option>
-			</select>
-		</td>
-		<td>
-			<input id="simPerConfig" type="number" min="1">
-		</td>
-		<td>
-			<select id="reportType">
-				<option value="enum">Enumerate</option>
-				<option value="avrg">Average</option>
-			</select>
-		</td>
-	</tr>
-	</table>
-</div>
-
-<br>
-<button onclick="main()" id="GoButton">Go</button>
-
-
-<h2>Feedback</h2>
-<div id="feedback_message"></div>
-<br>
-<div id="feedback_buttons"></div>
-<br>
-<div id="feedback_table1"></div>
-<br>
-<div id="feedback_table2"></div>
-<br>
-<div id="feedback_table3"></div>
-
-
-<script type="text/javascript">
-
-// Pre-defined collections of Pokemon
-var RELEVANT_ATTACKERS_INDICES = [2, 5, 44, 58, 61, 64, 67, 70, 75, 90, 93, 102, 111, 113, 122, 123, 126, 129, 130, 133, 134, 135, 138, 143, 144, 145, 148, 149, 156, 159, 195, 211, 213, 216, 220, 228, 231, 242, 243, 247, 248, 249, 253, 256, 259, 274, 281, 285, 288, 296, 301, 318, 331, 336, 337, 341, 349, 353, 358, 364, 372, 375, 381, 382, 383];
-var BEST_ATTACKERS_BY_TYPE_INDICES = [211, 247, 383, 242, 281, 67, 145, 243, 93, 102, 382, 143, 142, 88, 149, 75, 375, 381];
-var TIER1_BOSSES_CURRENT_INDICES = [128, 319, 332, 360];
-var TIER2_BOSSES_CURRENT_INDICES = [86, 90, 301, 302];
-var TIER3_BOSSES_CURRENT_INDICES = [67, 123, 183, 220];
-var TIER4_BOSSES_CURRENT_INDICES = [130, 142, 159, 247, 305, 358];
-var TIER5_BOSSES_CURRENT_INDICES = [149, 383];
-
-const MAX_QUEUE_SIZE = 65536;
-const MAX_SIM_PER_CONFIG = 1024;
-const DEFAULT_SUMMARY_TABLE_METRICS = ['battle_result','duration','dfdr_HP_lost_percent','total_deaths'];
-const DEFAULT_SUMMARY_TABLE_HEADERS = {'battle_result': 'Outcome',
-										'duration': 'Time',
-										'dfdr_HP_lost_percent': 'Progress',
-										'total_deaths': '#Death'};
-
-var totalAtkrTeamCount = 0;
-var simQueue = []; // Batch individual sims configurations here
-var simResults = []; // This is used to store all sims
-var simResultsFiltered = []; // This is used to store filted sims
-var atkrCopyPasteClipboard = null;
-
-var MaxResultsPerPage = 30;
-var pageStart = 0;
-var pageNumber = 1;
-var pageNumberMax = 1;
-
-var enumTeamStart = 0;
-var enumPokemonStart = 0;
-var enumDefender = 0;
-var MasterSummaryTableMetrics = [];
-var MasterSummaryTableHeaders = {};
-var MasterSummaryTableMetricsIncluded = {};
-var MasterSummaryTableMetricsSorted = {};
-var MasterSummaryTableMetricsFilter = {};
-var MasterSummaryTableMetricsFilterOrder = [];
-var MasterSummaryTableMetricsValues = {};
-
-initDataList();
-addTeam();
-setDefenderInput();
-
-// Debug
-var dbgs = {
-	generalSettings : {battleMode: "raid", 
-						weather : "CLOUDY", 
-						dodgeBug: 0, 
-						simPerConfig : 1,
-						reportType : "enum"},
-	atkrSettings : [[{	
-						copies: 6,
-						species: "machamp", 
-						level: 40,
-						atkiv: 15,
-						defiv: 15,
-						stmiv: 15,
-						fmove: "counter",
-						cmove: "dynamic punch",
-						dodge: 1
-					}]],
-	dfdrSettings : {	
-						species: "blissey", 
-						fmove: "pound",
-						cmove: "dazzling gleam",
-						raid_tier: 3
-					}
-};
-
-writeUserInput(dbgs);
-
-</script>
+function importPokemonFromBox(){
+	var speciesNameDataList = document.getElementById("SpeciesNameDataList");
+	if (speciesNameDataList.children.length > 0){
+		var lastChild = speciesNameDataList.children[speciesNameDataList.children.length - 1];
+		while (lastChild.value[0] == '$'){
+			speciesNameDataList.removeChild(lastChild);
+			lastChild = speciesNameDataList.children[speciesNameDataList.children.length - 1];
+		}
+	}
+	
+	for (var i = 0; i < USER_POKEBOX.length; i++){
+		USER_POKEBOX[i].box_index = i;
+		var nameOption = document.createElement("option");
+		nameOption.value = "$" + i + " " + USER_POKEBOX[i].nickname;
+		speciesNameDataList.appendChild(nameOption);
+	}
+	
+	send_feedback("Sucessfully imported " + USER_POKEBOX.length + " Pokemon from your Pokebox. Start with a '$' in the species input field to use your Pokemon.");
+}

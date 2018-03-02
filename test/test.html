@@ -1,21 +1,26 @@
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
+<datalist id="SpeciesNameDataList">
+<option value="Bulbasour">
+</datalist>
 
 
+<div>
+
+<input type="text" list="SpeciesNameDataList"></input>
 
 
-
-<div id="buttons">
 
 </div>
 
 <script type="text/javascript">
 
+$(document).ready(function(){
+	var option = document.createElement("option");
+	option.value = "Charmand";
 
-var s = document.createElement("select");
-s.innerHTML = "<option value='1'>1</option><option value='2'>2</option>";
-s.onchange = function(){
-	console.log(this.value);
-};
-document.getElementById("buttons").appendChild(s);
+	document.getElementById("SpeciesNameDataList").appendChild(option);
+});
 	
 
 </script>
