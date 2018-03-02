@@ -13,10 +13,13 @@ function getPokemonType2FromString(S){
 }
 
 function getMovesFromString(S){
-	var L = S.split(",");
 	var res = [];
-	for (var i = 0; i < L.length; i++)
-		res.push(L[i].trim().toLowerCase());
+	var L = S.split(",");
+	for (var i = 0; i < L.length; i++){
+		var moveName = L[i].trim().toLowerCase();
+		if (moveName.length > 0)
+			res.push(moveName);
+	}
 	return res;
 }
 /* End of Helper Functions */
@@ -29,7 +32,7 @@ function getMovesFromString(S){
 $.getJSON('https://game-press.nyc3.digitaloceanspaces.com/sites/pogo/pokemon-data-full.json?v2',
 	function(data) {
 		for(var i = 0; i < data.length; i++){
-			POKEMON_SPECIES_DATA.push({
+			var pkmData = {
 				dex : parseInt(data[i].number),
 				name : data[i].title_1.toLowerCase(),
 				pokeType1 : getPokemonType1FromString(data[i].field_pokemon_type),
@@ -40,8 +43,22 @@ $.getJSON('https://game-press.nyc3.digitaloceanspaces.com/sites/pogo/pokemon-dat
 				fastMoves : getMovesFromString(data[i].field_primary_moves),
 				chargedMoves : getMovesFromString(data[i].field_secondary_moves),
 				fastMoves_legacy : getMovesFromString(data[i].field_legacy_quick_moves),
-				chargedMoves_legacy : getMovesFromString(data[i].field_legacy_charge_moves)
-			});
+				chargedMoves_legacy : getMovesFromString(data[i].field_legacy_charge_moves),
+				exclusiveMoves : getMovesFromString(data[i].exclusive_moves),
+				rating : parseFloat(data[i].rating) || 0
+			};
+			
+			if (!POKEMON_BY_TYPE_INDICES.hasOwnProperty(pkmData.pokeType1))
+				POKEMON_BY_TYPE_INDICES[pkmData.pokeType1] = [];
+			POKEMON_BY_TYPE_INDICES[pkmData.pokeType1].push(i);
+			if (!POKEMON_BY_TYPE_INDICES.hasOwnProperty(pkmData.pokeType2))
+				POKEMON_BY_TYPE_INDICES[pkmData.pokeType2] = [];
+			POKEMON_BY_TYPE_INDICES[pkmData.pokeType2].push(i);
+			
+			if (pkmData.rating >= 2.5)
+				RELEVANT_ATTACKERS_INDICES.push(i);
+
+			POKEMON_SPECIES_DATA.push(pkmData);
 		}
 	});
 
