@@ -1,8 +1,11 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
+<link href="https://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
+
+
 <script type="text/javascript" src="GoBattleSimLib.js"></script>
 <script type="text/javascript" src="UI.js"></script>
 <script type="text/javascript" src="Populate_local.js"></script>
-
 <style>
 	table{
 		width: 100%;
@@ -22,12 +25,6 @@
 	}
 }
 </style>
-
-<datalist id="SpeciesNameDataList"></datalist>
-<datalist id="FMovesDataList"></datalist>
-<datalist id="CMovesDataList"></datalist>
-
-<button onclick="importPokemonFromBox()" id="ImportPokemonButton">Import Pokemon from my Box</button>
 
 <h2>Attacker Information</h2>
 <button onclick="javascript:addTeam()">Add Team</button>

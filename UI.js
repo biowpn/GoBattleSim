@@ -16,7 +16,12 @@ var TIER5_BOSSES_CURRENT_INDICES = [149, 383];
 
 // To be populated dynamically
 var RELEVANT_ATTACKERS_INDICES = [];
-var POKEMON_BY_TYPE_INDICES = {}; 
+var POKEMON_BY_TYPE_INDICES = {};
+
+// For auto complete
+var POKEMON_SPECIES_OPTIONS = [];
+var FAST_MOVES_OPTIONS = [];
+var CHARGED_MOVE_OPTIONS = [];
 
 const MAX_QUEUE_SIZE = 65536;
 const MAX_SIM_PER_CONFIG = 1024;
@@ -96,22 +101,7 @@ function createAttackerInputTemplate(i, j){
 	var row3 = document.createElement("tr");
 	
 	var tb1 = createElement("table", "<col width=50%><col width=20%><col width=6%><col width=6%><col width=6%><col width=6%><col width=6%>");
-
-	var td = createElement('td',"");
-	var nameInput = createElement("input","");
-	nameInput.type = 'text';
-	nameInput.placeholder = 'Species';
-	nameInput.setAttribute('list', 'SpeciesNameDataList');
-	const ii = i, jj = j;
-	nameInput.onchange = function(){
-		if (this.value[0] == '$' && USER_POKEBOX.length > 0){
-			var idx = parseInt(this.value.slice(1).split(' ')[0]);
-			writeAttackerInput(document.getElementById("AttackerInput").children[ii].children[jj], USER_POKEBOX[idx]);
-		}
-	}
-	td.appendChild(nameInput);
-	row1.appendChild(td);
-	
+	row1.appendChild(createElement('td',"<input type='text' placeholder='Species' id='ui-species-"+i+'-'+j+"'>"));
 	row1.appendChild(createElement('td',"<input type='number' placeholder='Copies' min='1' max='6'>"));
 	row1.appendChild(createElement('td',"<a></a>"));
 	row1.appendChild(createElement('td',"<a></a>"));
@@ -128,8 +118,8 @@ function createAttackerInputTemplate(i, j){
 	tb2.appendChild(row2);
 
 	var tb3 = createElement("table", "<col width=35%><col width=35%><col width=30%>");
-	row3.appendChild(createElement('td',"<input type='text' placeholder='Fast Move' list='FMovesDataList'>"));
-	row3.appendChild(createElement('td',"<input type='text' placeholder='Charged Move' list='CMovesDataList'>"));
+	row3.appendChild(createElement('td',"<input type='text' placeholder='Fast Move' id='ui-fmove-"+i+'-'+j+"'>"));
+	row3.appendChild(createElement('td',"<input type='text' placeholder='Charged Move' id='ui-cmove-"+i+'-'+j+"'>"));
 	row3.appendChild(createElement('td',"<select><option value='0'>No Dodge</option><option value='1'>Dodge Charged</option><option value='2'>Dodge All</option></select></td>"));
 	tb3.appendChild(row3);
 	
@@ -168,23 +158,10 @@ function setDefenderInput(){
 		tb1 = dfdrSection.children[0];
 		tb3 = dfdrSection.children[2];
 	}else{
-		var td = createElement('td',"");
-		var nameInput = createElement("input","");
-		nameInput.type = 'text';
-		nameInput.placeholder = 'Species';
-		nameInput.setAttribute('list', 'SpeciesNameDataList');
-		nameInput.onchange = function(){
-			if (this.value[0] == '$' && USER_POKEBOX.length > 0){
-				var idx = parseInt(this.value.slice(1).split(' ')[0]);
-				writeDefenderInput(document.getElementById("DefenderInput"), USER_POKEBOX[idx]);
-			}
-		}
-		td.appendChild(nameInput);
-		row1.appendChild(td);
-
+		row1.appendChild(createElement('td',"<input type='text' placeholder='Species' id='ui-species-d'>"));
 		tb1.appendChild(row1);
-		row3.appendChild(createElement('td',"<input type='text' placeholder='Fast Move' list='FMovesDataList'>"));
-		row3.appendChild(createElement('td',"<input type='text' placeholder='Charged Move' list='CMovesDataList'>"));
+		row3.appendChild(createElement('td',"<input type='text' placeholder='Fast Move' id='ui-fmove-d'>"));
+		row3.appendChild(createElement('td',"<input type='text' placeholder='Charged Move' id='ui-cmove-d'>"));
 		tb3.appendChild(row3);
 	}
 
@@ -212,6 +189,29 @@ function setDefenderInput(){
 	dfdrSection.appendChild(tb1);
 	dfdrSection.appendChild(tb2);
 	dfdrSection.appendChild(tb3);
+	
+	$( '#ui-species-d' ).autocomplete({
+		delay : 0,
+		source : POKEMON_SPECIES_OPTIONS,
+		change : function(event, ui) {
+			if (this.value[0] == '$' && USER_POKEBOX.length > 0){
+				var idx = parseInt(this.value.slice(1).split(' ')[0]);
+				writeDefenderInput(document.getElementById("DefenderInput"), USER_POKEBOX[idx]);
+			}
+		}
+	});
+	
+	$( '#ui-fmove-d' ).autocomplete({
+		delay : 0,
+		source: FAST_MOVES_OPTIONS
+	});
+	
+	$( '#ui-cmove-d' ).autocomplete({
+		delay : 0,
+		source: CHARGED_MOVE_OPTIONS
+	});
+	
+	
 }
 
 function parseAttackerInput(section){
@@ -404,7 +404,32 @@ function repositionAllPokemon(start, end){
 function addPokemon(i){
 	var team = document.getElementById("AttackerInput").children[i];
 	team.removeChild(team.children[team.children.length - 1]);
-	team.appendChild(createAttackerInputTemplate(i, team.children.length));
+	
+	const ii = i, jj = team.children.length;
+	team.appendChild(createAttackerInputTemplate(ii, jj));
+	
+	$( '#ui-species-'+ii+'-'+jj ).autocomplete({
+		delay : 0,
+		source: POKEMON_SPECIES_OPTIONS,
+		change : function(event, ui) {
+			if (this.value[0] == '$' && USER_POKEBOX.length > 0){
+				var idx = parseInt(this.value.slice(1).split(' ')[0]);
+				writeAttackerInput(document.getElementById("AttackerInput").children[ii].children[jj], USER_POKEBOX[idx]);
+			}
+		}
+	});
+	
+	$( '#ui-fmove-'+ii+'-'+jj ).autocomplete({
+		delay : 0,
+		source: FAST_MOVES_OPTIONS
+	});
+	
+	$( '#ui-cmove-'+ii+'-'+jj ).autocomplete({
+		delay : 0,
+		source: CHARGED_MOVE_OPTIONS
+	});
+	
+	
 	team.appendChild(createElement("div",""));
 	repositionAllPokemon(i, i+1);
 }
@@ -464,9 +489,11 @@ function addTeam(){
 		var teams = document.getElementById("AttackerInput");
 		var newTeam = document.createElement("div");
 		newTeam.appendChild(createElement("h3","Team" + (totalAtkrTeamCount+1)));
-		newTeam.appendChild(createAttackerInputTemplate(totalAtkrTeamCount, 1));
+		// newTeam.appendChild(createAttackerInputTemplate(totalAtkrTeamCount, 1));
 		newTeam.appendChild(createElement("div",""));
 		teams.appendChild(newTeam);
+		addPokemon(totalAtkrTeamCount);
+		
 		totalAtkrTeamCount++;
 		repositionAllPokemon(totalAtkrTeamCount - 1);
 	}else{
@@ -1095,25 +1122,4 @@ function main(){
 	displayMetricsControlTable();
 	displayMasterSummaryTable();
 	send_feedback(simResults.length + " simulations were done.", true);
-}
-
-
-function importPokemonFromBox(){
-	var speciesNameDataList = document.getElementById("SpeciesNameDataList");
-	if (speciesNameDataList.children.length > 0){
-		var lastChild = speciesNameDataList.children[speciesNameDataList.children.length - 1];
-		while (lastChild.value[0] == '$'){
-			speciesNameDataList.removeChild(lastChild);
-			lastChild = speciesNameDataList.children[speciesNameDataList.children.length - 1];
-		}
-	}
-	
-	for (var i = 0; i < USER_POKEBOX.length; i++){
-		USER_POKEBOX[i].box_index = i;
-		var nameOption = document.createElement("option");
-		nameOption.value = "$" + i + " " + USER_POKEBOX[i].nickname;
-		speciesNameDataList.appendChild(nameOption);
-	}
-	
-	send_feedback("Sucessfully imported " + USER_POKEBOX.length + " Pokemon from your Pokebox. Start with a '$' in the species input field to use your Pokemon.");
 }

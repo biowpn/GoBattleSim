@@ -9429,75 +9429,7 @@ var POKEMON_SPECIES_DATA = [
 
 RELEVANT_ATTACKERS_INDICES = [2, 5, 44, 58, 61, 64, 67, 70, 75, 90, 93, 102, 111, 113, 122, 123, 126, 129, 130, 133, 134, 135, 138, 143, 144, 145, 148, 149, 156, 159, 195, 211, 213, 216, 220, 228, 231, 242, 243, 247, 248, 249, 253, 256, 259, 274, 281, 285, 288, 296, 301, 318, 331, 336, 337, 341, 349, 353, 358, 364, 372, 375, 381, 382, 383];
 
-	
-$(document).ready(function(){
 
-	// Populate datalists
-	var speciesNameDataList = document.getElementById("SpeciesNameDataList");
-	var FMovesDataList = document.getElementById("FMovesDataList");
-	var CMovesDataList = document.getElementById("CMovesDataList");
-	
-	
-
-	for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++){
-		var nameOption = document.createElement("option");
-		nameOption.value = POKEMON_SPECIES_DATA[i].name;
-		speciesNameDataList.appendChild(nameOption);
-	}
-
-
-	for (var i = 0; i < FAST_MOVE_DATA.length; i++){
-		var nameOption = document.createElement("option");
-		nameOption.value = FAST_MOVE_DATA[i].name;
-		FMovesDataList.appendChild(nameOption);
-	}
-
-
-	for (var i = 0; i < CHARGED_MOVE_DATA.length; i++){
-		var nameOption = document.createElement("option");
-		nameOption.value = CHARGED_MOVE_DATA[i].name;
-		CMovesDataList.appendChild(nameOption);
-	}
-	
-	// Final
-	addTeam();
-	setDefenderInput();
-	
-});
-
-
-
-$(document).ready(function(){
-	
-	// Debug
-	var dbgs = {
-		generalSettings : {battleMode: "raid", 
-							weather : "CLOUDY", 
-							dodgeBug: 0, 
-							simPerConfig : 1,
-							reportType : "enum"},
-		atkrSettings : [[{	
-							copies: 6,
-							species: "machamp", 
-							level: 40,
-							atkiv: 15,
-							defiv: 15,
-							stmiv: 15,
-							fmove: "counter",
-							cmove: "dynamic punch",
-							dodge: 1
-						}]],
-		dfdrSettings : {	
-							species: "blissey", 
-							fmove: "pound",
-							cmove: "dazzling gleam",
-							raid_tier: 3
-						}
-	};
-
-	writeUserInput(dbgs);
-	
-	
 USER_POKEBOX = [
   {
     "species": "rayquaza",
@@ -9696,10 +9628,54 @@ USER_POKEBOX = [
   }
 ]
 
-
+	
+$(document).ready(function(){
+	// Populate default input options
+	for (var i = 0; i < USER_POKEBOX.length; i++){
+		USER_POKEBOX[i].box_index = i;
+		POKEMON_SPECIES_OPTIONS.push("$" + i + " " + USER_POKEBOX[i].nickname);
+	}
+	for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++){
+		POKEMON_SPECIES_OPTIONS.push(POKEMON_SPECIES_DATA[i].name);
+	}
+	for (var i = 0; i < FAST_MOVE_DATA.length; i++){
+		FAST_MOVES_OPTIONS.push(FAST_MOVE_DATA[i].name);
+	}
+	for (var i = 0; i < CHARGED_MOVE_DATA.length; i++){
+		CHARGED_MOVE_OPTIONS.push(CHARGED_MOVE_DATA[i].name);
+	}
+	addTeam();
+	setDefenderInput();
 });
 
 
+$(document).ready(function(){
+	// Debug
+	var dbgs = {
+		generalSettings : {battleMode: "raid", 
+							weather : "CLOUDY", 
+							dodgeBug: 0, 
+							simPerConfig : 1,
+							reportType : "enum"},
+		atkrSettings : [[{	
+							copies: 6,
+							species: "machamp", 
+							level: 40,
+							atkiv: 15,
+							defiv: 15,
+							stmiv: 15,
+							fmove: "counter",
+							cmove: "dynamic punch",
+							dodge: 1
+						}]],
+		dfdrSettings : {	
+							species: "blissey", 
+							fmove: "pound",
+							cmove: "dazzling gleam",
+							raid_tier: 3
+						}
+	};
 
+	writeUserInput(dbgs);
 
-	
+});
