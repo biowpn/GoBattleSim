@@ -1,13 +1,4 @@
 /*
-	GoBattlerSim
-		- A next-generation Pokemon GO battler simulator
-
-	Author: biowp (https://github.com/ymenghank), inspired by Felix's BattleSim (https://github.com/doublefelix921/battlesim)
-*/
-
-
-
-/*
  *	PART I(a): MANUALLY DEFINED VARIABLES
  */
 
@@ -24,8 +15,9 @@ var TIMELIMIT_GYM_MS = 100000;
 var REJOIN_TIME_MS = 10000;
 var EACH_MAX_REVIVE_TIME_MS = 700;
 
-const MAX_POKEMON_PER_PARTY = 6;
-const MAX_NUMBER_OF_TEAMS = 20;
+const MAX_NUM_POKEMON_PER_PARTY = 6;
+const MAX_NUM_PARTIES_PER_PLAYER = 5;
+const MAX_NUM_OF_PLAYERS = 20;
 var TIMELIMIT_RAID_MS = [180000, 180000, 180000, 180000, 300000];
 
 /* 
@@ -128,19 +120,16 @@ function pokemon_img_by_id(dex, size){
 // constructor
 function Pokemon(pd){
 	var i = (pd.index >= 0) ? pd.index : get_species_index_by_name(pd.species);
+	this.index = i;
 	this.dex = POKEMON_SPECIES_DATA[i]['dex'];
 	this.species = POKEMON_SPECIES_DATA[i]['name'];
+	this.name = pd.nickname || this.species;
+	
 	this.pokeType1 = POKEMON_SPECIES_DATA[i]['pokeType1'];
 	this.pokeType2 = POKEMON_SPECIES_DATA[i]['pokeType2'];
 	this.baseAtk = POKEMON_SPECIES_DATA[i]['baseAtk'];
 	this.baseDef = POKEMON_SPECIES_DATA[i]['baseDef'];
 	this.baseStm = POKEMON_SPECIES_DATA[i]['baseStm'];
-	this.fastMoves = POKEMON_SPECIES_DATA[i]['fastMoves'];
-	this.chargedMoves = POKEMON_SPECIES_DATA[i]['chargedMoves'];
-	this.fastMoves_legacy = POKEMON_SPECIES_DATA[i]['fastMoves_legacy'] || [];
-	this.chargedMoves_legacy = POKEMON_SPECIES_DATA[i]['chargedMoves_legacy'] || [];
-	
-	this.name = pd.nickname || this.species;
 	this.atkiv = pd.atkiv;
 	this.defiv = pd.defiv;
 	this.stmiv = pd.stmiv;
@@ -184,7 +173,7 @@ Pokemon.prototype.reset_stats = function(){
 	this.total_fmove_damage_output = 0;
 	this.total_energy_gained = 0;
 	this.total_energy_gained_from_damage = 0;
-	this.total_energy_overcharged = 0;
+	this.total_energy_wasted = 0;
 }
 
 // A Pokemon gains/(loses) energy
@@ -194,9 +183,11 @@ Pokemon.prototype.gain_energy = function(energyDelta, fromDamage){
 		var realGain = energyDelta - overChargedPart;
 		this.energy += realGain;
 		this.total_energy_gained += realGain;
-		this.total_energy_overcharged += overChargedPart;
+		this.total_energy_wasted += overChargedPart;
 		if (fromDamage){
 			this.total_energy_gained_from_damage += realGain;
+			if (this.HP <= 0)
+				this.total_energy_wasted += this.energy;
 		}
 	}else{
 		this.energy += energyDelta;
@@ -232,17 +223,17 @@ Pokemon.prototype.heal = function(){
 
 // Return the performance statistics of the Pokemon
 Pokemon.prototype.get_statistics = function(){
-	//Team#	Pokemon	HP	Energy	TDO	Duration	DPS	TEO
 	var stat = {
+		index: this.index,
 		img : pokemon_img_by_id(this.dex),
 		team : this.party_index + 1,
-		pokemon : this.name,
+		name : this.name,
 		hp : this.HP,
 		energy : this.energy,
 		tdo: this.total_damage_output,
 		duration : Math.round(this.total_time_active_ms/100)/10,
 		dps : Math.round(this.total_damage_output / (this.total_time_active_ms/1000)*100)/100,
-		teo : this.total_energy_overcharged
+		tew : this.total_energy_wasted
 	};
 
 	return stat;
@@ -258,11 +249,12 @@ function Party(index){
 	this.active_idx = -1;
 	this.active_pkm = null;
 	this.num_rejoin = 0;
+	this.rejoin_strategy = true;
 }
 
 // Add a pokemon to the party
 Party.prototype.add = function(pkm){
-	if (this.list.length == MAX_POKEMON_PER_PARTY){
+	if (this.list.length == MAX_NUM_POKEMON_PER_PARTY){
 		throw "Exceeding maximum party size";
 	}
 	this.list.push(pkm);
@@ -304,7 +296,7 @@ Party.prototype.full_heal = function (){
 }
 
 // Return the performance statistics of the team
-Party.prototype.get_statistics = function(total_enemy_HP_deducted){
+Party.prototype.get_statistics = function(total_atkrs_tdo){
 	var sum_tdo = 0;
 	var sum_num_deaths = 0;
 	for (var i = 0; i < this.list.length; i++){
@@ -316,7 +308,7 @@ Party.prototype.get_statistics = function(total_enemy_HP_deducted){
 	var stat = {
 		team : this.index + 1,
 		tdo : sum_tdo,
-		tdo_percentage : Math.round(sum_tdo/total_enemy_HP_deducted*100*10)/10,
+		tdo_percentage : Math.round(sum_tdo/total_atkrs_tdo*100*10)/10,
 		num_rejoin : this.num_rejoin,
 		total_deaths : sum_num_deaths
 	};
@@ -324,6 +316,31 @@ Party.prototype.get_statistics = function(total_enemy_HP_deducted){
 	return stat;
 }
 /* End of Class <Party> */
+
+
+/* Class <Event> */
+function Player(playerInfo){
+	//TODO
+	
+}
+
+Player.prototype.add_party = function(partyObj){
+	//TODO
+	
+}
+
+Player.prototype.next_party_up = function(){
+	//TODO
+	
+}
+
+Player.prototype.get_statistics = function(){
+	//TODO
+	
+}
+
+
+/* End of Class <Event> */
 
 
 /* Class <Event> */
@@ -612,7 +629,7 @@ World.prototype.battle = function (){
 		}else if (e.name == "Hurt"){
 			if (e.subject.active){
 				e.subject.take_damage(e.dmg);
-				e.object.contribute(e.dmg + Math.min(0, e.subject.HP), e.move.moveType);
+				e.object.contribute(e.dmg, e.move.moveType);
 				elog.push(e);
 			}
 		}else if (e.name == "EnergyDelta"){
@@ -791,7 +808,7 @@ World.prototype.get_statistics = function(){
 	else
 		general_stat['battle_result'] = "Win";
 
-	var dfdr_HP_lost = this.dfdr.maxHP - Math.max(0, this.dfdr.HP);
+	var dfdr_HP_lost = this.dfdr.maxHP - this.dfdr.HP;
 	general_stat['dfdr_HP_lost_percent'] = Math.round(dfdr_HP_lost / this.dfdr.maxHP*1000)/10;
 	for (var i = 0; i < this.atkr_parties.length; i++){
 		var team = this.atkr_parties[i];

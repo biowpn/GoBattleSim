@@ -485,7 +485,7 @@ function pastePokemon(i, j){
 }
 
 function addTeam(){
-	if (totalAtkrTeamCount < MAX_NUMBER_OF_TEAMS){
+	if (totalAtkrTeamCount < MAX_NUM_OF_PLAYERS){
 		var teams = document.getElementById("AttackerInput");
 		var newTeam = document.createElement("div");
 		newTeam.appendChild(createElement("h3","Team" + (totalAtkrTeamCount+1)));
@@ -682,10 +682,10 @@ function createPokemonStatisticsTable(simRes){
 								"TDO",
 								"Duration",
 								"DPS",
-								"TEO"],"th"));
+								"TEW"],"th"));
 	for (var i = 0; i < simRes.output.pokemonStat.length; i++){
 		var ps = simRes.output.pokemonStat[i];
-		table.appendChild(createRow([ps.team, ps.img, ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, ps.teo],"td"));
+		table.appendChild(createRow([ps.team, ps.img, ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, ps.tew],"td"));
 	}
 	return table;
 }
