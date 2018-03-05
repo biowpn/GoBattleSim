@@ -120,7 +120,8 @@ function createAttackerNode(){
 	pokemonNode.appendChild(document.createElement("div")); // tail, contain controls
 	
 	// 1. Head
-	pokemonNode.children[0].innerHTML = "<h5>Unlabeled Pokemon</h5>";
+	// pokemonNode.children[0].innerHTML = "<h5>Unlabeled Pokemon</h5>";
+	pokemonNode.children[0].innerHTML = "<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>";
 
 	// 2. Body
 	var tb1 = createElement("table", "<colgroup><col width=75%><col width=25%></colgroup>");
@@ -170,7 +171,7 @@ function createAttackerNode(){
 	controlTable.children[1].children[1].appendChild(pastePokemonButton);
 	controlTable.children[1].children[2].appendChild(removePokemonButton);
 	pokemonNode.children[2].appendChild(controlTable);
-	
+	pokemonNode.children[2].appendChild(createElement('br',''));
 	
 	return pokemonNode;
 }
@@ -208,6 +209,7 @@ function createPartyNode(){
 	controlTable.children[1].children[1].appendChild(addPokemonButton);
 	controlTable.children[1].children[2].appendChild(removePartyButton);
 	partyNode.children[2].appendChild(controlTable);
+	partyNode.children[2].appendChild(createElement('br',''));
 
 	return partyNode;
 }
@@ -243,6 +245,7 @@ function createPlayerNode(){
 	controlTable.children[1].children[0].appendChild(addPartyButton);
 	controlTable.children[1].children[1].appendChild(removePlayerButton);
 	playerNode.children[2].appendChild(controlTable);
+	playerNode.children[2].appendChild(createElement('br',''));
 	
 	return playerNode;
 }
@@ -275,7 +278,7 @@ function relabelAll(){
 				var pokemonNode = pokemonNodes[k];
 				pokemonNode.id = 'ui-pokemon-' + i + '-' + j + '-' + k;
 				
-				pokemonNode.children[0].children[0].innerHTML = "Pokemon " + (k+1);
+				//pokemonNode.children[0].children[0].innerHTML = "Pokemon " + (k+1);
 				
 				var tables = pokemonNode.children[1].children;
 				tables[0].children[1].children[0].children[0].id = 'ui-species-' + i + '-' + j + '-' + k;
@@ -1187,6 +1190,7 @@ function displayBattleLog(i){
 	document.getElementById("feedback_table3").innerHTML = "";
 	var logTable = createBattleLogTable(simResultsFiltered[i]);
 	logTable.id = 'ui-log-table';
+	logTable.style = 'width:100%';
 	document.getElementById("feedback_table3").appendChild(logTable);
 	$( '#ui-log-table' ).DataTable({
 		scrollX: true,

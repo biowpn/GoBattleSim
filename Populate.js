@@ -43,6 +43,7 @@ function populateAll(){
 		document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
 		updateDefenderNode();
 		autocompletePokemonNode('d');
+		document.getElementById("simPerConfig").value = 1;
 	}
 }
 /* End of Helper Functions */
