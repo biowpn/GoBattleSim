@@ -963,12 +963,21 @@ function displayMasterSummaryTable(){
 	
 	var table = createMasterSummaryTable();
 	table.id = 'ui-mastersummarytable';
+	table.cellspacing = '0';
+	table.width = '100%';
+	table.class = "display nowrap";
+	
 	document.getElementById("feedback_table1").appendChild(table);
 	
+	var columnWidths = [{width: 100/(MasterSummaryTableMetrics.length+1)+'%'}];
+	MasterSummaryTableMetrics.forEach(function(m){
+		columnWidths.push({width: 100/(MasterSummaryTableMetrics.length+1)+'%'});
+	});
 	
 	table = $( '#ui-mastersummarytable' ).DataTable({
-		scrollX: true
+        scrollX: true
 	});
+	table.class = 'display nowrap';
 	table.columns().flatten().each( function ( colIdx ) {
 		// Create the select list and search operation
 		var select = $('<select />')
