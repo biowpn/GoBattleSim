@@ -1562,7 +1562,7 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves": [
       "focus blast",
-      "future sight",
+      "futuresight",
       "shadow ball"
     ],
     "fastMoves_legacy": [
@@ -2338,7 +2338,7 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves": [
       "psychic",
-      "future sight",
+      "futuresight",
       "focus blast"
     ],
     "fastMoves_legacy": [
@@ -4294,7 +4294,7 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves": [
       "ominous wind",
-      "future sight",
+      "futuresight",
       "aerial ace"
     ],
     "fastMoves_legacy": [
@@ -4727,7 +4727,7 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "psybeam",
       "psychic",
-      "future sight"
+      "futuresight"
     ],
     "fastMoves_legacy": [
       ""
@@ -5990,7 +5990,7 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "sky attack",
       "hydro pump",
-      "future sight"
+      "futuresight"
     ],
     "fastMoves_legacy": [
       ""

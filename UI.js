@@ -25,32 +25,19 @@ var CHARGED_MOVE_OPTIONS = [];
 const MAX_QUEUE_SIZE = 65536;
 const MAX_SIM_PER_CONFIG = 1024;
 const DEFAULT_SUMMARY_TABLE_METRICS = ['battle_result','duration','dfdr_HP_lost_percent','total_deaths'];
-const DEFAULT_SUMMARY_TABLE_HEADERS = {'battle_result': 'Outcome',
-										'duration': 'Time',
-										'dfdr_HP_lost_percent': 'Progress',
-										'total_deaths': '#Death'};
+const DEFAULT_SUMMARY_TABLE_HEADERS = ['Outcome','Time','Progress','#Death'];
 
 var simQueue = []; // Batch individual sims configurations here
 var simResults = []; // This is used to store all sims
-var simResultsFiltered = []; // This is used to store filted sims
 var atkrCopyPasteClipboard = null;
-
-var MaxResultsPerPage = 30;
-var pageStart = 0;
-var pageNumber = 1;
-var pageNumberMax = 1;
 
 var enumPlayerStart = 0;
 var enumPartyStart = 0;
 var enumPokemonStart = 0;
 var enumDefender = 0;
+
 var MasterSummaryTableMetrics = [];
 var MasterSummaryTableHeaders = {};
-var MasterSummaryTableMetricsIncluded = {};
-var MasterSummaryTableMetricsSorted = {};
-var MasterSummaryTableMetricsFilter = {};
-var MasterSummaryTableMetricsFilterOrder = [];
-var MasterSummaryTableMetricsValues = {};
 
 
 
@@ -62,37 +49,14 @@ var MasterSummaryTableMetricsValues = {};
 function initMasterSummaryTableMetrics(){
 	MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
 	MasterSummaryTableHeaders = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_HEADERS));
-	MasterSummaryTableMetricsIncluded = {};
-	MasterSummaryTableMetricsSorted = {};
-	MasterSummaryTableMetricsFilter = {};
-	MasterSummaryTableMetricsValues = {};
-	
-	MasterSummaryTableMetrics.forEach(function(m){
-		MasterSummaryTableMetricsIncluded[m] = true;
-		MasterSummaryTableMetricsSorted[m] = 0;
-		MasterSummaryTableMetricsFilter[m] = '*';
-		MasterSummaryTableMetricsValues[m] = new Set();
-	});
+
 }
 
 function createNewMetric(metric, nameDisplayed){
 	MasterSummaryTableMetrics.push(metric);
-	MasterSummaryTableMetricsIncluded[metric] = false;
-	MasterSummaryTableMetricsSorted[metric] = 0;
-	MasterSummaryTableMetricsFilter[metric] = '*';
-	MasterSummaryTableMetricsValues[metric] = new Set();
-	MasterSummaryTableHeaders[metric] = nameDisplayed || metric;
+	MasterSummaryTableHeaders.push(nameDisplayed || metric);
 }
 
-function sortByDeepAttr(data, attrs, reversed){
-	data.sort(function(a, b){
-		for (var i = 0; i < attrs.length; i++){
-			a = a[attrs[i]];
-			b = b[attrs[i]];
-		}
-		return ((a == b) ? 0 : (a < b ? -1 : 1)) * reversed;
-	});
-}
 
 function createElement(type, innerHTML){
 	var e = document.createElement(type);
@@ -652,66 +616,9 @@ function writeUserInput(cfg){
 
 
 
-function filterAllSimsBy(filter){
-	filter = filter || MasterSummaryTableMetricsFilter;
-	
-	simResultsFiltered = [];
-	var simSelectedByMetric = {};
-	for (var j = 0; j < MasterSummaryTableMetrics.length; j++){
-		simSelectedByMetric[MasterSummaryTableMetrics[j]] = [];
-	}
-	for (var i = 0; i < simResults.length; i++){
-		var sim = simResults[i];
-		var simMetricAndValues = {};
-		sim.included = true;
-		for (var j = 0; j < MasterSummaryTableMetrics.length; j++){
-			var metric = MasterSummaryTableMetrics[j];
-			var thisValue = (metric[0] == '*') ? sim.input.enumeratedValues[metric] : sim.output.generalStat[metric];
-			var filter = MasterSummaryTableMetricsFilter[metric];
-			simMetricAndValues[metric] = thisValue;
-			if (filter == '*')
-				continue;
-			else if (filter == '*first'){
-				if (simSelectedByMetric[metric].includes(thisValue)){
-					sim.included = false;
-					break;
-				}
-			}
-			else if (filter != thisValue){
-				sim.included = false;
-				break;
-			}
-		}
-		if (sim.included){
-			simResultsFiltered.push(sim);
-			MasterSummaryTableMetrics.forEach(function(metric){
-				MasterSummaryTableMetricsValues[metric].add(simMetricAndValues[metric]);		
-				var filter = MasterSummaryTableMetricsFilter[metric];
-				if (filter == '*first'){
-					var thisValue = (metric[0] == '*') ? sim.input.enumeratedValues[metric] : sim.output.generalStat[metric];
-					simSelectedByMetric[metric].push(thisValue);
-				}
-			});
-		}
-	}
-	pageNumber = 1;
-	pageNumberMax = Math.max(Math.ceil((simResultsFiltered.length-1)/MaxResultsPerPage), 1);
-	pageStart = 0;
-}
-
-function sortAllSimsBy(attr){
-	if (MasterSummaryTableMetricsSorted[attr] == 0)
-		MasterSummaryTableMetricsSorted[attr] = 1;
-	if (attr[0] == '*')
-		sortByDeepAttr(simResults, ['input', 'enumeratedValues', attr], MasterSummaryTableMetricsSorted[attr]);
-	else
-		sortByDeepAttr(simResults, ['output', 'generalStat', attr], MasterSummaryTableMetricsSorted[attr]);
-	MasterSummaryTableMetricsSorted[attr] *= -1;
-}
-
 function clearAllSims(){
 	simResults = [];
-	simResultsFiltered = [];
+	simResults = [];
 	pageStart = 0;
 	pageNumber = 1;
 	pageNumberMax = 1;
@@ -720,40 +627,26 @@ function clearAllSims(){
 
 function createMasterSummaryTable(){
 	var table = document.createElement("table");
+	table.style = "width:100%";
+	table.appendChild(createElement('thead',''));
+	table.appendChild(createElement('tbody',''));
 
-	var selectedMetrics = [], selectedHeaders = [], selectedSortedFunctions = [];
-	for (var i = 0; i < MasterSummaryTableMetrics.length; i++){
-		const metric = MasterSummaryTableMetrics[i];
-		if (MasterSummaryTableMetricsIncluded[metric]){
-			selectedMetrics.push(metric);
-			selectedHeaders.push(MasterSummaryTableHeaders[metric]);
-			selectedSortedFunctions.push(function(){
-				sortAllSimsBy(metric);
-				filterAllSimsBy();
-				displayMasterSummaryTable();
-			});
-		}
+	var headers = createRow(MasterSummaryTableHeaders.concat(["Details"]),"th");
+	table.children[0].appendChild(headers);
+
+	for (var i = 0; i < simResults.length; i++){
+		var sim = simResults[i];
+		var row = [];
+		
+		MasterSummaryTableMetrics.forEach(function(m){
+			const v = (m[0] == '*') ? sim.input.enumeratedValues[m] : sim.output.generalStat[m];
+			row.push(v || '');
+		});
+
+		row.push("<a onclick='displayDetail("+i+")'>Detail</a>");
+		table.children[1].appendChild(createRow(row, "td"));
 	}
-	var headers = createRow(selectedHeaders.concat(["Details"]),"th");
-	for (var i = 0; i < headers.children.length - 1; i++){
-		headers.children[i].onclick = selectedSortedFunctions[i];
-	}
-	table.appendChild(headers);
-	var resultCountCurrentPage = 0;
-	for (var i = pageStart; i < simResultsFiltered.length && resultCountCurrentPage < MaxResultsPerPage; i++){
-		var sim = simResultsFiltered[i];
-		if (sim.included){
-			var row = [];
-			for (var j = 0; j < selectedMetrics.length; j++){
-				const m = selectedMetrics[j];
-				const v = (m[0] == '*') ? sim.input.enumeratedValues[m] : sim.output.generalStat[m];
-				row.push(v || '');
-			}
-			row.push("<a onclick='displayDetail("+i+")'>Detail</a>");
-			table.appendChild(createRow(row, "td"));
-			resultCountCurrentPage++;
-		}
-	}
+	
 	return table;
 }
 
@@ -901,7 +794,6 @@ function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
 				pkmInfo.box_index = i;
 				cfg['enumeratedValues'][enumVariableName] = '$' + i + ' ' + USER_POKEBOX[i].nickname;
 				enqueueSim(cfg);
-				MasterSummaryTableMetricsValues[enumVariableName].add(cfg['enumeratedValues'][enumVariableName]);
 			}
 		}else{
 			var indices = unpackSpeciesKeyword(expressionStr.slice(1));
@@ -917,7 +809,6 @@ function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
 				pkmInfo.species = POKEMON_SPECIES_DATA[indices[k]].name;
 				cfg['enumeratedValues'][enumVariableName] = pkmInfo.species;
 				enqueueSim(cfg);
-				MasterSummaryTableMetricsValues[enumVariableName].add(pkmInfo.species);
 			}
 		}
 		return -1;
@@ -964,7 +855,6 @@ function parseMoveExpression(cfg, pkmInfo, enumPrefix, moveType){
 			pkmInfo[moveType+'move'] = MovesData[moveIndices[k]].name;
 			cfg['enumeratedValues'][enumVariableName] = pkmInfo[moveType+'move'];
 			enqueueSim(cfg);
-			MasterSummaryTableMetricsValues[enumVariableName].add(pkmInfo[moveType+'move']);
 		}
 		return -1;
 	}else if (expressionStr[0] == '='){// Dynamic Assignment Operator
@@ -1065,113 +955,49 @@ function clearFeedbackTables(){
 	document.getElementById("feedback_table3").innerHTML = "";
 }
 
-function turnPage(command){
-	if (command == 1 && pageStart + MaxResultsPerPage < simResultsFiltered.length){
-		pageStart += MaxResultsPerPage;
-		pageNumber++;
-	}
-	else if (command == -1 && pageStart - MaxResultsPerPage >= 0){
-		pageStart -= MaxResultsPerPage;
-		pageNumber--;
-	}
-	else if (command == 2){
-		pageNumber = 1;
-		while (pageStart + MaxResultsPerPage < simResultsFiltered.length){
-			pageNumber++;
-			pageStart += MaxResultsPerPage;
-		}
-	}
-	else if (command == -2){
-		pageStart = 0;
-		pageNumber = 1;
-	}	
-	displayMasterSummaryTable();
-}
 
-function displayMetricsControlTable(){
-	document.getElementById("feedback_table1").innerHTML = "";
-	var table = createElement("table","<col width=10%><col width=25%><col width=15%><col width=50%>");
-	table.id = "MetricsControlTable";
-	table.appendChild(createRow(["Index", "Metric", "Included", "Filter"],"th"));
-
-	for (var i = 0; i < MasterSummaryTableMetrics.length; i++){
-		const metric = MasterSummaryTableMetrics[i];
-		
-		var row = createElement("tr","");
-		row.appendChild(createElement("td", i));
-		row.appendChild(createElement("td", MasterSummaryTableHeaders[metric]));
-		
-		var checkedBoxObj = createElement("input","");
-		checkedBoxObj.type = 'checkbox';
-		checkedBoxObj.onclick = function(){
-			MasterSummaryTableMetricsIncluded[metric] = this.checked;
-			displayMasterSummaryTable();
-		};
-		checkedBoxObj.checked = MasterSummaryTableMetricsIncluded[metric];
-		var td = createElement("td","");
-		td.appendChild(checkedBoxObj);
-		row.appendChild(td);
-		
-		var selectObj = createElement("select","<option value='*'>*</option><option value='*first'>*first</option>");
-		var options = Array.from(MasterSummaryTableMetricsValues[metric]);
-		options.sort();
-		options.forEach(function(opt){
-			var option = createElement("option", opt);
-			option.value = opt;
-			selectObj.appendChild(option);
-		});
-		selectObj.value = MasterSummaryTableMetricsFilter[metric];
-		selectObj.onchange = function(){
-			var metricChangedIndex = MasterSummaryTableMetricsFilterOrder.indexOf(metric);
-			if (metricChangedIndex == -1){ // A new layer of filter
-				MasterSummaryTableMetricsFilterOrder.push(metric);
-				metricChangedIndex = MasterSummaryTableMetricsFilterOrder.length - 1;
-			}
-			MasterSummaryTableMetricsFilter[metric] = this.value; //update the filter
-			if (this.value == '*'){ // Remove this and deeper layers of filters
-				for (var j = MasterSummaryTableMetricsFilterOrder.length - metricChangedIndex; j > 0; j--){
-					var metricToRemove = MasterSummaryTableMetricsFilterOrder.pop();
-					MasterSummaryTableMetricsFilter[metricToRemove] = '*';
-				}
-			}
-			MasterSummaryTableMetrics.forEach(function(m){
-				if (!MasterSummaryTableMetricsFilterOrder.includes(m)){
-					MasterSummaryTableMetricsValues[m] = new Set();
-				}
-			});
-			filterAllSimsBy();
-			displayMetricsControlTable();
-			displayMasterSummaryTable();
-		};
-		
-		var filterTd = createElement("td","");
-		filterTd.appendChild(selectObj);
-		row.appendChild(filterTd);
-		
-		table.append(row);
-	}
-	document.getElementById("feedback_table1").appendChild(table);
-}
 
 function displayMasterSummaryTable(){
-	document.getElementById("feedback_table2").innerHTML = "";
-	document.getElementById("feedback_table3").innerHTML = "";
+	clearFeedbackTables();
 	document.getElementById("feedback_buttons").innerHTML = "<button onclick='clearAllSims()'>Clear All</button>";
-	document.getElementById("feedback_table2").appendChild(createMasterSummaryTable());
-	var tb2 = createElement("table","<col width=20%><col width=20%><col width=20%><col width=20%><col width=20%>");
-	var tr2 = createElement("tr","");
-	tr2.appendChild(createElement("td","<button onclick='turnPage(-2)'>First</button>"));
-	tr2.appendChild(createElement("td","<button onclick='turnPage(-1)'>Prev</button>"));
-	tr2.appendChild(createElement("td","Page " + pageNumber + " of " + pageNumberMax));
-	tr2.appendChild(createElement("td","<button onclick='turnPage(1)'>Next</button>"));
-	tr2.appendChild(createElement("td","<button onclick='turnPage(2)'>Last</button>"));
-	tb2.appendChild(tr2);
-	document.getElementById("feedback_table2").appendChild(tb2);
+	
+	var table = createMasterSummaryTable();
+	table.id = 'ui-mastersummarytable';
+	document.getElementById("feedback_table1").appendChild(table);
+	
+	
+	table = $( '#ui-mastersummarytable' ).DataTable({
+		scrollX: true
+	});
+	table.columns().flatten().each( function ( colIdx ) {
+		// Create the select list and search operation
+		var select = $('<select />')
+			.appendTo(
+				table.column(colIdx).header()
+			)
+			.on( 'change', function () {
+				table
+					.column( colIdx )
+					.search( $(this).val() )
+					.draw();
+			} );
+		
+		select.append( $("<option value=''> </option>") );
+		// Get the search data for the first column and add to the select list
+		table
+			.column( colIdx )
+			.cache( 'search' )
+			.sort()
+			.unique()
+			.each( function ( d ) {
+				select.append( $('<option value="'+d+'">'+d+'</option>') );
+			} );
+	} );
 }
 
 function displayDetail(i){
 	clearFeedbackTables();
-	writeUserInput(simResultsFiltered[i]['input']);
+	writeUserInput(simResults[i]['input']);
 	document.getElementById("feedback_buttons").innerHTML = "";
 	var b = createElement("button","Back");
 	b.onclick = function(){
@@ -1180,15 +1006,15 @@ function displayDetail(i){
 		displayMasterSummaryTable();
 	}
 	document.getElementById("feedback_buttons").appendChild(b);
-	document.getElementById("feedback_table1").appendChild(createPlayerStatisticsTable(simResultsFiltered[i]));
-	document.getElementById("feedback_table2").appendChild(createPokemonStatisticsTable(simResultsFiltered[i]));
+	document.getElementById("feedback_table1").appendChild(createPlayerStatisticsTable(simResults[i]));
+	document.getElementById("feedback_table2").appendChild(createPokemonStatisticsTable(simResults[i]));
 	document.getElementById("feedback_table3").innerHTML = "<button onclick='displayBattleLog("+i+")'>Display Battle Log</button>";
 	
 }
 
 function displayBattleLog(i){
 	document.getElementById("feedback_table3").innerHTML = "";
-	var logTable = createBattleLogTable(simResultsFiltered[i]);
+	var logTable = createBattleLogTable(simResults[i]);
 	logTable.id = 'ui-log-table';
 	logTable.style = 'width:100%';
 	document.getElementById("feedback_table3").appendChild(logTable);
@@ -1223,8 +1049,6 @@ function main(){
 			runSim(simQueue.shift());
 	}
 	clearFeedbackTables();
-	filterAllSimsBy();
-	displayMetricsControlTable();
 	displayMasterSummaryTable();
 	send_feedback(simResults.length + " simulations were done.", true);
 }
