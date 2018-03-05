@@ -705,7 +705,10 @@ World.prototype.battle = function (){
 		elog = [];
 	}
 	
-	// Battle has ended
+	// Battle has ended, some leftovers
+	if (this.log_style && elog.length > 0)
+			this.add_to_log(elog);
+		
 	this.battle_length = t;
 	for (var i = 0; i < this.playersArr.length; i++){
 		var pkm = this.playersArr[i].active_pkm;

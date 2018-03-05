@@ -41,6 +41,7 @@ function populateAll(){
 		}
 		addPlayerNode();
 		document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
+		updateDefenderNode();
 		autocompletePokemonNode('d');
 	}
 }
