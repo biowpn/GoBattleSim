@@ -1,5 +1,6 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script type="text/javascript" src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/ju/dt-1.10.16/r-2.2.1/sc-1.4.4/datatables.min.js"></script>
 <link href="https://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
 
 
@@ -26,16 +27,32 @@
 }
 </style>
 
-<h2>Attacker Information</h2>
-<button onclick="javascript:addTeam()">Add Team</button>
-<br>
 
 <div id="AttackerInput">
+	<div id="ui-attackerinputhead">
+		<h2>Attacker Information</h2>
+	</div>
+	
+	<div id="ui-attackerinputbody">
+	</div>
+	
+	<div id="ui-attackerinputtail">
+		<button onclick="javascript:addPlayerNode()">Add Player</button>
+	</div>
 </div>
 
 
-<h2>Defender Information</h2>
+
 <div id="DefenderInput">
+	<div id="ui-defenderinputhead">
+		<h2>Defender Information</h2>
+	</div>
+	
+	<div id="ui-defenderinputbody">
+	</div>
+	
+	<div id="ui-defenderinputtail">
+	</div>
 </div>
 
 
@@ -47,7 +64,7 @@
 		<th>Mode</th><th>Weather</th><th>Dodge Bug</th><th>Repeat</th><th>Report Type</th>
 	</tr>
 	<tr>
-		<td><select id="battleMode"  onchange="setDefenderInput()">
+		<td><select id="battleMode"  onchange="updateDefenderNode()">
 				<option value="gym">Gym</option>
 				<option value="raid">Raid</option>
 			</select>

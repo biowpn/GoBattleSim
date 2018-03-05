@@ -39,8 +39,9 @@ function populateAll(){
 		for (var i = 0; i < CHARGED_MOVE_DATA.length; i++){
 			CHARGED_MOVE_OPTIONS.push(CHARGED_MOVE_DATA[i].name);
 		}
-		addTeam();
-		setDefenderInput();
+		addPlayerNode();
+		document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
+		autocompletePokemonNode('d');
 	}
 }
 /* End of Helper Functions */

@@ -1,4 +1,3 @@
-
 /* 
  * GLOBAL VARIABLES 
  */
@@ -31,7 +30,6 @@ const DEFAULT_SUMMARY_TABLE_HEADERS = {'battle_result': 'Outcome',
 										'dfdr_HP_lost_percent': 'Progress',
 										'total_deaths': '#Death'};
 
-var totalAtkrTeamCount = 0;
 var simQueue = []; // Batch individual sims configurations here
 var simResults = []; // This is used to store all sims
 var simResultsFiltered = []; // This is used to store filted sims
@@ -42,7 +40,8 @@ var pageStart = 0;
 var pageNumber = 1;
 var pageNumberMax = 1;
 
-var enumTeamStart = 0;
+var enumPlayerStart = 0;
+var enumPartyStart = 0;
 var enumPokemonStart = 0;
 var enumDefender = 0;
 var MasterSummaryTableMetrics = [];
@@ -76,469 +75,6 @@ function initMasterSummaryTableMetrics(){
 	});
 }
 
-function createElement(type, innerHTML){
-	var e = document.createElement(type);
-	e.innerHTML = innerHTML;
-	return e;
-}
-
-function createRow(rowData, type){
-	type = type || "td";
-	var row = document.createElement("tr");
-	for (var i = 0; i < rowData.length; i++){
-		var d = document.createElement(type);
-		d.innerHTML = rowData[i];
-		row.appendChild(d);
-	}
-	return row;
-}
-
-function createAttackerInputTemplate(i, j){
-	var pkm = document.createElement("div");
-
-	var row1 = document.createElement("tr");
-	var row2 = document.createElement("tr");
-	var row3 = document.createElement("tr");
-	
-	var tb1 = createElement("table", "<col width=50%><col width=20%><col width=6%><col width=6%><col width=6%><col width=6%><col width=6%>");
-	row1.appendChild(createElement('td',"<input type='text' placeholder='Species' id='ui-species-"+i+'-'+j+"'>"));
-	row1.appendChild(createElement('td',"<input type='number' placeholder='Copies' min='1' max='6'>"));
-	row1.appendChild(createElement('td',"<a></a>"));
-	row1.appendChild(createElement('td',"<a></a>"));
-	row1.appendChild(createElement('td',"<a></a>"));
-	row1.appendChild(createElement('td',"<a></a>"));
-	row1.appendChild(createElement('td',"<a></a>"));
-	tb1.appendChild(row1);
-	
-	var tb2 = createElement("table", "<col width=25%><col width=25%><col width=25%><col width=25%>");
-	row2.appendChild(createElement('td',"<input type='number' placeholder='Level' min='1' max='40'>"));
-	row2.appendChild(createElement('td',"<input type='number' placeholder='HP. IV' min='0' max='15'>"));
-	row2.appendChild(createElement('td',"<input type='number' placeholder='Atk. IV' min='0' max='15'>"));
-	row2.appendChild(createElement('td',"<input type='number' placeholder='Def. IV' min='0' max='15'>"));
-	tb2.appendChild(row2);
-
-	var tb3 = createElement("table", "<col width=35%><col width=35%><col width=30%>");
-	row3.appendChild(createElement('td',"<input type='text' placeholder='Fast Move' id='ui-fmove-"+i+'-'+j+"'>"));
-	row3.appendChild(createElement('td',"<input type='text' placeholder='Charged Move' id='ui-cmove-"+i+'-'+j+"'>"));
-	row3.appendChild(createElement('td',"<select><option value='0'>No Dodge</option><option value='1'>Dodge Charged</option><option value='2'>Dodge All</option></select></td>"));
-	tb3.appendChild(row3);
-	
-	pkm.appendChild(tb1);
-	pkm.appendChild(tb2);
-	pkm.appendChild(tb3);
-	return pkm;
-}
-
-function createTeamButtonTable(i){
-	const iii = i;
-	var tb = createElement("table","<col width=50%><col width=50%>");
-	var row = createElement("tr","<td></td><td></td>");
-	var b1 = createElement("button", "Add Pokemon");
-	var b2 = createElement("button", "Remove Team");
-	b1.addEventListener("click", function(){addPokemon(iii);});
-	b2.addEventListener("click", function(){removeTeam(iii);});
-	row.children[0].appendChild(b1);
-	row.children[1].appendChild(b2);
-	tb.appendChild(row);
-	return tb;
-}
-
-function setDefenderInput(){
-
-	var mode = document.getElementById("battleMode").value;
-	var dfdrSection = document.getElementById("DefenderInput");
-	var tb1 = createElement("table", "<col width=100%>");
-	var tb2 = createElement("table", "");
-	var tb3 = createElement("table", "<col width=50%><col width=50%>");
-	var row1 = createElement("tr","");
-	var row2 = createElement("tr","");
-	var row3 = createElement("tr","");
-	
-	if (dfdrSection.children.length > 0){
-		tb1 = dfdrSection.children[0];
-		tb3 = dfdrSection.children[2];
-	}else{
-		row1.appendChild(createElement('td',"<input type='text' placeholder='Species' id='ui-species-d'>"));
-		tb1.appendChild(row1);
-		row3.appendChild(createElement('td',"<input type='text' placeholder='Fast Move' id='ui-fmove-d'>"));
-		row3.appendChild(createElement('td',"<input type='text' placeholder='Charged Move' id='ui-cmove-d'>"));
-		tb3.appendChild(row3);
-	}
-
-	if (mode=="gym"){
-		tb2.innerHTML = "<col width=25%><col width=25%><col width=25%><col width=25%>";
-		row2.appendChild(createElement("td","<input type='number' placeholder='Level'>"));
-		row2.appendChild(createElement("td","<input type='number' placeholder='HP. IV'>"));
-		row2.appendChild(createElement("td","<input type='number' placeholder='Atk. IV'>"));
-		row2.appendChild(createElement("td","<input type='number' placeholder='Def. IV'>"));
-	}else if (mode == "raid"){
-		tb2.innerHTML = "<col width=100%>";
-		row2.appendChild(createElement("td","Raid Tier:"));
-		var raidSelection = document.createElement("select");
-		raidSelection.id = "raidTier";
-		for (var i = 1; i <= 5; i++){
-			var option = createElement("option", i);
-			option.value = i;
-			raidSelection.appendChild(option);
-		}
-		row2.children[0].appendChild(raidSelection);
-	}
-	tb2.appendChild(row2);
-	
-	dfdrSection.innerHTML = "";
-	dfdrSection.appendChild(tb1);
-	dfdrSection.appendChild(tb2);
-	dfdrSection.appendChild(tb3);
-	
-	$( '#ui-species-d' ).autocomplete({
-		delay : 0,
-		source : POKEMON_SPECIES_OPTIONS,
-		change : function(event, ui) {
-			if (this.value[0] == '$' && USER_POKEBOX.length > 0){
-				var idx = parseInt(this.value.slice(1).split(' ')[0]);
-				writeDefenderInput(document.getElementById("DefenderInput"), USER_POKEBOX[idx]);
-			}
-		}
-	});
-	
-	$( '#ui-fmove-d' ).autocomplete({
-		delay : 0,
-		source: FAST_MOVES_OPTIONS
-	});
-	
-	$( '#ui-cmove-d' ).autocomplete({
-		delay : 0,
-		source: CHARGED_MOVE_OPTIONS
-	});
-	
-	
-}
-
-function parseAttackerInput(section){
-	var row1 = section.children[0].children[1];
-	var row2 = section.children[1].children[1];
-	var row3 = section.children[2].children[1];
-	
-	var box_idx = -1;
-	var nameInputValue = row1.children[0].children[0].value.trim();
-	if (nameInputValue[0] == '$')
-		box_idx = parseInt(nameInputValue.slice(1).split(' ')[0]);
-	
-	var pkm = {
-		box_index : box_idx,
-		index : -1,
-		fmove_index : -1,
-		cmove_index : -1,
-		nickname : box_idx >= 0 ? USER_POKEBOX[box_idx].nickname : null,
-		species: box_idx >= 0 ? USER_POKEBOX[box_idx].species : nameInputValue,
-		copies: row1.children[1].children[0].valueAsNumber || 1,
-		level: Math.max(1, Math.min(40,row2.children[0].children[0].valueAsNumber)),
-		stmiv: Math.max(0, Math.min(15,row2.children[1].children[0].valueAsNumber)),
-		atkiv: Math.max(0, Math.min(15,row2.children[2].children[0].valueAsNumber)),
-		defiv: Math.max(0, Math.min(15,row2.children[3].children[0].valueAsNumber)),
-		fmove: row3.children[0].children[0].value.trim(),
-		cmove: row3.children[1].children[0].value.trim(),
-		dodge: row3.children[2].children[0].value,
-		raid_tier : 0
-	};
-	return pkm;
-}
-
-function parseDefenderInput(section){
-	var row1 = section.children[0].children[1];
-	var row2 = section.children[1].children[1];
-	var row3 = section.children[2].children[1];
-	
-	var box_idx = -1;
-	var nameInputValue = row1.children[0].children[0].value.trim();
-	if (nameInputValue[0] == '$')
-		box_idx = parseInt(nameInputValue.slice(1).split(' ')[0]);
-	
-	var pkm = {
-		box_index : box_idx,
-		index : -1,
-		fmove_index : -1,
-		cmove_index : -1,
-		team_idx : -1,
-		nickname : box_idx >= 0 ? USER_POKEBOX[box_idx].nickname : null,
-		species: box_idx >= 0 ? USER_POKEBOX[box_idx].species : nameInputValue,
-		level : 1,
-		atkiv : 0,
-		defiv : 0,
-		stmiv : 0,
-		fmove: row3.children[0].children[0].value.trim(),
-		cmove: row3.children[1].children[0].value.trim()
-	};
-	if (document.getElementById("battleMode").value == "gym"){
-		pkm['level'] = Math.max(1, Math.min(40,row2.children[0].children[0].valueAsNumber));
-		pkm['stmiv'] = Math.max(0, Math.min(15,row2.children[1].children[0].valueAsNumber));
-		pkm['atkiv'] = Math.max(0, Math.min(15,row2.children[2].children[0].valueAsNumber));
-		pkm['defiv'] = Math.max(0, Math.min(15,row2.children[3].children[0].valueAsNumber));
-		pkm['raid_tier'] = -1;
-	}else if (document.getElementById("battleMode").value == "raid"){
-		pkm['raid_tier'] = parseInt(document.getElementById("raidTier").value);
-	}
-	return pkm;
-}
-
-function writeAttackerInput(section, pkm){
-	var row1 = section.children[0].children[1];
-	var row2 = section.children[1].children[1];
-	var row3 = section.children[2].children[1];
-	
-	if (pkm.box_index >= 0)
-		row1.children[0].children[0].value = '$' + pkm.box_index + ' ' + pkm.nickname + ' (' + pkm.species +')';
-	else
-		row1.children[0].children[0].value = pkm.species;
-	
-	row1.children[1].children[0].value = pkm.copies;
-	row2.children[0].children[0].value = pkm.level;
-	row2.children[1].children[0].value = pkm.stmiv;
-	row2.children[2].children[0].value = pkm.atkiv;
-	row2.children[3].children[0].value = pkm.defiv;
-	row3.children[0].children[0].value = pkm.fmove;
-	row3.children[1].children[0].value = pkm.cmove;
-	row3.children[2].children[0].value = pkm.dodge;
-}
-
-function writeDefenderInput(section, pkm){
-	var row1 = section.children[0].children[1];
-	var row2 = section.children[1].children[1];
-	var row3 = section.children[2].children[1];
-	
-	if (pkm.box_index >= 0)
-		row1.children[0].children[0].value = '$' + pkm.box_index + ' ' + pkm.nickname + ' (' + pkm.species +')';
-	else
-		row1.children[0].children[0].value = pkm['species'];
-	
-	row3.children[0].children[0].value = pkm['fmove'];
-	row3.children[1].children[0].value = pkm['cmove'];
-	if (document.getElementById("battleMode").value == "gym"){
-		row2.children[0].children[0].value = pkm['level'];
-		row2.children[1].children[0].value = pkm['stmiv'];
-		row2.children[2].children[0].value = pkm['atkiv'];
-		row2.children[3].children[0].value = pkm['defiv'];
-	}else if (document.getElementById("battleMode").value ==  "raid"){
-		document.getElementById("raidTier").value = pkm['raid_tier'];
-	}
-}
-
-function readUserInput(){
-	var gSettings = {};
-	if (document.getElementById("battleMode").value == "raid")
-		gSettings['raidTier'] = (parseInt(document.getElementById("raidTier").value));
-	else if (document.getElementById("battleMode").value == "gym")
-		gSettings['raidTier'] = -1;
-	gSettings['weather'] = document.getElementById("weather").value;
-	gSettings['dodgeBug'] = parseInt(document.getElementById("dodgeBug").value);
-	gSettings['simPerConfig'] = Math.max(1, Math.min(MAX_SIM_PER_CONFIG, document.getElementById("simPerConfig").valueAsNumber));
-	gSettings['reportType'] = document.getElementById("reportType").value;
-	if (gSettings['reportType'] == 'avrg')
-		gSettings['logStyle'] = 0;
-	else if (totalAtkrTeamCount > 3)
-		gSettings['logStyle'] = 1;
-	else
-		gSettings['logStyle'] = 2;
-	
-	var atkr_parties = [];
-	var attackerSections = document.getElementById("AttackerInput").children;
-	for (var i = 0; i < attackerSections.length; i++){
-		atkr_parties.push([]);
-		var sec = attackerSections[i];
-		for (var j = 1; j < sec.children.length - 1; j++)
-			atkr_parties[i].push(parseAttackerInput(sec.children[j]));
-	}
-	
-	var defenderSection = document.getElementById("DefenderInput");
-	var dfdr_info = parseDefenderInput(defenderSection);
-	return {generalSettings : gSettings,
-			atkrSettings : atkr_parties,
-			dfdrSettings : dfdr_info,
-			enumeratedValues : {}
-			};
-}
-
-function copyAllInfo(pkm_to, pkm_from){
-	pkm_to.nickname = pkm_from.nickname;
-	pkm_to.box_index = pkm_from.box_index;
-	pkm_to.species = pkm_from.species;
-	pkm_to.index = get_species_index_by_name(pkm_from.species);
-	pkm_to.level = pkm_from.level;
-	pkm_to.atkiv = pkm_from.atkiv;
-	pkm_to.defiv = pkm_from.defiv;
-	pkm_to.stmiv = pkm_from.stmiv;
-	pkm_to.fmove = pkm_from.fmove;
-	pkm_to.fmove_index = get_fmove_index_by_name(pkm_to.fmove);
-	pkm_to.cmove = pkm_from.cmove;
-	pkm_to.cmove_index = get_cmove_index_by_name(pkm_to.cmove);
-}
-
-function repositionAllPokemon(start, end){
-	var teams = document.getElementById("AttackerInput");
-	start = start || 0;
-	end = end || teams.children.length;
-	for (var i = start; i < end; i++){
-		const iii = i;
-		var team = teams.children[i];
-		team.children[0].innerHTML = "Team " + (i+1);
-		for (var j = 1; j < team.children.length - 1; j++){
-			const jjj = j;
-			var symsbolsAndFunctions = [["&larr;", function(){pastePokemon(iii, jjj);}],
-										["&rarr;", function(){copyPokemon(iii, jjj);}],		
-										["&uarr;", function(){movePokemonUp(iii, jjj);}],
-										["&darr;", function(){movePokemonDown(iii, jjj);}],
-										["&#10006;", function(){removePokemon(iii, jjj);}]];
-			for (var k = 0; k < symsbolsAndFunctions.length; k++){
-				var td = team.children[j].children[0].children[1].children[k+2];
-				var b = createElement("a", symsbolsAndFunctions[k][0]);
-				b.addEventListener("click", symsbolsAndFunctions[k][1]);
-				td.removeChild(td.children[0]);
-				td.appendChild(b);
-			}
-		}
-		team.removeChild(team.children[team.children.length - 1]);
-		team.appendChild(createTeamButtonTable(i));
-	}
-}
-
-function addPokemon(i){
-	var team = document.getElementById("AttackerInput").children[i];
-	team.removeChild(team.children[team.children.length - 1]);
-	
-	const ii = i, jj = team.children.length;
-	team.appendChild(createAttackerInputTemplate(ii, jj));
-	
-	$( '#ui-species-'+ii+'-'+jj ).autocomplete({
-		delay : 0,
-		source: POKEMON_SPECIES_OPTIONS,
-		change : function(event, ui) {
-			if (this.value[0] == '$' && USER_POKEBOX.length > 0){
-				var idx = parseInt(this.value.slice(1).split(' ')[0]);
-				writeAttackerInput(document.getElementById("AttackerInput").children[ii].children[jj], USER_POKEBOX[idx]);
-			}
-		}
-	});
-	
-	$( '#ui-fmove-'+ii+'-'+jj ).autocomplete({
-		delay : 0,
-		source: FAST_MOVES_OPTIONS
-	});
-	
-	$( '#ui-cmove-'+ii+'-'+jj ).autocomplete({
-		delay : 0,
-		source: CHARGED_MOVE_OPTIONS
-	});
-	
-	
-	team.appendChild(createElement("div",""));
-	repositionAllPokemon(i, i+1);
-}
-
-function removePokemon(i, j){
-	var team = document.getElementById("AttackerInput").children[i];
-	if (team.children.length > 3){
-		team.removeChild(team.children[j]);
-		repositionAllPokemon(i, i+1);
-	}else
-		send_feedback("Can't remove the only attacker in the team. Use Remove Team instead");
-}
-
-function swapChildren(parent, i1, i2){
-	var children = [];
-	while (parent.children.length > 0){
-		children.push(parent.children[0]);
-		parent.removeChild(parent.children[0]);
-	}
-	var intermediate = children[i1];
-	children[i1] = children[i2];
-	children[i2] = intermediate;
-	for (var k = 0; k < children.length; k++)
-		parent.appendChild(children[k]);
-}
-
-function movePokemonUp(i, j){
-	var team = document.getElementById("AttackerInput").children[i];
-	if (j > 1){
-		swapChildren(team, j, j - 1);
-		repositionAllPokemon(i, i + 1);
-	}
-}
-
-function movePokemonDown(i, j){
-	var team = document.getElementById("AttackerInput").children[i];
-	if (j < team.children.length - 2){
-		swapChildren(team, j, j + 1);
-		repositionAllPokemon(i, i + 1);
-	}
-}
-
-function copyPokemon(i, j){
-	var pkmSection = document.getElementById("AttackerInput").children[i].children[j];
-	atkrCopyPasteClipboard = parseAttackerInput(pkmSection);
-}
-
-function pastePokemon(i, j){
-	if (atkrCopyPasteClipboard){
-		var pkmSection = document.getElementById("AttackerInput").children[i].children[j];
-		writeAttackerInput(pkmSection, atkrCopyPasteClipboard);
-	}
-}
-
-function addTeam(){
-	if (totalAtkrTeamCount < MAX_NUM_OF_PLAYERS){
-		var teams = document.getElementById("AttackerInput");
-		var newTeam = document.createElement("div");
-		newTeam.appendChild(createElement("h3","Team" + (totalAtkrTeamCount+1)));
-		// newTeam.appendChild(createAttackerInputTemplate(totalAtkrTeamCount, 1));
-		newTeam.appendChild(createElement("div",""));
-		teams.appendChild(newTeam);
-		addPokemon(totalAtkrTeamCount);
-		
-		totalAtkrTeamCount++;
-		repositionAllPokemon(totalAtkrTeamCount - 1);
-	}else{
-		send_feedback("exceeding maximum parties allowed");
-	}
-}
-
-function removeTeam(i){
-	if (totalAtkrTeamCount >= 2){
-		var teams = document.getElementById("AttackerInput");
-		teams.removeChild(teams.children[i]);
-		totalAtkrTeamCount--;
-		repositionAllPokemon(i);
-	}
-	else
-		send_feedback("Can't remove the only team");
-}
-
-
-function writeUserInput(cfg){
-	document.getElementById("battleMode").value = (cfg['generalSettings']['raidTier'] == -1) ? "gym" : "raid";
-	document.getElementById("weather").value = cfg['generalSettings']['weather'];
-	document.getElementById("dodgeBug").value = cfg['generalSettings']['dodgeBug'];
-	document.getElementById("simPerConfig").value = cfg['generalSettings']['simPerConfig'];
-	document.getElementById("reportType").value = cfg['generalSettings']['reportType'];
-	
-	var attackerSections = document.getElementById("AttackerInput");
-	while (attackerSections.children.length > 0)
-		attackerSections.removeChild(attackerSections.children[attackerSections.children.length - 1]);
-	totalAtkrTeamCount = 0;
-	
-	for (var i = 0; i < cfg['atkrSettings'].length; i++){
-		addTeam();
-		for (var j = 0; j < cfg['atkrSettings'][i].length; j++){
-			if (j >= 1)
-				addPokemon(i);
-			writeAttackerInput(attackerSections.children[i].children[j+1], cfg['atkrSettings'][i][j]);
-		}
-	}
-		
-	setDefenderInput();
-	var defenderSection = document.getElementById("DefenderInput");
-	writeDefenderInput(defenderSection, cfg['dfdrSettings']);
-}
-
 function createNewMetric(metric, nameDisplayed){
 	MasterSummaryTableMetrics.push(metric);
 	MasterSummaryTableMetricsIncluded[metric] = false;
@@ -557,6 +93,561 @@ function sortByDeepAttr(data, attrs, reversed){
 		return ((a == b) ? 0 : (a < b ? -1 : 1)) * reversed;
 	});
 }
+
+function createElement(type, innerHTML){
+	var e = document.createElement(type);
+	e.innerHTML = innerHTML;
+	return e;
+}
+
+function createRow(rowData, type){
+	type = type || "td";
+	var row = document.createElement("tr");
+	for (var i = 0; i < rowData.length; i++){
+		var d = document.createElement(type);
+		d.innerHTML = rowData[i];
+		row.appendChild(d);
+	}
+	return row;
+}
+
+
+
+function createAttackerNode(){
+	var pokemonNode = document.createElement("div");
+	pokemonNode.appendChild(document.createElement("div")); // head, contain the label of this Pokemon
+	pokemonNode.appendChild(document.createElement("div")); // body, contain species/moves/etc configurations
+	pokemonNode.appendChild(document.createElement("div")); // tail, contain controls
+	
+	// 1. Head
+	pokemonNode.children[0].innerHTML = "<h5>Unlabeled Pokemon</h5>";
+
+	// 2. Body
+	var tb1 = createElement("table", "<colgroup><col width=75%><col width=25%></colgroup>");
+	tb1.appendChild(createRow(['',''],'td'));
+	tb1.children[1].children[0].innerHTML = "<input type='text' placeholder='Species'>";
+	tb1.children[1].children[1].innerHTML = "<input type='number' placeholder='Copies' min='1' max='6'>";
+	
+	var tb2 = createElement("table", "<colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>");
+	tb2.appendChild(createRow(['','','',''],'td'));
+	tb2.children[1].children[0].innerHTML = "<input type='number' placeholder='Level' min='1' max='40'>";
+	tb2.children[1].children[1].innerHTML = "<input type='number' placeholder='HP. IV' min='0' max='15'>";
+	tb2.children[1].children[2].innerHTML = "<input type='number' placeholder='Atk. IV' min='0' max='15'>";
+	tb2.children[1].children[3].innerHTML = "<input type='number' placeholder='Def. IV' min='0' max='15'>";
+
+	var tb3 = createElement("table", "<colgroup><col width=35%><col width=35%><col width=30%></colgroup>");
+	tb3.appendChild(createRow(['','',''],'td'));
+	tb3.children[1].children[0].innerHTML = "<input type='text' placeholder='Fast Move'>";
+	tb3.children[1].children[1].innerHTML = "<input type='text' placeholder='Charged Move'>";
+	tb3.children[1].children[2].innerHTML = "<select><option value='0'>No Dodge</option><option value='1'>Dodge Charged</option><option value='2'>Dodge All</option></select></td>";
+	
+	pokemonNode.children[1].appendChild(tb1);
+	pokemonNode.children[1].appendChild(tb2);
+	pokemonNode.children[1].appendChild(tb3);
+	
+	// 3. Tail
+	var controlTable = createElement("table", "<colgroup><col width=25%><col width=25%><col width=50%></colgroup>");
+	controlTable.appendChild(createRow(['','',''],'td'));
+	
+	
+	var copyPokemonButton = createElement("button", "Copy");
+	copyPokemonButton.onclick = function(){
+		var pokemonNodeToCopyFrom = document.getElementById('ui-pokemon-' + this.id.split(':')[1]);
+		atkrCopyPasteClipboard = parseAttackerNode(pokemonNodeToCopyFrom);
+	}
+	var pastePokemonButton = createElement("button", "Paste");
+	pastePokemonButton.onclick = function(){
+		var pokemonNodeToPasteTo = document.getElementById('ui-pokemon-' + this.id.split(':')[1]);
+		writeAttackerNode(pokemonNodeToPasteTo, atkrCopyPasteClipboard);
+	}
+	var removePokemonButton = createElement("button", "Remove Pokemon");
+	removePokemonButton.onclick = function(){
+		var pokemonNodeToRemove = document.getElementById('ui-pokemon-' + this.id.split(':')[1]);
+		pokemonNodeToRemove.parentNode.removeChild(pokemonNodeToRemove);
+		relabelAll();
+	}
+	controlTable.children[1].children[0].appendChild(copyPokemonButton);
+	controlTable.children[1].children[1].appendChild(pastePokemonButton);
+	controlTable.children[1].children[2].appendChild(removePokemonButton);
+	pokemonNode.children[2].appendChild(controlTable);
+	
+	
+	return pokemonNode;
+}
+
+function createPartyNode(){
+	var partyNode = document.createElement("div");
+	partyNode.appendChild(document.createElement("div")); // head, contain the label of this Party
+	partyNode.appendChild(document.createElement("div")); // body, contain Pokemon Nodes
+	partyNode.appendChild(document.createElement("div")); // tail, contain controls
+	
+	// 1. Head
+	partyNode.children[0].innerHTML = "<h4>Unlabeled Party</h4>";
+	
+	// 2. Body
+	partyNode.children[1].appendChild(createAttackerNode());
+	
+	// 3. Tail
+	var controlTable = createElement("table","<colgroup><col width=25%><col width=50%><col width=25%></colgroup>");
+	controlTable.appendChild(createRow(['','','']));
+	
+	controlTable.children[1].children[0].innerHTML = "Max Revive<input type='checkbox'></input>";
+	
+	var addPokemonButton = createElement("button", "Add Pokemon");
+	addPokemonButton.onclick = function(){
+		var partyNodeToAddPokemon = document.getElementById('ui-party-' + this.id.split(':')[1]);
+		partyNodeToAddPokemon.children[1].appendChild(createAttackerNode());
+		relabelAll();
+	}
+	var removePartyButton = createElement("button", "Remove Party");
+	removePartyButton.onclick = function(){
+		var partyNodeToRemove = document.getElementById('ui-party-' + this.id.split(':')[1]);
+		partyNodeToRemove.parentNode.removeChild(partyNodeToRemove);
+		relabelAll();
+	}
+	controlTable.children[1].children[1].appendChild(addPokemonButton);
+	controlTable.children[1].children[2].appendChild(removePartyButton);
+	partyNode.children[2].appendChild(controlTable);
+
+	return partyNode;
+}
+
+function createPlayerNode(){
+	var playerNode = document.createElement("div");
+	playerNode.appendChild(document.createElement("div")); // head, contain the label of this Player
+	playerNode.appendChild(document.createElement("div")); // body, contain Party Nodes
+	playerNode.appendChild(document.createElement("div")); // tail, contain controls
+	
+	// 1. Head
+	playerNode.children[0].innerHTML = "<h3>Unlabeled Player</h3>";
+	
+	// 2. Body
+	playerNode.children[1].appendChild(createPartyNode());
+	
+	// 3. Tail
+	var controlTable = createElement("table","<colgroup><col width=50%><col width=50%></colgroup>");
+	controlTable.appendChild(createRow(['',''],'td'));
+	
+	var addPartyButton = createElement("button", "Add Party");
+	addPartyButton.onclick = function(){
+		var playerNodeToAddPartyTo = document.getElementById('ui-player-' + this.id.split(':')[1]);
+		playerNodeToAddPartyTo.children[1].appendChild(createPartyNode());
+		relabelAll();
+	}
+	var removePlayerButton = createElement("button", "Remove Player");
+	removePlayerButton.onclick = function(){
+		var playerNodeToRemove = document.getElementById('ui-player-' + this.id.split(':')[1]);
+		playerNodeToRemove.parentNode.removeChild(playerNodeToRemove);
+		relabelAll();
+	}
+	controlTable.children[1].children[0].appendChild(addPartyButton);
+	controlTable.children[1].children[1].appendChild(removePlayerButton);
+	playerNode.children[2].appendChild(controlTable);
+	
+	return playerNode;
+}
+
+function addPlayerNode(){
+	var attackerFieldBody = document.getElementById("AttackerInput").children[1];
+	attackerFieldBody.appendChild(createPlayerNode());
+	relabelAll();
+}
+
+function relabelAll(){
+	var playerNodes = document.getElementById("ui-attackerinputbody").children;
+	for (var i = 0; i < playerNodes.length; i++){
+		var playerNode = playerNodes[i];
+		playerNode.id = 'ui-player-' + i;
+		
+		playerNode.children[0].children[0].innerHTML = "Player " + (i+1);
+		
+		playerNode.children[1].id = 'ui-playerbody-' + i;
+		var partyNodes = playerNode.children[1].children;
+		for (var j = 0; j < partyNodes.length; j++){
+			var partyNode = partyNodes[j];
+			partyNode.id = 'ui-party-' + i + '-' + j;
+			
+			partyNode.children[0].children[0].innerHTML = "Party " + (j+1);
+			
+			partyNode.children[1].id = 'ui-partybody-' + i + '-' + j;
+			var pokemonNodes = partyNode.children[1].children;
+			for (var k = 0; k < pokemonNodes.length; k++){
+				var pokemonNode = pokemonNodes[k];
+				pokemonNode.id = 'ui-pokemon-' + i + '-' + j + '-' + k;
+				
+				pokemonNode.children[0].children[0].innerHTML = "Pokemon " + (k+1);
+				
+				var tables = pokemonNode.children[1].children;
+				tables[0].children[1].children[0].children[0].id = 'ui-species-' + i + '-' + j + '-' + k;
+				tables[2].children[1].children[0].children[0].id = 'ui-fmove-' + i + '-' + j + '-' + k;
+				tables[2].children[1].children[1].children[0].id = 'ui-cmove-' + i + '-' + j + '-' + k;
+				
+				pokemonNode.children[2].children[0].children[1].children[0].children[0].id = 'copy_pokemon:' + i + '-' + j + '-' + k;
+				pokemonNode.children[2].children[0].children[1].children[1].children[0].id = 'paste_pokemon:' + i + '-' + j + '-' + k;
+				pokemonNode.children[2].children[0].children[1].children[2].children[0].id = 'remove_pokemon:' + i + '-' + j + '-' + k;
+				
+				autocompletePokemonNode(i + '-' + j + '-' + k);
+			}
+			$( '#ui-partybody-' + i + '-' + j ).sortable({axis: 'y'});
+			
+			partyNode.children[2].children[0].children[1].children[1].children[0].id = 'add_pokemon:' + i + '-' + j;
+			partyNode.children[2].children[0].children[1].children[2].children[0].id = 'remove_party:' + i + '-' + j;
+		}
+		$( '#ui-playerbody-' + i ).sortable({axis: 'y'});
+		
+		playerNode.children[2].children[0].children[1].children[0].children[0].id = "add_party:" + i;
+		playerNode.children[2].children[0].children[1].children[1].children[0].id = "remove_player:" + i;
+	}
+	$( '#ui-attackerinputbody' ).sortable({axis: 'y'});
+	
+}
+
+
+function createDefenderNode(){
+	var defenderNode = document.createElement("div");
+	defenderNode.appendChild(document.createElement("div")); // head, contain the label of this Player
+	defenderNode.appendChild(document.createElement("div")); // body, contain Party Nodes
+	defenderNode.appendChild(document.createElement("div")); // tail, contain controls
+	
+	// 1. Head
+	defenderNode.children[0].innerHTML = "<h3>Defender</h3>";
+	
+	// 2. Body
+	var tb1 = createElement("table", "<colgroup><col width=100%></colgroup>");
+	tb1.appendChild(createRow(['']));
+	tb1.children[1].children[0].innerHTML = "<input type='text' placeholder='Species' id='ui-species-d'>";
+
+	// By default, set to raid mode input
+	var tb2 = createElement("table", "<colgroup><col width=100%></colgroup>");
+	tb2.appendChild(createRow(['']));
+	tb2.children[1].children[0].innerHTML = "Raid Tier";
+	var raidSelection = document.createElement("select");
+	raidSelection.id = "raidTier";
+	for (var i = 1; i <= 5; i++){
+		var option = createElement("option", i);
+		option.value = i;
+		raidSelection.appendChild(option);
+	}
+	tb2.children[1].children[0].appendChild(raidSelection);
+	
+	
+	var tb3 = createElement("table", "<colgroup><col width=50%><col width=50%></colgroup>");
+	tb3.appendChild(createRow(['','']));
+	tb3.children[1].children[0].innerHTML = "<input type='text' placeholder='Fast Move' id='ui-fmove-d'>";
+	tb3.children[1].children[1].innerHTML = "<input type='text' placeholder='Charged Move' id='ui-cmove-d'>";
+	
+	defenderNode.children[1].appendChild(tb1);
+	defenderNode.children[1].appendChild(tb2);
+	defenderNode.children[1].appendChild(tb3);
+	
+	// 3. Tail
+	// Nothing
+	
+	return defenderNode;
+}
+
+
+function updateDefenderNode(){
+	var defenderNode = document.getElementById("DefenderInput").children[1].children[0];
+	
+	var mode = document.getElementById("battleMode").value;
+	var tb2 = defenderNode.children[1].children[1];
+	tb2.innerHTML = "";
+	
+	if (mode == "gym"){
+		tb2.innerHTML = "<colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>";
+		tb2.appendChild(createRow(['','','','']));
+		tb2.children[1].children[0].innerHTML = "<input type='number' placeholder='Level'>";
+		tb2.children[1].children[1].innerHTML = "<input type='number' placeholder='HP. IV'>";
+		tb2.children[1].children[2].innerHTML = "<input type='number' placeholder='Atk. IV'>";
+		tb2.children[1].children[3].innerHTML = "<input type='number' placeholder='Def. IV'>";
+	}else if (mode == "raid"){
+		tb2.innerHTML = "<colgroup><col width=100%></colgroup>";
+		tb2.appendChild(createRow(['']));
+		tb2.children[1].children[0].innerHTML = "Raid Tier";
+		var raidSelection = document.createElement("select");
+		raidSelection.id = "raidTier";
+		for (var i = 1; i <= 5; i++){
+			var option = createElement("option", i);
+			option.value = i;
+			raidSelection.appendChild(option);
+		}
+		tb2.children[1].children[0].appendChild(raidSelection);
+	}
+}
+
+
+function autocompletePokemonNode(address){
+
+	const address_const = address;
+	$( '#ui-species-' + address ).autocomplete({
+		delay : 0,
+		source : POKEMON_SPECIES_OPTIONS,
+		change : function(event, ui) {
+			if (this.value[0] == '$' && USER_POKEBOX.length > 0 && address_const != 'd'){
+				var idx = parseInt(this.value.slice(1).split(' ')[0]);
+				writeAttackerNode(document.getElementById("ui-pokemon-" + address_const), USER_POKEBOX[idx]);
+			}
+		}
+	});
+	
+	$( '#ui-fmove-' + address ).autocomplete({
+		delay : 0,
+		source: FAST_MOVES_OPTIONS
+	});
+	
+	$( '#ui-cmove-' + address ).autocomplete({
+		delay : 0,
+		source: CHARGED_MOVE_OPTIONS
+	});
+	
+}
+
+
+
+function parseAttackerNode(node){
+	node = node.children[1];
+	var row1 = node.children[0].children[1];
+	var row2 = node.children[1].children[1];
+	var row3 = node.children[2].children[1];
+	
+	var box_idx = -1;
+	var nameInputValue = row1.children[0].children[0].value.trim();
+	if (nameInputValue[0] == '$')
+		box_idx = parseInt(nameInputValue.slice(1).split(' ')[0]);
+	
+	var pkm_cfg = {
+		box_index : box_idx,
+		index : -1,
+		fmove_index : -1,
+		cmove_index : -1,
+		nickname : box_idx >= 0 ? USER_POKEBOX[box_idx].nickname : null,
+		species: box_idx >= 0 ? USER_POKEBOX[box_idx].species : nameInputValue,
+		copies: row1.children[1].children[0].valueAsNumber || 1,
+		level: Math.max(1, Math.min(40,row2.children[0].children[0].valueAsNumber)),
+		stmiv: Math.max(0, Math.min(15,row2.children[1].children[0].valueAsNumber)),
+		atkiv: Math.max(0, Math.min(15,row2.children[2].children[0].valueAsNumber)),
+		defiv: Math.max(0, Math.min(15,row2.children[3].children[0].valueAsNumber)),
+		fmove: row3.children[0].children[0].value.trim(),
+		cmove: row3.children[1].children[0].value.trim(),
+		dodge: row3.children[2].children[0].value,
+		raid_tier : 0
+	};
+	return pkm_cfg;
+}
+
+function parsePartyNode(node){
+	var party_cfg = {
+		revive_strategy: node.children[2].children[0].children[1].children[0].children[0].checked,
+		pokemon_list: []
+	};
+	for (var k = 0; k < node.children[1].children.length; k++)
+		party_cfg.pokemon_list.push(parseAttackerNode(node.children[1].children[k]));
+	
+	return party_cfg;
+}
+
+function parsePlayerNode(node){
+	var player_cfg = {
+		party_list: []
+	};
+	for (var j = 0; j < node.children[1].children.length; j++)
+		player_cfg.party_list.push(parsePartyNode(node.children[1].children[j]));
+	
+	return player_cfg;
+}
+
+function parseDefenderNode(node){
+	node = node.children[1];
+	var row1 = node.children[0].children[1];
+	var row2 = node.children[1].children[1];
+	var row3 = node.children[2].children[1];
+	
+	var box_idx = -1;
+	var nameInputValue = row1.children[0].children[0].value.trim();
+	if (nameInputValue[0] == '$')
+		box_idx = parseInt(nameInputValue.slice(1).split(' ')[0]);
+	
+	var pkm_cfg = {
+		box_index : box_idx,
+		index : -1,
+		fmove_index : -1,
+		cmove_index : -1,
+		team_idx : -1,
+		nickname : box_idx >= 0 ? USER_POKEBOX[box_idx].nickname : null,
+		species: box_idx >= 0 ? USER_POKEBOX[box_idx].species : nameInputValue,
+		level : 1,
+		atkiv : 0,
+		defiv : 0,
+		stmiv : 0,
+		fmove: row3.children[0].children[0].value.trim(),
+		cmove: row3.children[1].children[0].value.trim()
+	};
+	if (document.getElementById("battleMode").value == "gym"){
+		pkm_cfg['level'] = Math.max(1, Math.min(40,row2.children[0].children[0].valueAsNumber));
+		pkm_cfg['stmiv'] = Math.max(0, Math.min(15,row2.children[1].children[0].valueAsNumber));
+		pkm_cfg['atkiv'] = Math.max(0, Math.min(15,row2.children[2].children[0].valueAsNumber));
+		pkm_cfg['defiv'] = Math.max(0, Math.min(15,row2.children[3].children[0].valueAsNumber));
+		pkm_cfg['raid_tier'] = -1;
+	}else if (document.getElementById("battleMode").value == "raid"){
+		pkm_cfg['raid_tier'] = parseInt(document.getElementById("raidTier").value);
+	}
+	return pkm_cfg;
+}
+
+
+function readUserInput(){
+	// 1. General Settings
+	var gSettings = {};
+	if (document.getElementById("battleMode").value == "raid")
+		gSettings['raidTier'] = (parseInt(document.getElementById("raidTier").value));
+	else if (document.getElementById("battleMode").value == "gym")
+		gSettings['raidTier'] = -1;
+	gSettings['weather'] = document.getElementById("weather").value;
+	gSettings['dodgeBug'] = parseInt(document.getElementById("dodgeBug").value);
+	gSettings['simPerConfig'] = Math.max(1, Math.min(MAX_SIM_PER_CONFIG, document.getElementById("simPerConfig").valueAsNumber));
+	gSettings['reportType'] = document.getElementById("reportType").value;
+	if (gSettings['reportType'] == 'avrg')
+		gSettings['logStyle'] = 0;
+	else
+		gSettings['logStyle'] = 1;
+	
+	// 2. Attacker Settings
+	var player_list = [];
+	var playerNodes = document.getElementById("AttackerInput").children[1].children;
+	for (var i = 0; i < playerNodes.length; i++){
+		var player_cfg = parsePlayerNode(playerNodes[i]);
+		player_cfg.player_code = i + 1;
+		player_list.push(player_cfg);
+	}
+	
+	// 3. Defender Settings
+	var defenderNode = document.getElementById("ui-defenderinputbody").children[0];
+	var dfdr_info = parseDefenderNode(defenderNode);
+	
+	return {generalSettings : gSettings,
+			atkrSettings : player_list,
+			dfdrSettings : dfdr_info,
+			enumeratedValues : {}
+			};
+}
+
+
+function copyAllInfo(pkm_to, pkm_from){
+	pkm_to.nickname = pkm_from.nickname;
+	pkm_to.box_index = pkm_from.box_index;
+	pkm_to.species = pkm_from.species;
+	pkm_to.index = get_species_index_by_name(pkm_from.species);
+	pkm_to.level = pkm_from.level;
+	pkm_to.atkiv = pkm_from.atkiv;
+	pkm_to.defiv = pkm_from.defiv;
+	pkm_to.stmiv = pkm_from.stmiv;
+	pkm_to.fmove = pkm_from.fmove;
+	pkm_to.fmove_index = get_fmove_index_by_name(pkm_to.fmove);
+	pkm_to.cmove = pkm_from.cmove;
+	pkm_to.cmove_index = get_cmove_index_by_name(pkm_to.cmove);
+}
+
+function writeAttackerNode(node, pkmConfig){
+	node = node.children[1];
+	var row1 = node.children[0].children[1];
+	var row2 = node.children[1].children[1];
+	var row3 = node.children[2].children[1];
+	
+	if (pkmConfig.box_index >= 0)
+		row1.children[0].children[0].value = '$' + pkmConfig.box_index + ' ' + pkmConfig.nickname + ' (' + pkmConfig.species +')';
+	else
+		row1.children[0].children[0].value = pkmConfig.species;
+	
+	row1.children[1].children[0].value = pkmConfig.copies;
+	row2.children[0].children[0].value = pkmConfig.level;
+	row2.children[1].children[0].value = pkmConfig.stmiv;
+	row2.children[2].children[0].value = pkmConfig.atkiv;
+	row2.children[3].children[0].value = pkmConfig.defiv;
+	row3.children[0].children[0].value = pkmConfig.fmove;
+	row3.children[1].children[0].value = pkmConfig.cmove;
+	row3.children[2].children[0].value = pkmConfig.dodge;
+}
+
+function writePartyNode(node, partyConfig){
+	node.children[1].innerHTML = "";
+
+	for (var k = 0; k < partyConfig.pokemon_list.length; k++){
+		var pokemonNode = createAttackerNode();
+		writeAttackerNode(pokemonNode, partyConfig.pokemon_list[k]);
+		node.children[1].appendChild(pokemonNode);
+	}
+	
+	// TODO: Some other Party settings to write
+	node.children[2].children[0].children[1].children[0].children[0].checked = partyConfig.revive_strategy;
+}
+
+function writePlayerNode(node, playerConfig){
+	node.children[1].innerHTML = "";
+
+	for (var j = 0; j < playerConfig.party_list.length; j++){
+		var partyNode = createPartyNode();
+		writePartyNode(partyNode, playerConfig.party_list[j]);
+		node.children[1].appendChild(partyNode);
+	}
+	
+	// TODO: Some other Player settings to write
+}
+
+function writeDefenderNode(node, pkmConfig){
+
+	node = node.children[1];
+	var row1 = node.children[0].children[1];
+	var row2 = node.children[1].children[1];
+	var row3 = node.children[2].children[1];
+	
+	if (pkmConfig.box_index >= 0)
+		row1.children[0].children[0].value = '$' + pkmConfig.box_index + ' ' + pkmConfig.nickname + ' (' + pkmConfig.species +')';
+	else
+		row1.children[0].children[0].value = pkmConfig['species'];
+	
+	row3.children[0].children[0].value = pkmConfig['fmove'];
+	row3.children[1].children[0].value = pkmConfig['cmove'];
+	if (document.getElementById("battleMode").value == "gym"){
+		row2.children[0].children[0].value = pkmConfig['level'];
+		row2.children[1].children[0].value = pkmConfig['stmiv'];
+		row2.children[2].children[0].value = pkmConfig['atkiv'];
+		row2.children[3].children[0].value = pkmConfig['defiv'];
+	}else if (document.getElementById("battleMode").value ==  "raid"){
+		row2.children[0].children[0].value = pkmConfig['raid_tier'];
+	}
+}
+
+
+
+
+
+function writeUserInput(cfg){
+	document.getElementById("battleMode").value = (cfg['generalSettings']['raidTier'] == -1) ? "gym" : "raid";
+	document.getElementById("weather").value = cfg['generalSettings']['weather'];
+	document.getElementById("dodgeBug").value = cfg['generalSettings']['dodgeBug'];
+	document.getElementById("simPerConfig").value = cfg['generalSettings']['simPerConfig'];
+	document.getElementById("reportType").value = cfg['generalSettings']['reportType'];
+	
+	var attackerFieldBody = document.getElementById("AttackerInput").children[1];
+	attackerFieldBody.innerHTML = "";
+	for (var i = 0; i < cfg['atkrSettings'].length; i++){
+		var playerNode = createPlayerNode();
+		writePlayerNode(playerNode, cfg['atkrSettings'][i]);
+		attackerFieldBody.appendChild(playerNode);
+	}
+		
+	relabelAll();
+		
+	var defenderFieldBody = document.getElementById("DefenderInput").children[1];
+	defenderFieldBody.innerHTML = "";
+	var defenderNode = createDefenderNode();
+	writeDefenderNode(defenderNode, cfg['dfdrSettings']);
+	defenderFieldBody.appendChild(defenderNode);
+	autocompletePokemonNode('d');
+}
+
+
 
 function filterAllSimsBy(filter){
 	filter = filter || MasterSummaryTableMetricsFilter;
@@ -663,19 +754,20 @@ function createMasterSummaryTable(){
 	return table;
 }
 
-function createTeamStatisticsTable(simRes){
+function createPlayerStatisticsTable(simRes){
 	var table = document.createElement("table");
-	table.appendChild(createRow(["Team#","TDO","TDO%","#Rejoin","#Deaths"],"th"));
-	for (var i = 0; i < simRes.output.teamStat.length; i++){
-		var ts = simRes.output.teamStat[i];
-		table.appendChild(createRow([ts.team, ts.tdo, ts.tdo_percentage, ts.num_rejoin, ts.total_deaths],"td"));
+	
+	table.appendChild(createRow(["Player#","TDO","TDO%","#Rejoin","#Deaths"],"th"));
+	for (var i = 0; i < simRes.output.playerStat.length; i++){
+		var ts = simRes.output.playerStat[i];
+		table.appendChild(createRow([ts.player_code, ts.tdo, ts.tdo_percentage, ts.num_rejoin, ts.num_deaths], "td"));
 	}
 	return table;
 }
 
 function createPokemonStatisticsTable(simRes){
 	var table = document.createElement("table");
-	table.appendChild(createRow(["Team#",
+	table.appendChild(createRow(["Player#",
 								"<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>",
 								"HP",
 								"Energy",
@@ -685,36 +777,28 @@ function createPokemonStatisticsTable(simRes){
 								"TEW"],"th"));
 	for (var i = 0; i < simRes.output.pokemonStat.length; i++){
 		var ps = simRes.output.pokemonStat[i];
-		table.appendChild(createRow([ps.team, ps.img, ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, ps.tew],"td"));
+		table.appendChild(createRow([ps.player_code, ps.img, ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, ps.tew],"td"));
 	}
 	return table;
 }
 
 function createBattleLogTable(simRes){
 	var table = document.createElement("table");
+	table.appendChild(createElement('thead',''));
+	table.appendChild(createElement('tbody',''));
+
 	var log = simRes.output.battleLog;
-	if (simRes.input.generalSettings.logStyle == 1){
-		var headers = ["Time",
-					"Team#",
-					"<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>",
-					"Action",
-					"Defender"];
-		table.appendChild(createRow(headers, "th"));
-		
-		for (var i = 0; i < log.length; i++){
-			table.appendChild(createRow(log[i]), "td");
-		}
-	}else if (simRes.input.generalSettings.logStyle == 2){
-		var headers = ["Time"];
-		for (var i = 1; i <= totalAtkrTeamCount; i++)
-			headers.push("Team"+i);
-		headers.push("Defender");
-		table.appendChild(createRow(headers, "th"));
-		
-		for (var i = 0; i < log.length; i++){
-			table.appendChild(createRow(log[i]), "td");
-		}
+
+	var headers = ["Time"];
+	for (var i = 0; i < simRes.input.atkrSettings.length; i++)
+		headers.push("Player" + (i+1));
+	headers.push("Defender");
+	table.children[0].appendChild(createRow(headers, "th"));
+	
+	for (var i = 0; i < log.length; i++){
+		table.children[1].appendChild(createRow(log[i]), "td");
 	}
+	
 	return table;
 }
 
@@ -774,11 +858,12 @@ function unpackMoveKeyword(str, moveType, pkmIndex){
 		moveNames = POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves"];
 		moveNames = moveNames.concat(POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves_legacy"]);
 		var exMoveNames = POKEMON_SPECIES_DATA[pkmIndex].exclusiveMoves;
-		for (var i = 0; i < exMoveNames.length; i++){
-			var move_idx = pred(exMoveNames[i].trim());
-			if (move_idx >= 0)
-				moveIndices.push(move_idx);
-		}
+		if (exMoveNames)
+			for (var i = 0; i < exMoveNames.length; i++){
+				var move_idx = pred(exMoveNames[i].trim());
+				if (move_idx >= 0)
+					moveIndices.push(move_idx);
+			}
 	}
 	else if (str == 'cur')
 		moveNames = POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves"];
@@ -835,13 +920,14 @@ function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
 		return -1;
 	}else if (expressionStr[0] == '='){// Dynamic Assignment Operator
 		try{
-			var arr = expressionStr.slice(1).split(',');
-			var teamIdx = parseInt(arr[0].trim()), pkmIdx = parseInt(arr[1].trim());
-			pkmInfo.index = cfg['atkrSettings'][teamIdx][pkmIdx].index;
-			pkmInfo.species = cfg['atkrSettings'][teamIdx][pkmIdx].species;
+			var arr = expressionStr.slice(1).split('-');
+			var playerIdx = parseInt(arr[0].trim()), partyIdx = parseInt(arr[1].trim()), pkmIdx = parseInt(arr[2].trim());
+			var pkmConfigToCopyFrom = cfg['atkrSettings'][playerIdx].party_list[partyIdx].pokemon_list[pkmIdx];
+			pkmInfo.index = pkmConfigToCopyFrom.index;
+			pkmInfo.species = pkmConfigToCopyFrom.species;
 			
-			if (cfg['atkrSettings'][teamIdx][pkmIdx].box_index >= 0){
-				copyAllInfo(pkmInfo, cfg['atkrSettings'][teamIdx][pkmIdx]);
+			if (pkmConfigToCopyFrom.box_index >= 0){
+				copyAllInfo(pkmInfo, pkmConfigToCopyFrom);
 			}
 			enqueueSim(cfg);
 			return -1;
@@ -880,10 +966,11 @@ function parseMoveExpression(cfg, pkmInfo, enumPrefix, moveType){
 		return -1;
 	}else if (expressionStr[0] == '='){// Dynamic Assignment Operator
 		try{
-			var arr = expressionStr.slice(1).split(',');
-			var teamIdx = parseInt(arr[0].trim()), pkmIdx = parseInt(arr[1].trim());
-			pkmInfo[moveType+'move_index'] = cfg['atkrSettings'][teamIdx][pkmIdx][moveType+'move_index'];
-			pkmInfo[moveType+'move'] = cfg['atkrSettings'][teamIdx][pkmIdx][moveType+'move'];
+			var arr = expressionStr.slice(1).split('-');
+			var playerIdx = parseInt(arr[0].trim()), partyIdx = parseInt(arr[1].trim()), pkmIdx = parseInt(arr[2].trim());
+			var pkmConfigToCopyFrom = cfg['atkrSettings'][playerIdx].party_list[partyIdx].pokemon_list[pkmIdx];
+			pkmInfo[moveType+'move_index'] = pkmConfigToCopyFrom[moveType+'move_index'];
+			pkmInfo[moveType+'move'] = pkmConfigToCopyFrom[moveType+'move'];
 			enqueueSim(cfg);
 			return -1;
 		}catch(err){
@@ -907,15 +994,21 @@ function enumeratePokemon(cfg, pkmInfo, enumPrefix){
 }
 
 function processQueue(cfg){
-	for (var i = enumTeamStart; i < cfg['atkrSettings'].length; i++){
-		for (var j = enumPokemonStart; j < cfg['atkrSettings'][i].length; j++){
-			if (enumeratePokemon(cfg, cfg['atkrSettings'][i][j], i+','+j) == -1)
-				return -1;
-			enumPokemonStart++;
+	for (var i = enumPlayerStart; i < cfg['atkrSettings'].length; i++){
+		for (var j = enumPartyStart; j < cfg['atkrSettings'][i].party_list.length; j++){
+			for (var k = enumPokemonStart; k < cfg['atkrSettings'][i].party_list[j].pokemon_list.length; k++){
+				if (enumeratePokemon(cfg, cfg['atkrSettings'][i].party_list[j].pokemon_list[k], i+'-'+j+'-'+k) == -1)
+					return -1;
+				enumPokemonStart++;
+			}
+			enumPartyStart++;
+			enumPokemonStart = 0;
 		}
-		enumTeamStart++;
+		enumPlayerStart++;
+		enumPartyStart = 0;
 		enumPokemonStart = 0;
 	}
+	
 	if (enumDefender == 0 && enumeratePokemon(cfg, cfg['dfdrSettings'], 'd') == -1)
 		return -1;
 	enumDefender++;
@@ -926,8 +1019,7 @@ function processQueue(cfg){
 function runSim(cfg){
 	var interResults = [];
 	for (var i = 0; i < cfg['generalSettings']['simPerConfig']; i++){
-		var app_world = new World();
-		app_world.config(cfg);
+		var app_world = new World(cfg);
 		app_world.battle();
 		interResults.push(app_world.get_statistics());
 	}
@@ -935,7 +1027,7 @@ function runSim(cfg){
 		simResults.push({input: cfg, output: averageResults(interResults)});
 	else if (cfg['generalSettings']['reportType'] == 'enum'){
 		for (var i = 0; i < interResults.length; i++)
-			simResults.push({input: cfg, output: interResults[i], included: true});
+			simResults.push({input: cfg, output: interResults[i]});
 	}
 }
 
@@ -1085,7 +1177,7 @@ function displayDetail(i){
 		displayMasterSummaryTable();
 	}
 	document.getElementById("feedback_buttons").appendChild(b);
-	document.getElementById("feedback_table1").appendChild(createTeamStatisticsTable(simResultsFiltered[i]));
+	document.getElementById("feedback_table1").appendChild(createPlayerStatisticsTable(simResultsFiltered[i]));
 	document.getElementById("feedback_table2").appendChild(createPokemonStatisticsTable(simResultsFiltered[i]));
 	document.getElementById("feedback_table3").innerHTML = "<button onclick='displayBattleLog("+i+")'>Display Battle Log</button>";
 	
@@ -1093,7 +1185,15 @@ function displayDetail(i){
 
 function displayBattleLog(i){
 	document.getElementById("feedback_table3").innerHTML = "";
-	document.getElementById("feedback_table3").appendChild(createBattleLogTable(simResultsFiltered[i]));
+	var logTable = createBattleLogTable(simResultsFiltered[i]);
+	logTable.id = 'ui-log-table';
+	document.getElementById("feedback_table3").appendChild(logTable);
+	$( '#ui-log-table' ).DataTable({
+		scrollX: true,
+		scrollY: true,
+		paging: false,
+		searching: false
+	});
 }
 
 function send_feedback(msg, appending){
@@ -1105,7 +1205,8 @@ function send_feedback(msg, appending){
 
 function main(){
 	initMasterSummaryTableMetrics();
-	enumTeamStart = 0;
+	enumPlayerStart = 0;
+	enumPartyStart = 0;
 	enumPokemonStart = 0;
 	enumDefender = 0;
 	simQueue.push(readUserInput());

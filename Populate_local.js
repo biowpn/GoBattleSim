@@ -9644,8 +9644,10 @@ $(document).ready(function(){
 	for (var i = 0; i < CHARGED_MOVE_DATA.length; i++){
 		CHARGED_MOVE_OPTIONS.push(CHARGED_MOVE_DATA[i].name);
 	}
-	addTeam();
-	setDefenderInput();
+	
+	addPlayerNode();
+	document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
+	autocompletePokemonNode('d');
 });
 
 
@@ -9657,17 +9659,23 @@ $(document).ready(function(){
 							dodgeBug: 0, 
 							simPerConfig : 1,
 							reportType : "enum"},
-		atkrSettings : [[{	
-							copies: 6,
-							species: "machamp", 
-							level: 40,
-							atkiv: 15,
-							defiv: 15,
-							stmiv: 15,
-							fmove: "counter",
-							cmove: "dynamic punch",
-							dodge: 1
-						}]],
+		atkrSettings : [{
+							party_list : [
+							{
+								revive_strategy : true,
+								pokemon_list: [{
+									copies: 6,
+									species: "machamp", 
+									level: 40,
+									atkiv: 15,
+									defiv: 15,
+									stmiv: 15,
+									fmove: "counter",
+									cmove: "dynamic punch",
+									dodge: 1
+								}]
+							}]
+						}],
 		dfdrSettings : {	
 							species: "blissey", 
 							fmove: "pound",
@@ -9677,5 +9685,4 @@ $(document).ready(function(){
 	};
 
 	writeUserInput(dbgs);
-
 });
