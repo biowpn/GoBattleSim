@@ -621,7 +621,7 @@ World.prototype.battle = function (){
 	}
 	
 	while (dfdr.HP > 0 && this.any_player_active() && t < this.timelimit_ms){
-		var e = this.tline.list.shift();
+		var e = this.tline.list.shift();	
 		t = e.t;
 		// 1. First process the event
 		if (e.name == "AtkrFree"){
@@ -669,8 +669,8 @@ World.prototype.battle = function (){
 				var new_pkm = this_player.active_pkm;
 				var new_tline = new Timeline();
 				if (delay == SWITCHING_DELAY_MS){ // If switched to the next, need to redirect queued damage
-					for (var i = 0; i < this.tline.list.length; i++){
-						var e = this.tline.list[i];
+					for (var j = 0; j < this.tline.list.length; j++){
+						var e = this.tline.list[j];
 						if (e.name == "Hurt" && e.subject.playerCode == old_pkm.playerCode){
 							e.subject = new_pkm;
 							e.dmg = damage(e.object, new_pkm, e.move, this.weather);
@@ -678,8 +678,8 @@ World.prototype.battle = function (){
 					}
 				}
 				// Erase the queued events of previous active attacker
-				for (var i = 0; i < this.tline.list.length; i++){
-					var e = this.tline.list[i];
+				for (var j = 0; j < this.tline.list.length; j++){
+					var e = this.tline.list[j];
 					if (e.subject.playerCode != old_pkm.playerCode && 
 							 e.object.playerCode != old_pkm.playerCode){
 						new_tline.enqueue(e);
@@ -698,7 +698,7 @@ World.prototype.battle = function (){
 		}
 		
 		// 4. Process the next event if it's at the same time before deciding whether the battle has ended
-		if (this.tline.list && t == this.tline.list[0].t)
+		if (this.tline.list.length > 0 && t == this.tline.list[0].t)
 			continue;
 		if (this.log_style && elog.length > 0)
 			this.add_to_log(elog);
@@ -707,7 +707,7 @@ World.prototype.battle = function (){
 	
 	// Battle has ended, some leftovers
 	if (this.log_style && elog.length > 0)
-			this.add_to_log(elog);
+		this.add_to_log(elog);
 		
 	this.battle_length = t;
 	for (var i = 0; i < this.playersArr.length; i++){

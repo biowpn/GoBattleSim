@@ -49,7 +49,10 @@ var MasterSummaryTableHeaders = {};
 function initMasterSummaryTableMetrics(){
 	MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
 	MasterSummaryTableHeaders = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_HEADERS));
-
+	enumPlayerStart = 0;
+	enumPartyStart = 0;
+	enumPokemonStart = 0;
+	enumDefender = 0;
 }
 
 function createNewMetric(metric, nameDisplayed){
@@ -629,22 +632,20 @@ function createMasterSummaryTable(){
 	var table = document.createElement("table");
 	table.style = "width:100%";
 	table.appendChild(createElement('thead',''));
+	table.appendChild(createElement('tfoot',''));
 	table.appendChild(createElement('tbody',''));
 
-	var headers = createRow(MasterSummaryTableHeaders.concat(["Details"]),"th");
-	table.children[0].appendChild(headers);
-
+	table.children[0].appendChild(createRow(MasterSummaryTableHeaders.concat(["Details"]),"th"));
+	table.children[1].appendChild(createRow(MasterSummaryTableHeaders.concat(["Details"]),"th"));
+	
 	for (var i = 0; i < simResults.length; i++){
 		var sim = simResults[i];
 		var row = [];
-		
 		MasterSummaryTableMetrics.forEach(function(m){
-			const v = (m[0] == '*') ? sim.input.enumeratedValues[m] : sim.output.generalStat[m];
-			row.push(v || '');
+			row.push((m[0] == '*') ? sim.input.enumeratedValues[m] : sim.output.generalStat[m]);
 		});
-
 		row.push("<a onclick='displayDetail("+i+")'>Detail</a>");
-		table.children[1].appendChild(createRow(row, "td"));
+		table.children[2].appendChild(createRow(row, "td"));
 	}
 	
 	return table;
@@ -675,26 +676,6 @@ function createPokemonStatisticsTable(simRes){
 		var ps = simRes.output.pokemonStat[i];
 		table.appendChild(createRow([ps.player_code, ps.img, ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, ps.tew],"td"));
 	}
-	return table;
-}
-
-function createBattleLogTable(simRes){
-	var table = document.createElement("table");
-	table.appendChild(createElement('thead',''));
-	table.appendChild(createElement('tbody',''));
-
-	var log = simRes.output.battleLog;
-
-	var headers = ["Time"];
-	for (var i = 0; i < simRes.input.atkrSettings.length; i++)
-		headers.push("Player" + (i+1));
-	headers.push("Defender");
-	table.children[0].appendChild(createRow(headers, "th"));
-	
-	for (var i = 0; i < log.length; i++){
-		table.children[1].appendChild(createRow(log[i]), "td");
-	}
-	
 	return table;
 }
 
@@ -969,20 +950,18 @@ function displayMasterSummaryTable(){
 	
 	document.getElementById("feedback_table1").appendChild(table);
 	
-	var columnWidths = [{width: 100/(MasterSummaryTableMetrics.length+1)+'%'}];
-	MasterSummaryTableMetrics.forEach(function(m){
-		columnWidths.push({width: 100/(MasterSummaryTableMetrics.length+1)+'%'});
-	});
 	
 	table = $( '#ui-mastersummarytable' ).DataTable({
-        scrollX: true
+		scroller: true,
+        scrollX: true,
+		scrollY: '80vh'
 	});
 	table.class = 'display nowrap';
 	table.columns().flatten().each( function ( colIdx ) {
 		// Create the select list and search operation
 		var select = $('<select />')
 			.appendTo(
-				table.column(colIdx).header()
+				table.column(colIdx).footer()
 			)
 			.on( 'change', function () {
 				table
@@ -991,7 +970,7 @@ function displayMasterSummaryTable(){
 					.draw();
 			} );
 		
-		select.append( $("<option value=''> </option>") );
+		select.append( $("<option value=''>*</option>") );
 		// Get the search data for the first column and add to the select list
 		table
 			.column( colIdx )
@@ -1009,11 +988,8 @@ function displayDetail(i){
 	writeUserInput(simResults[i]['input']);
 	document.getElementById("feedback_buttons").innerHTML = "";
 	var b = createElement("button","Back");
-	b.onclick = function(){
-		clearFeedbackTables();
-		displayMetricsControlTable();
-		displayMasterSummaryTable();
-	}
+	b.onclick = displayMasterSummaryTable;
+	
 	document.getElementById("feedback_buttons").appendChild(b);
 	document.getElementById("feedback_table1").appendChild(createPlayerStatisticsTable(simResults[i]));
 	document.getElementById("feedback_table2").appendChild(createPokemonStatisticsTable(simResults[i]));
@@ -1023,15 +999,34 @@ function displayDetail(i){
 
 function displayBattleLog(i){
 	document.getElementById("feedback_table3").innerHTML = "";
-	var logTable = createBattleLogTable(simResults[i]);
-	logTable.id = 'ui-log-table';
-	logTable.style = 'width:100%';
-	document.getElementById("feedback_table3").appendChild(logTable);
+	var simRes = simResults[i];
+	
+	var table = document.createElement("table");
+	table.appendChild(createElement('thead',''));
+	table.appendChild(createElement('tbody',''));
+	table.id = 'ui-log-table';
+	table.style = 'width:100%';
+	table.class = 'display nowrap';
+	
+	var headers = ["Time"];
+	for (var i = 0; i < simRes.input.atkrSettings.length; i++)
+		headers.push("Player" + (i+1));
+	headers.push("Defender");
+	table.children[0].appendChild(createRow(headers, "th"));
+	
+	var log = simRes.output.battleLog;
+	for (var i = 0; i < log.length; i++){
+		table.children[1].appendChild(createRow(log[i]), "td");
+	}
+	
+	document.getElementById("feedback_table3").appendChild(table);
+	
 	$( '#ui-log-table' ).DataTable({
 		scrollX: true,
-		scrollY: true,
-		paging: false,
-		searching: false
+		scrollY: '80vh',
+		scroller: true,
+		searching: false,
+		ordering: false
 	});
 }
 
@@ -1044,12 +1039,9 @@ function send_feedback(msg, appending){
 
 function main(){
 	initMasterSummaryTableMetrics();
-	enumPlayerStart = 0;
-	enumPartyStart = 0;
-	enumPokemonStart = 0;
-	enumDefender = 0;
 	simQueue.push(readUserInput());
 	send_feedback("");
+	var simLengthBefore = simResults.length;
 	while (simQueue.length > 0){
 		var cfg = simQueue[0];
 		if (processQueue(cfg) == -1)
@@ -1057,7 +1049,6 @@ function main(){
 		else
 			runSim(simQueue.shift());
 	}
-	clearFeedbackTables();
 	displayMasterSummaryTable();
-	send_feedback(simResults.length + " simulations were done.", true);
+	send_feedback((simResults.length - simLengthBefore) + " simulations were done.", true);
 }

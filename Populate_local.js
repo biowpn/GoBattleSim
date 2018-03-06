@@ -9647,7 +9647,9 @@ $(document).ready(function(){
 	
 	addPlayerNode();
 	document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
+	updateDefenderNode();
 	autocompletePokemonNode('d');
+	document.getElementById("simPerConfig").value = 1;
 });
 
 

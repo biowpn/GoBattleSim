@@ -40,6 +40,7 @@ function populateAll(){
 			CHARGED_MOVE_OPTIONS.push(CHARGED_MOVE_DATA[i].name);
 		}
 		addPlayerNode();
+		document.getElementById("ui-defenderinputbody").innerHTML = "";
 		document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
 		updateDefenderNode();
 		autocompletePokemonNode('d');
@@ -103,25 +104,29 @@ $.ajax({
 	success: function(data){
 		for(var i = 0; i < data.length; i++){
 			if (data[i].move_category == "Fast Move"){
-				FAST_MOVE_DATA.push({
+				var move = {
 					name: data[i].title.toLowerCase(),
 					moveType: "f",
 					power: parseInt(data[i].power),
 					pokeType: data[i].move_type.toLowerCase(),
-					energyDelta: parseInt(data[i].energy_gain),
+					energyDelta: Math.abs(parseInt(data[i].energy_gain)),
 					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000,
 					duration: parseFloat(data[i].cooldown)*1000
-				});
+				};
+
+				FAST_MOVE_DATA.push(move);
 			}else if (data[i].move_category == "Charge Move"){
-				CHARGED_MOVE_DATA.push({
+				var move = {
 					name: data[i].title.toLowerCase(),
 					moveType: "c",
 					power: parseInt(data[i].power),
 					pokeType: data[i].move_type.toLowerCase(),
-					energyDelta: parseInt(data[i].energy_cost),
+					energyDelta: -Math.abs(parseInt(data[i].energy_cost)),
 					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000,
 					duration: parseFloat(data[i].cooldown)*1000
-				});
+				};
+
+				CHARGED_MOVE_DATA.push(move);
 			}else{
 				console.log("Unrecogized move type:");
 				console.log(data[i]);
@@ -175,11 +180,14 @@ $(document).ready(function(){
 						USER_POKEBOX.push(pkmRaw);
 					}
 				}
+				USER_POKEBOX_FETCHED = true;
 			},
 			complete: function(jqXHR, textStatus){
 				populateAll();
 			}
 		});
+	}else{
+		USER_POKEBOX_FETCHED = true;
 	}
-	USER_POKEBOX_FETCHED = true;
+	
 });
