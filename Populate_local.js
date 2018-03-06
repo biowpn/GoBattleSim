@@ -9650,6 +9650,8 @@ $(document).ready(function(){
 	updateDefenderNode();
 	autocompletePokemonNode('d');
 	document.getElementById("simPerConfig").value = 1;
+	
+	
 });
 
 
