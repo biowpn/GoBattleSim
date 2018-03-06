@@ -159,7 +159,7 @@ function Pokemon(cfg){
 		this.playerCode = -1;
 	}
 	this.dodgeStrat = parseInt(cfg.dodge) || 0;
-	
+	this.ahas_dodged_next_attack = false;
 	this.active = false;
 	
 	// Some statistics for performance analysis
@@ -235,7 +235,6 @@ Pokemon.prototype.get_statistics = function(){
 		dps : Math.round(this.tdo / (this.total_time_active_ms/1000)*100)/100,
 		tew : this.total_energy_wasted
 	};
-
 	return stat;
 }
 /* End of Class <Pokemon> */
@@ -253,7 +252,6 @@ function Party(cfg){
 		for (var r = 0; r < cfg.pokemon_list[k].copies; r++)
 			this.pokemonArr.push(new Pokemon(cfg.pokemon_list[k]));
 	}
-	
 	this.active_idx = 0;
 	this.active_pkm = this.pokemonArr[0];
 }
@@ -375,7 +373,6 @@ function Event(name, t, subject, object, move, dmg, energyDelta){
 	this.move = move;
 	this.dmg = dmg;
 	this.energyDelta = energyDelta;
-	this.dodged = false; //prevent double dodging (you want to reduce damage to 1/16?? Nice dreaming)
 }
 /* End of Class <Event> */
 
@@ -396,12 +393,7 @@ Timeline.prototype.enqueue = function (e){
 	this.list.splice(i, 0, e);
 }
 
-// Finds and returns the next Hurt event of a specified Pokemon
-Timeline.prototype.nextHurtEventOf = function(pkm){
-	for (var i = 0; i < this.list.length; i++)
-		if (this.list[i].name == "Hurt" && this.list[i].subject == pkm)
-			return this.list[i];
-}
+
 /* End of Class <Timeline> */
 
 
@@ -437,14 +429,13 @@ function World(cfg){
 // Player's Pokemon uses a move
 World.prototype.atkr_use_move = function(pkm, pkm_hurt, move, t){
 	var dmg = damage(pkm, pkm_hurt, move, this.weather);
-	this.tline.enqueue(new Event("Anounce", t, pkm, pkm_hurt, move, 0, 0));
 	this.tline.enqueue(new Event("Hurt", t + move.dws, pkm_hurt, pkm, move, dmg, 0));
 	this.tline.enqueue(new Event("EnergyDelta", t + move.dws, pkm, 0, 0, 0, move.energyDelta));
 }
 
 // Gym Defender/Raid Boss uses a move, hurting all active attackers
 World.prototype.dfdr_use_move = function(pkm, move, t){
-	this.tline.enqueue(new Event("Anounce", t, pkm, 0, move, 0, 0));
+	
 	for (var i = 0; i < this.playersArr.length; i++){
 		var pkm_hurt = this.playersArr[i].active_pkm;
 		if (pkm_hurt && pkm_hurt.active){
@@ -453,6 +444,40 @@ World.prototype.dfdr_use_move = function(pkm, move, t){
 		}
 	}
 	this.tline.enqueue(new Event("EnergyDelta", t + move.dws, pkm, 0, 0, 0, move.energyDelta));
+}
+
+// Enqueue events to timeline according from a list of actions
+// And ask for the next action when the attacker is free again
+World.prototype.enqueueActions = function(pkm, pkm_hurt, t, actions){
+	var tFree = t;
+	for (var i = 0; i < actions.length; i++){
+		if (actions[i] == 'f'){ // Use fast move
+			this.tline.enqueue(new Event("Announce", tFree, pkm, pkm_hurt, pkm.fmove, 0, 0));
+			tFree += pkm.fmove.duration;
+		} else if (actions[i] == 'c'){ // Use charge move
+			this.tline.enqueue(new Event("Announce", tFree, pkm, pkm_hurt, pkm.cmove, 0, 0));
+			tFree += pkm.cmove.duration;
+		} else if (actions[i] == 'd'){ // dodge
+			this.tline.enqueue(new Event("Dodge", tFree, pkm, 0, 0, 0, 0));
+			tFree += DODGE_COOLDOWN_MS;
+		} else // wait
+			tFree += actions[i];
+	}
+	this.tline.enqueue(new Event("AtkrFree", tFree, pkm, 0, 0, 0, 0));
+}
+
+// Finds and returns the next Hurt event of a specified Pokemon
+World.prototype.nextHurtEventOf = function(pkm, projected){
+	for (var i = 0; i < this.tline.list.length; i++){
+		var thisEvent = this.tline.list[i];
+		if (thisEvent.name == "Hurt" && thisEvent.subject.playerCode == pkm.playerCode)
+			return thisEvent;
+		else if (thisEvent.name == "dodgeCue" && projected){ // yellow flash
+			// It's a projected Hurt Event, not yet in timeline
+			var projectedDmg = damage(thisEvent.subject, pkm, thisEvent.move, this.weather);
+			return new Event("Hurt", thisEvent.t + DODGEWINDOW_LENGTH_MS, pkm, thisEvent.subject, thisEvent.move, projectedDmg, 0);
+		}
+	}
 }
 
 // Brutal force to find out how to maximize damage within a limited time (guaranteed to fit in at least one fmove/cmove)
@@ -503,8 +528,9 @@ World.prototype.atkr_choose = function (pkm, t){
 		// - Minimize waiting (waiting should always be avoided)
 		// - Maximize time left before dodging (dodge as late as possible)
 		// - Maximize damage done before dodging
-		var hurtEvent = this.tline.nextHurtEventOf(pkm);
-		if (hurtEvent && (hurtEvent.move.moveType == 'c' || pkm.dodgeStrat >= 2) && !hurtEvent.dodged){
+		var hurtEvent = this.nextHurtEventOf(pkm, true);
+		if (hurtEvent && (hurtEvent.move.moveType == 'c' || pkm.dodgeStrat >= 2) && !pkm.has_dodged_next_attack){
+			pkm.has_dodged_next_attack = true;
 			var timeTillHurt = hurtEvent.t - t;
 			
 			// 1. If can't fit in a fmove or a cmove (whichever has earliest DWS), just dodge and attack
@@ -520,7 +546,7 @@ World.prototype.atkr_choose = function (pkm, t){
 
 			// (2) Otherwise, need to maximize damage before time runs out
 			var dodgedDmg = Math.floor(hurtEvent.dmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
-			if (this.dodge_bug && this.atkr_parties.length >= 2)
+			if (this.dodge_bug && this.playersArr.length >= 2)
 				dodgedDmg = hurtEvent.dmg;
 			if (pkm.HP > dodgedDmg){
 				// (2a) if this Pokemon can survive the dodged damage, then it's better to dodge
@@ -540,10 +566,9 @@ World.prototype.atkr_choose = function (pkm, t){
 				}else{
 					return resF[2].concat('f');
 				}
-			} 
+			}
 		}
 	}
-	
 	// No dodging or no need to dodge
 	if (pkm.energy + pkm.cmove.energyDelta >= 0){
 		return ['c'];
@@ -554,44 +579,29 @@ World.prototype.atkr_choose = function (pkm, t){
 
 // Gym Defender/Raid Boss strategy
 World.prototype.dfdr_choose = function (pkm, t, current_move){
-	// A defender decides what to do at time = t + current_move.duration + delay, not at time = t
+	// A defender decides the next action (at t + current_move.duration + delay) now (at t)
 	var next_move = pkm.fmove;
 	var next_t = t + current_move.duration;
 	
+	// If the projected energy is enough to use cmove, then 0.5 probablity it will use
 	if (pkm.energy + current_move.energyDelta + pkm.cmove.energyDelta >= 0 && Math.random() <= 0.5){
 			next_move = pkm.cmove;
 	}
 	// Add the defender delay
 	next_t += 1500 + Math.round(1000 * Math.random());
-	this.dfdr_use_move(pkm, next_move, next_t);
+	
 	this.tline.enqueue(new Event("DfdrFree", next_t, pkm, 0, next_move, 0, 0));
-}
-
-// Enqueue events to timeline according from a list of actions
-// And ask for the next action when the attacker is free again
-World.prototype.enqueueActions = function(pkm, pkm_hurt, t, actions){
-	var tFree = t;
-	for (var i = 0; i < actions.length; i++){
-		if (actions[i] == 'f'){
-			this.atkr_use_move(pkm, pkm_hurt, pkm.fmove, tFree);
-			tFree += pkm.fmove.duration;
-		} else if (actions[i] == 'c'){
-			this.atkr_use_move(pkm, pkm_hurt, pkm.cmove, tFree);
-			tFree += pkm.cmove.duration;
-		} else if (actions[i] == 'd'){
-			this.tline.enqueue(new Event("Dodge", tFree, pkm, 0,0,0,0));
-			tFree += DODGE_COOLDOWN_MS;
-		} else
-			tFree += actions[i];
-	}
-	this.tline.enqueue(new Event("AtkrFree", tFree, pkm, 0,0,0,0));
+	this.tline.enqueue(new Event("Announce", next_t, pkm, 0, next_move, 0, 0));
+	this.tline.enqueue(new Event("dodgeCue", next_t + next_move.dws - DODGEWINDOW_LENGTH_MS, pkm, 0, next_move, 0, 0));
 }
 
 
 // Gym Defender or Raid Boss moves at the start of a battle
 World.prototype.initial_dfdr_choose = function (dfdr){
-	this.dfdr_use_move(dfdr, dfdr.fmove, 1000);
-	this.dfdr_use_move(dfdr, dfdr.fmove, 1000 + Math.max(1000, dfdr.fmove.duration));
+	this.tline.enqueue(new Event("Announce", 1000, dfdr, 0, dfdr.fmove, 0, 0));
+	this.tline.enqueue(new Event("dodgeCue", 1000 + dfdr.fmove.dws - DODGEWINDOW_LENGTH_MS, 0, 0, dfdr.fmove, 0, 0));
+	this.tline.enqueue(new Event("Announce", 1000 + Math.max(1000, dfdr.fmove.duration), dfdr, 0, dfdr.fmove, 0, 0));
+	this.tline.enqueue(new Event("dodgeCue", 1000 + Math.max(1000, dfdr.fmove.duration) + dfdr.fmove.dws - DODGEWINDOW_LENGTH_MS, 0, 0, dfdr.fmove, 0, 0));
 	this.tline.enqueue(new Event("DfdrFree", 1000 + Math.max(1000, dfdr.fmove.duration), dfdr, 0, dfdr.fmove, 0, 0));
 }
 
@@ -633,8 +643,9 @@ World.prototype.battle = function (){
 			else	
 				this.initial_dfdr_choose(dfdr);
 		}else if (e.name == "Hurt"){
-			if (e.subject.active){
+			if (e.subject.active && e.object.active){
 				e.subject.take_damage(e.dmg);
+				e.subject.has_dodged_next_attack = false;
 				e.object.attribute_damage(e.dmg, e.move.moveType);
 				elog.push(e);
 			}
@@ -647,14 +658,17 @@ World.prototype.battle = function (){
 				this.tline.enqueue(new Event("AtkrFree", t + 100, e.subject, 0,0,0,0));
 			elog.push(e);
 		}else if (e.name == "Dodge"){
-			var eHurt = this.tline.nextHurtEventOf(e.subject);
-			if (eHurt && (eHurt.t - DODGEWINDOW_LENGTH_MS) <= t && t <= eHurt.t && !eHurt.dodged){
+			var eHurt = this.nextHurtEventOf(e.subject, false);
+			if (eHurt && (eHurt.t - DODGEWINDOW_LENGTH_MS) <= t && t <= eHurt.t && !e.subject.has_dodged_next_attack){
 				eHurt.dmg = Math.floor(eHurt.dmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
-				eHurt.dodged = true;
+				e.subject.has_dodged_next_attack = true;
 			}
 			elog.push(e);
-		}else if (e.name == "Anounce"){
-			// Do nothing
+		}else if (e.name == "Announce"){
+			if (e.subject.raidTier == 0) // Atkr
+				this.atkr_use_move(e.subject, e.object, e.move, t);
+			else
+				this.dfdr_use_move(e.subject, e.move, t);
 		}
 		
 		// 2. Check if some attacker fainted
@@ -664,28 +678,8 @@ World.prototype.battle = function (){
 			if (old_pkm && old_pkm.HP <= 0){
 				old_pkm.time_leave_ms = t;
 				old_pkm.total_time_active_ms += t - old_pkm.time_enter_ms;
-	
 				var delay = this_player.next_pokemon_up(); // Ask for sending another attacker
 				var new_pkm = this_player.active_pkm;
-				var new_tline = new Timeline();
-				if (delay == SWITCHING_DELAY_MS){ // If switched to the next, need to redirect queued damage
-					for (var j = 0; j < this.tline.list.length; j++){
-						var e = this.tline.list[j];
-						if (e.name == "Hurt" && e.subject.playerCode == old_pkm.playerCode){
-							e.subject = new_pkm;
-							e.dmg = damage(e.object, new_pkm, e.move, this.weather);
-						}
-					}
-				}
-				// Erase the queued events of previous active attacker
-				for (var j = 0; j < this.tline.list.length; j++){
-					var e = this.tline.list[j];
-					if (e.subject.playerCode != old_pkm.playerCode && 
-							 e.object.playerCode != old_pkm.playerCode){
-						new_tline.enqueue(e);
-					}
-				}
-				this.tline = new_tline;
 				if (new_pkm)
 					this.tline.enqueue(new Event("Enter", t + delay, new_pkm, 0,0,0,0));
 			}
@@ -722,7 +716,6 @@ World.prototype.battle = function (){
 		dfdr.total_time_active_ms += t - dfdr.time_enter_ms;
 	}
 }
-
 
 
 // Add events of the same time to battle log

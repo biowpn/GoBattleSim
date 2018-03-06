@@ -9657,7 +9657,7 @@ $(document).ready(function(){
 	// Debug
 	var dbgs = {
 		generalSettings : {battleMode: "raid", 
-							weather : "CLOUDY", 
+							weather : "EXTREME", 
 							dodgeBug: 0, 
 							simPerConfig : 1,
 							reportType : "enum"},
@@ -9679,9 +9679,9 @@ $(document).ready(function(){
 							}]
 						}],
 		dfdrSettings : {	
-							species: "blissey", 
-							fmove: "pound",
-							cmove: "dazzling gleam",
+							species: "tyranitar", 
+							fmove: "bite",
+							cmove: "fire blast",
 							raid_tier: 3
 						}
 	};
