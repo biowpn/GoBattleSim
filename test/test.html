@@ -6,27 +6,23 @@
 <link href="https://cdn.datatables.net/scroller/1.4.4/css/scroller.dataTables.min.css" rel="stylesheet">
 
 
-<h2 class="demoHeaders">Accordion</h2>
 <div id="accordion">
-	<h3>First</h3>
-	<div>Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet.</div>
-	<h3>Second</h3>
-	<div>Phasellus mattis tincidunt nibh.</div>
-	<h3>Third</h3>
-	<div>Nam dui erat, auctor a, dignissim quis.</div>
-</div>
-
-<div id="accordion2">
 	
 	<h4>1</h4>
-	<div><table>
-		<tr><td>1,1</td><td>1,2</td></tr>
-	</table></div>
+	<div id="accordion1">
+		<h5>Party 1-1</h5>
+		<div>Pokemon Tables for Party 1-1</div>
+		<h5>Party 1-2</h5>
+		<div>Pokemon Tables for Party 1-2</div>
+	</div>
 	
 	<h4>2</h4>
-	<div><table>
-		<tr><td>2,1</td><td>2,2</td></tr>
-	</table></div>
+	<div id="accordion2">
+		<h5>Party 2-1</h5>
+		<div>Pokemon Tables for Party 2-1</div>
+		<h5>Party 2-2</h5>
+		<div>Pokemon Tables for Party 2-2</div>
+	</div>
 	
 </div>
 
@@ -34,7 +30,18 @@
 	
 <script>
 
+$( "#accordion" ).accordion({
+	active: false,
+	collapsible: true
+});
+
+$( "#accordion1" ).accordion({
+	active: false,
+	collapsible: true
+});
+
 $( "#accordion2" ).accordion({
+	active: false,
 	collapsible: true
 });
 

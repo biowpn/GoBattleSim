@@ -621,8 +621,6 @@ World.prototype.battle = function (){
 	var elog = [];
 	var dfdr = this.dfdr;
 	
-	console.log(this);
-	
 	for (var i = 0; i < this.playersArr.length; i++){
 		var atkr = this.playersArr[i].active_pkm;
 		if (atkr)
@@ -791,25 +789,26 @@ World.prototype.get_statistics = function(){
 	else
 		general_stat['battle_result'] = "Win";
 	
-	pokemon_stats.push(this.dfdr.get_statistics());
-
 	var dfdr_HP_lost = this.dfdr.maxHP - this.dfdr.HP;
 	general_stat['dfdr_HP_lost_percent'] = Math.round(dfdr_HP_lost / this.dfdr.maxHP*1000)/10;
 	for (var i = 0; i < this.playersArr.length; i++){
 		var player = this.playersArr[i];
 		var ts = player.get_statistics(dfdr_HP_lost);
-		player_stats.push(ts);
 		general_stat['total_deaths'] += ts['num_deaths'];
+		player_stats.push(ts);
+		pokemon_stats.push([]);
 		for (var j = 0; j < player.partiesArr.length; j++){
+			pokemon_stats[i].push([]);
 			for (var k = 0; k < player.partiesArr[j].pokemonArr.length; k++)
-				pokemon_stats.push(player.partiesArr[j].pokemonArr[k].get_statistics());
+				pokemon_stats[i][j].push(player.partiesArr[j].pokemonArr[k].get_statistics());
 		}
 	}
+	pokemon_stats.push(this.dfdr.get_statistics());
 	
 	return {
 		generalStat : general_stat,
-		playerStat : player_stats,
-		pokemonStat : pokemon_stats,
+		playerStats : player_stats,
+		pokemonStats : pokemon_stats,
 		battleLog : this.log
 	};	
 }

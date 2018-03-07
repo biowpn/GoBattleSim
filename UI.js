@@ -38,7 +38,7 @@ var enumDefender = 0;
 
 var MasterSummaryTableMetrics = [];
 var MasterSummaryTableHeaders = {};
-
+var MasterSummaryTableMetricsFilterOrder = [];
 
 
 
@@ -674,68 +674,6 @@ function writeUserInput(cfg){
 }
 
 
-
-function clearAllSims(){
-	simResults = [];
-	simResults = [];
-	pageStart = 0;
-	pageNumber = 1;
-	pageNumberMax = 1;
-	displayMasterSummaryTable();
-}
-
-function createMasterSummaryTable(){
-	var table = document.createElement("table");
-	table.style = "width:100%";
-	table.appendChild(createElement('thead',''));
-	table.appendChild(createElement('tfoot',''));
-	table.appendChild(createElement('tbody',''));
-
-	table.children[0].appendChild(createRow(MasterSummaryTableHeaders.concat(["Details"]),"th"));
-	table.children[1].appendChild(createRow(MasterSummaryTableHeaders.concat(["Details"]),"th"));
-	
-	for (var i = 0; i < simResults.length; i++){
-		var sim = simResults[i];
-		var row = [];
-		MasterSummaryTableMetrics.forEach(function(m){
-			row.push((m[0] == '*') ? sim.input.enumeratedValues[m] : sim.output.generalStat[m]);
-		});
-		row.push("<a onclick='displayDetail("+i+")'>Detail</a>");
-		table.children[2].appendChild(createRow(row, "td"));
-	}
-	
-	return table;
-}
-
-function createPlayerStatisticsTable(simRes){
-	var table = document.createElement("table");
-	
-	table.appendChild(createRow(["Player#","TDO","TDO%","#Rejoin","#Deaths"],"th"));
-	for (var i = 0; i < simRes.output.playerStat.length; i++){
-		var ts = simRes.output.playerStat[i];
-		table.appendChild(createRow([ts.player_code, ts.tdo, ts.tdo_percentage, ts.num_rejoin, ts.num_deaths], "td"));
-	}
-	return table;
-}
-
-function createPokemonStatisticsTable(simRes){
-	var table = document.createElement("table");
-	table.appendChild(createRow(["Player#",
-								"<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>",
-								"HP",
-								"Energy",
-								"TDO",
-								"Duration",
-								"DPS",
-								"TEW"],"th"));
-	for (var i = 0; i < simRes.output.pokemonStat.length; i++){
-		var ps = simRes.output.pokemonStat[i];
-		table.appendChild(createRow([ps.player_code, ps.img, ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, ps.tew],"td"));
-	}
-	return table;
-}
-
-
 function enqueueSim(cfg){
 	if (simQueue.length < MAX_QUEUE_SIZE){
 		var cfg_copy = JSON.parse(JSON.stringify(cfg));
@@ -989,9 +927,62 @@ function averageResults(results){
 function clearFeedbackTables(){
 	document.getElementById("feedback_table1").innerHTML = "";
 	document.getElementById("feedback_table2").innerHTML = "";
-	document.getElementById("feedback_table3").innerHTML = "";
 }
 
+function clearAllSims(){
+	simResults = [];
+	simResults = [];
+	pageStart = 0;
+	pageNumber = 1;
+	pageNumberMax = 1;
+	displayMasterSummaryTable();
+}
+
+function createMasterSummaryTable(){
+	var table = document.createElement("table");
+	table.style = "width:100%";
+	table.appendChild(createElement('thead',''));
+	table.appendChild(createElement('tfoot',''));
+	table.appendChild(createElement('tbody',''));
+
+	table.children[0].appendChild(createRow(MasterSummaryTableHeaders.concat(["Details"]),"th"));
+	table.children[1].appendChild(createRow(MasterSummaryTableHeaders.concat(["Details"]),"th"));
+	
+	for (var i = 0; i < simResults.length; i++){
+		var sim = simResults[i];
+		var row = [];
+		MasterSummaryTableMetrics.forEach(function(m){
+			row.push((m[0] == '*') ? sim.input.enumeratedValues[m] : sim.output.generalStat[m]);
+		});
+		row.push("<a onclick='displayDetail("+i+")'>Detail</a>");
+		table.children[2].appendChild(createRow(row, "td"));
+	}
+	
+	return table;
+}
+
+function createPlayerStatisticsString(playerStat){
+	var pString = "Player " + playerStat.player_code;
+	pString += ", TDO: " + playerStat.tdo + "(" + playerStat.tdo_percentage + "%)";
+	pString += ", rejoined " + playerStat.num_rejoin + " time" + (playerStat.num_rejoin > 1 ? 's' : '');
+	return pString;
+}
+
+function createPokemonStatisticsTable(pokemonStats){
+	var table = document.createElement("table");
+	table.appendChild(createRow(["<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>",
+								"HP",
+								"Energy",
+								"TDO",
+								"Duration",
+								"DPS",
+								"TEW"],"th"));
+	for (var i = 0; i < pokemonStats.length; i++){
+		var ps = pokemonStats[i];
+		table.appendChild(createRow([ps.img, ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, ps.tew],"td"));
+	}
+	return table;
+}
 
 
 function displayMasterSummaryTable(){
@@ -1010,7 +1001,7 @@ function displayMasterSummaryTable(){
 	table = $( '#ui-mastersummarytable' ).DataTable({
 		scroller: true,
         scrollX: true,
-		scrollY: '80vh'
+		scrollY: '60vh'
 	});
 	table.class = 'display nowrap';
 	table.columns().flatten().each( function ( colIdx ) {
@@ -1019,63 +1010,102 @@ function displayMasterSummaryTable(){
 			.appendTo(
 				table.column(colIdx).footer()
 			)
-			.on( 'change', function () {
-				table
-					.column( colIdx )
-					.search( $(this).val() )
-					.draw();
+			.on( 'change', function (){
+				table.column( colIdx ).search( $(this).val() ).draw();
+				/*
+				var temptable = table.column( colIdx ).search( $(this).val() );
+				var order_idx = MasterSummaryTableMetricsFilterOrder.indexOf(parseInt(this.id.split('-')[3]));
+				if (order_idx == -1)
+					MasterSummaryTableMetricsFilterOrder.push(parseInt(this.id.split('-')[3]));
+				else{
+					if ($(this).val() == ' ')
+						MasterSummaryTableMetricsFilterOrder.splice(order_idx);
+					else
+						MasterSummaryTableMetricsFilterOrder.splice(order_idx + 1);
+					for (var i = 0; i < MasterSummaryTableMetrics.length; i++){
+						if (!MasterSummaryTableMetricsFilterOrder.includes(i)){
+							var selectToMod = document.getElementById('ui-mst-select-' + i);
+							selectToMod.value = ' ';
+							//selectToMod.innerHTML = '';
+							// temptable.column( i ).search( '' );
+						}
+					}
+				}
+				temptable.draw();
+				*/
 			} );
+			
+		select[0].id = 'ui-mst-select-' + colIdx;
 		
-		select.append( $("<option value=''>*</option>") );
+		// No filter
+		select.append( $("<option value=' '>*</option>") );
 		// Get the search data for the first column and add to the select list
-		table
-			.column( colIdx )
-			.cache( 'search' )
-			.sort()
-			.unique()
+		table.column( colIdx ).cache( 'search' ).sort().unique()
 			.each( function ( d ) {
-				select.append( $('<option value="'+d+'">'+d+'</option>') );
+				var op = document.createElement('option');
+				op.value = d;
+				op.innerHTML = d;
+				select.append(op);
 			} );
 	} );
 }
 
 function displayDetail(i){
 	clearFeedbackTables();
+	
+	// Replay the UI
 	writeUserInput(simResults[i]['input']);
+	
+	// Add option to go back to Master Summary
 	document.getElementById("feedback_buttons").innerHTML = "";
 	var b = createElement("button","Back");
-	b.onclick = displayMasterSummaryTable;
-	
-	document.getElementById("feedback_buttons").appendChild(b);
-	document.getElementById("feedback_table1").appendChild(createPlayerStatisticsTable(simResults[i]));
-	document.getElementById("feedback_table2").appendChild(createPokemonStatisticsTable(simResults[i]));
-	document.getElementById("feedback_table3").innerHTML = "<button onclick='displayBattleLog("+i+")'>Display Battle Log</button>";
-	
-}
-
-function displayBattleLog(i){
-	document.getElementById("feedback_table3").innerHTML = "";
-	var simRes = simResults[i];
-	
-	var table = document.createElement("table");
-	table.appendChild(createElement('thead',''));
-	table.appendChild(createElement('tbody',''));
-	table.id = 'ui-log-table';
-	table.style = 'width:100%';
-	table.class = 'display nowrap';
-	
-	var headers = ["Time"];
-	for (var i = 0; i < simRes.input.atkrSettings.length; i++)
-		headers.push("Player" + (i+1));
-	headers.push("Defender");
-	table.children[0].appendChild(createRow(headers, "th"));
-	
-	var log = simRes.output.battleLog;
-	for (var i = 0; i < log.length; i++){
-		table.children[1].appendChild(createRow(log[i]), "td");
+	b.onclick = function(){
+		$( "#feedback_table1" ).accordion("destroy");
+		$( "#feedback_table2" ).accordion("destroy");
+		displayMasterSummaryTable();
 	}
+	document.getElementById("feedback_buttons").appendChild(b);
 	
-	document.getElementById("feedback_table3").appendChild(table);
+	// Prepare Player/Party/Pokemon summary
+	var output = simResults[i]['output'];
+	var fbSection = document.getElementById("feedback_table1");
+	for (var i = 0; i < output.pokemonStats.length - 1; i++){
+		fbSection.appendChild(createElement('h4',createPlayerStatisticsString(output.playerStats[i])));
+		var playerDiv = document.createElement('div');
+		playerDiv.id = 'ui-playerstat-' + i;
+		for (var j = 0; j < output.pokemonStats[i].length; j++){
+			playerDiv.appendChild(createElement('h5','Party ' + (j+1)));
+			var partyDiv = document.createElement('div');
+			partyDiv.appendChild(createPokemonStatisticsTable(output.pokemonStats[i][j]));
+			playerDiv.appendChild(partyDiv);
+		}
+		fbSection.appendChild(playerDiv);
+		
+		$( '#' + playerDiv.id ).accordion({
+			active: false,
+			collapsible: true,
+			heightStyle: 'content'
+		});
+	}
+	fbSection.appendChild(createElement('h4','Defender'));
+	var defenderDiv = document.createElement('div');
+	defenderDiv.appendChild(createPokemonStatisticsTable([output.pokemonStats[output.pokemonStats.length - 1]]));
+	fbSection.appendChild(defenderDiv);
+	
+	$( "#feedback_table1" ).accordion({
+		active: false,
+		collapsible: true,
+		heightStyle: 'content'
+	});
+	
+	// Battle Log
+	var fbSection = document.getElementById("feedback_table2");
+	fbSection.appendChild(createElement('h3','Battle Log'));
+	var battleLogDiv = document.createElement('div');
+	var battleLogTable = createBattleLogTable(output.battleLog, output.playerStats.length);
+	battleLogTable.id = 'ui-log-table';
+	battleLogDiv.appendChild(battleLogTable);
+	fbSection.appendChild(battleLogDiv);
 	
 	$( '#ui-log-table' ).DataTable({
 		scrollX: true,
@@ -1084,6 +1114,31 @@ function displayBattleLog(i){
 		searching: false,
 		ordering: false
 	});
+	$( "#feedback_table2" ).accordion({
+		active: false,
+		collapsible: true,
+		heightStyle: 'content'
+	});
+}
+
+function createBattleLogTable(log, playerCount){
+	var table = document.createElement('table');
+	table.appendChild(createElement('thead',''));
+	table.appendChild(createElement('tbody',''));
+	table.style = 'width:100%';
+	table.class = 'display nowrap';
+	
+	var headers = ["Time"];
+	for (var i = 0; i < playerCount; i++)
+		headers.push("Player" + (i+1));
+	headers.push("Defender");
+	table.children[0].appendChild(createRow(headers, "th"));
+	
+	for (var i = 0; i < log.length; i++){
+		table.children[1].appendChild(createRow(log[i]), "td");
+	}
+	
+	return table;
 }
 
 function send_feedback(msg, appending){
@@ -1106,5 +1161,5 @@ function main(){
 			runSim(simQueue.shift());
 	}
 	displayMasterSummaryTable();
-	send_feedback((simResults.length - simLengthBefore) + " simulations were done.", true);
+	send_feedback((simResults.length - simLengthBefore) * $('#simPerConfig').val() + " simulations were done.", true);
 }

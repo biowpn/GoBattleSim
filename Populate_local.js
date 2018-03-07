@@ -9674,8 +9674,8 @@ $(document).ready(function(){
 									atkiv: 15,
 									defiv: 15,
 									stmiv: 15,
-									fmove: "counter",
-									cmove: "dynamic punch",
+									fmove: "*",
+									cmove: "*",
 									dodge: 1
 								}]
 							}]
