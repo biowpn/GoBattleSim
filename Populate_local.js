@@ -9689,4 +9689,9 @@ $(document).ready(function(){
 	};
 
 	writeUserInput(dbgs);
+	
+
+	if (window.location.href.includes('?'))
+		writeUserInputFromUrl(window.location.href);
+	
 });

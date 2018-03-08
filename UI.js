@@ -78,6 +78,46 @@ function createRow(rowData, type){
 	return row;
 }
 
+function jsonToURI(json){ return encodeURIComponent(JSON.stringify(json)); }
+
+function uriToJSON(urijson){ return JSON.parse(decodeURIComponent(urijson)); }
+
+function exportConfigToUrl(cfg){
+	// var cfg_min = JSON.parse(JSON.stringify(cfg));
+	var cfg_min = {
+		atkrSettings: [],
+		dfdrSettings: {},
+		generalSettings: cfg.generalSettings
+	};
+	for (var i = 0; i < cfg.atkrSettings.length; i++){
+		cfg_min.atkrSettings.push({
+			party_list: []
+		});
+		for (var j = 0; j < cfg.atkrSettings[i].party_list.length; j++){
+			cfg_min.atkrSettings[i].party_list.push({
+				revive_strategy : cfg.atkrSettings[i].party_list[j].revive_strategy,
+				pokemon_list : []
+			});
+			for (var k = 0; k < cfg.atkrSettings[i].party_list[j].pokemon_list.length; k++){
+				var pkm_min = {};
+				copyAllInfo(pkm_min, cfg.atkrSettings[i].party_list[j].pokemon_list[k], true);
+				cfg_min.atkrSettings[i].party_list[j].pokemon_list.push(pkm_min);
+			}
+		}
+	}
+	copyAllInfo(cfg_min.dfdrSettings, cfg.dfdrSettings, true);
+	
+	return jsonToURI(cfg_min);
+}
+
+
+function writeUserInputFromUrl(url){
+	if (url.includes('?')){
+		var userInput = uriToJSON(url.split('?')[1]);
+		writeUserInput(userInput);
+	}
+}
+
 
 function createAttackerNode(){
 	var pokemonNode = document.createElement("div");
@@ -460,7 +500,7 @@ function parseAttackerNode(node){
 
 function parsePartyNode(node){
 	var party_cfg = {
-		revive_strategy: node.children[2].children[0].children[0].checked,
+		revive_strategy: node.children[2].children[0].children[2].checked,
 		pokemon_list: []
 	};
 	for (var k = 0; k < node.children[1].children.length; k++)
@@ -555,19 +595,26 @@ function readUserInput(){
 }
 
 
-function copyAllInfo(pkm_to, pkm_from){
-	pkm_to.nickname = pkm_from.nickname;
-	pkm_to.box_index = pkm_from.box_index;
+function copyAllInfo(pkm_to, pkm_from, minimized){
 	pkm_to.species = pkm_from.species;
-	pkm_to.index = get_species_index_by_name(pkm_from.species);
 	pkm_to.level = pkm_from.level;
 	pkm_to.atkiv = pkm_from.atkiv;
 	pkm_to.defiv = pkm_from.defiv;
 	pkm_to.stmiv = pkm_from.stmiv;
 	pkm_to.fmove = pkm_from.fmove;
-	pkm_to.fmove_index = get_fmove_index_by_name(pkm_to.fmove);
 	pkm_to.cmove = pkm_from.cmove;
-	pkm_to.cmove_index = get_cmove_index_by_name(pkm_to.cmove);
+	
+	
+	if (!minimized){
+		pkm_to.nickname = pkm_from.nickname;
+		pkm_to.box_index = pkm_from.box_index;
+		pkm_to.index = get_species_index_by_name(pkm_from.species);
+		pkm_to.fmove_index = get_fmove_index_by_name(pkm_to.fmove);
+		pkm_to.cmove_index = get_cmove_index_by_name(pkm_to.cmove);
+	}else{
+		pkm_to.copies = pkm_from.copies;
+		pkm_to.dodge = pkm_from.dodge;
+	}
 }
 
 function writeAttackerNode(node, pkmConfig){
@@ -775,7 +822,7 @@ function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
 			if (USER_POKEBOX.length > 0 && !MasterSummaryTableMetrics.includes(enumVariableName))
 				createNewMetric(enumVariableName);
 			for (var i = 0; i < USER_POKEBOX.length; i++){
-				copyAllInfo(pkmInfo, USER_POKEBOX[i]);
+				copyAllInfo(pkmInfo, USER_POKEBOX[i], false);
 				pkmInfo.box_index = i;
 				cfg['enumeratedValues'][enumVariableName] = '$' + i + ' ' + USER_POKEBOX[i].nickname;
 				enqueueSim(cfg);
@@ -806,7 +853,7 @@ function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
 			pkmInfo.species = pkmConfigToCopyFrom.species;
 			
 			if (pkmConfigToCopyFrom.box_index >= 0){
-				copyAllInfo(pkmInfo, pkmConfigToCopyFrom);
+				copyAllInfo(pkmInfo, pkmConfigToCopyFrom, false);
 			}
 			enqueueSim(cfg);
 			return -1;
@@ -1095,8 +1142,9 @@ function displayMasterSummaryTable(){
 function displayDetail(i){
 	clearFeedbackTables();
 	
-	// Replay the UI
+	// Replay the configuration
 	writeUserInput(simResults[i]['input']);
+	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(simResults[i]['input']));
 	
 	// Add option to go back to Master Summary
 	document.getElementById("feedback_buttons").innerHTML = "";
@@ -1192,7 +1240,9 @@ function send_feedback(msg, appending){
 
 function main(){
 	initMasterSummaryTableMetrics();
-	simQueue.push(readUserInput());
+	var userInput = readUserInput();
+	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
+	simQueue.push(userInput);
 	send_feedback("");
 	var simLengthBefore = simResults.length;
 	while (simQueue.length > 0){

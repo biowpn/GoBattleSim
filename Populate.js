@@ -45,6 +45,9 @@ function populateAll(){
 		updateDefenderNode();
 		autocompletePokemonNode('d');
 		document.getElementById("simPerConfig").value = 1;
+		
+		if (window.location.href.includes('?'))
+			writeUserInputFromUrl(window.location.href);
 	}
 }
 /* End of Helper Functions */
