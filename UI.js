@@ -389,8 +389,8 @@ function autocompletePokemonNode(address){
 		}
 	});
 	
+	$( '#ui-species-' + address ).bind("focus", function(){$(this).autocomplete("search");});
 	autocompletePokemonNodeMoves(address_const, -1);
-	
 }
 
 function autocompletePokemonNodeMoves(address, species_idx){
@@ -417,6 +417,8 @@ function autocompletePokemonNodeMoves(address, species_idx){
 			source: CHARGED_MOVE_OPTIONS
 		});
 	}
+	$( '#ui-fmove-' + address ).bind("focus", function(){$(this).autocomplete("search");});
+	$( '#ui-cmove-' + address ).bind("focus", function(){$(this).autocomplete("search");});
 }
 
 
@@ -912,7 +914,7 @@ function averageResults(results){
 		sumDeaths += gs['total_deaths'];
 	}
 	if (numResults > 1){
-		avrgResult['generalStat']['battle_result'] = Math.round(sumWin/numResults*10)/10 + "Win";
+		avrgResult['generalStat']['battle_result'] = Math.round(sumWin/numResults*100)/100 + " Win";
 	}else{
 		avrgResult['generalStat']['battle_result'] = results[0]['generalStat']['battle_result'];
 	}
@@ -931,10 +933,7 @@ function clearFeedbackTables(){
 
 function clearAllSims(){
 	simResults = [];
-	simResults = [];
-	pageStart = 0;
-	pageNumber = 1;
-	pageNumberMax = 1;
+	initMasterSummaryTableMetrics();
 	displayMasterSummaryTable();
 }
 

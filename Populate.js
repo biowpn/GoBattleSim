@@ -110,7 +110,7 @@ $.ajax({
 					power: parseInt(data[i].power),
 					pokeType: data[i].move_type.toLowerCase(),
 					energyDelta: Math.abs(parseInt(data[i].energy_gain)),
-					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000,
+					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
 					duration: parseFloat(data[i].cooldown)*1000
 				};
 
