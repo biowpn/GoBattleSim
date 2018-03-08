@@ -360,8 +360,6 @@ function createDefenderNode(){
 	defenderNode.appendChild(document.createElement("div")); // body, contain Party Nodes
 	defenderNode.appendChild(document.createElement("div")); // tail, contain controls
 	
-	// 1. Head
-	defenderNode.children[0].innerHTML = "<h3>Defender</h3>";
 	
 	// 2. Body
 	var tb1 = createElement("table", "<colgroup><col width=100%></colgroup>");
@@ -472,6 +470,7 @@ function autocompletePokemonNode(address){
 	autocompletePokemonNodeMoves(address_const, -1);
 }
 
+function countPokemonFromParty(partyAddress){
 	var partyNodeBody = document.getElementById('ui-partybody-' + partyAddress);
 	var count = 0;
 	for (var i = 0; i < partyNodeBody.children.length; i++){
