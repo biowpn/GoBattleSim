@@ -2,32 +2,36 @@
 <script type="text/javascript" src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/v/ju/dt-1.10.16/r-2.2.1/sc-1.4.4/datatables.min.js"></script>
 
-<!-->
+
 <link href="https://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/scroller/1.4.4/css/scroller.dataTables.min.css" rel="stylesheet">
-</-->
-
-<input type="text" id="autocomplete" placeholder="test"></input>
 
 
-	
+
+<style>
+	button {
+		width: 100%;
+	}
+}
+</style>
+
+
+<button style="width:50%">Butt</button>
+
+<table>
+	<tr>
+		<td>
+			<div id="ctrlGroup">
+				<label >Insurance<input type="checkbox"></label>
+			</div>
+		<td>
+	</tr>
+</table>
+
 <script>
 
-var s = ['a','ab','ac','b','bc'];
-
-
-$( "#autocomplete" ).autocomplete({
-	source: s,
-	delay: 0,
-	minLength: 0
-});
-
-$("#autocomplete" ).bind("focus", function(){
-	if($(this).val()==""){ 
-		$(this).autocomplete("search");
-	} 
-});
+$('#ctrlGroup').controlgroup();
 
 
 </script>

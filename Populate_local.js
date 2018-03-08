@@ -9644,13 +9644,13 @@ $(document).ready(function(){
 	for (var i = 0; i < CHARGED_MOVE_DATA.length; i++){
 		CHARGED_MOVE_OPTIONS.push(CHARGED_MOVE_DATA[i].name);
 	}
-	
 	addPlayerNode();
+	document.getElementById("ui-defenderinputbody").innerHTML = "";
 	document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
 	updateDefenderNode();
 	autocompletePokemonNode('d');
 	document.getElementById("simPerConfig").value = 1;
-	
+
 	
 });
 
@@ -9674,8 +9674,8 @@ $(document).ready(function(){
 									atkiv: 15,
 									defiv: 15,
 									stmiv: 15,
-									fmove: "*",
-									cmove: "*",
+									fmove: "counter",
+									cmove: "close combat",
 									dodge: 1
 								}]
 							}]

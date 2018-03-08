@@ -132,10 +132,10 @@ function Pokemon(cfg){
 	this.baseAtk = POKEMON_SPECIES_DATA[this.index]['baseAtk'];
 	this.baseDef = POKEMON_SPECIES_DATA[this.index]['baseDef'];
 	this.baseStm = POKEMON_SPECIES_DATA[this.index]['baseStm'];
-	this.atkiv = cfg.atkiv;
-	this.defiv = cfg.defiv;
-	this.stmiv = cfg.stmiv;
-	this.cpm = CPM_TABLE[Math.round(2*cfg.level-2)];
+	this.atkiv = parseInt(cfg.atkiv);
+	this.defiv = parseInt(cfg.defiv);
+	this.stmiv = parseInt(cfg.stmiv);
+	this.cpm = CPM_TABLE[Math.round(2* parseInt(cfg.level) - 2)];
 	
 	var fmoveIndex = (cfg.fmove_index >= 0) ? cfg.fmove_index : get_fmove_index_by_name(cfg.fmove);
 	var cmoveIndex = (cfg.cmove_index >= 0) ? cfg.cmove_index : get_cmove_index_by_name(cfg.cmove);
