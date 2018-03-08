@@ -145,7 +145,11 @@ $.ajax({
 	
 // Read User Pokebox
 $(document).ready(function(){
-	if(userID2){
+	if(typeof userID2 == 'undefined'){
+		console.log("Fail to load USER_POKEBOX because userID2 is not defined");
+		USER_POKEBOX_FETCHED = true;
+		populateAll();
+	}else if(userID2){
 		$.ajax({ 
 			url: '/user-pokemon-json-list?uid_raw=' + userID2, 
 			dataType: 'json',
@@ -191,6 +195,7 @@ $(document).ready(function(){
 		});
 	}else{
 		USER_POKEBOX_FETCHED = true;
+		populateAll();
 	}
 	
 });

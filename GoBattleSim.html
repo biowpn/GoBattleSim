@@ -13,25 +13,36 @@
 	table{
 		width: 100%;
 	}
-	
+table {
+    margin-bottom: 0px;
+}
+	div#ui-attackerinputbody h4 {
+    background: white;
+    padding: 8px;
+    margin: 10px 0px 0px 0px;
+    border: 1px solid #eceef3;
+    border-radius: 2px;
+	}
 	th, td {
 		vertical-align: center;
 		text-align: center;
 	}
-	
+	div#DefenderInput td,	
+	div#AttackerInput td {
+	    border: none;
+	    padding: 5px 0px;
+	}
 	input, select {
 		width: 100%;
+                margin-bottom:0px !important;
 	}
-	
 	button {
 		width: 100%;
 	}
-	
 	.ui-controlgroup-item {
 		margin-top: 5px;
 		margin-bottom: 5px;
 	}
-	
 	.ui-button{
 		background-color: #3076b2;
 	}
@@ -41,18 +52,52 @@
 	.ui-button:focus{
 		background-color: #3076b2;
 	}
-	
 	.ui-checkboxradio-label{
 		color: white;
 	}
+	div#ui-mastersummarytable_filter {
+	    float: none;
+	}
+	.dataTables_wrapper .dataTables_filter input {
+	    margin: 5px 0px 0px 0px;
+	}
+
+	div#ui-mastersummarytable_filter {
+	    float: none;
+	    padding: 5px 5px 0px 5px;
+	}
+	table.dataTable thead .sorting {
+	    background-image: none !important;
+	}
+	.dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_processing, .dataTables_wrapper .dataTables_paginate {
+	    color: #585858;
+	}
+	.fg-toolbar.ui-toolbar.ui-widget-header.ui-helper-clearfix.ui-corner-bl.ui-corner-br {
+	    padding: 0px 0px 10px 8px;
+	}
+	div#feedback_buttons {
+    margin-bottom: 15px;
+	}
+	div#feedback_message {
+	    margin-bottom: 10px;
+	}
+	div#ui-mastersummarytable_filter label {
+    text-align: left;
+	}
+div#ui-defenderinputbody,
+.ui-sortable-handle .ui-sortable > div {
+    background: #f1f1f1;
+    padding: 5px 8px;
+    border-radius: 3px;
+    margin: 10px 0px;
+    border: 1px solid #ddd;
 }
 </style>
-
 
 <div id="AttackerInput">
 	<div id="ui-attackerinputhead">
 		<h2>Attacker Information</h2>
-		<button onclick="javascript:addPlayerNode()">Add Player</button>
+		<button id='ui-addplayerbutton' onclick="javascript:addPlayerNode()">Add Player</button>
 	</div>
 	
 	<div id="ui-attackerinputbody">
@@ -119,17 +164,14 @@
 		</td>
 	</tr>
 	</table>
+<p></p>
 </div>
 
-<br>
 <button onclick="main()" id="GoButton">Go</button>
 
 
 <h2>Feedback</h2>
 <div id="feedback_message"></div>
-<br>
 <div id="feedback_buttons"></div>
-<br>
 <div id="feedback_table1"></div>
-<br>
 <div id="feedback_table2"></div>

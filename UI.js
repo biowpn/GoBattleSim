@@ -126,7 +126,6 @@ function createAttackerNode(){
 	pokemonNode.appendChild(document.createElement("div")); // tail, contain controls
 	
 	// 1. Head
-	// pokemonNode.children[0].innerHTML = "<h5>Unlabeled Pokemon</h5>";
 	pokemonNode.children[0].innerHTML = "<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>";
 
 	// 2. Body
@@ -134,7 +133,16 @@ function createAttackerNode(){
 	tb1.appendChild(createRow(['',''],'td'));
 	tb1.children[1].children[0].innerHTML = "<input type='text' placeholder='Species'>";
 	tb1.children[1].children[1].innerHTML = "<input type='number' placeholder='Copies' min='1' max='6'>";
-	
+	tb1.children[1].children[1].children[0].value = 1;
+	tb1.children[1].children[1].children[0].onchange = function(){
+		var addrIndices = this.id.split('-');
+		var pokemonCount = countPokemonFromParty(addrIndices[2] + '-' + addrIndices[3]);
+		if (pokemonCount > MAX_NUM_POKEMON_PER_PARTY){
+			this.value -= pokemonCount - MAX_NUM_POKEMON_PER_PARTY;
+		}
+		if (this.value < 1)
+			this.value = 1;
+	}
 	var tb2 = createElement("table", "<colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>");
 	tb2.appendChild(createRow(['','','',''],'td'));
 	tb2.children[1].children[0].innerHTML = "<input placeholder='Level'>";
@@ -169,9 +177,13 @@ function createAttackerNode(){
 	var removePokemonButton = createElement("button", "Remove Pokemon");
 	removePokemonButton.style = 'width:50%';
 	removePokemonButton.onclick = function(){
-		var pokemonNodeToRemove = document.getElementById('ui-pokemon-' + this.id.split(':')[1]);
-		pokemonNodeToRemove.parentNode.removeChild(pokemonNodeToRemove);
-		relabelAll();
+var pokemonNodeToRemove = document.getElementById('ui-pokemon-' + this.id.split(':')[1]);
+if (pokemonNodeToRemove.parentNode.children.length > 1){
+			pokemonNodeToRemove.parentNode.removeChild(pokemonNodeToRemove);
+			relabelAll();
+		}else{
+			send_feedback("Cannot remove the only Pokemon of the party.");
+		}
 	}
 	pokemonNode.children[2].appendChild(copyPokemonButton);
 	pokemonNode.children[2].appendChild(pastePokemonButton);
@@ -199,16 +211,24 @@ function createPartyNode(){
 	var addPokemonButton = createElement("button", "Add Pokemon");
 	addPokemonButton.style = "width:50%";
 	addPokemonButton.onclick = function(){
-		var partyNodeToAddPokemon = document.getElementById('ui-party-' + this.id.split(':')[1]);
-		partyNodeToAddPokemon.children[1].appendChild(createAttackerNode());
-		relabelAll();
+		if (countPokemonFromParty(this.id.split(':')[1]) < MAX_NUM_POKEMON_PER_PARTY){
+			var partyNodeToAddPokemon = document.getElementById('ui-party-' + this.id.split(':')[1]);
+			partyNodeToAddPokemon.children[1].appendChild(createAttackerNode());
+			relabelAll();
+		}else{
+			send_feedback("Exceeding Maximum number of Pokemon per party.");
+		}
 	}
 	var removePartyButton = createElement("button", "Remove Party");
 	removePartyButton.style = "width:25%";
 	removePartyButton.onclick = function(){
 		var partyNodeToRemove = document.getElementById('ui-party-' + this.id.split(':')[1]);
-		partyNodeToRemove.parentNode.removeChild(partyNodeToRemove);
-		relabelAll();
+		if (partyNodeToRemove.parentNode.children.length > 1){
+			partyNodeToRemove.parentNode.removeChild(partyNodeToRemove);
+			relabelAll();
+		}else{
+			send_feedback("Cannot remove the only party of the player.");
+		}
 	}
 	partyNode.children[2].appendChild(addPokemonButton);
 	partyNode.children[2].appendChild(removePartyButton);
@@ -235,16 +255,25 @@ function createPlayerNode(){
 	var addPartyButton = createElement("button", "Add Party");
 	addPartyButton.style = "width:50%";
 	addPartyButton.onclick = function(){
-		var playerNodeToAddPartyTo = document.getElementById('ui-player-' + this.id.split(':')[1]);
-		playerNodeToAddPartyTo.children[1].appendChild(createPartyNode());
-		relabelAll();
+var playerNodeToAddPartyTo = document.getElementById('ui-player-' + this.id.split(':')[1]);
+if(playerNodeToAddPartyTo.children[1].length < MAX_NUM_PARTIES_PER_PLAYER){
+			playerNodeToAddPartyTo.children[1].appendChild(createPartyNode());
+			relabelAll();
+		}else{
+			send_feedback("Exceeding Maximum number of Parties per player.");
+		}
 	}
 	var removePlayerButton = createElement("button", "Remove Player");
 	removePlayerButton.style = "width:50%";
 	removePlayerButton.onclick = function(){
-		var playerNodeToRemove = document.getElementById('ui-player-' + this.id.split(':')[1]);
-		playerNodeToRemove.parentNode.removeChild(playerNodeToRemove);
-		relabelAll();
+		if (document.getElementById('ui-attackerinputbody').children.length > 1){
+			var playerNodeToRemove = document.getElementById('ui-player-' + this.id.split(':')[1]);
+			playerNodeToRemove.parentNode.removeChild(playerNodeToRemove);
+			relabelAll();
+			document.getElementById('ui-addplayerbutton').disabled = false;
+		}else{
+			send_feedback("Cannot remove the only player");
+		}
 	}
 	playerNode.children[2].appendChild(addPartyButton);
 	playerNode.children[2].appendChild(removePlayerButton);
@@ -253,9 +282,14 @@ function createPlayerNode(){
 }
 
 function addPlayerNode(){
-	var attackerFieldBody = document.getElementById("AttackerInput").children[1];
-	attackerFieldBody.appendChild(createPlayerNode());
-	relabelAll();
+var attackerFieldBody = document.getElementById("AttackerInput").children[1];
+	if (attackerFieldBody.children.length < MAX_NUM_OF_PLAYERS){
+		attackerFieldBody.appendChild(createPlayerNode());
+		relabelAll();
+	}else{
+		document.getElementById('ui-addplayerbutton').setAttribute('disabled', true);
+		send_feedback('Exceeding maximum number of players.');
+	}
 }
 
 function relabelAll(){
@@ -282,6 +316,7 @@ function relabelAll(){
 				
 				var tables = pokemonNode.children[1].children;
 				tables[0].children[1].children[0].children[0].id = 'ui-species-' + i + '-' + j + '-' + k;
+				tables[0].children[1].children[1].children[0].id = 'ui-copies-' + i + '-' + j + '-' + k;
 				tables[2].children[1].children[0].children[0].id = 'ui-fmove-' + i + '-' + j + '-' + k;
 				tables[2].children[1].children[1].children[0].id = 'ui-cmove-' + i + '-' + j + '-' + k;
 				
@@ -435,6 +470,14 @@ function autocompletePokemonNode(address){
 	
 	$( '#ui-species-' + address ).bind("focus", function(){$(this).autocomplete("search", "");});
 	autocompletePokemonNodeMoves(address_const, -1);
+}
+
+	var partyNodeBody = document.getElementById('ui-partybody-' + partyAddress);
+	var count = 0;
+	for (var i = 0; i < partyNodeBody.children.length; i++){
+		count += document.getElementById('ui-copies-' + partyAddress + '-' + i).valueAsNumber || 0;
+	}
+	return count;
 }
 
 function autocompletePokemonNodeMoves(address, species_idx){
@@ -1023,6 +1066,7 @@ function clearFeedbackTables(){
 
 function clearAllSims(){
 	simResults = [];
+	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0]);
 	initMasterSummaryTableMetrics();
 	displayMasterSummaryTable();
 }
@@ -1233,9 +1277,10 @@ function createBattleLogTable(log, playerCount){
 
 function send_feedback(msg, appending){
 	if (appending){
-		document.getElementById("feedback_message").innerHTML += '<br>' + msg;
+		document.getElementById("feedback_message").innerHTML += msg;
 	}else
 		document.getElementById("feedback_message").innerHTML = msg;
+	document.getElementById("feedback_message").scrollIntoView();
 }
 
 function main(){
