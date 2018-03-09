@@ -569,9 +569,6 @@ var FAST_MOVE_DATA = [
 ];
 
 
-
-
-
 var CHARGED_MOVE_DATA = [
   {
     "name": "aerial ace",
@@ -1674,11 +1671,6 @@ var CHARGED_MOVE_DATA = [
 ];
 
 
-
-
-
-
-
 var POKEMON_SPECIES_DATA = [
   {
     "dex": 1,
@@ -1697,12 +1689,10 @@ var POKEMON_SPECIES_DATA = [
       "seed bomb",
       "sludge bomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 2,
@@ -1721,12 +1711,10 @@ var POKEMON_SPECIES_DATA = [
       "sludge bomb",
       "solar beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 3,
@@ -1745,12 +1733,10 @@ var POKEMON_SPECIES_DATA = [
       "sludge bomb",
       "solar beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3.5
   },
   {
     "dex": 4,
@@ -1769,12 +1755,10 @@ var POKEMON_SPECIES_DATA = [
       "flamethrower",
       "flame charge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 5,
@@ -1796,9 +1780,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "scratch"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 6,
@@ -1823,7 +1807,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "flamethrower"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 3.5
   },
   {
     "dex": 7,
@@ -1842,12 +1828,10 @@ var POKEMON_SPECIES_DATA = [
       "aqua tail",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 8,
@@ -1866,12 +1850,10 @@ var POKEMON_SPECIES_DATA = [
       "hydro pump",
       "ice beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 9,
@@ -1890,12 +1872,10 @@ var POKEMON_SPECIES_DATA = [
       "hydro pump",
       "ice beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 10,
@@ -1912,12 +1892,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "struggle"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 11,
@@ -1934,12 +1912,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "struggle"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 12,
@@ -1961,9 +1937,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "bug bite"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 13,
@@ -1980,12 +1956,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "struggle"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 14,
@@ -2002,12 +1976,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "struggle"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 15,
@@ -2029,9 +2001,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "bug bite"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 16,
@@ -2050,12 +2022,10 @@ var POKEMON_SPECIES_DATA = [
       "air cutter",
       "twister"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 17,
@@ -2074,12 +2044,10 @@ var POKEMON_SPECIES_DATA = [
       "air cutter",
       "twister"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 18,
@@ -2103,7 +2071,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "air cutter"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 19,
@@ -2122,12 +2092,10 @@ var POKEMON_SPECIES_DATA = [
       "dig",
       "hyper fang"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 20,
@@ -2146,12 +2114,10 @@ var POKEMON_SPECIES_DATA = [
       "hyper beam",
       "hyper fang"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 21,
@@ -2170,12 +2136,12 @@ var POKEMON_SPECIES_DATA = [
       "drill peck",
       "sky attack"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "twister"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 22,
@@ -2194,12 +2160,12 @@ var POKEMON_SPECIES_DATA = [
       "sky attack",
       "drill run"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "twister"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 23,
@@ -2218,12 +2184,12 @@ var POKEMON_SPECIES_DATA = [
       "sludge bomb",
       "wrap"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "gunk shot"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 24,
@@ -2242,12 +2208,10 @@ var POKEMON_SPECIES_DATA = [
       "gunk shot",
       "sludge wave"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 25,
@@ -2267,12 +2231,14 @@ var POKEMON_SPECIES_DATA = [
       "wild charge",
       "thunderbolt"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "thunder"
-    ]
+    ],
+    "exclusiveMoves": [
+      "surf"
+    ],
+    "rating": 0
   },
   {
     "dex": 26,
@@ -2296,7 +2262,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "thunder"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 27,
@@ -2315,12 +2283,12 @@ var POKEMON_SPECIES_DATA = [
       "rock slide",
       "sand tomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "rock tomb"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 28,
@@ -2339,12 +2307,10 @@ var POKEMON_SPECIES_DATA = [
       "earthquake",
       "rock tomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 29,
@@ -2363,12 +2329,10 @@ var POKEMON_SPECIES_DATA = [
       "poison fang",
       "sludge bomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 30,
@@ -2387,12 +2351,10 @@ var POKEMON_SPECIES_DATA = [
       "poison fang",
       "sludge bomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 31,
@@ -2411,12 +2373,10 @@ var POKEMON_SPECIES_DATA = [
       "sludge wave",
       "stone edge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 32,
@@ -2435,12 +2395,10 @@ var POKEMON_SPECIES_DATA = [
       "horn attack",
       "sludge bomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 33,
@@ -2459,12 +2417,10 @@ var POKEMON_SPECIES_DATA = [
       "horn attack",
       "sludge bomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 34,
@@ -2486,9 +2442,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "fury cutter"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 35,
@@ -2507,12 +2463,10 @@ var POKEMON_SPECIES_DATA = [
       "disarming voice",
       "moonblast"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 36,
@@ -2534,9 +2488,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "pound"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 37,
@@ -2555,12 +2509,10 @@ var POKEMON_SPECIES_DATA = [
       "flamethrower",
       "flame charge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 38,
@@ -2585,7 +2537,9 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves_legacy": [
       "fire blast",
       "flamethrower"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 39,
@@ -2604,13 +2558,13 @@ var POKEMON_SPECIES_DATA = [
       "dazzling gleam",
       "disarming voice"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "play rough",
       "body slam"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 40,
@@ -2629,12 +2583,10 @@ var POKEMON_SPECIES_DATA = [
       "hyper beam",
       "play rough"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 41,
@@ -2653,12 +2605,12 @@ var POKEMON_SPECIES_DATA = [
       "poison fang",
       "swift"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "sludge bomb"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 42,
@@ -2677,12 +2629,12 @@ var POKEMON_SPECIES_DATA = [
       "poison fang",
       "shadow ball"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "ominous wind"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 43,
@@ -2701,12 +2653,10 @@ var POKEMON_SPECIES_DATA = [
       "seed bomb",
       "sludge bomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 44,
@@ -2725,12 +2675,10 @@ var POKEMON_SPECIES_DATA = [
       "petal blizzard",
       "sludge bomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 45,
@@ -2749,12 +2697,10 @@ var POKEMON_SPECIES_DATA = [
       "petal blizzard",
       "solar beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 46,
@@ -2773,12 +2719,10 @@ var POKEMON_SPECIES_DATA = [
       "seed bomb",
       "x-scissor"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 47,
@@ -2800,9 +2744,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "bug bite"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 48,
@@ -2821,12 +2765,10 @@ var POKEMON_SPECIES_DATA = [
       "psybeam",
       "signal beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 49,
@@ -2850,7 +2792,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "poison fang"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 50,
@@ -2872,9 +2816,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "mud shot"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 51,
@@ -2896,9 +2840,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "mud shot"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 52,
@@ -2917,12 +2861,12 @@ var POKEMON_SPECIES_DATA = [
       "dark pulse",
       "night slash"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "body slam"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 53,
@@ -2941,12 +2885,12 @@ var POKEMON_SPECIES_DATA = [
       "play rough",
       "power gem"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "night slash"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 54,
@@ -2965,12 +2909,10 @@ var POKEMON_SPECIES_DATA = [
       "cross chop",
       "psybeam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 55,
@@ -2989,12 +2931,10 @@ var POKEMON_SPECIES_DATA = [
       "ice beam",
       "psychic"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 56,
@@ -3013,12 +2953,10 @@ var POKEMON_SPECIES_DATA = [
       "cross chop",
       "low sweep"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 57,
@@ -3042,7 +2980,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "cross chop"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 58,
@@ -3061,12 +3001,10 @@ var POKEMON_SPECIES_DATA = [
       "flame wheel",
       "flamethrower"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 59,
@@ -3091,7 +3029,9 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves_legacy": [
       "bulldoze",
       "flamethrower"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 3
   },
   {
     "dex": 60,
@@ -3110,12 +3050,10 @@ var POKEMON_SPECIES_DATA = [
       "bubble beam",
       "mud bomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 61,
@@ -3134,12 +3072,12 @@ var POKEMON_SPECIES_DATA = [
       "mud bomb",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "scald"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 62,
@@ -3163,7 +3101,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "submission"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 3
   },
   {
     "dex": 63,
@@ -3182,12 +3122,10 @@ var POKEMON_SPECIES_DATA = [
       "shadow ball",
       "signal beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 64,
@@ -3206,12 +3144,10 @@ var POKEMON_SPECIES_DATA = [
       "psybeam",
       "shadow ball"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 65,
@@ -3227,16 +3163,16 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves": [
       "focus blast",
-      "futuresight",
+      "future sight",
       "shadow ball"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "dazzling gleam",
       "psychic"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 4
   },
   {
     "dex": 66,
@@ -3258,9 +3194,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "low kick"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 67,
@@ -3279,12 +3215,12 @@ var POKEMON_SPECIES_DATA = [
       "dynamic punch",
       "submission"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "cross chop"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 68,
@@ -3310,7 +3246,9 @@ var POKEMON_SPECIES_DATA = [
       "cross chop",
       "stone edge",
       "submission"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 5
   },
   {
     "dex": 69,
@@ -3329,12 +3267,10 @@ var POKEMON_SPECIES_DATA = [
       "sludge bomb",
       "wrap"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 70,
@@ -3356,9 +3292,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "razor leaf"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 71,
@@ -3377,12 +3313,10 @@ var POKEMON_SPECIES_DATA = [
       "solar beam",
       "leaf blade"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3
   },
   {
     "dex": 72,
@@ -3401,12 +3335,10 @@ var POKEMON_SPECIES_DATA = [
       "water pulse",
       "wrap"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 73,
@@ -3425,12 +3357,10 @@ var POKEMON_SPECIES_DATA = [
       "hydro pump",
       "sludge wave"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 74,
@@ -3449,12 +3379,10 @@ var POKEMON_SPECIES_DATA = [
       "rock slide",
       "rock tomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 75,
@@ -3476,9 +3404,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "mud shot"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 76,
@@ -3502,7 +3430,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "ancient power"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 4
   },
   {
     "dex": 77,
@@ -3521,12 +3451,12 @@ var POKEMON_SPECIES_DATA = [
       "flame wheel",
       "flame charge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "fire blast"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 78,
@@ -3548,9 +3478,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "ember"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 79,
@@ -3569,12 +3499,10 @@ var POKEMON_SPECIES_DATA = [
       "psyshock",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 80,
@@ -3593,12 +3521,10 @@ var POKEMON_SPECIES_DATA = [
       "psychic",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 81,
@@ -3617,12 +3543,10 @@ var POKEMON_SPECIES_DATA = [
       "magnet bomb",
       "thunderbolt"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 82,
@@ -3646,7 +3570,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "discharge"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 83,
@@ -3668,9 +3594,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "cut"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 84,
@@ -3689,12 +3615,12 @@ var POKEMON_SPECIES_DATA = [
       "drill peck",
       "brave bird"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "swift"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 85,
@@ -3713,12 +3639,12 @@ var POKEMON_SPECIES_DATA = [
       "brave bird",
       "drill peck"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "air cutter"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 86,
@@ -3742,7 +3668,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "aqua jet"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 87,
@@ -3767,7 +3695,9 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves_legacy": [
       "aqua jet",
       "icy wind"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 88,
@@ -3789,9 +3719,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "acid"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 89,
@@ -3814,9 +3744,9 @@ var POKEMON_SPECIES_DATA = [
       "acid",
       "lick"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 90,
@@ -3835,12 +3765,10 @@ var POKEMON_SPECIES_DATA = [
       "icy wind",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 91,
@@ -3859,13 +3787,13 @@ var POKEMON_SPECIES_DATA = [
       "hydro pump",
       "avalanche"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "blizzard",
       "icy wind"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 92,
@@ -3889,7 +3817,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "ominous wind"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 93,
@@ -3913,7 +3843,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "shadow ball"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 94,
@@ -3938,7 +3870,9 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves_legacy": [
       "sludge wave",
       "dark pulse"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 4
   },
   {
     "dex": 95,
@@ -3957,13 +3891,13 @@ var POKEMON_SPECIES_DATA = [
       "heavy slam",
       "stone edge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "iron head",
       "rock slide"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 96,
@@ -3982,12 +3916,10 @@ var POKEMON_SPECIES_DATA = [
       "psychic",
       "psyshock"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 97,
@@ -4003,16 +3935,16 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves": [
       "psychic",
-      "futuresight",
+      "future sight",
       "focus blast"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "psyshock",
       "shadow ball"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 98,
@@ -4031,12 +3963,10 @@ var POKEMON_SPECIES_DATA = [
       "vice grip",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 99,
@@ -4058,9 +3988,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "mud shot"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 100,
@@ -4079,12 +4009,12 @@ var POKEMON_SPECIES_DATA = [
       "gyro ball",
       "thunderbolt"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "signal beam"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 101,
@@ -4106,9 +4036,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "tackle"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 102,
@@ -4127,12 +4057,10 @@ var POKEMON_SPECIES_DATA = [
       "psychic",
       "seed bomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 103,
@@ -4155,9 +4083,9 @@ var POKEMON_SPECIES_DATA = [
       "confusion",
       "zen headbutt"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 4.5
   },
   {
     "dex": 104,
@@ -4176,12 +4104,10 @@ var POKEMON_SPECIES_DATA = [
       "bulldoze",
       "dig"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 105,
@@ -4200,12 +4126,10 @@ var POKEMON_SPECIES_DATA = [
       "dig",
       "earthquake"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 106,
@@ -4224,13 +4148,13 @@ var POKEMON_SPECIES_DATA = [
       "low sweep",
       "stone edge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "stomp",
       "brick break"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 107,
@@ -4255,7 +4179,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "brick break"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 108,
@@ -4274,12 +4200,10 @@ var POKEMON_SPECIES_DATA = [
       "power whip",
       "stomp"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 109,
@@ -4301,9 +4225,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "acid"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 110,
@@ -4325,9 +4249,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "acid"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 111,
@@ -4346,12 +4270,10 @@ var POKEMON_SPECIES_DATA = [
       "horn attack",
       "stomp"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 112,
@@ -4370,12 +4292,12 @@ var POKEMON_SPECIES_DATA = [
       "surf",
       "stone edge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "megahorn"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 3.5
   },
   {
     "dex": 113,
@@ -4394,12 +4316,12 @@ var POKEMON_SPECIES_DATA = [
       "hyper beam",
       "psychic"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "psybeam"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 114,
@@ -4418,12 +4340,12 @@ var POKEMON_SPECIES_DATA = [
       "sludge bomb",
       "solar beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "power whip"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 115,
@@ -4442,13 +4364,13 @@ var POKEMON_SPECIES_DATA = [
       "earthquake",
       "outrage"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "brick break",
       "stomp"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 116,
@@ -4467,12 +4389,10 @@ var POKEMON_SPECIES_DATA = [
       "dragon pulse",
       "flash cannon"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 117,
@@ -4491,12 +4411,12 @@ var POKEMON_SPECIES_DATA = [
       "dragon pulse",
       "hydro pump"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "blizzard"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 118,
@@ -4515,12 +4435,10 @@ var POKEMON_SPECIES_DATA = [
       "horn attack",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 119,
@@ -4545,7 +4463,9 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves_legacy": [
       "icy wind",
       "drill run"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 120,
@@ -4567,9 +4487,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "quick attack"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 121,
@@ -4594,7 +4514,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "psybeam"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 122,
@@ -4613,12 +4535,10 @@ var POKEMON_SPECIES_DATA = [
       "psychic",
       "shadow ball"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 123,
@@ -4642,7 +4562,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "bug buzz"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 124,
@@ -4666,7 +4588,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "ice punch"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 3.5
   },
   {
     "dex": 125,
@@ -4685,12 +4609,10 @@ var POKEMON_SPECIES_DATA = [
       "thunder punch",
       "thunderbolt"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 126,
@@ -4709,12 +4631,10 @@ var POKEMON_SPECIES_DATA = [
       "fire punch",
       "flamethrower"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 127,
@@ -4738,7 +4658,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "submission"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 3.5
   },
   {
     "dex": 128,
@@ -4757,12 +4679,10 @@ var POKEMON_SPECIES_DATA = [
       "horn attack",
       "iron head"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 129,
@@ -4778,12 +4698,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "struggle"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 130,
@@ -4809,7 +4727,9 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves_legacy": [
       "dragon pulse",
       "twister"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 4.5
   },
   {
     "dex": 131,
@@ -4834,7 +4754,9 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves_legacy": [
       "dragon pulse",
       "ice beam"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 132,
@@ -4850,12 +4772,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "struggle"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 133,
@@ -4873,12 +4793,12 @@ var POKEMON_SPECIES_DATA = [
       "dig",
       "swift"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "body slam"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 134,
@@ -4896,12 +4816,10 @@ var POKEMON_SPECIES_DATA = [
       "hydro pump",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 4
   },
   {
     "dex": 135,
@@ -4920,12 +4838,10 @@ var POKEMON_SPECIES_DATA = [
       "thunder",
       "thunderbolt"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3.5
   },
   {
     "dex": 136,
@@ -4944,12 +4860,12 @@ var POKEMON_SPECIES_DATA = [
       "flamethrower",
       "overheat"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "heat wave"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 4
   },
   {
     "dex": 137,
@@ -4977,7 +4893,9 @@ var POKEMON_SPECIES_DATA = [
       "discharge",
       "psybeam",
       "signal beam"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 138,
@@ -4996,13 +4914,13 @@ var POKEMON_SPECIES_DATA = [
       "bubble beam",
       "rock blast"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "rock tomb",
       "brine"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 139,
@@ -5026,7 +4944,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "rock slide"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 140,
@@ -5045,12 +4965,10 @@ var POKEMON_SPECIES_DATA = [
       "aqua jet",
       "rock tomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 141,
@@ -5072,9 +4990,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "fury cutter"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 142,
@@ -5093,12 +5011,10 @@ var POKEMON_SPECIES_DATA = [
       "hyper beam",
       "iron head"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 143,
@@ -5117,12 +5033,12 @@ var POKEMON_SPECIES_DATA = [
       "earthquake",
       "hyper beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "body slam"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 144,
@@ -5140,12 +5056,10 @@ var POKEMON_SPECIES_DATA = [
       "ice beam",
       "icy wind"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 4
   },
   {
     "dex": 145,
@@ -5168,7 +5082,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "discharge"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 4.5
   },
   {
     "dex": 146,
@@ -5191,7 +5107,9 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves_legacy": [
       "flamethrower"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 4.5
   },
   {
     "dex": 147,
@@ -5210,12 +5128,10 @@ var POKEMON_SPECIES_DATA = [
       "twister",
       "wrap"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 148,
@@ -5234,12 +5150,10 @@ var POKEMON_SPECIES_DATA = [
       "dragon pulse",
       "wrap"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 149,
@@ -5264,7 +5178,11 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves_legacy": [
       "dragon claw",
       "dragon pulse"
-    ]
+    ],
+    "exclusiveMoves": [
+      "draco meteor"
+    ],
+    "rating": 5
   },
   {
     "dex": 150,
@@ -5284,12 +5202,10 @@ var POKEMON_SPECIES_DATA = [
       "shadow ball",
       "focus blast"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 5
   },
   {
     "dex": 151,
@@ -5312,13 +5228,13 @@ var POKEMON_SPECIES_DATA = [
       "hyper beam",
       "solar beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "hurricane",
       "dragon pulse"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 152,
@@ -5337,12 +5253,10 @@ var POKEMON_SPECIES_DATA = [
       "grass knot",
       "body slam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 153,
@@ -5361,12 +5275,10 @@ var POKEMON_SPECIES_DATA = [
       "grass knot",
       "ancient power"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 154,
@@ -5385,12 +5297,10 @@ var POKEMON_SPECIES_DATA = [
       "solar beam",
       "earthquake"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 155,
@@ -5409,12 +5319,10 @@ var POKEMON_SPECIES_DATA = [
       "swift",
       "flamethrower"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 156,
@@ -5433,12 +5341,10 @@ var POKEMON_SPECIES_DATA = [
       "dig",
       "flamethrower"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 157,
@@ -5457,12 +5363,10 @@ var POKEMON_SPECIES_DATA = [
       "overheat",
       "solar beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 158,
@@ -5481,12 +5385,10 @@ var POKEMON_SPECIES_DATA = [
       "aqua jet",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 159,
@@ -5505,12 +5407,10 @@ var POKEMON_SPECIES_DATA = [
       "ice punch",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 160,
@@ -5532,9 +5432,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "water gun"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 161,
@@ -5553,12 +5453,10 @@ var POKEMON_SPECIES_DATA = [
       "brick break",
       "grass knot"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 162,
@@ -5577,12 +5475,10 @@ var POKEMON_SPECIES_DATA = [
       "brick break",
       "hyper beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 163,
@@ -5601,12 +5497,10 @@ var POKEMON_SPECIES_DATA = [
       "aerial ace",
       "night shade"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 164,
@@ -5625,12 +5519,10 @@ var POKEMON_SPECIES_DATA = [
       "sky attack",
       "night shade"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 165,
@@ -5649,12 +5541,10 @@ var POKEMON_SPECIES_DATA = [
       "silver wind",
       "aerial ace"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 166,
@@ -5673,12 +5563,10 @@ var POKEMON_SPECIES_DATA = [
       "silver wind",
       "aerial ace"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 167,
@@ -5697,12 +5585,10 @@ var POKEMON_SPECIES_DATA = [
       "signal beam",
       "cross poison"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 168,
@@ -5721,12 +5607,10 @@ var POKEMON_SPECIES_DATA = [
       "megahorn",
       "cross poison"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 169,
@@ -5745,12 +5629,10 @@ var POKEMON_SPECIES_DATA = [
       "air cutter",
       "sludge bomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 170,
@@ -5769,12 +5651,10 @@ var POKEMON_SPECIES_DATA = [
       "thunderbolt",
       "bubble beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 171,
@@ -5793,12 +5673,10 @@ var POKEMON_SPECIES_DATA = [
       "thunderbolt",
       "thunder"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 172,
@@ -5819,9 +5697,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "quick attack"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 173,
@@ -5840,13 +5718,13 @@ var POKEMON_SPECIES_DATA = [
       "psyshock",
       "grass knot"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "psychic",
       "body slam"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 174,
@@ -5865,12 +5743,12 @@ var POKEMON_SPECIES_DATA = [
       "wild charge",
       "psychic"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "body slam"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 175,
@@ -5892,9 +5770,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "zen headbutt"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 176,
@@ -5917,9 +5795,9 @@ var POKEMON_SPECIES_DATA = [
       "steel wing",
       "zen headbutt"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 177,
@@ -5938,12 +5816,10 @@ var POKEMON_SPECIES_DATA = [
       "psyshock",
       "drill peck"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 178,
@@ -5959,15 +5835,13 @@ var POKEMON_SPECIES_DATA = [
     ],
     "chargedMoves": [
       "ominous wind",
-      "futuresight",
+      "future sight",
       "aerial ace"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 179,
@@ -5986,12 +5860,10 @@ var POKEMON_SPECIES_DATA = [
       "thunderbolt",
       "discharge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 180,
@@ -6010,12 +5882,10 @@ var POKEMON_SPECIES_DATA = [
       "thunderbolt",
       "discharge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 181,
@@ -6034,12 +5904,10 @@ var POKEMON_SPECIES_DATA = [
       "focus blast",
       "thunder"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 182,
@@ -6058,12 +5926,10 @@ var POKEMON_SPECIES_DATA = [
       "petal blizzard",
       "dazzling gleam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 183,
@@ -6082,12 +5948,10 @@ var POKEMON_SPECIES_DATA = [
       "aqua tail",
       "body slam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 184,
@@ -6106,12 +5970,10 @@ var POKEMON_SPECIES_DATA = [
       "hydro pump",
       "ice beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 185,
@@ -6130,12 +5992,10 @@ var POKEMON_SPECIES_DATA = [
       "earthquake",
       "rock slide"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 186,
@@ -6154,12 +6014,12 @@ var POKEMON_SPECIES_DATA = [
       "blizzard",
       "surf"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "earthquake"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 187,
@@ -6178,12 +6038,10 @@ var POKEMON_SPECIES_DATA = [
       "dazzling gleam",
       "seed bomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 188,
@@ -6202,12 +6060,10 @@ var POKEMON_SPECIES_DATA = [
       "dazzling gleam",
       "energy ball"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 189,
@@ -6226,12 +6082,10 @@ var POKEMON_SPECIES_DATA = [
       "dazzling gleam",
       "solar beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 190,
@@ -6250,12 +6104,10 @@ var POKEMON_SPECIES_DATA = [
       "swift",
       "aerial ace"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 191,
@@ -6274,12 +6126,10 @@ var POKEMON_SPECIES_DATA = [
       "grass knot",
       "seed bomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 192,
@@ -6298,12 +6148,10 @@ var POKEMON_SPECIES_DATA = [
       "petal blizzard",
       "sludge bomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 193,
@@ -6322,12 +6170,10 @@ var POKEMON_SPECIES_DATA = [
       "aerial ace",
       "silver wind"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 194,
@@ -6346,12 +6192,10 @@ var POKEMON_SPECIES_DATA = [
       "dig",
       "body slam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 195,
@@ -6370,12 +6214,10 @@ var POKEMON_SPECIES_DATA = [
       "earthquake",
       "stone edge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 196,
@@ -6392,14 +6234,12 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "psybeam",
       "psychic",
-      "futuresight"
+      "future sight"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 4
   },
   {
     "dex": 197,
@@ -6417,12 +6257,10 @@ var POKEMON_SPECIES_DATA = [
       "dark pulse",
       "foul play"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 198,
@@ -6441,12 +6279,10 @@ var POKEMON_SPECIES_DATA = [
       "foul play",
       "dark pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 199,
@@ -6465,12 +6301,10 @@ var POKEMON_SPECIES_DATA = [
       "psychic",
       "fire blast"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 200,
@@ -6489,12 +6323,10 @@ var POKEMON_SPECIES_DATA = [
       "ominous wind",
       "shadow sneak"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 201,
@@ -6510,12 +6342,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "struggle"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 202,
@@ -6532,12 +6362,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "mirror coat"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 203,
@@ -6556,12 +6384,10 @@ var POKEMON_SPECIES_DATA = [
       "thunderbolt",
       "mirror coat"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 204,
@@ -6580,12 +6406,10 @@ var POKEMON_SPECIES_DATA = [
       "rock tomb",
       "sand tomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 205,
@@ -6604,12 +6428,10 @@ var POKEMON_SPECIES_DATA = [
       "earthquake",
       "rock tomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 206,
@@ -6628,12 +6450,10 @@ var POKEMON_SPECIES_DATA = [
       "rock slide",
       "drill run"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 207,
@@ -6652,12 +6472,10 @@ var POKEMON_SPECIES_DATA = [
       "aerial ace",
       "night slash"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 208,
@@ -6676,12 +6494,10 @@ var POKEMON_SPECIES_DATA = [
       "heavy slam",
       "crunch"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 209,
@@ -6700,12 +6516,10 @@ var POKEMON_SPECIES_DATA = [
       "crunch",
       "dazzling gleam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 210,
@@ -6724,12 +6538,10 @@ var POKEMON_SPECIES_DATA = [
       "play rough",
       "close combat"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 211,
@@ -6748,12 +6560,10 @@ var POKEMON_SPECIES_DATA = [
       "ice beam",
       "sludge wave"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 212,
@@ -6772,12 +6582,10 @@ var POKEMON_SPECIES_DATA = [
       "iron head",
       "night slash"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3.5
   },
   {
     "dex": 213,
@@ -6796,12 +6604,10 @@ var POKEMON_SPECIES_DATA = [
       "stone edge",
       "gyro ball"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 214,
@@ -6820,12 +6626,10 @@ var POKEMON_SPECIES_DATA = [
       "close combat",
       "earthquake"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 4
   },
   {
     "dex": 215,
@@ -6844,12 +6648,10 @@ var POKEMON_SPECIES_DATA = [
       "ice punch",
       "foul play"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 216,
@@ -6868,12 +6670,10 @@ var POKEMON_SPECIES_DATA = [
       "crunch",
       "play rough"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 217,
@@ -6892,12 +6692,10 @@ var POKEMON_SPECIES_DATA = [
       "hyper beam",
       "play rough"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3
   },
   {
     "dex": 218,
@@ -6916,12 +6714,10 @@ var POKEMON_SPECIES_DATA = [
       "flame charge",
       "rock slide"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 219,
@@ -6940,12 +6736,10 @@ var POKEMON_SPECIES_DATA = [
       "overheat",
       "stone edge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 220,
@@ -6964,12 +6758,10 @@ var POKEMON_SPECIES_DATA = [
       "body slam",
       "rock slide"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 221,
@@ -6988,12 +6780,10 @@ var POKEMON_SPECIES_DATA = [
       "bulldoze",
       "stone edge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3
   },
   {
     "dex": 222,
@@ -7012,12 +6802,10 @@ var POKEMON_SPECIES_DATA = [
       "power gem",
       "bubble beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 223,
@@ -7036,12 +6824,10 @@ var POKEMON_SPECIES_DATA = [
       "water pulse",
       "rock blast"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 224,
@@ -7060,12 +6846,10 @@ var POKEMON_SPECIES_DATA = [
       "water pulse",
       "aurora beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 225,
@@ -7087,9 +6871,9 @@ var POKEMON_SPECIES_DATA = [
       "ice shard",
       "quick attack"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 226,
@@ -7108,12 +6892,10 @@ var POKEMON_SPECIES_DATA = [
       "ice beam",
       "aerial ace"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 227,
@@ -7132,12 +6914,10 @@ var POKEMON_SPECIES_DATA = [
       "sky attack",
       "flash cannon"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 228,
@@ -7156,12 +6936,10 @@ var POKEMON_SPECIES_DATA = [
       "flamethrower",
       "dark pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 229,
@@ -7180,12 +6958,10 @@ var POKEMON_SPECIES_DATA = [
       "fire blast",
       "foul play"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3.5
   },
   {
     "dex": 230,
@@ -7207,9 +6983,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "water gun"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 231,
@@ -7228,12 +7004,10 @@ var POKEMON_SPECIES_DATA = [
       "rock slide",
       "body slam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 232,
@@ -7252,12 +7026,10 @@ var POKEMON_SPECIES_DATA = [
       "heavy slam",
       "play rough"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 233,
@@ -7276,12 +7048,10 @@ var POKEMON_SPECIES_DATA = [
       "hyper beam",
       "zap cannon"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 234,
@@ -7300,12 +7070,10 @@ var POKEMON_SPECIES_DATA = [
       "wild charge",
       "megahorn"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 235,
@@ -7321,12 +7089,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "struggle"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 236,
@@ -7345,12 +7111,10 @@ var POKEMON_SPECIES_DATA = [
       "rock slide",
       "low sweep"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 237,
@@ -7369,12 +7133,10 @@ var POKEMON_SPECIES_DATA = [
       "gyro ball",
       "stone edge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 238,
@@ -7396,9 +7158,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "frost breath"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 239,
@@ -7417,12 +7179,12 @@ var POKEMON_SPECIES_DATA = [
       "brick break",
       "discharge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "thunderbolt"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 240,
@@ -7441,12 +7203,12 @@ var POKEMON_SPECIES_DATA = [
       "fire punch",
       "flame burst"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "flamethrower"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 241,
@@ -7465,12 +7227,10 @@ var POKEMON_SPECIES_DATA = [
       "body slam",
       "gyro ball"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 242,
@@ -7489,12 +7249,10 @@ var POKEMON_SPECIES_DATA = [
       "hyper beam",
       "psychic"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 243,
@@ -7513,12 +7271,10 @@ var POKEMON_SPECIES_DATA = [
       "thunderbolt",
       "wild charge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 5
   },
   {
     "dex": 244,
@@ -7537,12 +7293,10 @@ var POKEMON_SPECIES_DATA = [
       "fire blast",
       "overheat"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 4.5
   },
   {
     "dex": 245,
@@ -7564,9 +7318,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "hidden power"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 246,
@@ -7585,12 +7339,10 @@ var POKEMON_SPECIES_DATA = [
       "crunch",
       "ancient power"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 247,
@@ -7609,12 +7361,10 @@ var POKEMON_SPECIES_DATA = [
       "crunch",
       "ancient power"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 248,
@@ -7633,12 +7383,10 @@ var POKEMON_SPECIES_DATA = [
       "crunch",
       "stone edge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 5
   },
   {
     "dex": 249,
@@ -7655,14 +7403,12 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "sky attack",
       "hydro pump",
-      "futuresight"
+      "future sight"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 4
   },
   {
     "dex": 250,
@@ -7681,12 +7427,10 @@ var POKEMON_SPECIES_DATA = [
       "fire blast",
       "solar beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3.5
   },
   {
     "dex": 251,
@@ -7705,12 +7449,10 @@ var POKEMON_SPECIES_DATA = [
       "psychic",
       "dazzling gleam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 252,
@@ -7729,12 +7471,10 @@ var POKEMON_SPECIES_DATA = [
       "energy ball",
       "aerial ace"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 253,
@@ -7753,12 +7493,10 @@ var POKEMON_SPECIES_DATA = [
       "leaf blade",
       "aerial ace"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 254,
@@ -7777,12 +7515,10 @@ var POKEMON_SPECIES_DATA = [
       "earthquake",
       "aerial ace"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3.5
   },
   {
     "dex": 255,
@@ -7801,12 +7537,10 @@ var POKEMON_SPECIES_DATA = [
       "flame charge",
       "rock tomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 256,
@@ -7825,12 +7559,10 @@ var POKEMON_SPECIES_DATA = [
       "rock slide",
       "flame charge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 257,
@@ -7849,12 +7581,12 @@ var POKEMON_SPECIES_DATA = [
       "brave bird",
       "focus blast"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "stone edge"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 4
   },
   {
     "dex": 258,
@@ -7873,12 +7605,10 @@ var POKEMON_SPECIES_DATA = [
       "sludge",
       "dig"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 259,
@@ -7897,12 +7627,10 @@ var POKEMON_SPECIES_DATA = [
       "mud bomb",
       "sludge"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 260,
@@ -7921,12 +7649,10 @@ var POKEMON_SPECIES_DATA = [
       "earthquake",
       "sludge wave"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3.5
   },
   {
     "dex": 261,
@@ -7945,12 +7671,10 @@ var POKEMON_SPECIES_DATA = [
       "dig",
       "poison fang"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 262,
@@ -7969,12 +7693,10 @@ var POKEMON_SPECIES_DATA = [
       "crunch",
       "poison fang"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 263,
@@ -7993,12 +7715,10 @@ var POKEMON_SPECIES_DATA = [
       "thunderbolt",
       "dig"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 264,
@@ -8017,12 +7737,10 @@ var POKEMON_SPECIES_DATA = [
       "grass knot",
       "dig"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 265,
@@ -8039,12 +7757,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "struggle"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 266,
@@ -8061,12 +7777,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "struggle"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 267,
@@ -8085,12 +7799,10 @@ var POKEMON_SPECIES_DATA = [
       "air cutter",
       "silver wind"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 268,
@@ -8107,12 +7819,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "struggle"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 269,
@@ -8131,12 +7841,10 @@ var POKEMON_SPECIES_DATA = [
       "bug buzz",
       "silver wind"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 270,
@@ -8154,12 +7862,10 @@ var POKEMON_SPECIES_DATA = [
       "bubble beam",
       "energy ball"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 271,
@@ -8178,12 +7884,10 @@ var POKEMON_SPECIES_DATA = [
       "bubble beam",
       "ice beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 272,
@@ -8202,12 +7906,10 @@ var POKEMON_SPECIES_DATA = [
       "solar beam",
       "blizzard"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 273,
@@ -8226,12 +7928,10 @@ var POKEMON_SPECIES_DATA = [
       "foul play",
       "energy ball"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 274,
@@ -8250,12 +7950,10 @@ var POKEMON_SPECIES_DATA = [
       "grass knot",
       "leaf blade"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 275,
@@ -8274,12 +7972,10 @@ var POKEMON_SPECIES_DATA = [
       "hurricane",
       "leaf blade"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3
   },
   {
     "dex": 276,
@@ -8296,12 +7992,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "aerial ace"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 277,
@@ -8320,12 +8014,10 @@ var POKEMON_SPECIES_DATA = [
       "sky attack",
       "aerial ace"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 278,
@@ -8344,12 +8036,10 @@ var POKEMON_SPECIES_DATA = [
       "air cutter",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 279,
@@ -8368,12 +8058,10 @@ var POKEMON_SPECIES_DATA = [
       "hydro pump",
       "blizzard"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 280,
@@ -8392,12 +8080,10 @@ var POKEMON_SPECIES_DATA = [
       "disarming voice",
       "shadow sneak"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 281,
@@ -8416,12 +8102,10 @@ var POKEMON_SPECIES_DATA = [
       "disarming voice",
       "shadow sneak"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 282,
@@ -8440,12 +8124,10 @@ var POKEMON_SPECIES_DATA = [
       "dazzling gleam",
       "shadow ball"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 4
   },
   {
     "dex": 283,
@@ -8464,12 +8146,10 @@ var POKEMON_SPECIES_DATA = [
       "bubble beam",
       "aqua jet"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 284,
@@ -8488,12 +8168,10 @@ var POKEMON_SPECIES_DATA = [
       "silver wind",
       "ominous wind"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 285,
@@ -8512,12 +8190,10 @@ var POKEMON_SPECIES_DATA = [
       "seed bomb",
       "energy ball"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 286,
@@ -8536,12 +8212,10 @@ var POKEMON_SPECIES_DATA = [
       "sludge bomb",
       "seed bomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3.5
   },
   {
     "dex": 287,
@@ -8559,12 +8233,10 @@ var POKEMON_SPECIES_DATA = [
       "brick break",
       "night slash"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 288,
@@ -8583,12 +8255,10 @@ var POKEMON_SPECIES_DATA = [
       "brick break",
       "bulldoze"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 289,
@@ -8606,12 +8276,10 @@ var POKEMON_SPECIES_DATA = [
       "earthquake",
       "play rough"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 290,
@@ -8630,12 +8298,10 @@ var POKEMON_SPECIES_DATA = [
       "aerial ace",
       "night slash"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 291,
@@ -8654,12 +8320,10 @@ var POKEMON_SPECIES_DATA = [
       "bug buzz",
       "aerial ace"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 292,
@@ -8678,12 +8342,10 @@ var POKEMON_SPECIES_DATA = [
       "dig",
       "shadow sneak"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 293,
@@ -8702,12 +8364,10 @@ var POKEMON_SPECIES_DATA = [
       "flamethrower",
       "disarming voice"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 294,
@@ -8726,12 +8386,12 @@ var POKEMON_SPECIES_DATA = [
       "stomp",
       "disarming voice"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
+    "fastMoves_legacy": [],
     "chargedMoves_legacy": [
       "crunch"
-    ]
+    ],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 295,
@@ -8750,12 +8410,10 @@ var POKEMON_SPECIES_DATA = [
       "crunch",
       "disarming voice"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 296,
@@ -8774,12 +8432,10 @@ var POKEMON_SPECIES_DATA = [
       "heavy slam",
       "low sweep"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 297,
@@ -8798,12 +8454,10 @@ var POKEMON_SPECIES_DATA = [
       "dynamic punch",
       "heavy slam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 4.5
   },
   {
     "dex": 298,
@@ -8822,12 +8476,10 @@ var POKEMON_SPECIES_DATA = [
       "ice beam",
       "bubble beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 299,
@@ -8846,12 +8498,10 @@ var POKEMON_SPECIES_DATA = [
       "thunderbolt",
       "rock blast"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 300,
@@ -8870,12 +8520,10 @@ var POKEMON_SPECIES_DATA = [
       "dig",
       "disarming voice"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 301,
@@ -8894,12 +8542,10 @@ var POKEMON_SPECIES_DATA = [
       "play rough",
       "disarming voice"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 302,
@@ -8918,12 +8564,10 @@ var POKEMON_SPECIES_DATA = [
       "foul play",
       "shadow sneak"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3
   },
   {
     "dex": 303,
@@ -8942,12 +8586,10 @@ var POKEMON_SPECIES_DATA = [
       "play rough",
       "vice grip"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 304,
@@ -8966,12 +8608,10 @@ var POKEMON_SPECIES_DATA = [
       "body slam",
       "rock tomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 305,
@@ -8990,12 +8630,10 @@ var POKEMON_SPECIES_DATA = [
       "rock slide",
       "body slam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 306,
@@ -9014,12 +8652,10 @@ var POKEMON_SPECIES_DATA = [
       "thunder",
       "heavy slam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 307,
@@ -9038,12 +8674,10 @@ var POKEMON_SPECIES_DATA = [
       "ice punch",
       "low sweep"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 308,
@@ -9062,12 +8696,10 @@ var POKEMON_SPECIES_DATA = [
       "dynamic punch",
       "ice punch"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 309,
@@ -9086,12 +8718,10 @@ var POKEMON_SPECIES_DATA = [
       "discharge",
       "swift"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 310,
@@ -9110,12 +8740,10 @@ var POKEMON_SPECIES_DATA = [
       "wild charge",
       "flame burst"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 311,
@@ -9134,12 +8762,10 @@ var POKEMON_SPECIES_DATA = [
       "discharge",
       "swift"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 312,
@@ -9158,12 +8784,10 @@ var POKEMON_SPECIES_DATA = [
       "discharge",
       "swift"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 313,
@@ -9182,12 +8806,10 @@ var POKEMON_SPECIES_DATA = [
       "signal beam",
       "bug buzz"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 314,
@@ -9206,12 +8828,10 @@ var POKEMON_SPECIES_DATA = [
       "dazzling gleam",
       "silver wind"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 315,
@@ -9230,12 +8850,10 @@ var POKEMON_SPECIES_DATA = [
       "sludge bomb",
       "dazzling gleam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 316,
@@ -9254,12 +8872,10 @@ var POKEMON_SPECIES_DATA = [
       "sludge",
       "ice beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 317,
@@ -9278,12 +8894,10 @@ var POKEMON_SPECIES_DATA = [
       "sludge bomb",
       "ice beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 318,
@@ -9302,12 +8916,10 @@ var POKEMON_SPECIES_DATA = [
       "aqua jet",
       "poison fang"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 319,
@@ -9326,12 +8938,10 @@ var POKEMON_SPECIES_DATA = [
       "crunch",
       "poison fang"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 320,
@@ -9350,12 +8960,10 @@ var POKEMON_SPECIES_DATA = [
       "body slam",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 321,
@@ -9374,12 +8982,10 @@ var POKEMON_SPECIES_DATA = [
       "blizzard",
       "hyper beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 322,
@@ -9398,12 +9004,10 @@ var POKEMON_SPECIES_DATA = [
       "stomp",
       "bulldoze"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 323,
@@ -9422,12 +9026,10 @@ var POKEMON_SPECIES_DATA = [
       "earthquake",
       "solar beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 324,
@@ -9446,12 +9048,10 @@ var POKEMON_SPECIES_DATA = [
       "solar beam",
       "earthquake"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 325,
@@ -9470,12 +9070,10 @@ var POKEMON_SPECIES_DATA = [
       "mirror coat",
       "psybeam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 326,
@@ -9494,12 +9092,10 @@ var POKEMON_SPECIES_DATA = [
       "shadow ball",
       "mirror coat"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 327,
@@ -9518,12 +9114,10 @@ var POKEMON_SPECIES_DATA = [
       "dig",
       "icy wind"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 328,
@@ -9542,12 +9136,10 @@ var POKEMON_SPECIES_DATA = [
       "sand tomb",
       "crunch"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 329,
@@ -9566,12 +9158,10 @@ var POKEMON_SPECIES_DATA = [
       "bug buzz",
       "sand tomb"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 330,
@@ -9590,12 +9180,10 @@ var POKEMON_SPECIES_DATA = [
       "earthquake",
       "dragon claw"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 331,
@@ -9614,12 +9202,10 @@ var POKEMON_SPECIES_DATA = [
       "seed bomb",
       "brick break"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 332,
@@ -9638,12 +9224,10 @@ var POKEMON_SPECIES_DATA = [
       "dynamic punch",
       "dark pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 333,
@@ -9662,12 +9246,10 @@ var POKEMON_SPECIES_DATA = [
       "ice beam",
       "disarming voice"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 334,
@@ -9686,12 +9268,10 @@ var POKEMON_SPECIES_DATA = [
       "dragon pulse",
       "dazzling gleam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 335,
@@ -9710,12 +9290,10 @@ var POKEMON_SPECIES_DATA = [
       "night slash",
       "dig"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 336,
@@ -9734,12 +9312,10 @@ var POKEMON_SPECIES_DATA = [
       "crunch",
       "wrap"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 337,
@@ -9758,12 +9334,10 @@ var POKEMON_SPECIES_DATA = [
       "rock slide",
       "moonblast"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 338,
@@ -9782,12 +9356,10 @@ var POKEMON_SPECIES_DATA = [
       "solar beam",
       "rock slide"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 339,
@@ -9806,12 +9378,10 @@ var POKEMON_SPECIES_DATA = [
       "mud bomb",
       "ice beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 340,
@@ -9830,12 +9400,10 @@ var POKEMON_SPECIES_DATA = [
       "mud bomb",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 341,
@@ -9853,12 +9421,10 @@ var POKEMON_SPECIES_DATA = [
       "aqua jet",
       "vice grip"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 342,
@@ -9877,12 +9443,10 @@ var POKEMON_SPECIES_DATA = [
       "night slash",
       "vice grip"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 343,
@@ -9901,12 +9465,10 @@ var POKEMON_SPECIES_DATA = [
       "dig",
       "gyro ball"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 344,
@@ -9925,12 +9487,10 @@ var POKEMON_SPECIES_DATA = [
       "earthquake",
       "gyro ball"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 345,
@@ -9949,12 +9509,10 @@ var POKEMON_SPECIES_DATA = [
       "ancient power",
       "mirror coat"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 346,
@@ -9973,12 +9531,10 @@ var POKEMON_SPECIES_DATA = [
       "grass knot",
       "bulldoze"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 347,
@@ -9997,12 +9553,10 @@ var POKEMON_SPECIES_DATA = [
       "ancient power",
       "aqua jet"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 348,
@@ -10021,12 +9575,10 @@ var POKEMON_SPECIES_DATA = [
       "cross poison",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 349,
@@ -10043,12 +9595,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "mirror coat"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 350,
@@ -10070,9 +9620,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "water gun"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3
   },
   {
     "dex": 351,
@@ -10099,12 +9649,10 @@ var POKEMON_SPECIES_DATA = [
       "fire blast",
       "solar beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 352,
@@ -10126,12 +9674,10 @@ var POKEMON_SPECIES_DATA = [
       "aerial ace",
       "shadow sneak"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 353,
@@ -10150,12 +9696,10 @@ var POKEMON_SPECIES_DATA = [
       "night shade",
       "shadow sneak"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 354,
@@ -10174,12 +9718,10 @@ var POKEMON_SPECIES_DATA = [
       "dazzling gleam",
       "thunder"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3
   },
   {
     "dex": 355,
@@ -10198,12 +9740,10 @@ var POKEMON_SPECIES_DATA = [
       "night shade",
       "shadow sneak"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 356,
@@ -10222,12 +9762,10 @@ var POKEMON_SPECIES_DATA = [
       "ice punch",
       "fire punch"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 357,
@@ -10246,12 +9784,10 @@ var POKEMON_SPECIES_DATA = [
       "stomp",
       "aerial ace"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 358,
@@ -10270,12 +9806,10 @@ var POKEMON_SPECIES_DATA = [
       "psyshock",
       "energy ball"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 359,
@@ -10294,12 +9828,10 @@ var POKEMON_SPECIES_DATA = [
       "megahorn",
       "dark pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3
   },
   {
     "dex": 360,
@@ -10316,12 +9848,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "mirror coat"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 361,
@@ -10340,12 +9870,10 @@ var POKEMON_SPECIES_DATA = [
       "shadow ball",
       "icy wind"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 362,
@@ -10364,12 +9892,10 @@ var POKEMON_SPECIES_DATA = [
       "shadow ball",
       "gyro ball"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 363,
@@ -10388,12 +9914,10 @@ var POKEMON_SPECIES_DATA = [
       "body slam",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 364,
@@ -10412,12 +9936,10 @@ var POKEMON_SPECIES_DATA = [
       "body slam",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 365,
@@ -10436,12 +9958,10 @@ var POKEMON_SPECIES_DATA = [
       "earthquake",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2.5
   },
   {
     "dex": 366,
@@ -10459,12 +9979,10 @@ var POKEMON_SPECIES_DATA = [
       "body slam",
       "water pulse"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 367,
@@ -10483,12 +10001,10 @@ var POKEMON_SPECIES_DATA = [
       "ice beam",
       "crunch"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 368,
@@ -10507,12 +10023,10 @@ var POKEMON_SPECIES_DATA = [
       "water pulse",
       "draining kiss"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 369,
@@ -10531,12 +10045,10 @@ var POKEMON_SPECIES_DATA = [
       "aqua tail",
       "ancient power"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 2
   },
   {
     "dex": 370,
@@ -10555,12 +10067,10 @@ var POKEMON_SPECIES_DATA = [
       "draining kiss",
       "aqua jet"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 371,
@@ -10579,12 +10089,10 @@ var POKEMON_SPECIES_DATA = [
       "crunch",
       "twister"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 372,
@@ -10603,12 +10111,10 @@ var POKEMON_SPECIES_DATA = [
       "dragon pulse",
       "twister"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 373,
@@ -10627,12 +10133,10 @@ var POKEMON_SPECIES_DATA = [
       "hydro pump",
       "fire blast"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 5
   },
   {
     "dex": 374,
@@ -10648,12 +10152,10 @@ var POKEMON_SPECIES_DATA = [
     "chargedMoves": [
       "struggle"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 375,
@@ -10672,12 +10174,10 @@ var POKEMON_SPECIES_DATA = [
       "gyro ball",
       "psyshock"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 376,
@@ -10696,12 +10196,10 @@ var POKEMON_SPECIES_DATA = [
       "psychic",
       "earthquake"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 3.5
   },
   {
     "dex": 377,
@@ -10720,12 +10218,10 @@ var POKEMON_SPECIES_DATA = [
       "focus blast",
       "zap cannon"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 378,
@@ -10744,12 +10240,10 @@ var POKEMON_SPECIES_DATA = [
       "focus blast",
       "earthquake"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 379,
@@ -10768,12 +10262,10 @@ var POKEMON_SPECIES_DATA = [
       "focus blast",
       "hyper beam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 1
   },
   {
     "dex": 380,
@@ -10792,12 +10284,10 @@ var POKEMON_SPECIES_DATA = [
       "thunder",
       "dragon claw"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 381,
@@ -10816,12 +10306,10 @@ var POKEMON_SPECIES_DATA = [
       "solar beam",
       "dragon claw"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 382,
@@ -10842,9 +10330,9 @@ var POKEMON_SPECIES_DATA = [
     "fastMoves_legacy": [
       "dragon tail"
     ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 5
   },
   {
     "dex": 383,
@@ -10863,12 +10351,10 @@ var POKEMON_SPECIES_DATA = [
       "solar beam",
       "fire blast"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 5
   },
   {
     "dex": 384,
@@ -10887,12 +10373,10 @@ var POKEMON_SPECIES_DATA = [
       "aerial ace",
       "ancient power"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 5
   },
   {
     "dex": 385,
@@ -10911,12 +10395,10 @@ var POKEMON_SPECIES_DATA = [
       "psychic",
       "dazzling gleam"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 386,
@@ -10935,12 +10417,10 @@ var POKEMON_SPECIES_DATA = [
       "zap cannon",
       "psycho boost"
     ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 483,
@@ -10950,18 +10430,12 @@ var POKEMON_SPECIES_DATA = [
     "baseAtk": 302,
     "baseDef": 242,
     "baseStm": 200,
-    "fastMoves": [
-      ""
-    ],
-    "chargedMoves": [
-      ""
-    ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves": [],
+    "chargedMoves": [],
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 484,
@@ -10971,18 +10445,12 @@ var POKEMON_SPECIES_DATA = [
     "baseAtk": 308,
     "baseDef": 247,
     "baseStm": 180,
-    "fastMoves": [
-      ""
-    ],
-    "chargedMoves": [
-      ""
-    ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves": [],
+    "chargedMoves": [],
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 487,
@@ -10992,18 +10460,12 @@ var POKEMON_SPECIES_DATA = [
     "baseAtk": 206,
     "baseDef": 247,
     "baseStm": 300,
-    "fastMoves": [
-      ""
-    ],
-    "chargedMoves": [
-      ""
-    ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves": [],
+    "chargedMoves": [],
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 643,
@@ -11013,18 +10475,12 @@ var POKEMON_SPECIES_DATA = [
     "baseAtk": 302,
     "baseDef": 242,
     "baseStm": 200,
-    "fastMoves": [
-      ""
-    ],
-    "chargedMoves": [
-      ""
-    ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves": [],
+    "chargedMoves": [],
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 644,
@@ -11034,18 +10490,12 @@ var POKEMON_SPECIES_DATA = [
     "baseAtk": 302,
     "baseDef": 242,
     "baseStm": 200,
-    "fastMoves": [
-      ""
-    ],
-    "chargedMoves": [
-      ""
-    ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves": [],
+    "chargedMoves": [],
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 646,
@@ -11055,18 +10505,12 @@ var POKEMON_SPECIES_DATA = [
     "baseAtk": 270,
     "baseDef": 187,
     "baseStm": 250,
-    "fastMoves": [
-      ""
-    ],
-    "chargedMoves": [
-      ""
-    ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves": [],
+    "chargedMoves": [],
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   },
   {
     "dex": 718,
@@ -11076,21 +10520,14 @@ var POKEMON_SPECIES_DATA = [
     "baseAtk": 203,
     "baseDef": 245,
     "baseStm": 216,
-    "fastMoves": [
-      ""
-    ],
-    "chargedMoves": [
-      ""
-    ],
-    "fastMoves_legacy": [
-      ""
-    ],
-    "chargedMoves_legacy": [
-      ""
-    ]
+    "fastMoves": [],
+    "chargedMoves": [],
+    "fastMoves_legacy": [],
+    "chargedMoves_legacy": [],
+    "exclusiveMoves": [],
+    "rating": 0
   }
-];
-	
+];	
 
 RELEVANT_ATTACKERS_INDICES = [2, 5, 44, 58, 61, 64, 67, 70, 75, 90, 93, 102, 111, 113, 122, 123, 126, 129, 130, 133, 134, 135, 138, 143, 144, 145, 148, 149, 156, 159, 195, 211, 213, 216, 220, 228, 231, 242, 243, 247, 248, 249, 253, 256, 259, 274, 281, 285, 288, 296, 301, 318, 331, 336, 337, 341, 349, 353, 358, 364, 372, 375, 381, 382, 383];
 
@@ -11301,7 +10738,17 @@ $(document).ready(function(){
 		POKEMON_SPECIES_OPTIONS.push("$" + i + " " + USER_POKEBOX[i].nickname);
 	}
 	for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++){
-		POKEMON_SPECIES_OPTIONS.push(POKEMON_SPECIES_DATA[i].name);
+		var pkm = POKEMON_SPECIES_DATA[i];
+		pkm.fastMoves_exclusive = [];
+		pkm.chargedMoves_exclusive = [];
+		pkm.exclusiveMoves.forEach(function(move){
+			if (get_fmove_index_by_name(move) >= 0)
+				pkm.fastMoves_exclusive.push(move);
+			else if (get_cmove_index_by_name(move) >= 0)
+				pkm.chargedMoves_exclusive.push(move);
+		});
+		delete pkm.exclusiveMoves;
+		POKEMON_SPECIES_OPTIONS.push(pkm.name);
 	}
 	for (var i = 0; i < FAST_MOVE_DATA.length; i++){
 		FAST_MOVES_OPTIONS.push(FAST_MOVE_DATA[i].name);

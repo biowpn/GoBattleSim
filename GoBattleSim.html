@@ -13,15 +13,15 @@
 	table{
 		width: 100%;
 	}
-table {
-    margin-bottom: 0px;
-}
+	table {
+		margin-bottom: 0px;
+	}
 	div#ui-attackerinputbody h4 {
-    background: white;
-    padding: 8px;
-    margin: 10px 0px 0px 0px;
-    border: 1px solid #eceef3;
-    border-radius: 2px;
+		background: white;
+		padding: 8px;
+		margin: 10px 0px 0px 0px;
+		border: 1px solid #eceef3;
+		border-radius: 2px;
 	}
 	th, td {
 		vertical-align: center;
@@ -52,6 +52,18 @@ table {
 	.ui-button:focus{
 		background-color: #3076b2;
 	}
+	
+	.player_button{
+		color: #3076b2;
+		background-color: white;
+	}
+	.player_button:hover{
+		color: white;
+		background-color: #366ea2;
+	}
+	
+	
+	
 	.ui-checkboxradio-label{
 		color: white;
 	}
@@ -97,7 +109,7 @@ div#ui-defenderinputbody,
 <div id="AttackerInput">
 	<div id="ui-attackerinputhead">
 		<h2>Attacker Information</h2>
-		<button id='ui-addplayerbutton' onclick="javascript:addPlayerNode()">Add Player</button>
+		<button id='ui-addplayerbutton' class="player_button" onclick="javascript:addPlayerNode()">Add Player</button>
 	</div>
 	
 	<div id="ui-attackerinputbody">

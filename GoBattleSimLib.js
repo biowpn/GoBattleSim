@@ -10,7 +10,7 @@ var DODGE_COOLDOWN_MS = 500;
 var DODGEWINDOW_LENGTH_MS = 700;
 var DODGED_DAMAGE_REDUCTION_PERCENT = 0.75;
 var ARENA_ENTRY_LAG_MS = 3000;
-var SWITCHING_DELAY_MS = 1000;
+var SWITCHING_DELAY_MS = 750;
 var TIMELIMIT_GYM_MS = 100000;
 var REJOIN_TIME_MS = 7000;
 var ITEM_MENU_TIME_MS = 1500;
@@ -533,31 +533,24 @@ World.prototype.atkr_choose = function (pkm, t){
 		var hurtEvent = this.projected_atkrHurtEvent;
 		if (hurtEvent && (hurtEvent.move.moveType == 'c' || pkm.dodgeStrat >= 2) && !pkm.has_dodged_next_attack){
 			pkm.has_dodged_next_attack = true;
-			var timeTillHurt = hurtEvent.t - t;
 			
-			// 1. If can't fit in a fmove or a cmove (whichever has earliest DWS), just dodge and attack
-			if (timeTillHurt < pkm.fmove.dws && timeTillHurt < pkm.cmove.dws){
-				var decision = [Math.max(0, timeTillHurt - DODGEWINDOW_LENGTH_MS), 'd'];
-				if (pkm.energy + pkm.cmove.energyDelta >= 0)
-					return decision.concat('c');
-				else
-					return decision.concat('f');
+			var timeTillHurt = hurtEvent.t - t;
+			var undodgedDmg = damage(hurtEvent.object, pkm, hurtEvent.move, this.weather);
+			var dodgedDmg = Math.floor(undodgedDmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
+			if (this.dodge_bug == 1 && this.playersArr.length >= 2){
+				dodgedDmg = undodgedDmg;
 			}
 			var fDmg = damage(pkm, dfdr, pkm.fmove, this.weather);
 			var cDmg = damage(pkm, dfdr, pkm.cmove, this.weather);
 
-			// (2) Otherwise, need to maximize damage before time runs out
-			var undodgedDmg = damage(hurtEvent.object, pkm, hurtEvent.move, this.weather);
-			var dodgedDmg = Math.floor(undodgedDmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
-			if (this.dodge_bug && this.playersArr.length >= 2)
-				dodgedDmg = undodgedDmg;
+			// Goal: Maximize damage before time runs out
 			if (pkm.HP > dodgedDmg){
-				// (2a) if this Pokemon can survive the dodged damage, then it's better to dodge
+				// (a) if this Pokemon can survive the dodged damage, then it's better to dodge
 				var res = strategyMaxDmg(timeTillHurt, pkm.energy, fDmg, pkm.fmove.energyDelta, 
 										pkm.fmove.duration, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration);
 				return res[2].concat([Math.max(timeTillHurt - DODGEWINDOW_LENGTH_MS - res[1], 0), 'd']);
 			} else{
-				// (2b) otherwise, just don't bother to dodge, and shine like the sun before dying!
+				// (b) otherwise, just don't bother to dodge, and YOLO!
 				// Compare two strategies: a FMove at the end (resF) or a CMove at the end (resC) by exploiting DWS
 				var resF = strategyMaxDmg(timeTillHurt - pkm.fmove.dws, pkm.energy, fDmg, pkm.fmove.energyDelta, 
 										pkm.fmove.duration, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration);

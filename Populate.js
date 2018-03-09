@@ -31,7 +31,17 @@ function populateAll(){
 			POKEMON_SPECIES_OPTIONS.push("$" + i + " " + USER_POKEBOX[i].nickname);
 		}
 		for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++){
-			POKEMON_SPECIES_OPTIONS.push(POKEMON_SPECIES_DATA[i].name);
+			var pkm = POKEMON_SPECIES_DATA[i];
+			pkm.fastMoves_exclusive = [];
+			pkm.chargedMoves_exclusive = [];
+			pkm.exclusiveMoves.forEach(function(move){
+				if (get_fmove_index_by_name(move) >= 0)
+					pkm.fastMoves_exclusive.push(move);
+				else if (get_cmove_index_by_name(move) >= 0)
+					pkm.chargedMoves_exclusive.push(move);
+			});
+			delete pkm.exclusiveMoves;
+			POKEMON_SPECIES_OPTIONS.push(pkm.name);
 		}
 		for (var i = 0; i < FAST_MOVE_DATA.length; i++){
 			FAST_MOVES_OPTIONS.push(FAST_MOVE_DATA[i].name);
