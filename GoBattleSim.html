@@ -127,18 +127,19 @@ div#ui-defenderinputbody,
 	<table>
 	<col width=20%><col width=20%><col width=20%><col width=20%><col width=20%>
 	<tr>
-		<th>Mode</th><th>Weather</th><th>Dodge Bug</th><th>Repeat</th><th>Report Type</th>
-	</tr>
-	<tr>
+		<th>Mode</th>
 		<td><select id="battleMode"  onchange="updateDefenderNode()">
 				<option value="gym">Gym</option>
 				<option value="raid">Raid</option>
 			</select>
 		</td>
+	</tr>
+	<tr>
+		<th>Weather</th>
 		<td>
 			<select id="weather">
 				<option value="EXTREME">Extreme</option>
-				<option value="SUNNY_CLEAR">Sunner/Clear</option>
+				<option value="SUNNY_CLEAR">Sunny/Clear</option>
 				<option value="RAIN">Rain</option>
 				<option value="PARTLY_CLOUDY">Party Cloudy</option>
 				<option value="CLOUDY">Cloudy</option>
@@ -147,15 +148,24 @@ div#ui-defenderinputbody,
 				<option value="FOG">Fog</option>
 			</select>
 		</td>
+	</tr>
+	<tr>
+		<th>Dodge Bug</th>
 		<td>
 			<select id="dodgeBug">
 				<option value="0">Absent</option>
 				<option value="1">Present</option>
 			</select>
 		</td>
+	</tr>
+	<tr>
+		<th>Repeat</th>
 		<td>
 			<input id="simPerConfig" type="number" min="1">
 		</td>
+	</tr>
+	<tr>
+		<th>Report Type</th>
 		<td>
 			<select id="reportType">
 				<option value="enum">Enumerate</option>

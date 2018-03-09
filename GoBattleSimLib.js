@@ -161,6 +161,7 @@ function Pokemon(cfg){
 	this.dodgeStrat = parseInt(cfg.dodge) || 0;
 	this.has_dodged_next_attack = false;
 	this.active = false;
+	this.index_party = cfg.index_party;
 	
 	// Some statistics for performance analysis
 	this.time_enter_ms = 0;
@@ -249,8 +250,11 @@ function Party(cfg){
 	this.pokemonArr = [];
 	for (var k = 0; k < cfg.pokemon_list.length; k++){
 		cfg.pokemon_list[k].player_code = this.playerCode;
-		for (var r = 0; r < cfg.pokemon_list[k].copies; r++)
-			this.pokemonArr.push(new Pokemon(cfg.pokemon_list[k]));
+		for (var r = 0; r < cfg.pokemon_list[k].copies; r++){
+			var pkmCfg = cfg.pokemon_list[k];
+			pkmCfg.index_party = this.pokemonArr.length;
+			this.pokemonArr.push(new Pokemon(pkmCfg));
+		}
 	}
 	this.active_idx = 0;
 	this.active_pkm = this.pokemonArr[0];
@@ -473,7 +477,7 @@ World.prototype.enqueueActions = function(pkm, pkm_hurt, t, actions){
 World.prototype.nextHurtEventOf = function(pkm){
 	for (var i = 0; i < this.tline.list.length; i++){
 		var thisEvent = this.tline.list[i];
-		if (thisEvent.name == "Hurt" && thisEvent.subject == pkm)
+		if (thisEvent.name == "Hurt" && thisEvent.subject.playerCode == pkm.playerCode && thisEvent.subject.index_party == pkm.index_party)
 			return thisEvent;
 	}
 }
@@ -689,7 +693,7 @@ World.prototype.battle = function (){
 			if (old_pkm && old_pkm.HP <= 0){
 				for (var j = 0; j < this.tline.list.length; j++){
 					var thisEvent =  this.tline.list[j];
-					if (thisEvent.name == "AtkrFree" && thisEvent.subject == old_pkm)
+					if (thisEvent.name == "AtkrFree" && thisEvent.subject.playerCode == old_pkm.playerCode && thisEvent.subject.index_party == old_pkm.index_party)
 						this.tline.list.splice(j--, 1);
 				}
 				

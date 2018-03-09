@@ -255,10 +255,10 @@ function createPlayerNode(){
 	var addPartyButton = createElement("button", "Add Party");
 	addPartyButton.style = "width:50%";
 	addPartyButton.onclick = function(){
-var playerNodeToAddPartyTo = document.getElementById('ui-player-' + this.id.split(':')[1]);
-if(playerNodeToAddPartyTo.children[1].length < MAX_NUM_PARTIES_PER_PLAYER){
-			playerNodeToAddPartyTo.children[1].appendChild(createPartyNode());
-			relabelAll();
+		var playerNodeToAddPartyTo = document.getElementById('ui-player-' + this.id.split(':')[1]);
+		if(playerNodeToAddPartyTo.children[1].children.length < MAX_NUM_PARTIES_PER_PLAYER){
+				playerNodeToAddPartyTo.children[1].appendChild(createPartyNode());
+				relabelAll();
 		}else{
 			send_feedback("Exceeding Maximum number of Parties per player.");
 		}
@@ -474,7 +474,7 @@ function countPokemonFromParty(partyAddress){
 	var partyNodeBody = document.getElementById('ui-partybody-' + partyAddress);
 	var count = 0;
 	for (var i = 0; i < partyNodeBody.children.length; i++){
-		count += document.getElementById('ui-copies-' + partyAddress + '-' + i).valueAsNumber || 0;
+		count += parseInt(document.getElementById('ui-copies-' + partyAddress + '-' + i).value) || 0;
 	}
 	return count;
 }
@@ -526,7 +526,7 @@ function parseAttackerNode(node){
 		cmove_index : -1,
 		nickname : box_idx >= 0 ? USER_POKEBOX[box_idx].nickname : "",
 		species: box_idx >= 0 ? USER_POKEBOX[box_idx].species : (nameInputValue || '*'),
-		copies: row1.children[1].children[0].valueAsNumber || 1,
+		copies: parseInt(row1.children[1].children[0].value) || 1,
 		level: row2.children[0].children[0].value.trim(),
 		stmiv: row2.children[1].children[0].value.trim(),
 		atkiv: row2.children[2].children[0].value.trim(),
@@ -609,7 +609,7 @@ function readUserInput(){
 		gSettings['raidTier'] = -1;
 	gSettings['weather'] = document.getElementById("weather").value;
 	gSettings['dodgeBug'] = parseInt(document.getElementById("dodgeBug").value);
-	gSettings['simPerConfig'] = Math.max(1, Math.min(MAX_SIM_PER_CONFIG, document.getElementById("simPerConfig").valueAsNumber));
+	gSettings['simPerConfig'] = Math.max(1, Math.min(MAX_SIM_PER_CONFIG, parseInt(document.getElementById("simPerConfig").value)));
 	gSettings['reportType'] = document.getElementById("reportType").value;
 	if (gSettings['reportType'] == 'avrg')
 		gSettings['logStyle'] = 0;
@@ -711,7 +711,7 @@ function writePlayerNode(node, playerConfig){
 	// TODO: Some other Player settings to write
 }
 
-function writeDefenderNode(node, pkmConfig){
+function writeDefenderNode(node, pkmConfig, raidTier){
 	
 	var row1 = node.children[1].children[0].children[1];
 	var row2 = node.children[1].children[1].children[1];
@@ -737,7 +737,7 @@ function writeDefenderNode(node, pkmConfig){
 		row2.children[2].children[0].value = pkmConfig['atkiv'];
 		row2.children[3].children[0].value = pkmConfig['defiv'];
 	}else if (document.getElementById("battleMode").value ==  "raid"){
-		row2.children[0].children[0].value = pkmConfig['raid_tier'] || 1;
+		row2.children[0].children[0].value = pkmConfig['raid_tier'] || raidTier;
 	}
 }
 
@@ -757,7 +757,6 @@ function writeUserInput(cfg){
 		writePlayerNode(playerNode, cfg['atkrSettings'][i]);
 		attackerFieldBody.appendChild(playerNode);
 	}
-		
 	relabelAll();
 		
 	var defenderFieldBody = document.getElementById("DefenderInput").children[1];
@@ -765,7 +764,7 @@ function writeUserInput(cfg){
 	var defenderNode = createDefenderNode();
 	defenderFieldBody.appendChild(defenderNode);
 	updateDefenderNode();
-	writeDefenderNode(defenderNode, cfg['dfdrSettings']);
+	writeDefenderNode(defenderNode, cfg['dfdrSettings'], cfg['generalSettings']['raidTier']);
 	autocompletePokemonNode('d');
 }
 
@@ -1020,7 +1019,8 @@ function processQueue(cfg){
 
 function runSim(cfg){
 	var interResults = [];
-	for (var i = 0; i < cfg['generalSettings']['simPerConfig']; i++){
+	var numSimRun = parseInt(cfg['generalSettings']['simPerConfig']);
+	for (var i = 0; i < numSimRun; i++){
 		var app_world = new World(cfg);
 		app_world.battle();
 		interResults.push(app_world.get_statistics());
@@ -1279,7 +1279,7 @@ function send_feedback(msg, appending){
 		document.getElementById("feedback_message").innerHTML += msg;
 	}else
 		document.getElementById("feedback_message").innerHTML = msg;
-	document.getElementById("feedback_message").scrollIntoView();
+	document.getElementById("feedback_message").scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
 }
 
 function main(){
@@ -1288,7 +1288,6 @@ function main(){
 	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
 	simQueue.push(userInput);
 	send_feedback("");
-	var simLengthBefore = simResults.length;
 	while (simQueue.length > 0){
 		var cfg = simQueue[0];
 		if (processQueue(cfg) == -1)
@@ -1297,5 +1296,5 @@ function main(){
 			runSim(simQueue.shift());
 	}
 	displayMasterSummaryTable();
-	send_feedback((simResults.length - simLengthBefore) * $('#simPerConfig').val() + " simulations were done.", true);
+	send_feedback("Simulations were done.", true);
 }

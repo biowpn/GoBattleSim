@@ -1,12 +1,1677 @@
-var FAST_MOVE_DATA = [{"name": "fury cutter", "moveType": "f", "power": 3.0, "pokeType": "bug", "energyDelta": 6, "dws": 100, "duration": 400}, {"name": "bug bite", "moveType": "f", "power": 5.0, "pokeType": "bug", "energyDelta": 6, "dws": 250, "duration": 500}, {"name": "bite", "moveType": "f", "power": 6.0, "pokeType": "dark", "energyDelta": 4, "dws": 300, "duration": 500}, {"name": "sucker punch", "moveType": "f", "power": 7.0, "pokeType": "dark", "energyDelta": 8, "dws": 300, "duration": 700}, {"name": "dragon breath", "moveType": "f", "power": 6.0, "pokeType": "dragon", "energyDelta": 4, "dws": 300, "duration": 500}, {"name": "thunder shock", "moveType": "f", "power": 5.0, "pokeType": "electric", "energyDelta": 8, "dws": 300, "duration": 600}, {"name": "spark", "moveType": "f", "power": 6.0, "pokeType": "electric", "energyDelta": 9, "dws": 300, "duration": 700}, {"name": "low kick", "moveType": "f", "power": 6.0, "pokeType": "fighting", "energyDelta": 6, "dws": 300, "duration": 600}, {"name": "karate chop", "moveType": "f", "power": 8.0, "pokeType": "fighting", "energyDelta": 10, "dws": 600, "duration": 800}, {"name": "ember", "moveType": "f", "power": 10.0, "pokeType": "fire", "energyDelta": 10, "dws": 600, "duration": 1000}, {"name": "wing attack", "moveType": "f", "power": 8.0, "pokeType": "flying", "energyDelta": 9, "dws": 550, "duration": 800}, {"name": "peck", "moveType": "f", "power": 10.0, "pokeType": "flying", "energyDelta": 10, "dws": 450, "duration": 1000}, {"name": "lick", "moveType": "f", "power": 5.0, "pokeType": "ghost", "energyDelta": 6, "dws": 200, "duration": 500}, {"name": "shadow claw", "moveType": "f", "power": 9.0, "pokeType": "ghost", "energyDelta": 6, "dws": 250, "duration": 700}, {"name": "vine whip", "moveType": "f", "power": 7.0, "pokeType": "grass", "energyDelta": 6, "dws": 350, "duration": 600}, {"name": "razor leaf", "moveType": "f", "power": 13.0, "pokeType": "grass", "energyDelta": 7, "dws": 600, "duration": 1000}, {"name": "mud shot", "moveType": "f", "power": 5.0, "pokeType": "ground", "energyDelta": 7, "dws": 350, "duration": 600}, {"name": "ice shard", "moveType": "f", "power": 12.0, "pokeType": "ice", "energyDelta": 12, "dws": 600, "duration": 1200}, {"name": "frost breath", "moveType": "f", "power": 10.0, "pokeType": "ice", "energyDelta": 8, "dws": 450, "duration": 900}, {"name": "quick attack", "moveType": "f", "power": 8.0, "pokeType": "normal", "energyDelta": 10, "dws": 250, "duration": 800}, {"name": "scratch", "moveType": "f", "power": 6.0, "pokeType": "normal", "energyDelta": 4, "dws": 300, "duration": 500}, {"name": "tackle", "moveType": "f", "power": 5.0, "pokeType": "normal", "energyDelta": 5, "dws": 300, "duration": 500}, {"name": "pound", "moveType": "f", "power": 7.0, "pokeType": "normal", "energyDelta": 6, "dws": 340, "duration": 600}, {"name": "cut", "moveType": "f", "power": 5.0, "pokeType": "normal", "energyDelta": 5, "dws": 300, "duration": 500}, {"name": "poison jab", "moveType": "f", "power": 10.0, "pokeType": "poison", "energyDelta": 7, "dws": 200, "duration": 800}, {"name": "acid", "moveType": "f", "power": 9.0, "pokeType": "poison", "energyDelta": 8, "dws": 400, "duration": 800}, {"name": "psycho cut", "moveType": "f", "power": 5.0, "pokeType": "psychic", "energyDelta": 8, "dws": 370, "duration": 600}, {"name": "rock throw", "moveType": "f", "power": 12.0, "pokeType": "rock", "energyDelta": 7, "dws": 500, "duration": 900}, {"name": "metal claw", "moveType": "f", "power": 8.0, "pokeType": "steel", "energyDelta": 7, "dws": 430, "duration": 700}, {"name": "bullet punch", "moveType": "f", "power": 9.0, "pokeType": "steel", "energyDelta": 10, "dws": 300, "duration": 900}, {"name": "water gun", "moveType": "f", "power": 5.0, "pokeType": "water", "energyDelta": 5, "dws": 300, "duration": 500}, {"name": "splash", "moveType": "f", "power": 0, "pokeType": "water", "energyDelta": 20, "dws": 1030, "duration": 1730}, {"name": "water gun fast blas", "moveType": "f", "power": 10.0, "pokeType": "water", "energyDelta": 6, "dws": 300, "duration": 1000}, {"name": "mud slap", "moveType": "f", "power": 15.0, "pokeType": "ground", "energyDelta": 12, "dws": 1150, "duration": 1400}, {"name": "zen headbutt", "moveType": "f", "power": 12.0, "pokeType": "psychic", "energyDelta": 10, "dws": 850, "duration": 1100}, {"name": "confusion", "moveType": "f", "power": 20.0, "pokeType": "psychic", "energyDelta": 15, "dws": 600, "duration": 1600}, {"name": "poison sting", "moveType": "f", "power": 5.0, "pokeType": "poison", "energyDelta": 7, "dws": 375, "duration": 600}, {"name": "bubble", "moveType": "f", "power": 12.0, "pokeType": "water", "energyDelta": 14, "dws": 750, "duration": 1200}, {"name": "feint attack", "moveType": "f", "power": 10.0, "pokeType": "dark", "energyDelta": 9, "dws": 750, "duration": 900}, {"name": "steel wing", "moveType": "f", "power": 11.0, "pokeType": "steel", "energyDelta": 6, "dws": 500, "duration": 800}, {"name": "fire fang", "moveType": "f", "power": 11.0, "pokeType": "fire", "energyDelta": 8, "dws": 640, "duration": 900}, {"name": "rock smash", "moveType": "f", "power": 15.0, "pokeType": "fighting", "energyDelta": 10, "dws": 550, "duration": 1300}, {"name": "transform", "moveType": "f", "power": 0, "pokeType": "normal", "energyDelta": 0, "dws": 300, "duration": 2230}, {"name": "counter", "moveType": "f", "power": 12.0, "pokeType": "fighting", "energyDelta": 8, "dws": 700, "duration": 900}, {"name": "powder snow", "moveType": "f", "power": 6.0, "pokeType": "ice", "energyDelta": 15, "dws": 850, "duration": 1000}, {"name": "charge beam", "moveType": "f", "power": 8.0, "pokeType": "electric", "energyDelta": 15, "dws": 850, "duration": 1100}, {"name": "volt switch", "moveType": "f", "power": 20.0, "pokeType": "electric", "energyDelta": 25, "dws": 1800, "duration": 2300}, {"name": "dragon tail", "moveType": "f", "power": 15.0, "pokeType": "dragon", "energyDelta": 9, "dws": 850, "duration": 1100}, {"name": "air slash", "moveType": "f", "power": 14.0, "pokeType": "flying", "energyDelta": 10, "dws": 1000, "duration": 1200}, {"name": "infestation", "moveType": "f", "power": 10.0, "pokeType": "bug", "energyDelta": 14, "dws": 850, "duration": 1100}, {"name": "struggle bug", "moveType": "f", "power": 15.0, "pokeType": "bug", "energyDelta": 0, "dws": 1200, "duration": 1500}, {"name": "astonish", "moveType": "f", "power": 8.0, "pokeType": "ghost", "energyDelta": 14, "dws": 700, "duration": 1100}, {"name": "hex", "moveType": "f", "power": 10.0, "pokeType": "ghost", "energyDelta": 15, "dws": 1000, "duration": 1200}, {"name": "iron tail", "moveType": "f", "power": 15.0, "pokeType": "steel", "energyDelta": 7, "dws": 850, "duration": 1100}, {"name": "fire spin", "moveType": "f", "power": 14.0, "pokeType": "fire", "energyDelta": 10, "dws": 850, "duration": 1100}, {"name": "bullet seed", "moveType": "f", "power": 8.0, "pokeType": "grass", "energyDelta": 14, "dws": 850, "duration": 1100}, {"name": "extrasensory", "moveType": "f", "power": 12.0, "pokeType": "psychic", "energyDelta": 12, "dws": 850, "duration": 1100}, {"name": "snarl", "moveType": "f", "power": 12.0, "pokeType": "dark", "energyDelta": 12, "dws": 850, "duration": 1100}, {"name": "hidden power", "moveType": "f", "power": 15.0, "pokeType": "normal", "energyDelta": 15, "dws": 1100, "duration": 1500}, {"name": "take down", "moveType": "f", "power": 8.0, "pokeType": "normal", "energyDelta": 10, "dws": 950, "duration": 1200}, {"name": "waterfall", "moveType": "f", "power": 16.0, "pokeType": "water", "energyDelta": 8, "dws": 950, "duration": 1200}, {"name": "yawn", "moveType": "f", "power": 0, "pokeType": "normal", "energyDelta": 15, "dws": 1400, "duration": 1700}, {"name": "present", "moveType": "f", "power": 5.0, "pokeType": "normal", "energyDelta": 20, "dws": 1100, "duration": 1300}];
+var FAST_MOVE_DATA = [
+  {
+    "name": "tackle",
+    "moveType": "f",
+    "power": 5,
+    "pokeType": "normal",
+    "energyDelta": 5,
+    "dws": 300,
+    "duration": 500
+  },
+  {
+    "name": "acid",
+    "moveType": "f",
+    "power": 9,
+    "pokeType": "poison",
+    "energyDelta": 8,
+    "dws": 400,
+    "duration": 800
+  },
+  {
+    "name": "bite",
+    "moveType": "f",
+    "power": 6,
+    "pokeType": "dark",
+    "energyDelta": 4,
+    "dws": 300,
+    "duration": 500
+  },
+  {
+    "name": "bubble",
+    "moveType": "f",
+    "power": 12,
+    "pokeType": "water",
+    "energyDelta": 14,
+    "dws": 750,
+    "duration": 1200
+  },
+  {
+    "name": "bug bite",
+    "moveType": "f",
+    "power": 5,
+    "pokeType": "bug",
+    "energyDelta": 6,
+    "dws": 250,
+    "duration": 500
+  },
+  {
+    "name": "bullet punch",
+    "moveType": "f",
+    "power": 9,
+    "pokeType": "steel",
+    "energyDelta": 10,
+    "dws": 300,
+    "duration": 900
+  },
+  {
+    "name": "confusion",
+    "moveType": "f",
+    "power": 20,
+    "pokeType": "psychic",
+    "energyDelta": 15,
+    "dws": 600,
+    "duration": 1600
+  },
+  {
+    "name": "dragon breath",
+    "moveType": "f",
+    "power": 6,
+    "pokeType": "dragon",
+    "energyDelta": 4,
+    "dws": 300,
+    "duration": 500
+  },
+  {
+    "name": "ember",
+    "moveType": "f",
+    "power": 10,
+    "pokeType": "fire",
+    "energyDelta": 10,
+    "dws": 600,
+    "duration": 1000
+  },
+  {
+    "name": "feint attack",
+    "moveType": "f",
+    "power": 10,
+    "pokeType": "dark",
+    "energyDelta": 9,
+    "dws": 750,
+    "duration": 900
+  },
+  {
+    "name": "fire fang",
+    "moveType": "f",
+    "power": 11,
+    "pokeType": "fire",
+    "energyDelta": 8,
+    "dws": 640,
+    "duration": 900
+  },
+  {
+    "name": "fury cutter",
+    "moveType": "f",
+    "power": 3,
+    "pokeType": "bug",
+    "energyDelta": 6,
+    "dws": 100,
+    "duration": 400
+  },
+  {
+    "name": "frost breath",
+    "moveType": "f",
+    "power": 10,
+    "pokeType": "ice",
+    "energyDelta": 8,
+    "dws": 450,
+    "duration": 900
+  },
+  {
+    "name": "karate chop",
+    "moveType": "f",
+    "power": 8,
+    "pokeType": "fighting",
+    "energyDelta": 10,
+    "dws": 600,
+    "duration": 800
+  },
+  {
+    "name": "low kick",
+    "moveType": "f",
+    "power": 6,
+    "pokeType": "fighting",
+    "energyDelta": 6,
+    "dws": 300,
+    "duration": 600
+  },
+  {
+    "name": "lick",
+    "moveType": "f",
+    "power": 5,
+    "pokeType": "ghost",
+    "energyDelta": 6,
+    "dws": 200,
+    "duration": 500
+  },
+  {
+    "name": "metal claw",
+    "moveType": "f",
+    "power": 8,
+    "pokeType": "steel",
+    "energyDelta": 7,
+    "dws": 430,
+    "duration": 700
+  },
+  {
+    "name": "mud shot",
+    "moveType": "f",
+    "power": 5,
+    "pokeType": "ground",
+    "energyDelta": 7,
+    "dws": 350,
+    "duration": 600
+  },
+  {
+    "name": "mud slap",
+    "moveType": "f",
+    "power": 15,
+    "pokeType": "ground",
+    "energyDelta": 12,
+    "dws": 1150,
+    "duration": 1400
+  },
+  {
+    "name": "peck",
+    "moveType": "f",
+    "power": 10,
+    "pokeType": "flying",
+    "energyDelta": 10,
+    "dws": 450,
+    "duration": 1000
+  },
+  {
+    "name": "poison sting",
+    "moveType": "f",
+    "power": 5,
+    "pokeType": "poison",
+    "energyDelta": 7,
+    "dws": 380,
+    "duration": 600
+  },
+  {
+    "name": "pound",
+    "moveType": "f",
+    "power": 7,
+    "pokeType": "normal",
+    "energyDelta": 6,
+    "dws": 340,
+    "duration": 600
+  },
+  {
+    "name": "psycho cut",
+    "moveType": "f",
+    "power": 5,
+    "pokeType": "psychic",
+    "energyDelta": 8,
+    "dws": 370,
+    "duration": 600
+  },
+  {
+    "name": "quick attack",
+    "moveType": "f",
+    "power": 8,
+    "pokeType": "normal",
+    "energyDelta": 10,
+    "dws": 250,
+    "duration": 800
+  },
+  {
+    "name": "razor leaf",
+    "moveType": "f",
+    "power": 13,
+    "pokeType": "grass",
+    "energyDelta": 7,
+    "dws": 600,
+    "duration": 1000
+  },
+  {
+    "name": "rock smash",
+    "moveType": "f",
+    "power": 15,
+    "pokeType": "fighting",
+    "energyDelta": 10,
+    "dws": 550,
+    "duration": 1300
+  },
+  {
+    "name": "rock throw",
+    "moveType": "f",
+    "power": 12,
+    "pokeType": "rock",
+    "energyDelta": 7,
+    "dws": 500,
+    "duration": 900
+  },
+  {
+    "name": "scratch",
+    "moveType": "f",
+    "power": 6,
+    "pokeType": "normal",
+    "energyDelta": 4,
+    "dws": 300,
+    "duration": 500
+  },
+  {
+    "name": "spark",
+    "moveType": "f",
+    "power": 6,
+    "pokeType": "electric",
+    "energyDelta": 9,
+    "dws": 300,
+    "duration": 700
+  },
+  {
+    "name": "steel wing",
+    "moveType": "f",
+    "power": 11,
+    "pokeType": "steel",
+    "energyDelta": 6,
+    "dws": 500,
+    "duration": 800
+  },
+  {
+    "name": "sucker punch",
+    "moveType": "f",
+    "power": 7,
+    "pokeType": "dark",
+    "energyDelta": 8,
+    "dws": 300,
+    "duration": 700
+  },
+  {
+    "name": "thunder shock",
+    "moveType": "f",
+    "power": 5,
+    "pokeType": "electric",
+    "energyDelta": 8,
+    "dws": 300,
+    "duration": 600
+  },
+  {
+    "name": "vine whip",
+    "moveType": "f",
+    "power": 7,
+    "pokeType": "grass",
+    "energyDelta": 6,
+    "dws": 350,
+    "duration": 600
+  },
+  {
+    "name": "water gun",
+    "moveType": "f",
+    "power": 5,
+    "pokeType": "water",
+    "energyDelta": 5,
+    "dws": 300,
+    "duration": 500
+  },
+  {
+    "name": "wing attack",
+    "moveType": "f",
+    "power": 8,
+    "pokeType": "flying",
+    "energyDelta": 9,
+    "dws": 550,
+    "duration": 800
+  },
+  {
+    "name": "zen headbutt",
+    "moveType": "f",
+    "power": 12,
+    "pokeType": "psychic",
+    "energyDelta": 10,
+    "dws": 850,
+    "duration": 1100
+  },
+  {
+    "name": "poison jab",
+    "moveType": "f",
+    "power": 10,
+    "pokeType": "poison",
+    "energyDelta": 7,
+    "dws": 200,
+    "duration": 800
+  },
+  {
+    "name": "ice shard",
+    "moveType": "f",
+    "power": 12,
+    "pokeType": "ice",
+    "energyDelta": 12,
+    "dws": 600,
+    "duration": 1200
+  },
+  {
+    "name": "shadow claw",
+    "moveType": "f",
+    "power": 9,
+    "pokeType": "ghost",
+    "energyDelta": 6,
+    "dws": 250,
+    "duration": 700
+  },
+  {
+    "name": "splash",
+    "moveType": "f",
+    "power": 0,
+    "pokeType": "water",
+    "energyDelta": 20,
+    "dws": 1030,
+    "duration": 1730
+  },
+  {
+    "name": "cut",
+    "moveType": "f",
+    "power": 5,
+    "pokeType": "normal",
+    "energyDelta": 5,
+    "dws": 300,
+    "duration": 500
+  },
+  {
+    "name": "transform",
+    "moveType": "f",
+    "power": 0,
+    "pokeType": "normal",
+    "energyDelta": 0,
+    "dws": 300,
+    "duration": 2230
+  },
+  {
+    "name": "counter",
+    "moveType": "f",
+    "power": 12,
+    "pokeType": "fighting",
+    "energyDelta": 8,
+    "dws": 700,
+    "duration": 900
+  },
+  {
+    "name": "powder snow",
+    "moveType": "f",
+    "power": 6,
+    "pokeType": "ice",
+    "energyDelta": 15,
+    "dws": 850,
+    "duration": 1000
+  },
+  {
+    "name": "charge beam",
+    "moveType": "f",
+    "power": 8,
+    "pokeType": "electric",
+    "energyDelta": 15,
+    "dws": 850,
+    "duration": 1100
+  },
+  {
+    "name": "volt switch",
+    "moveType": "f",
+    "power": 20,
+    "pokeType": "electric",
+    "energyDelta": 25,
+    "dws": 1800,
+    "duration": 2300
+  },
+  {
+    "name": "dragon tail",
+    "moveType": "f",
+    "power": 15,
+    "pokeType": "dragon",
+    "energyDelta": 9,
+    "dws": 850,
+    "duration": 1100
+  },
+  {
+    "name": "air slash",
+    "moveType": "f",
+    "power": 14,
+    "pokeType": "flying",
+    "energyDelta": 10,
+    "dws": 1000,
+    "duration": 1200
+  },
+  {
+    "name": "infestation",
+    "moveType": "f",
+    "power": 10,
+    "pokeType": "bug",
+    "energyDelta": 14,
+    "dws": 850,
+    "duration": 1100
+  },
+  {
+    "name": "struggle bug",
+    "moveType": "f",
+    "power": 15,
+    "pokeType": "bug",
+    "energyDelta": 15,
+    "dws": 1200,
+    "duration": 1500
+  },
+  {
+    "name": "astonish",
+    "moveType": "f",
+    "power": 8,
+    "pokeType": "ghost",
+    "energyDelta": 14,
+    "dws": 700,
+    "duration": 1100
+  },
+  {
+    "name": "hex",
+    "moveType": "f",
+    "power": 10,
+    "pokeType": "ghost",
+    "energyDelta": 15,
+    "dws": 1000,
+    "duration": 1200
+  },
+  {
+    "name": "iron tail",
+    "moveType": "f",
+    "power": 15,
+    "pokeType": "steel",
+    "energyDelta": 7,
+    "dws": 850,
+    "duration": 1100
+  },
+  {
+    "name": "fire spin",
+    "moveType": "f",
+    "power": 14,
+    "pokeType": "fire",
+    "energyDelta": 10,
+    "dws": 850,
+    "duration": 1100
+  },
+  {
+    "name": "water gun (blastoise)",
+    "moveType": "f",
+    "power": 10,
+    "pokeType": "water",
+    "energyDelta": 6,
+    "dws": 300,
+    "duration": 1000
+  },
+  {
+    "name": "bullet seed",
+    "moveType": "f",
+    "power": 8,
+    "pokeType": "grass",
+    "energyDelta": 14,
+    "dws": 850,
+    "duration": 1100
+  },
+  {
+    "name": "extrasensory",
+    "moveType": "f",
+    "power": 12,
+    "pokeType": "psychic",
+    "energyDelta": 12,
+    "dws": 850,
+    "duration": 1100
+  },
+  {
+    "name": "snarl",
+    "moveType": "f",
+    "power": 12,
+    "pokeType": "dark",
+    "energyDelta": 12,
+    "dws": 850,
+    "duration": 1100
+  },
+  {
+    "name": "hidden power",
+    "moveType": "f",
+    "power": 15,
+    "pokeType": "normal",
+    "energyDelta": 15,
+    "dws": 1100,
+    "duration": 1500
+  },
+  {
+    "name": "present",
+    "moveType": "f",
+    "power": 5,
+    "pokeType": "normal",
+    "energyDelta": 20,
+    "dws": 1100,
+    "duration": 1300
+  },
+  {
+    "name": "waterfall",
+    "moveType": "f",
+    "power": 16,
+    "pokeType": "water",
+    "energyDelta": 8,
+    "dws": 950,
+    "duration": 1200
+  },
+  {
+    "name": "yawn",
+    "moveType": "f",
+    "power": 0,
+    "pokeType": "normal",
+    "energyDelta": 15,
+    "dws": 0,
+    "duration": 1700
+  },
+  {
+    "name": "take down",
+    "moveType": "f",
+    "power": 8,
+    "pokeType": "normal",
+    "energyDelta": 10,
+    "dws": 950,
+    "duration": 1200
+  }
+];
 
 
 
 
 
-
-var CHARGED_MOVE_DATA = [{"name": "wrap", "moveType": "c", "power": 60.0, "pokeType": "normal", "energyDelta": -33, "dws": 2050, "duration": 2900}, {"name": "hyper beam", "moveType": "c", "power": 150.0, "pokeType": "normal", "energyDelta": -100, "dws": 3300, "duration": 3800}, {"name": "dark pulse", "moveType": "c", "power": 80.0, "pokeType": "dark", "energyDelta": -50, "dws": 1400, "duration": 3000}, {"name": "sludge", "moveType": "c", "power": 50.0, "pokeType": "poison", "energyDelta": -33, "dws": 1200, "duration": 2100}, {"name": "vice grip", "moveType": "c", "power": 35.0, "pokeType": "normal", "energyDelta": -33, "dws": 1100, "duration": 1900}, {"name": "flame wheel", "moveType": "c", "power": 60.0, "pokeType": "fire", "energyDelta": -50, "dws": 2100, "duration": 2700}, {"name": "megahorn", "moveType": "c", "power": 90.0, "pokeType": "bug", "energyDelta": -100, "dws": 1700, "duration": 2200}, {"name": "flamethrower", "moveType": "c", "power": 70.0, "pokeType": "fire", "energyDelta": -50, "dws": 1500, "duration": 2200}, {"name": "dig", "moveType": "c", "power": 100.0, "pokeType": "ground", "energyDelta": -50, "dws": 2800, "duration": 4700}, {"name": "cross chop", "moveType": "c", "power": 50.0, "pokeType": "fighting", "energyDelta": -50, "dws": 800, "duration": 1500}, {"name": "psybeam", "moveType": "c", "power": 70.0, "pokeType": "psychic", "energyDelta": -50, "dws": 1300, "duration": 3200}, {"name": "earthquake", "moveType": "c", "power": 120.0, "pokeType": "ground", "energyDelta": -100, "dws": 2700, "duration": 3600}, {"name": "stone edge", "moveType": "c", "power": 100.0, "pokeType": "rock", "energyDelta": -100, "dws": 700, "duration": 2300}, {"name": "ice punch", "moveType": "c", "power": 50.0, "pokeType": "ice", "energyDelta": -33, "dws": 1300, "duration": 1900}, {"name": "heart stamp", "moveType": "c", "power": 40.0, "pokeType": "psychic", "energyDelta": -33, "dws": 1100, "duration": 1900}, {"name": "discharge", "moveType": "c", "power": 65.0, "pokeType": "electric", "energyDelta": -33, "dws": 1700, "duration": 2500}, {"name": "flash cannon", "moveType": "c", "power": 100.0, "pokeType": "steel", "energyDelta": -100, "dws": 1600, "duration": 2700}, {"name": "drill peck", "moveType": "c", "power": 60.0, "pokeType": "flying", "energyDelta": -33, "dws": 1700, "duration": 2300}, {"name": "ice beam", "moveType": "c", "power": 90.0, "pokeType": "ice", "energyDelta": -50, "dws": 1300, "duration": 3300}, {"name": "blizzard", "moveType": "c", "power": 130.0, "pokeType": "ice", "energyDelta": -100, "dws": 1500, "duration": 3100}, {"name": "heat wave", "moveType": "c", "power": 95.0, "pokeType": "fire", "energyDelta": -100, "dws": 1700, "duration": 3000}, {"name": "aerial ace", "moveType": "c", "power": 55.0, "pokeType": "flying", "energyDelta": -33, "dws": 1900, "duration": 2400}, {"name": "drill run", "moveType": "c", "power": 80.0, "pokeType": "ground", "energyDelta": -50, "dws": 1700, "duration": 2800}, {"name": "petal blizzard", "moveType": "c", "power": 110.0, "pokeType": "grass", "energyDelta": -100, "dws": 1700, "duration": 2600}, {"name": "mega drain", "moveType": "c", "power": 25.0, "pokeType": "grass", "energyDelta": -50, "dws": 950, "duration": 2600}, {"name": "bug buzz", "moveType": "c", "power": 90.0, "pokeType": "bug", "energyDelta": -50, "dws": 2000, "duration": 3700}, {"name": "poison fang", "moveType": "c", "power": 35.0, "pokeType": "poison", "energyDelta": -33, "dws": 900, "duration": 1700}, {"name": "night slash", "moveType": "c", "power": 50.0, "pokeType": "dark", "energyDelta": -33, "dws": 1300, "duration": 2200}, {"name": "bubble beam", "moveType": "c", "power": 45.0, "pokeType": "water", "energyDelta": -33, "dws": 1450, "duration": 1900}, {"name": "submission", "moveType": "c", "power": 60.0, "pokeType": "fighting", "energyDelta": -50, "dws": 1800, "duration": 2200}, {"name": "low sweep", "moveType": "c", "power": 40.0, "pokeType": "fighting", "energyDelta": -33, "dws": 1300, "duration": 1900}, {"name": "aqua jet", "moveType": "c", "power": 45.0, "pokeType": "water", "energyDelta": -33, "dws": 1700, "duration": 2600}, {"name": "aqua tail", "moveType": "c", "power": 50.0, "pokeType": "water", "energyDelta": -33, "dws": 1200, "duration": 1900}, {"name": "seed bomb", "moveType": "c", "power": 55.0, "pokeType": "grass", "energyDelta": -33, "dws": 1200, "duration": 2100}, {"name": "psyshock", "moveType": "c", "power": 65.0, "pokeType": "psychic", "energyDelta": -33, "dws": 2000, "duration": 2700}, {"name": "ancient power", "moveType": "c", "power": 70.0, "pokeType": "rock", "energyDelta": -33, "dws": 2850, "duration": 3500}, {"name": "rock tomb", "moveType": "c", "power": 70.0, "pokeType": "rock", "energyDelta": -50, "dws": 2250, "duration": 3200}, {"name": "rock slide", "moveType": "c", "power": 80.0, "pokeType": "rock", "energyDelta": -50, "dws": 1500, "duration": 2700}, {"name": "power gem", "moveType": "c", "power": 80.0, "pokeType": "rock", "energyDelta": -50, "dws": 1950, "duration": 2900}, {"name": "shadow sneak", "moveType": "c", "power": 50.0, "pokeType": "ghost", "energyDelta": -33, "dws": 2200, "duration": 2900}, {"name": "shadow punch", "moveType": "c", "power": 40.0, "pokeType": "ghost", "energyDelta": -33, "dws": 1300, "duration": 1700}, {"name": "ominous wind", "moveType": "c", "power": 50.0, "pokeType": "ghost", "energyDelta": -33, "dws": 1850, "duration": 2300}, {"name": "shadow ball", "moveType": "c", "power": 100.0, "pokeType": "ghost", "energyDelta": -50, "dws": 2400, "duration": 3000}, {"name": "magnet bomb", "moveType": "c", "power": 70.0, "pokeType": "steel", "energyDelta": -33, "dws": 2200, "duration": 2800}, {"name": "iron head", "moveType": "c", "power": 60.0, "pokeType": "steel", "energyDelta": -50, "dws": 1300, "duration": 1900}, {"name": "parabolic charge", "moveType": "c", "power": 25.0, "pokeType": "electric", "energyDelta": -50, "dws": 1200, "duration": 2800}, {"name": "thunder punch", "moveType": "c", "power": 45.0, "pokeType": "electric", "energyDelta": -33, "dws": 1700, "duration": 1800}, {"name": "thunder", "moveType": "c", "power": 100.0, "pokeType": "electric", "energyDelta": -100, "dws": 1200, "duration": 2400}, {"name": "thunderbolt", "moveType": "c", "power": 80.0, "pokeType": "electric", "energyDelta": -50, "dws": 1800, "duration": 2500}, {"name": "twister", "moveType": "c", "power": 45.0, "pokeType": "dragon", "energyDelta": -33, "dws": 950, "duration": 2800}, {"name": "dragon pulse", "moveType": "c", "power": 90.0, "pokeType": "dragon", "energyDelta": -50, "dws": 2150, "duration": 3600}, {"name": "dragon claw", "moveType": "c", "power": 50.0, "pokeType": "dragon", "energyDelta": -33, "dws": 1100, "duration": 1700}, {"name": "disarming voice", "moveType": "c", "power": 70.0, "pokeType": "fairy", "energyDelta": -33, "dws": 3200, "duration": 3900}, {"name": "draining kiss", "moveType": "c", "power": 60.0, "pokeType": "fairy", "energyDelta": -50, "dws": 1000, "duration": 2600}, {"name": "dazzling gleam", "moveType": "c", "power": 100.0, "pokeType": "fairy", "energyDelta": -50, "dws": 2100, "duration": 3500}, {"name": "moonblast", "moveType": "c", "power": 130.0, "pokeType": "fairy", "energyDelta": -100, "dws": 2200, "duration": 3900}, {"name": "play rough", "moveType": "c", "power": 90.0, "pokeType": "fairy", "energyDelta": -50, "dws": 1300, "duration": 2900}, {"name": "cross poison", "moveType": "c", "power": 40.0, "pokeType": "poison", "energyDelta": -33, "dws": 900, "duration": 1500}, {"name": "sludge bomb", "moveType": "c", "power": 80.0, "pokeType": "poison", "energyDelta": -50, "dws": 1100, "duration": 2300}, {"name": "sludge wave", "moveType": "c", "power": 110.0, "pokeType": "poison", "energyDelta": -100, "dws": 2000, "duration": 3200}, {"name": "gunk shot", "moveType": "c", "power": 130.0, "pokeType": "poison", "energyDelta": -100, "dws": 1700, "duration": 3100}, {"name": "bone club", "moveType": "c", "power": 40.0, "pokeType": "ground", "energyDelta": -33, "dws": 1000, "duration": 1600}, {"name": "bulldoze", "moveType": "c", "power": 80.0, "pokeType": "ground", "energyDelta": -50, "dws": 2600, "duration": 3500}, {"name": "mud bomb", "moveType": "c", "power": 55.0, "pokeType": "ground", "energyDelta": -33, "dws": 1700, "duration": 2300}, {"name": "signal beam", "moveType": "c", "power": 75.0, "pokeType": "bug", "energyDelta": -50, "dws": 1800, "duration": 2900}, {"name": "x scissor", "moveType": "c", "power": 45.0, "pokeType": "bug", "energyDelta": -33, "dws": 1200, "duration": 1600}, {"name": "flame charge", "moveType": "c", "power": 70.0, "pokeType": "fire", "energyDelta": -33, "dws": 2900, "duration": 3800}, {"name": "flame burst", "moveType": "c", "power": 70.0, "pokeType": "fire", "energyDelta": -50, "dws": 1000, "duration": 2600}, {"name": "fire blast", "moveType": "c", "power": 140.0, "pokeType": "fire", "energyDelta": -100, "dws": 3100, "duration": 4200}, {"name": "brine", "moveType": "c", "power": 60.0, "pokeType": "water", "energyDelta": -50, "dws": 1500, "duration": 2300}, {"name": "water pulse", "moveType": "c", "power": 70.0, "pokeType": "water", "energyDelta": -50, "dws": 2200, "duration": 3200}, {"name": "scald", "moveType": "c", "power": 80.0, "pokeType": "water", "energyDelta": -50, "dws": 1300, "duration": 3700}, {"name": "hydro pump", "moveType": "c", "power": 130.0, "pokeType": "water", "energyDelta": -100, "dws": 900, "duration": 3300}, {"name": "psychic", "moveType": "c", "power": 100.0, "pokeType": "psychic", "energyDelta": -100, "dws": 1300, "duration": 2800}, {"name": "psystrike", "moveType": "c", "power": 100.0, "pokeType": "psychic", "energyDelta": -50, "dws": 3000, "duration": 4400}, {"name": "icy wind", "moveType": "c", "power": 60.0, "pokeType": "ice", "energyDelta": -33, "dws": 2000, "duration": 3300}, {"name": "giga drain", "moveType": "c", "power": 50.0, "pokeType": "grass", "energyDelta": -100, "dws": 1200, "duration": 3900}, {"name": "fire punch", "moveType": "c", "power": 55.0, "pokeType": "fire", "energyDelta": -33, "dws": 1500, "duration": 2200}, {"name": "solar beam", "moveType": "c", "power": 180.0, "pokeType": "grass", "energyDelta": -100, "dws": 2700, "duration": 4900}, {"name": "leaf blade", "moveType": "c", "power": 70.0, "pokeType": "grass", "energyDelta": -33, "dws": 1250, "duration": 2400}, {"name": "power whip", "moveType": "c", "power": 90.0, "pokeType": "grass", "energyDelta": -50, "dws": 1250, "duration": 2600}, {"name": "air cutter", "moveType": "c", "power": 60.0, "pokeType": "flying", "energyDelta": -50, "dws": 1800, "duration": 2700}, {"name": "hurricane", "moveType": "c", "power": 110.0, "pokeType": "flying", "energyDelta": -100, "dws": 1200, "duration": 2700}, {"name": "brick break", "moveType": "c", "power": 40.0, "pokeType": "fighting", "energyDelta": -33, "dws": 800, "duration": 1600}, {"name": "swift", "moveType": "c", "power": 60.0, "pokeType": "normal", "energyDelta": -50, "dws": 2000, "duration": 2800}, {"name": "horn attack", "moveType": "c", "power": 40.0, "pokeType": "normal", "energyDelta": -33, "dws": 800, "duration": 1850}, {"name": "stomp", "moveType": "c", "power": 55.0, "pokeType": "normal", "energyDelta": -50, "dws": 1100, "duration": 1700}, {"name": "hyper fang", "moveType": "c", "power": 80.0, "pokeType": "normal", "energyDelta": -50, "dws": 1500, "duration": 2500}, {"name": "body slam", "moveType": "c", "power": 50.0, "pokeType": "normal", "energyDelta": -33, "dws": 1200, "duration": 1900}, {"name": "rest", "moveType": "c", "power": 50.0, "pokeType": "normal", "energyDelta": -33, "dws": 1500, "duration": 1900}, {"name": "struggle", "moveType": "c", "power": 35.0, "pokeType": "normal", "energyDelta": 0, "dws": 1200, "duration": 2200}, {"name": "scald blastoise", "moveType": "c", "power": 50.0, "pokeType": "water", "energyDelta": -100, "dws": 2500, "duration": 4700}, {"name": "hydro pump blastoise", "moveType": "c", "power": 90.0, "pokeType": "water", "energyDelta": -100, "dws": 2200, "duration": 4500}, {"name": "wrap green", "moveType": "c", "power": 25.0, "pokeType": "normal", "energyDelta": -33, "dws": 2050, "duration": 2900}, {"name": "wrap pink", "moveType": "c", "power": 25.0, "pokeType": "normal", "energyDelta": -33, "dws": 2050, "duration": 2900}, {"name": "close combat", "moveType": "c", "power": 100.0, "pokeType": "fighting", "energyDelta": -100, "dws": 1000, "duration": 2300}, {"name": "dynamic punch", "moveType": "c", "power": 90.0, "pokeType": "fighting", "energyDelta": -50, "dws": 1200, "duration": 2700}, {"name": "focus blast", "moveType": "c", "power": 140.0, "pokeType": "fighting", "energyDelta": -100, "dws": 3000, "duration": 3500}, {"name": "aurora beam", "moveType": "c", "power": 80.0, "pokeType": "ice", "energyDelta": -50, "dws": 3350, "duration": 3550}, {"name": "wild charge", "moveType": "c", "power": 90.0, "pokeType": "electric", "energyDelta": -50, "dws": 1700, "duration": 2600}, {"name": "zap cannon", "moveType": "c", "power": 140.0, "pokeType": "electric", "energyDelta": -100, "dws": 3000, "duration": 3700}, {"name": "avalanche", "moveType": "c", "power": 90.0, "pokeType": "ice", "energyDelta": -50, "dws": 1700, "duration": 2700}, {"name": "brave bird", "moveType": "c", "power": 90.0, "pokeType": "flying", "energyDelta": -100, "dws": 1000, "duration": 2000}, {"name": "sky attack", "moveType": "c", "power": 70.0, "pokeType": "flying", "energyDelta": -50, "dws": 1500, "duration": 2000}, {"name": "sand tomb", "moveType": "c", "power": 80.0, "pokeType": "ground", "energyDelta": -50, "dws": 1700, "duration": 4000}, {"name": "rock blast", "moveType": "c", "power": 50.0, "pokeType": "rock", "energyDelta": -33, "dws": 1600, "duration": 2100}, {"name": "silver wind", "moveType": "c", "power": 70.0, "pokeType": "bug", "energyDelta": -33, "dws": 1700, "duration": 3700}, {"name": "night shade", "moveType": "c", "power": 60.0, "pokeType": "ghost", "energyDelta": -50, "dws": 2100, "duration": 2600}, {"name": "gyro ball", "moveType": "c", "power": 80.0, "pokeType": "steel", "energyDelta": -50, "dws": 3000, "duration": 3300}, {"name": "heavy slam", "moveType": "c", "power": 70.0, "pokeType": "steel", "energyDelta": -50, "dws": 1500, "duration": 2100}, {"name": "overheat", "moveType": "c", "power": 160.0, "pokeType": "fire", "energyDelta": -100, "dws": 2600, "duration": 4000}, {"name": "grass knot", "moveType": "c", "power": 90.0, "pokeType": "grass", "energyDelta": -50, "dws": 1700, "duration": 2600}, {"name": "energy ball", "moveType": "c", "power": 90.0, "pokeType": "grass", "energyDelta": -50, "dws": 3000, "duration": 3900}, {"name": "futuresight", "moveType": "c", "power": 120.0, "pokeType": "psychic", "energyDelta": -100, "dws": 1400, "duration": 2700}, {"name": "mirror coat", "moveType": "c", "power": 60.0, "pokeType": "psychic", "energyDelta": -50, "dws": 2300, "duration": 2600}, {"name": "outrage", "moveType": "c", "power": 110.0, "pokeType": "dragon", "energyDelta": -50, "dws": 2500, "duration": 3900}, {"name": "crunch", "moveType": "c", "power": 70.0, "pokeType": "dark", "energyDelta": -33, "dws": 1300, "duration": 3200}, {"name": "foul play", "moveType": "c", "power": 70.0, "pokeType": "dark", "energyDelta": -50, "dws": 1700, "duration": 2000}, {"name": "surf", "moveType": "c", "power": 65.0, "pokeType": "water", "energyDelta": -50, "dws": 1400, "duration": 1700}, {"name": "draco meteor", "moveType": "c", "power": 150.0, "pokeType": "dragon", "energyDelta": -100, "dws": 3000, "duration": 3600}, {"name": "doom desire", "moveType": "c", "power": 80.0, "pokeType": "steel", "energyDelta": -50, "dws": 1400, "duration": 1700}, {"name": "psycho boost", "moveType": "c", "power": 70.0, "pokeType": "psychic", "energyDelta": -50, "dws": 3500, "duration": 4000}, {"name": "origin pulse", "moveType": "c", "power": 130.0, "pokeType": "water", "energyDelta": -100, "dws": 1400, "duration": 1700}, {"name": "precipice blades", "moveType": "c", "power": 130.0, "pokeType": "ground", "energyDelta": -100, "dws": 1400, "duration": 1700}];
-
+var CHARGED_MOVE_DATA = [
+  {
+    "name": "aerial ace",
+    "moveType": "c",
+    "power": 55,
+    "pokeType": "flying",
+    "energyDelta": -33,
+    "dws": 1900,
+    "duration": 2400
+  },
+  {
+    "name": "air cutter",
+    "moveType": "c",
+    "power": 60,
+    "pokeType": "flying",
+    "energyDelta": -50,
+    "dws": 1800,
+    "duration": 2700
+  },
+  {
+    "name": "ancient power",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "rock",
+    "energyDelta": -33,
+    "dws": 2850,
+    "duration": 3500
+  },
+  {
+    "name": "aqua jet",
+    "moveType": "c",
+    "power": 45,
+    "pokeType": "water",
+    "energyDelta": -33,
+    "dws": 1700,
+    "duration": 2600
+  },
+  {
+    "name": "aqua tail",
+    "moveType": "c",
+    "power": 50,
+    "pokeType": "water",
+    "energyDelta": -33,
+    "dws": 1200,
+    "duration": 1900
+  },
+  {
+    "name": "blizzard",
+    "moveType": "c",
+    "power": 130,
+    "pokeType": "ice",
+    "energyDelta": -100,
+    "dws": 1500,
+    "duration": 3100
+  },
+  {
+    "name": "body slam",
+    "moveType": "c",
+    "power": 50,
+    "pokeType": "normal",
+    "energyDelta": -33,
+    "dws": 1200,
+    "duration": 1900
+  },
+  {
+    "name": "bone club",
+    "moveType": "c",
+    "power": 40,
+    "pokeType": "ground",
+    "energyDelta": -33,
+    "dws": 1000,
+    "duration": 1600
+  },
+  {
+    "name": "brick break",
+    "moveType": "c",
+    "power": 40,
+    "pokeType": "fighting",
+    "energyDelta": -33,
+    "dws": 800,
+    "duration": 1600
+  },
+  {
+    "name": "bubble beam",
+    "moveType": "c",
+    "power": 45,
+    "pokeType": "water",
+    "energyDelta": -33,
+    "dws": 1450,
+    "duration": 1900
+  },
+  {
+    "name": "bug buzz",
+    "moveType": "c",
+    "power": 90,
+    "pokeType": "bug",
+    "energyDelta": -50,
+    "dws": 2000,
+    "duration": 3700
+  },
+  {
+    "name": "bulldoze",
+    "moveType": "c",
+    "power": 80,
+    "pokeType": "ground",
+    "energyDelta": -50,
+    "dws": 2600,
+    "duration": 3500
+  },
+  {
+    "name": "cross chop",
+    "moveType": "c",
+    "power": 50,
+    "pokeType": "fighting",
+    "energyDelta": -50,
+    "dws": 800,
+    "duration": 1500
+  },
+  {
+    "name": "cross poison",
+    "moveType": "c",
+    "power": 40,
+    "pokeType": "poison",
+    "energyDelta": -33,
+    "dws": 900,
+    "duration": 1500
+  },
+  {
+    "name": "dark pulse",
+    "moveType": "c",
+    "power": 80,
+    "pokeType": "dark",
+    "energyDelta": -50,
+    "dws": 1400,
+    "duration": 3000
+  },
+  {
+    "name": "dazzling gleam",
+    "moveType": "c",
+    "power": 100,
+    "pokeType": "fairy",
+    "energyDelta": -50,
+    "dws": 2100,
+    "duration": 3500
+  },
+  {
+    "name": "dig",
+    "moveType": "c",
+    "power": 100,
+    "pokeType": "ground",
+    "energyDelta": -50,
+    "dws": 2800,
+    "duration": 4700
+  },
+  {
+    "name": "disarming voice",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "fairy",
+    "energyDelta": -33,
+    "dws": 3200,
+    "duration": 3900
+  },
+  {
+    "name": "discharge",
+    "moveType": "c",
+    "power": 65,
+    "pokeType": "electric",
+    "energyDelta": -33,
+    "dws": 1700,
+    "duration": 2500
+  },
+  {
+    "name": "dragon claw",
+    "moveType": "c",
+    "power": 50,
+    "pokeType": "dragon",
+    "energyDelta": -33,
+    "dws": 1100,
+    "duration": 1700
+  },
+  {
+    "name": "dragon pulse",
+    "moveType": "c",
+    "power": 90,
+    "pokeType": "dragon",
+    "energyDelta": -50,
+    "dws": 2150,
+    "duration": 3600
+  },
+  {
+    "name": "draining kiss",
+    "moveType": "c",
+    "power": 60,
+    "pokeType": "fairy",
+    "energyDelta": -50,
+    "dws": 1000,
+    "duration": 2600
+  },
+  {
+    "name": "drill peck",
+    "moveType": "c",
+    "power": 60,
+    "pokeType": "flying",
+    "energyDelta": -33,
+    "dws": 1700,
+    "duration": 2300
+  },
+  {
+    "name": "earthquake",
+    "moveType": "c",
+    "power": 120,
+    "pokeType": "ground",
+    "energyDelta": -100,
+    "dws": 2700,
+    "duration": 3600
+  },
+  {
+    "name": "fire blast",
+    "moveType": "c",
+    "power": 140,
+    "pokeType": "fire",
+    "energyDelta": -100,
+    "dws": 3100,
+    "duration": 4200
+  },
+  {
+    "name": "fire punch",
+    "moveType": "c",
+    "power": 55,
+    "pokeType": "fire",
+    "energyDelta": -33,
+    "dws": 1500,
+    "duration": 2200
+  },
+  {
+    "name": "flame burst",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "fire",
+    "energyDelta": -50,
+    "dws": 1000,
+    "duration": 2600
+  },
+  {
+    "name": "flame wheel",
+    "moveType": "c",
+    "power": 60,
+    "pokeType": "fire",
+    "energyDelta": -50,
+    "dws": 2100,
+    "duration": 2700
+  },
+  {
+    "name": "flamethrower",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "fire",
+    "energyDelta": -50,
+    "dws": 1500,
+    "duration": 2200
+  },
+  {
+    "name": "flash cannon",
+    "moveType": "c",
+    "power": 100,
+    "pokeType": "steel",
+    "energyDelta": -100,
+    "dws": 1600,
+    "duration": 2700
+  },
+  {
+    "name": "gunk shot",
+    "moveType": "c",
+    "power": 130,
+    "pokeType": "poison",
+    "energyDelta": -100,
+    "dws": 1700,
+    "duration": 3100
+  },
+  {
+    "name": "heat wave",
+    "moveType": "c",
+    "power": 95,
+    "pokeType": "fire",
+    "energyDelta": -100,
+    "dws": 1700,
+    "duration": 3000
+  },
+  {
+    "name": "horn attack",
+    "moveType": "c",
+    "power": 40,
+    "pokeType": "normal",
+    "energyDelta": -33,
+    "dws": 800,
+    "duration": 1850
+  },
+  {
+    "name": "hydro pump",
+    "moveType": "c",
+    "power": 130,
+    "pokeType": "water",
+    "energyDelta": -100,
+    "dws": 900,
+    "duration": 3300
+  },
+  {
+    "name": "hyper beam",
+    "moveType": "c",
+    "power": 150,
+    "pokeType": "normal",
+    "energyDelta": -100,
+    "dws": 3300,
+    "duration": 3800
+  },
+  {
+    "name": "hyper fang",
+    "moveType": "c",
+    "power": 80,
+    "pokeType": "normal",
+    "energyDelta": -50,
+    "dws": 1500,
+    "duration": 2500
+  },
+  {
+    "name": "ice beam",
+    "moveType": "c",
+    "power": 90,
+    "pokeType": "ice",
+    "energyDelta": -50,
+    "dws": 1300,
+    "duration": 3300
+  },
+  {
+    "name": "ice punch",
+    "moveType": "c",
+    "power": 50,
+    "pokeType": "ice",
+    "energyDelta": -33,
+    "dws": 1300,
+    "duration": 1900
+  },
+  {
+    "name": "icy wind",
+    "moveType": "c",
+    "power": 60,
+    "pokeType": "ice",
+    "energyDelta": -33,
+    "dws": 2000,
+    "duration": 3300
+  },
+  {
+    "name": "iron head",
+    "moveType": "c",
+    "power": 60,
+    "pokeType": "steel",
+    "energyDelta": -50,
+    "dws": 1300,
+    "duration": 1900
+  },
+  {
+    "name": "low sweep",
+    "moveType": "c",
+    "power": 40,
+    "pokeType": "fighting",
+    "energyDelta": -33,
+    "dws": 1300,
+    "duration": 1900
+  },
+  {
+    "name": "magnet bomb",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "steel",
+    "energyDelta": -33,
+    "dws": 2200,
+    "duration": 2800
+  },
+  {
+    "name": "megahorn",
+    "moveType": "c",
+    "power": 90,
+    "pokeType": "bug",
+    "energyDelta": -100,
+    "dws": 1700,
+    "duration": 2200
+  },
+  {
+    "name": "moonblast",
+    "moveType": "c",
+    "power": 130,
+    "pokeType": "fairy",
+    "energyDelta": -100,
+    "dws": 2200,
+    "duration": 3900
+  },
+  {
+    "name": "mud bomb",
+    "moveType": "c",
+    "power": 55,
+    "pokeType": "ground",
+    "energyDelta": -33,
+    "dws": 1700,
+    "duration": 2300
+  },
+  {
+    "name": "night slash",
+    "moveType": "c",
+    "power": 50,
+    "pokeType": "dark",
+    "energyDelta": -33,
+    "dws": 1300,
+    "duration": 2200
+  },
+  {
+    "name": "petal blizzard",
+    "moveType": "c",
+    "power": 110,
+    "pokeType": "grass",
+    "energyDelta": -100,
+    "dws": 1700,
+    "duration": 2600
+  },
+  {
+    "name": "play rough",
+    "moveType": "c",
+    "power": 90,
+    "pokeType": "fairy",
+    "energyDelta": -50,
+    "dws": 1300,
+    "duration": 2900
+  },
+  {
+    "name": "poison fang",
+    "moveType": "c",
+    "power": 35,
+    "pokeType": "poison",
+    "energyDelta": -33,
+    "dws": 900,
+    "duration": 1700
+  },
+  {
+    "name": "power gem",
+    "moveType": "c",
+    "power": 80,
+    "pokeType": "rock",
+    "energyDelta": -50,
+    "dws": 1950,
+    "duration": 2900
+  },
+  {
+    "name": "power whip",
+    "moveType": "c",
+    "power": 90,
+    "pokeType": "grass",
+    "energyDelta": -50,
+    "dws": 1250,
+    "duration": 2600
+  },
+  {
+    "name": "psybeam",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "psychic",
+    "energyDelta": -50,
+    "dws": 1300,
+    "duration": 3200
+  },
+  {
+    "name": "psychic",
+    "moveType": "c",
+    "power": 100,
+    "pokeType": "psychic",
+    "energyDelta": -100,
+    "dws": 1300,
+    "duration": 2800
+  },
+  {
+    "name": "psyshock",
+    "moveType": "c",
+    "power": 65,
+    "pokeType": "psychic",
+    "energyDelta": -33,
+    "dws": 2000,
+    "duration": 2700
+  },
+  {
+    "name": "rock slide",
+    "moveType": "c",
+    "power": 80,
+    "pokeType": "rock",
+    "energyDelta": -50,
+    "dws": 1500,
+    "duration": 2700
+  },
+  {
+    "name": "rock tomb",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "rock",
+    "energyDelta": -50,
+    "dws": 2250,
+    "duration": 3200
+  },
+  {
+    "name": "scald",
+    "moveType": "c",
+    "power": 80,
+    "pokeType": "water",
+    "energyDelta": -50,
+    "dws": 1300,
+    "duration": 3700
+  },
+  {
+    "name": "seed bomb",
+    "moveType": "c",
+    "power": 55,
+    "pokeType": "grass",
+    "energyDelta": -33,
+    "dws": 1200,
+    "duration": 2100
+  },
+  {
+    "name": "shadow ball",
+    "moveType": "c",
+    "power": 100,
+    "pokeType": "ghost",
+    "energyDelta": -50,
+    "dws": 2400,
+    "duration": 3000
+  },
+  {
+    "name": "signal beam",
+    "moveType": "c",
+    "power": 75,
+    "pokeType": "bug",
+    "energyDelta": -50,
+    "dws": 1800,
+    "duration": 2900
+  },
+  {
+    "name": "sludge",
+    "moveType": "c",
+    "power": 50,
+    "pokeType": "poison",
+    "energyDelta": -33,
+    "dws": 1200,
+    "duration": 2100
+  },
+  {
+    "name": "sludge bomb",
+    "moveType": "c",
+    "power": 80,
+    "pokeType": "poison",
+    "energyDelta": -50,
+    "dws": 1100,
+    "duration": 2300
+  },
+  {
+    "name": "sludge wave",
+    "moveType": "c",
+    "power": 110,
+    "pokeType": "poison",
+    "energyDelta": -100,
+    "dws": 2000,
+    "duration": 3200
+  },
+  {
+    "name": "solar beam",
+    "moveType": "c",
+    "power": 180,
+    "pokeType": "grass",
+    "energyDelta": -100,
+    "dws": 2700,
+    "duration": 4900
+  },
+  {
+    "name": "stomp",
+    "moveType": "c",
+    "power": 55,
+    "pokeType": "normal",
+    "energyDelta": -50,
+    "dws": 1100,
+    "duration": 1700
+  },
+  {
+    "name": "stone edge",
+    "moveType": "c",
+    "power": 100,
+    "pokeType": "rock",
+    "energyDelta": -100,
+    "dws": 700,
+    "duration": 2300
+  },
+  {
+    "name": "struggle",
+    "moveType": "c",
+    "power": 35,
+    "pokeType": "normal",
+    "energyDelta": -33,
+    "dws": 1200,
+    "duration": 2200
+  },
+  {
+    "name": "submission",
+    "moveType": "c",
+    "power": 60,
+    "pokeType": "fighting",
+    "energyDelta": -50,
+    "dws": 1800,
+    "duration": 2200
+  },
+  {
+    "name": "swift",
+    "moveType": "c",
+    "power": 60,
+    "pokeType": "normal",
+    "energyDelta": -50,
+    "dws": 2000,
+    "duration": 2800
+  },
+  {
+    "name": "thunder",
+    "moveType": "c",
+    "power": 100,
+    "pokeType": "electric",
+    "energyDelta": -100,
+    "dws": 1200,
+    "duration": 2400
+  },
+  {
+    "name": "thunder punch",
+    "moveType": "c",
+    "power": 45,
+    "pokeType": "electric",
+    "energyDelta": -33,
+    "dws": 1700,
+    "duration": 1800
+  },
+  {
+    "name": "thunderbolt",
+    "moveType": "c",
+    "power": 80,
+    "pokeType": "electric",
+    "energyDelta": -50,
+    "dws": 1800,
+    "duration": 2500
+  },
+  {
+    "name": "twister",
+    "moveType": "c",
+    "power": 45,
+    "pokeType": "dragon",
+    "energyDelta": -33,
+    "dws": 950,
+    "duration": 2800
+  },
+  {
+    "name": "vice grip",
+    "moveType": "c",
+    "power": 35,
+    "pokeType": "normal",
+    "energyDelta": -33,
+    "dws": 1100,
+    "duration": 1900
+  },
+  {
+    "name": "water pulse",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "water",
+    "energyDelta": -50,
+    "dws": 2200,
+    "duration": 3200
+  },
+  {
+    "name": "wrap",
+    "moveType": "c",
+    "power": 60,
+    "pokeType": "normal",
+    "energyDelta": -33,
+    "dws": 2050,
+    "duration": 2900
+  },
+  {
+    "name": "x-scissor",
+    "moveType": "c",
+    "power": 45,
+    "pokeType": "bug",
+    "energyDelta": -33,
+    "dws": 1200,
+    "duration": 1600
+  },
+  {
+    "name": "flame charge",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "fire",
+    "energyDelta": -33,
+    "dws": 2900,
+    "duration": 3800
+  },
+  {
+    "name": "hurricane",
+    "moveType": "c",
+    "power": 110,
+    "pokeType": "flying",
+    "energyDelta": -100,
+    "dws": 1200,
+    "duration": 2700
+  },
+  {
+    "name": "drill run",
+    "moveType": "c",
+    "power": 80,
+    "pokeType": "ground",
+    "energyDelta": -50,
+    "dws": 1700,
+    "duration": 2800
+  },
+  {
+    "name": "brine",
+    "moveType": "c",
+    "power": 60,
+    "pokeType": "water",
+    "energyDelta": -50,
+    "dws": 1500,
+    "duration": 2300
+  },
+  {
+    "name": "ominous wind",
+    "moveType": "c",
+    "power": 50,
+    "pokeType": "ghost",
+    "energyDelta": -33,
+    "dws": 1850,
+    "duration": 2300
+  },
+  {
+    "name": "leaf blade",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "grass",
+    "energyDelta": -33,
+    "dws": 1250,
+    "duration": 2400
+  },
+  {
+    "name": "psystrike",
+    "moveType": "c",
+    "power": 100,
+    "pokeType": "psychic",
+    "energyDelta": -50,
+    "dws": 3000,
+    "duration": 4400
+  },
+  {
+    "name": "close combat",
+    "moveType": "c",
+    "power": 100,
+    "pokeType": "fighting",
+    "energyDelta": -100,
+    "dws": 1000,
+    "duration": 2300
+  },
+  {
+    "name": "dynamic punch",
+    "moveType": "c",
+    "power": 90,
+    "pokeType": "fighting",
+    "energyDelta": -50,
+    "dws": 1200,
+    "duration": 2700
+  },
+  {
+    "name": "focus blast",
+    "moveType": "c",
+    "power": 140,
+    "pokeType": "fighting",
+    "energyDelta": -100,
+    "dws": 3000,
+    "duration": 3500
+  },
+  {
+    "name": "aurora beam",
+    "moveType": "c",
+    "power": 80,
+    "pokeType": "ice",
+    "energyDelta": -50,
+    "dws": 3350,
+    "duration": 3550
+  },
+  {
+    "name": "wild charge",
+    "moveType": "c",
+    "power": 90,
+    "pokeType": "electric",
+    "energyDelta": -50,
+    "dws": 1700,
+    "duration": 2600
+  },
+  {
+    "name": "rest",
+    "moveType": "c",
+    "power": 50,
+    "pokeType": "normal",
+    "energyDelta": -33,
+    "dws": 1500,
+    "duration": 1900
+  },
+  {
+    "name": "scald (blastoise)",
+    "moveType": "c",
+    "power": 50,
+    "pokeType": "water",
+    "energyDelta": -100,
+    "dws": 2500,
+    "duration": 4700
+  },
+  {
+    "name": "hydro pump (blastoise)",
+    "moveType": "c",
+    "power": 90,
+    "pokeType": "water",
+    "energyDelta": -100,
+    "dws": 2200,
+    "duration": 4500
+  },
+  {
+    "name": "wrap (green/pink)",
+    "moveType": "c",
+    "power": 25,
+    "pokeType": "normal",
+    "energyDelta": -33,
+    "dws": 2050,
+    "duration": 2900
+  },
+  {
+    "name": "zap cannon",
+    "moveType": "c",
+    "power": 140,
+    "pokeType": "electric",
+    "energyDelta": -100,
+    "dws": 3000,
+    "duration": 3700
+  },
+  {
+    "name": "avalanche",
+    "moveType": "c",
+    "power": 90,
+    "pokeType": "ice",
+    "energyDelta": -50,
+    "dws": 1700,
+    "duration": 2700
+  },
+  {
+    "name": "heart stamp",
+    "moveType": "c",
+    "power": 40,
+    "pokeType": "psychic",
+    "energyDelta": -33,
+    "dws": 1100,
+    "duration": 1900
+  },
+  {
+    "name": "brave bird",
+    "moveType": "c",
+    "power": 90,
+    "pokeType": "flying",
+    "energyDelta": -100,
+    "dws": 1000,
+    "duration": 2000
+  },
+  {
+    "name": "sky attack",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "flying",
+    "energyDelta": -50,
+    "dws": 1500,
+    "duration": 2000
+  },
+  {
+    "name": "sand tomb",
+    "moveType": "c",
+    "power": 80,
+    "pokeType": "ground",
+    "energyDelta": -50,
+    "dws": 1700,
+    "duration": 4000
+  },
+  {
+    "name": "rock blast",
+    "moveType": "c",
+    "power": 50,
+    "pokeType": "rock",
+    "energyDelta": -33,
+    "dws": 1600,
+    "duration": 2100
+  },
+  {
+    "name": "silver wind",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "bug",
+    "energyDelta": -33,
+    "dws": 1700,
+    "duration": 3700
+  },
+  {
+    "name": "night shade",
+    "moveType": "c",
+    "power": 60,
+    "pokeType": "ghost",
+    "energyDelta": -50,
+    "dws": 2100,
+    "duration": 2600
+  },
+  {
+    "name": "gyro ball",
+    "moveType": "c",
+    "power": 80,
+    "pokeType": "steel",
+    "energyDelta": -50,
+    "dws": 3000,
+    "duration": 3300
+  },
+  {
+    "name": "heavy slam",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "steel",
+    "energyDelta": -50,
+    "dws": 1500,
+    "duration": 2100
+  },
+  {
+    "name": "overheat",
+    "moveType": "c",
+    "power": 160,
+    "pokeType": "fire",
+    "energyDelta": -100,
+    "dws": 2600,
+    "duration": 4000
+  },
+  {
+    "name": "grass knot",
+    "moveType": "c",
+    "power": 90,
+    "pokeType": "grass",
+    "energyDelta": -50,
+    "dws": 1700,
+    "duration": 2600
+  },
+  {
+    "name": "energy ball",
+    "moveType": "c",
+    "power": 90,
+    "pokeType": "grass",
+    "energyDelta": -50,
+    "dws": 3000,
+    "duration": 3900
+  },
+  {
+    "name": "future sight",
+    "moveType": "c",
+    "power": 120,
+    "pokeType": "psychic",
+    "energyDelta": -100,
+    "dws": 1400,
+    "duration": 2700
+  },
+  {
+    "name": "mega drain",
+    "moveType": "c",
+    "power": 25,
+    "pokeType": "grass",
+    "energyDelta": -50,
+    "dws": 950,
+    "duration": 2600
+  },
+  {
+    "name": "mirror coat",
+    "moveType": "c",
+    "power": 60,
+    "pokeType": "psychic",
+    "energyDelta": -50,
+    "dws": 2300,
+    "duration": 2600
+  },
+  {
+    "name": "outrage",
+    "moveType": "c",
+    "power": 110,
+    "pokeType": "dragon",
+    "energyDelta": -50,
+    "dws": 2500,
+    "duration": 3900
+  },
+  {
+    "name": "crunch",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "dark",
+    "energyDelta": -33,
+    "dws": 1300,
+    "duration": 3200
+  },
+  {
+    "name": "foul play",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "dark",
+    "energyDelta": -50,
+    "dws": 1700,
+    "duration": 2000
+  },
+  {
+    "name": "shadow sneak",
+    "moveType": "c",
+    "power": 50,
+    "pokeType": "ghost",
+    "energyDelta": -33,
+    "dws": 2200,
+    "duration": 2900
+  },
+  {
+    "name": "shadow punch",
+    "moveType": "c",
+    "power": 40,
+    "pokeType": "ghost",
+    "energyDelta": -33,
+    "dws": 1300,
+    "duration": 1700
+  },
+  {
+    "name": "parabolic charge",
+    "moveType": "c",
+    "power": 25,
+    "pokeType": "electric",
+    "energyDelta": -50,
+    "dws": 1200,
+    "duration": 2800
+  },
+  {
+    "name": "surf",
+    "moveType": "c",
+    "power": 65,
+    "pokeType": "water",
+    "energyDelta": -50,
+    "dws": 1400,
+    "duration": 1700
+  },
+  {
+    "name": "draco meteor",
+    "moveType": "c",
+    "power": 150,
+    "pokeType": "dragon",
+    "energyDelta": -100,
+    "dws": 3000,
+    "duration": 3600
+  },
+  {
+    "name": "doom desire",
+    "moveType": "c",
+    "power": 80,
+    "pokeType": "steel",
+    "energyDelta": -50,
+    "dws": 1400,
+    "duration": 1700
+  },
+  {
+    "name": "psycho boost",
+    "moveType": "c",
+    "power": 70,
+    "pokeType": "psychic",
+    "energyDelta": -50,
+    "dws": 3500,
+    "duration": 4000
+  },
+  {
+    "name": "precipice blades",
+    "moveType": "c",
+    "power": 130,
+    "pokeType": "ground",
+    "energyDelta": -100,
+    "dws": 1400,
+    "duration": 1700
+  },
+  {
+    "name": "origin pulse",
+    "moveType": "c",
+    "power": 130,
+    "pokeType": "water",
+    "energyDelta": -100,
+    "dws": 1400,
+    "duration": 1700
+  }
+];
 
 
 
