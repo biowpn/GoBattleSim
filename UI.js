@@ -52,7 +52,6 @@ function initMasterSummaryTableMetrics(){
 	enumPlayerStart = 0;
 	enumPartyStart = 0;
 	enumPokemonStart = 0;
-	enumDefender = 0;
 }
 
 function createNewMetric(metric, nameDisplayed){
@@ -892,15 +891,13 @@ function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
 			var pkmConfigToCopyFrom = cfg['atkrSettings'][playerIdx].party_list[partyIdx].pokemon_list[pkmIdx];
 			pkmInfo.index = pkmConfigToCopyFrom.index;
 			pkmInfo.species = pkmConfigToCopyFrom.species;
-			
-			if (pkmConfigToCopyFrom.box_index >= 0){
+			if (pkmConfigToCopyFrom.box_index >= 0)
 				copyAllInfo(pkmInfo, pkmConfigToCopyFrom, false);
-			}
 			enqueueSim(cfg);
-			return -1;
 		}catch(err){
 			console.log(err);
 		}
+		return -1;
 	}else{
 		pkmInfo.index = get_species_index_by_name(expressionStr);		
 	}
@@ -914,7 +911,18 @@ function parseRangeExpression(cfg, pkmInfo, enumPrefix, attr){
 	
 	var LBound = (attr == 'level' ? 1 : 0), UBound = (attr == 'level' ? 40 : 15);
 	
-	if (pkmInfo[attr].includes('-')){
+	if (pkmInfo[attr][0] == '='){ // Dynamic Assignment Operator
+		try{
+			var arr = pkmInfo[attr].slice(1).split('-');
+			var playerIdx = parseInt(arr[0].trim()), partyIdx = parseInt(arr[1].trim()), pkmIdx = parseInt(arr[2].trim());
+			var pkmConfigToCopyFrom = cfg['atkrSettings'][playerIdx].party_list[partyIdx].pokemon_list[pkmIdx];
+			pkmInfo[attr] = pkmConfigToCopyFrom[attr];
+			enqueueSim(cfg);
+		}catch(err){
+			console.log(err);
+		}
+		return -1;
+	} else if (pkmInfo[attr].includes('-')){
 		var enumVariableName = '*' + enumPrefix + '.' + attr;
 		if (!MasterSummaryTableMetrics.includes(enumVariableName))
 			createNewMetric(enumVariableName);
@@ -965,10 +973,10 @@ function parseMoveExpression(cfg, pkmInfo, enumPrefix, moveType){
 			pkmInfo[moveType+'move_index'] = pkmConfigToCopyFrom[moveType+'move_index'];
 			pkmInfo[moveType+'move'] = pkmConfigToCopyFrom[moveType+'move'];
 			enqueueSim(cfg);
-			return -1;
 		}catch(err){
 			console.log(err);
 		}
+		return -1;
 	}else{
 		pred = (moveType == 'f') ? get_fmove_index_by_name : get_cmove_index_by_name;
 		pkmInfo[moveType+'move_index'] = pred(expressionStr);
@@ -994,6 +1002,22 @@ function parsePokemonInput(cfg, pkmInfo, enumPrefix){
 	return 0;
 }
 
+function parseWeatherInput(cfg){
+	if (cfg.generalSettings.weather == '*'){
+		createNewMetric('*weather');
+		for (var i = 0; i < WEATHER_LIST.length; i++){
+			cfg.generalSettings.weather = WEATHER_LIST[i];
+			cfg.enumeratedValues['*weather'] = WEATHER_LIST[i];
+			enqueueSim(cfg);
+		}
+		return -1;
+	}else{
+		return 0;
+	}
+}
+
+
+
 function processQueue(cfg){
 	for (var i = enumPlayerStart; i < cfg['atkrSettings'].length; i++){
 		for (var j = enumPartyStart; j < cfg['atkrSettings'][i].party_list.length; j++){
@@ -1010,9 +1034,13 @@ function processQueue(cfg){
 		enumPokemonStart = 0;
 	}
 	
-	if (enumDefender == 0 && parsePokemonInput(cfg, cfg['dfdrSettings'], 'd') == -1)
+	if (parsePokemonInput(cfg, cfg['dfdrSettings'], 'd') == -1)
 		return -1;
-	enumDefender++;
+	
+	if (parseWeatherInput(cfg) == -1){
+		return -1;
+	}
+	
 
 	return 0;
 }

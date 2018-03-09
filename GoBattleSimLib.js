@@ -679,14 +679,7 @@ World.prototype.battle = function (){
 		}else if (e.name == "ResetProjectedAtkrHurt")
 			this.projected_atkrHurtEvent = null;
 		
-		// 2. Process the next event if it's at the same time before deciding whether the battle has ended
-		if (this.tline.list.length > 0 && t == this.tline.list[0].t)
-			continue;
-		if (this.log_style && elog.length > 0)
-			this.add_to_log(elog);
-		elog = [];
-		
-		// 3. Check if some attacker fainted
+		// 2. Check if some attacker fainted
 		for (var i = 0; i < this.playersArr.length; i++){
 			var this_player = this.playersArr[i];
 			var old_pkm = this_player.active_pkm;
@@ -706,11 +699,18 @@ World.prototype.battle = function (){
 			}
 		}
 		
-		// 4. Check if the defender fainted
+		// 3. Check if the defender fainted
 		if (dfdr.HP <= 0){
 			dfdr.time_leave_ms = t;
 			dfdr.total_time_active_ms = t - dfdr.time_enter_ms;
 		}
+		
+		// 4. Process the next event if it's at the same time before deciding whether the battle has ended
+		if (this.tline.list.length > 0 && t == this.tline.list[0].t)
+			continue;
+		if (this.log_style && elog.length > 0)
+			this.add_to_log(elog);
+		elog = [];
 	}
 	
 	// Battle has ended, some leftovers
