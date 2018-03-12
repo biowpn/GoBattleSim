@@ -77,12 +77,19 @@ function createRow(rowData, type){
 	return row;
 }
 
+function pokemon_img_by_id(dex, size){
+	size = size || "MS";
+	var dex_string = dex.toString();
+	while (dex_string.length < 3)
+		dex_string = "0" + dex_string;
+	return "<img src='https://pokemongo.gamepress.gg/assets/img/sprites/" + dex_string + size + ".png'></img>";
+}
+
 function jsonToURI(json){ return encodeURIComponent(JSON.stringify(json)); }
 
 function uriToJSON(urijson){ return JSON.parse(decodeURIComponent(urijson)); }
 
 function exportConfigToUrl(cfg){
-	// var cfg_min = JSON.parse(JSON.stringify(cfg));
 	var cfg_min = {
 		atkrSettings: [],
 		dfdrSettings: {},
@@ -108,7 +115,6 @@ function exportConfigToUrl(cfg){
 	
 	return jsonToURI(cfg_min);
 }
-
 
 function writeUserInputFromUrl(url){
 	if (url.includes('?')){
@@ -423,16 +429,21 @@ function updateDefenderNode(){
 	}
 }
 
+function createIconLabelDiv(icon, label, iconClass){
+	return "<div class='" + iconClass + "'>" + icon + "</div><div class='apitem-label'>" + label + "</div>";
+}
+
+
 
 function manual_render_autocomplete_pokemon_item(ul, item){
     return $( "<li>" )
-        .append( "<div><div class='apitem-pokemon-icon'>" + item.icon + "</div><div class='apitem-label'>" + item.label + "</div></div>" )
+        .append( "<div>" + createIconLabelDiv(item.icon, item.label, 'apitem-pokemon-icon') + "</div>" )
         .appendTo( ul );
 }
 
 function manual_render_autocomplete_move_item(ul, item){
     return $( "<li>" )
-        .append( "<div><div class='apitem-move-icon'>" + item.icon + "</div><div class='apitem-label'>" + item.label + "</div></div>" )
+		.append( "<div>" + createIconLabelDiv(item.icon, item.label, 'apitem-move-icon') + "</div>" )
         .appendTo( ul );
 }
 
@@ -1309,6 +1320,7 @@ function displayDetail(i){
 	});
 }
 
+
 function createBattleLogTable(log, playerCount){
 	var table = document.createElement('table');
 	table.appendChild(createElement('thead',''));
@@ -1316,18 +1328,49 @@ function createBattleLogTable(log, playerCount){
 	table.style = 'width:100%';
 	table.class = 'display nowrap';
 	
+	var attrs = ['t'];
 	var headers = ["Time"];
-	for (var i = 0; i < playerCount; i++)
-		headers.push("Player" + (i+1));
+	for (var i = 0; i < playerCount; i++){
+		attrs.push((i+1));
+		headers.push("Player " + (i+1));
+	}
+	attrs.push('dfdr');
 	headers.push("Defender");
+	
+	
 	table.children[0].appendChild(createRow(headers, "th"));
 	
+	var sameTimeEvents = [];
 	for (var i = 0; i < log.length; i++){
-		table.children[1].appendChild(createRow(log[i]), "td");
+		// table.children[1].appendChild(createRow(log[i]), "td");
+		var rawEntry = log[i];
+		
+		for (var attr in rawEntry){
+			var fragments = rawEntry[attr].toString().split(':');
+			if (fragments[0] == 'pokemon'){
+				var pkmInfo = POKEMON_SPECIES_DATA[parseInt(fragments[1])];
+				rawEntry[attr] = pkmInfo.icon;
+			}else if (fragments[0] == 'fmove'){
+				var moveInfo = FAST_MOVE_DATA[parseInt(fragments[1])];
+				rawEntry[attr] = createIconLabelDiv(moveInfo.pokeTypeIcon, moveInfo.name, 'apitem-move-icon');
+			}else if (fragments[0] == 'cmove'){
+				var moveInfo = CHARGED_MOVE_DATA[parseInt(fragments[1])];
+				rawEntry[attr] = createIconLabelDiv(moveInfo.pokeTypeIcon, moveInfo.name, 'apitem-move-icon');
+			}
+		}
+		
+		var rowData = [];
+		attrs.forEach(function(a){
+			rowData.push(rawEntry[a]);
+		});
+		
+		table.children[1].appendChild(createRow(rowData), "td");
 	}
 	
 	return table;
 }
+
+
 
 function send_feedback(msg, appending){
 	if (appending){

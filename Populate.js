@@ -153,7 +153,7 @@ $.ajax({
 					pokeType: data[i].move_type.toLowerCase(),
 					energyDelta: -Math.abs(parseInt(data[i].energy_cost)),
 					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000,
-					duration: parseFloat(data[i].cooldown)*1000
+					duration: parseFloat(data[i].cooldown)*1000,
 					pokeTypeIcon: "<img src='https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + data[i].move_type.toLowerCase() +".png'></img>"
 				};
 
