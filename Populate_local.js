@@ -10780,32 +10780,6 @@ USER_POKEBOX = [
 ];
 
 
-var TYPE_ICONS = {
-	bug: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/8/88/Icon_Bug.png'></img>",
-	dark: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/e/e9/Icon_Dark.png'></img>",
-	dragon: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/d/d4/Icon_Dragon.png'></img>",
-	electric: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/1/1c/Icon_Electric.png'></img>",
-	fairy: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/7/7f/Icon_Fairy.png'></img>",
-	fighting: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/f/f0/Icon_Fighting.png'></img>",
-	fire: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/0/0a/Icon_Fire.png'></img>",
-	flying: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/b/b0/Icon_Flying.png'></img>",
-	ghost: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/7/7d/Icon_Ghost.png'></img>",
-	grass: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/0/0a/Icon_Grass.png'></img>",
-	ground: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/7/71/Icon_Ground.png'></img>",
-	ice: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/5/52/Icon_Ice.png'></img>",
-	normal: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/4/43/Icon_Normal.png'></img>",
-	poison: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/2/26/Icon_Poison.png'></img>",
-	psychic: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/c/ce/Icon_Psychic.png'></img>",
-	rock: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/5/57/Icon_Rock.png'></img>",
-	steel: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/3/38/Icon_Steel.png'></img>",
-	water: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/6/65/Icon_Water.png'></img>"
-};
-
-
-
-
-
-
 $(document).ready(function(){
 	// Populate default input options
 	for (var i = 0; i < USER_POKEBOX.length; i++){
@@ -10814,7 +10788,6 @@ $(document).ready(function(){
 			label: "$" + i + " " + USER_POKEBOX[i].nickname,
 			icon: pokemon_img_by_id(POKEMON_SPECIES_DATA[USER_POKEBOX[i].index].dex)
 		});
-		// + pokemon_img_by_id(POKEMON_SPECIES_DATA[USER_POKEBOX[i].index].dex)
 	}
 	for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++){
 		var pkm = POKEMON_SPECIES_DATA[i];
@@ -10835,13 +10808,13 @@ $(document).ready(function(){
 	for (var i = 0; i < FAST_MOVE_DATA.length; i++){
 		FAST_MOVE_OPTIONS.push({
 			label: FAST_MOVE_DATA[i].name,
-			icon: TYPE_ICONS[FAST_MOVE_DATA[i].pokeType]
+			icon: FAST_MOVE_DATA[i].pokeTypeIcon
 		});
 	}
 	for (var i = 0; i < CHARGED_MOVE_DATA.length; i++){
 		CHARGED_MOVE_OPTIONS.push({
 			label: CHARGED_MOVE_DATA[i].name,
-			icon: TYPE_ICONS[CHARGED_MOVE_DATA[i].pokeType]
+			icon: CHARGED_MOVE_DATA[i].pokeTypeIcon
 		});
 	}
 	addPlayerNode();

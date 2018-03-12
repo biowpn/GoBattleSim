@@ -501,7 +501,7 @@ function autocompletePokemonNodeMoves(address, species_idx){
 				var moveData = FAST_MOVE_DATA[get_fmove_index_by_name(move)];
 				thisFastMoveOptions.push({
 					label: moveData.name,
-					icon: TYPE_ICONS[moveData.pokeType]
+					icon: moveData.pokeTypeIcon
 				});
 			});
 		POKEMON_SPECIES_DATA[species_idx].chargedMoves.concat(POKEMON_SPECIES_DATA[species_idx].chargedMoves_legacy)
@@ -509,7 +509,7 @@ function autocompletePokemonNodeMoves(address, species_idx){
 				var moveData = CHARGED_MOVE_DATA[get_cmove_index_by_name(move)];
 				thisChargedMoveOptions.push({
 					label: moveData.name,
-					icon: TYPE_ICONS[moveData.pokeType]
+					icon: moveData.pokeTypeIcon
 				});
 			});
 	}else{
