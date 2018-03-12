@@ -101,14 +101,6 @@ function get_cmove_index_by_name(name){
 	}
 	return -1;
 }
-
-function pokemon_img_by_id(dex, size){
-	size = size || "MS";
-	var dex_string = dex.toString();
-	while (dex_string.length < 3)
-		dex_string = "0" + dex_string;
-	return "<img src='https://pokemongo.gamepress.gg/assets/img/sprites/" + dex_string + size + ".png'></img>";
-}
  
 
 
@@ -132,10 +124,12 @@ function Pokemon(cfg){
 	this.stmiv = parseInt(cfg.stmiv);
 	this.cpm = CPM_TABLE[Math.round(2* parseInt(cfg.level) - 2)];
 	
-	this.fmoveIndex = (cfg.fmove_index >= 0) ? cfg.fmove_index : get_fmove_index_by_name(cfg.fmove);
-	this.cmoveIndex = (cfg.cmove_index >= 0) ? cfg.cmove_index : get_cmove_index_by_name(cfg.cmove);
-	this.fmove = FAST_MOVE_DATA[this.fmoveIndex];
-	this.cmove = CHARGED_MOVE_DATA[this.cmoveIndex];
+	var fmoveIndex = (cfg.fmove_index >= 0) ? cfg.fmove_index : get_fmove_index_by_name(cfg.fmove);
+	var cmoveIndex = (cfg.cmove_index >= 0) ? cfg.cmove_index : get_cmove_index_by_name(cfg.cmove);
+	this.fmove = FAST_MOVE_DATA[fmoveIndex];
+	this.fmove.index = fmoveIndex;
+	this.cmove = CHARGED_MOVE_DATA[cmoveIndex];
+	this.cmove.index = cmoveIndex;
 	
 	this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
 	this.Def = (this.baseDef + this.defiv) * this.cpm;
@@ -720,35 +714,37 @@ World.prototype.battle = function (){
 
 // Add events of the same time to battle log
 // Format: [time] [team 1 pokemon] ... [team n pokemon] [defender]
-World.prototype.add_to_log = function addBattleLog(events){
+World.prototype.add_to_log = function(events){
 	var numPlayer = this.playersArr.length;
 	// Correspond to Enter rowData, AtkrHurt rowData, DfdrHurt rowData and AtkrDogde rowData
 	var rowData = [[],[],[],[]];
 	var nonEmpty = [false, false, false, false];
 	var dfdrHurt_totalDmg = 0;
 	for (var i = 0; i < 4; i++){
-		rowData[i].push(Math.round((events[0]).t/10)/100);
-		for (var j = 0; j < numPlayer + 1; j++)
-			rowData[i].push("");
+		rowData[i].t = Math.round((events[0]).t/10)/100;
+		rowData[i].dfdr = "";
+		for (var j = 1; j <= numPlayer; j++)
+			rowData[i][j] = "";
 	}
+	
 	for (var i = 0; i < events.length; i++){
 		var e = events[i];
 		if (e.name == "Enter"){
 			nonEmpty[0] = true;
-			if (e.subject.playerCode == -1)
-				rowData[0][numPlayer + 1] = pokemon_img_by_id(e.subject.dex);
+			if (e.subject.playerCode == -1) // dfdr
+				rowData[0].dfdr = 'pokemon:' + e.subject.index;
 			else
-				rowData[0][e.subject.playerCode] = pokemon_img_by_id(e.subject.dex);
+				rowData[0][e.subject.playerCode] = 'pokemon:' + e.subject.index;
 		}else if (e.name == "Hurt"){
 			if (e.subject.raidTier == 0){ // atkrHurt
 				nonEmpty[1] = true;
 				rowData[1][e.subject.playerCode] = e.subject.HP + '(-' + e.dmg + ')';
-				rowData[1][numPlayer + 1] = e.move.name;
+				rowData[1].dfdr = e.move.moveType + 'move:' + e.move.index;
 			} else{ // dfdrHurt
 				nonEmpty[2] = true;
 				dfdrHurt_totalDmg += e.dmg;
-				rowData[2][numPlayer + 1] = e.subject.HP; // calculate dmg later
-				rowData[2][e.object.playerCode] = e.move.name;
+				rowData[2].dfdr = e.subject.HP; // calculate dmg later
+				rowData[2][e.object.playerCode] = e.move.moveType + 'move:' + e.move.index;
 			}
 		}else if (e.name == "Dodge"){
 			nonEmpty[3] = true;
@@ -756,8 +752,9 @@ World.prototype.add_to_log = function addBattleLog(events){
 		}
 	}
 	if (nonEmpty[2]){
-		rowData[2][numPlayer + 1] += '(-' + dfdrHurt_totalDmg + ')';
+		rowData[2].dfdr += '(-' + dfdrHurt_totalDmg + ')';
 	}
+	
 	for (var i = 0; i < 4; i++){
 		if(nonEmpty[i])
 			this.log.push(rowData[i]);
