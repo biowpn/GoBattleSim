@@ -23,12 +23,41 @@ function getMovesFromString(S){
 	return res;
 }
 
+
+var TYPE_ICONS = {
+	bug: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/8/88/Icon_Bug.png'></img>",
+	dark: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/e/e9/Icon_Dark.png'></img>",
+	dragon: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/d/d4/Icon_Dragon.png'></img>",
+	electric: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/1/1c/Icon_Electric.png'></img>",
+	fairy: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/7/7f/Icon_Fairy.png'></img>",
+	fighting: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/f/f0/Icon_Fighting.png'></img>",
+	fire: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/0/0a/Icon_Fire.png'></img>",
+	flying: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/b/b0/Icon_Flying.png'></img>",
+	ghost: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/7/7d/Icon_Ghost.png'></img>",
+	grass: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/0/0a/Icon_Grass.png'></img>",
+	ground: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/7/71/Icon_Ground.png'></img>",
+	ice: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/5/52/Icon_Ice.png'></img>",
+	normal: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/4/43/Icon_Normal.png'></img>",
+	poison: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/2/26/Icon_Poison.png'></img>",
+	psychic: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/c/ce/Icon_Psychic.png'></img>",
+	rock: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/5/57/Icon_Rock.png'></img>",
+	steel: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/3/38/Icon_Steel.png'></img>",
+	water: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/6/65/Icon_Water.png'></img>"
+};
+
+
+
 // Populate default input options
 function populateAll(){
 	if (POKEMON_SPECIES_DATA_FETCHED && MOVE_DATA_FETCHED && USER_POKEBOX_FETCHED){
+		// Populate default input options
 		for (var i = 0; i < USER_POKEBOX.length; i++){
 			USER_POKEBOX[i].box_index = i;
-			POKEMON_SPECIES_OPTIONS.push("$" + i + " " + USER_POKEBOX[i].nickname);
+			POKEMON_SPECIES_OPTIONS.push({
+				label: "$" + i + " " + USER_POKEBOX[i].nickname,
+				icon: pokemon_img_by_id(POKEMON_SPECIES_DATA[USER_POKEBOX[i].index].dex)
+			});
+			// + pokemon_img_by_id(POKEMON_SPECIES_DATA[USER_POKEBOX[i].index].dex)
 		}
 		for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++){
 			var pkm = POKEMON_SPECIES_DATA[i];
@@ -41,13 +70,22 @@ function populateAll(){
 					pkm.chargedMoves_exclusive.push(move);
 			});
 			delete pkm.exclusiveMoves;
-			POKEMON_SPECIES_OPTIONS.push(pkm.name);
+			POKEMON_SPECIES_OPTIONS.push({
+				label: pkm.name,
+				icon: pokemon_img_by_id(pkm.dex)
+			});
 		}
 		for (var i = 0; i < FAST_MOVE_DATA.length; i++){
-			FAST_MOVES_OPTIONS.push(FAST_MOVE_DATA[i].name);
+			FAST_MOVE_OPTIONS.push({
+				label: FAST_MOVE_DATA[i].name,
+				icon: TYPE_ICONS[FAST_MOVE_DATA[i].pokeType]
+			});
 		}
 		for (var i = 0; i < CHARGED_MOVE_DATA.length; i++){
-			CHARGED_MOVE_OPTIONS.push(CHARGED_MOVE_DATA[i].name);
+			CHARGED_MOVE_OPTIONS.push({
+				label: CHARGED_MOVE_DATA[i].name,
+				icon: TYPE_ICONS[CHARGED_MOVE_DATA[i].pokeType]
+			});
 		}
 		addPlayerNode();
 		document.getElementById("ui-defenderinputbody").innerHTML = "";
@@ -88,7 +126,9 @@ $.ajax({
 				fastMoves_legacy : getMovesFromString(data[i].field_legacy_quick_moves),
 				chargedMoves_legacy : getMovesFromString(data[i].field_legacy_charge_moves),
 				exclusiveMoves : getMovesFromString(data[i].exclusive_moves),
-				rating : parseFloat(data[i].rating) || 0
+				rating : parseFloat(data[i].rating) || 0,
+				image: "<img source='" + data[i].uri + "'></img>",
+				icon: pokemon_img_by_id(data[i].number)
 			};
 			if (!POKEMON_BY_TYPE_INDICES.hasOwnProperty(pkmData.pokeType1))
 				POKEMON_BY_TYPE_INDICES[pkmData.pokeType1] = [];
@@ -124,7 +164,8 @@ $.ajax({
 					pokeType: data[i].move_type.toLowerCase(),
 					energyDelta: Math.abs(parseInt(data[i].energy_gain)),
 					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
-					duration: parseFloat(data[i].cooldown)*1000
+					duration: parseFloat(data[i].cooldown)*1000,
+					pokeTypeIcon: "<img src='https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_metal_" + data[i].move_type.toLowerCase() +".png'></img>"
 				};
 
 				FAST_MOVE_DATA.push(move);
@@ -137,6 +178,7 @@ $.ajax({
 					energyDelta: -Math.abs(parseInt(data[i].energy_cost)),
 					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000,
 					duration: parseFloat(data[i].cooldown)*1000
+					pokeTypeIcon: "<img src='https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + data[i].move_type.toLowerCase() +".png'></img>"
 				};
 
 				CHARGED_MOVE_DATA.push(move);
@@ -183,16 +225,10 @@ $(document).ready(function(){
 							cmove: data[i].charge_move.toLowerCase(),
 							cmove_index : get_cmove_index_by_name(data[i].charge_move.toLowerCase()),
 							dodge: 0,
-							nickname : data[i].nickname
+							nickname : data[i].nickname,
+							image: POKEMON_SPECIES_DATA[species_idx].image,
+							icon: POKEMON_SPECIES_DATA[species_idx].icon
 						};
-						if (pkmRaw.fmove_index < 0){
-							console.log("Move data not found: " + pkmRaw.fmove);
-							continue;
-						}
-						if (pkmRaw.cmove_index < 0){
-							console.log("Move data not found: " + pkmRaw.cmove);
-							continue;
-						}
 						pkmRaw.level = calculateLevelByCP(pkmRaw, parseInt(data[i].cp));
 						USER_POKEBOX.push(pkmRaw);
 					}

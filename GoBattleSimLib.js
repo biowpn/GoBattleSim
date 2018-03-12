@@ -120,27 +120,22 @@ function pokemon_img_by_id(dex, size){
 /* Class <Pokemon> and <PokemonSpecies> */
 // constructor
 function Pokemon(cfg){
-	this.playerCode = cfg.player_code;
-	
 	this.index = (cfg.index >= 0) ? cfg.index : get_species_index_by_name(cfg.species);
-	this.dex = POKEMON_SPECIES_DATA[this.index]['dex'];
-	this.species = POKEMON_SPECIES_DATA[this.index]['name'];
-	this.name = cfg.nickname || this.species;
+	for (var attr in POKEMON_SPECIES_DATA[this.index]){
+		this[attr] = POKEMON_SPECIES_DATA[this.index][attr];
+	}
 	
-	this.pokeType1 = POKEMON_SPECIES_DATA[this.index]['pokeType1'];
-	this.pokeType2 = POKEMON_SPECIES_DATA[this.index]['pokeType2'];
-	this.baseAtk = POKEMON_SPECIES_DATA[this.index]['baseAtk'];
-	this.baseDef = POKEMON_SPECIES_DATA[this.index]['baseDef'];
-	this.baseStm = POKEMON_SPECIES_DATA[this.index]['baseStm'];
+	this.playerCode = cfg.player_code;
+	this.nickname = cfg.nickname;
 	this.atkiv = parseInt(cfg.atkiv);
 	this.defiv = parseInt(cfg.defiv);
 	this.stmiv = parseInt(cfg.stmiv);
 	this.cpm = CPM_TABLE[Math.round(2* parseInt(cfg.level) - 2)];
 	
-	var fmoveIndex = (cfg.fmove_index >= 0) ? cfg.fmove_index : get_fmove_index_by_name(cfg.fmove);
-	var cmoveIndex = (cfg.cmove_index >= 0) ? cfg.cmove_index : get_cmove_index_by_name(cfg.cmove);
-	this.fmove = FAST_MOVE_DATA[fmoveIndex];
-	this.cmove = CHARGED_MOVE_DATA[cmoveIndex];
+	this.fmoveIndex = (cfg.fmove_index >= 0) ? cfg.fmove_index : get_fmove_index_by_name(cfg.fmove);
+	this.cmoveIndex = (cfg.cmove_index >= 0) ? cfg.cmove_index : get_cmove_index_by_name(cfg.cmove);
+	this.fmove = FAST_MOVE_DATA[this.fmoveIndex];
+	this.cmove = CHARGED_MOVE_DATA[this.cmoveIndex];
 	
 	this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
 	this.Def = (this.baseDef + this.defiv) * this.cpm;
@@ -168,10 +163,8 @@ function Pokemon(cfg){
 	this.time_leave_ms = 0;
 	this.total_time_active_ms = 0;
 	this.num_deaths = 0;
-	
 	this.tdo = 0;
 	this.tdo_fmove = 0;
-	
 	this.total_energy_gained = 0;
 	this.total_energy_gained_from_damage = 0;
 	this.total_energy_wasted = 0;
@@ -695,7 +688,7 @@ World.prototype.battle = function (){
 		// 3. Check if the defender fainted
 		if (dfdr.HP <= 0){
 			dfdr.time_leave_ms = t;
-			dfdr.total_time_active_ms = t - dfdr.time_enter_ms;
+			dfdr.total_time_active_ms += t - dfdr.time_enter_ms;
 		}
 		
 		// 4. Process the next event if it's at the same time before deciding whether the battle has ended
@@ -713,12 +706,12 @@ World.prototype.battle = function (){
 	this.battle_length = t;
 	for (var i = 0; i < this.playersArr.length; i++){
 		var pkm = this.playersArr[i].active_pkm;
-		if (pkm && pkm.time_leave_ms == 0){
+		if (pkm && pkm.active){
 			pkm.time_leave_ms = t;
-			pkm.total_time_active_ms = t - pkm.time_enter_ms;
+			pkm.total_time_active_ms += t - pkm.time_enter_ms;
 		}
 	}
-	if (dfdr.time_leave_ms == 0){
+	if (dfdr.active){
 		dfdr.time_leave_ms = t;
 		dfdr.total_time_active_ms += t - dfdr.time_enter_ms;
 	}

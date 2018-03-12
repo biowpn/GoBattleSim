@@ -568,7 +568,6 @@ var FAST_MOVE_DATA = [
   }
 ];
 
-
 var CHARGED_MOVE_DATA = [
   {
     "name": "aerial ace",
@@ -1669,7 +1668,6 @@ var CHARGED_MOVE_DATA = [
     "duration": 1700
   }
 ];
-
 
 var POKEMON_SPECIES_DATA = [
   {
@@ -10531,9 +10529,9 @@ var POKEMON_SPECIES_DATA = [
 
 RELEVANT_ATTACKERS_INDICES = [2, 5, 44, 58, 61, 64, 67, 70, 75, 90, 93, 102, 111, 113, 122, 123, 126, 129, 130, 133, 134, 135, 138, 143, 144, 145, 148, 149, 156, 159, 195, 211, 213, 216, 220, 228, 231, 242, 243, 247, 248, 249, 253, 256, 259, 274, 281, 285, 288, 296, 301, 318, 331, 336, 337, 341, 349, 353, 358, 364, 372, 375, 381, 382, 383];
 
-
 USER_POKEBOX = [
   {
+    "index": 383,
     "species": "rayquaza",
     "copies": 1,
     "level": 20,
@@ -10544,11 +10542,15 @@ USER_POKEBOX = [
     "atkiv": 15,
     "defiv": 13,
     "fmove": "dragon tail",
+    "fmove_index": 46,
     "cmove": "outrage",
+    "cmove_index": 110,
     "dodge": 0,
-    "nickname": "Test"
+    "nickname": "Test",
+    "box_index": 0
   },
   {
+    "index": 93,
     "species": "gengar",
     "copies": 1,
     "level": 40,
@@ -10559,11 +10561,15 @@ USER_POKEBOX = [
     "atkiv": 15,
     "defiv": 15,
     "fmove": "shadow claw",
+    "fmove_index": 38,
     "cmove": "shadow ball",
+    "cmove_index": 58,
     "dodge": 0,
-    "nickname": "Gengar"
+    "nickname": "Gengar",
+    "box_index": 1
   },
   {
+    "index": 111,
     "species": "rhydon",
     "copies": 1,
     "level": 40,
@@ -10574,11 +10580,15 @@ USER_POKEBOX = [
     "atkiv": 15,
     "defiv": 15,
     "fmove": "mud slap",
+    "fmove_index": 18,
     "cmove": "earthquake",
+    "cmove_index": 23,
     "dodge": 0,
-    "nickname": "Ground Specialist"
+    "nickname": "Ground Specialist",
+    "box_index": 2
   },
   {
+    "index": 148,
     "species": "dragonite",
     "copies": 1,
     "level": 40,
@@ -10589,11 +10599,15 @@ USER_POKEBOX = [
     "atkiv": 14,
     "defiv": 15,
     "fmove": "dragon tail",
+    "fmove_index": 46,
     "cmove": "outrage",
+    "cmove_index": 110,
     "dodge": 0,
-    "nickname": "Sweeper"
+    "nickname": "Sweeper",
+    "box_index": 3
   },
   {
+    "index": 247,
     "species": "tyranitar",
     "copies": 1,
     "level": 40,
@@ -10604,11 +10618,15 @@ USER_POKEBOX = [
     "atkiv": 15,
     "defiv": 15,
     "fmove": "bite",
+    "fmove_index": 2,
     "cmove": "crunch",
+    "cmove_index": 111,
     "dodge": 0,
-    "nickname": "Dark Specialist"
+    "nickname": "Dark Specialist",
+    "box_index": 4
   },
   {
+    "index": 67,
     "species": "machamp",
     "copies": 1,
     "level": 40,
@@ -10619,11 +10637,15 @@ USER_POKEBOX = [
     "atkiv": 15,
     "defiv": 14,
     "fmove": "counter",
+    "fmove_index": 42,
     "cmove": "dynamic punch",
+    "cmove_index": 85,
     "dodge": 0,
-    "nickname": "Fighting Specialist"
+    "nickname": "Fighting Specialist",
+    "box_index": 5
   },
   {
+    "index": 102,
     "species": "exeggutor",
     "copies": 1,
     "level": 39,
@@ -10634,11 +10656,15 @@ USER_POKEBOX = [
     "atkiv": 14,
     "defiv": 15,
     "fmove": "bullet seed",
+    "fmove_index": 55,
     "cmove": "solar beam",
+    "cmove_index": 63,
     "dodge": 0,
-    "nickname": "Grass Specialist"
+    "nickname": "Grass Specialist",
+    "box_index": 6
   },
   {
+    "index": 242,
     "species": "raikou",
     "copies": 1,
     "level": 40,
@@ -10649,11 +10675,15 @@ USER_POKEBOX = [
     "atkiv": 15,
     "defiv": 14,
     "fmove": "thunder shock",
+    "fmove_index": 31,
     "cmove": "wild charge",
+    "cmove_index": 88,
     "dodge": 0,
-    "nickname": "Electric Specialist"
+    "nickname": "Electric Specialist",
+    "box_index": 7
   },
   {
+    "index": 195,
     "species": "espeon",
     "copies": 1,
     "level": 39,
@@ -10664,11 +10694,15 @@ USER_POKEBOX = [
     "atkiv": 15,
     "defiv": 15,
     "fmove": "confusion",
-    "cmove": "futuresight",
+    "fmove_index": 6,
+    "cmove": "future sight",
+    "cmove_index": 107,
     "dodge": 0,
-    "nickname": "Psychic Specialist"
+    "nickname": "Psychic Specialist",
+    "box_index": 8
   },
   {
+    "index": 148,
     "species": "dragonite",
     "copies": 1,
     "level": 39,
@@ -10679,11 +10713,15 @@ USER_POKEBOX = [
     "atkiv": 15,
     "defiv": 15,
     "fmove": "dragon breath",
+    "fmove_index": 7,
     "cmove": "dragon claw",
+    "cmove_index": 19,
     "dodge": 0,
-    "nickname": "Chief Generalist"
+    "nickname": "Chief Generalist",
+    "box_index": 9
   },
   {
+    "index": 133,
     "species": "vaporeon",
     "copies": 1,
     "level": 39,
@@ -10694,11 +10732,15 @@ USER_POKEBOX = [
     "atkiv": 15,
     "defiv": 15,
     "fmove": "water gun",
+    "fmove_index": 33,
     "cmove": "hydro pump",
+    "cmove_index": 33,
     "dodge": 0,
-    "nickname": "Water Specialist"
+    "nickname": "Water Specialist",
+    "box_index": 10
   },
   {
+    "index": 145,
     "species": "moltres",
     "copies": 1,
     "level": 40,
@@ -10709,11 +10751,15 @@ USER_POKEBOX = [
     "atkiv": 15,
     "defiv": 15,
     "fmove": "fire spin",
+    "fmove_index": 53,
     "cmove": "overheat",
+    "cmove_index": 104,
     "dodge": 0,
-    "nickname": "Fire Specialist"
+    "nickname": "Fire Specialist",
+    "box_index": 11
   },
   {
+    "index": 148,
     "species": "dragonite",
     "copies": 1,
     "level": 39,
@@ -10724,18 +10770,51 @@ USER_POKEBOX = [
     "atkiv": 15,
     "defiv": 13,
     "fmove": "dragon breath",
+    "fmove_index": 7,
     "cmove": "outrage",
+    "cmove_index": 110,
     "dodge": 0,
-    "nickname": "Vice Generalist"
+    "nickname": "Vice Generalist",
+    "box_index": 12
   }
-]
+];
 
-	
+
+var TYPE_ICONS = {
+	bug: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/8/88/Icon_Bug.png'></img>",
+	dark: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/e/e9/Icon_Dark.png'></img>",
+	dragon: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/d/d4/Icon_Dragon.png'></img>",
+	electric: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/1/1c/Icon_Electric.png'></img>",
+	fairy: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/7/7f/Icon_Fairy.png'></img>",
+	fighting: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/f/f0/Icon_Fighting.png'></img>",
+	fire: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/0/0a/Icon_Fire.png'></img>",
+	flying: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/b/b0/Icon_Flying.png'></img>",
+	ghost: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/7/7d/Icon_Ghost.png'></img>",
+	grass: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/0/0a/Icon_Grass.png'></img>",
+	ground: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/7/71/Icon_Ground.png'></img>",
+	ice: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/5/52/Icon_Ice.png'></img>",
+	normal: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/4/43/Icon_Normal.png'></img>",
+	poison: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/2/26/Icon_Poison.png'></img>",
+	psychic: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/c/ce/Icon_Psychic.png'></img>",
+	rock: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/5/57/Icon_Rock.png'></img>",
+	steel: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/3/38/Icon_Steel.png'></img>",
+	water: "<img src='https://vignette.wikia.nocookie.net/pokemongo/images/6/65/Icon_Water.png'></img>"
+};
+
+
+
+
+
+
 $(document).ready(function(){
 	// Populate default input options
 	for (var i = 0; i < USER_POKEBOX.length; i++){
 		USER_POKEBOX[i].box_index = i;
-		POKEMON_SPECIES_OPTIONS.push("$" + i + " " + USER_POKEBOX[i].nickname);
+		POKEMON_SPECIES_OPTIONS.push({
+			label: "$" + i + " " + USER_POKEBOX[i].nickname,
+			icon: pokemon_img_by_id(POKEMON_SPECIES_DATA[USER_POKEBOX[i].index].dex)
+		});
+		// + pokemon_img_by_id(POKEMON_SPECIES_DATA[USER_POKEBOX[i].index].dex)
 	}
 	for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++){
 		var pkm = POKEMON_SPECIES_DATA[i];
@@ -10748,13 +10827,22 @@ $(document).ready(function(){
 				pkm.chargedMoves_exclusive.push(move);
 		});
 		delete pkm.exclusiveMoves;
-		POKEMON_SPECIES_OPTIONS.push(pkm.name);
+		POKEMON_SPECIES_OPTIONS.push({
+			label: pkm.name,
+			icon: pokemon_img_by_id(pkm.dex)
+		});
 	}
 	for (var i = 0; i < FAST_MOVE_DATA.length; i++){
-		FAST_MOVES_OPTIONS.push(FAST_MOVE_DATA[i].name);
+		FAST_MOVE_OPTIONS.push({
+			label: FAST_MOVE_DATA[i].name,
+			icon: TYPE_ICONS[FAST_MOVE_DATA[i].pokeType]
+		});
 	}
 	for (var i = 0; i < CHARGED_MOVE_DATA.length; i++){
-		CHARGED_MOVE_OPTIONS.push(CHARGED_MOVE_DATA[i].name);
+		CHARGED_MOVE_OPTIONS.push({
+			label: CHARGED_MOVE_DATA[i].name,
+			icon: TYPE_ICONS[CHARGED_MOVE_DATA[i].pokeType]
+		});
 	}
 	addPlayerNode();
 	document.getElementById("ui-defenderinputbody").innerHTML = "";

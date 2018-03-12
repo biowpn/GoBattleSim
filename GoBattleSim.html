@@ -9,6 +9,7 @@
 <script type="text/javascript" src="GoBattleSimLib.js"></script>
 <script type="text/javascript" src="UI.js"></script>
 <script type="text/javascript" src="Populate_local.js"></script>
+
 <style>
 	table{
 		width: 100%;
@@ -94,22 +95,48 @@
 	    margin-bottom: 10px;
 	}
 	div#ui-mastersummarytable_filter label {
-    text-align: left;
+		text-align: left;
 	}
-div#ui-defenderinputbody,
-.ui-sortable-handle .ui-sortable > div {
-    background: #f1f1f1;
-    padding: 5px 8px;
-    border-radius: 3px;
-    margin: 10px 0px;
-    border: 1px solid #ddd;
+	div#ui-defenderinputbody,
+	.ui-sortable-handle .ui-sortable > div {
+		background: #f1f1f1;
+		padding: 5px 8px;
+		border-radius: 3px;
+		margin: 10px 0px;
+		border: 1px solid #ddd;
+	}
+	
+	img{
+		max-width: 100%;
+		max-height: 100%;
+	}
+	.apitem-pokemon-icon {
+		display:inline-block;
+		align: center;
+		vertical-align: middle;
+		height: 30px;	
+	}
+	.apitem-move-icon {
+		display:inline-block;
+		align: center;
+		vertical-align: middle;
+		height: 20px;
+	}
+	.apitem-label{
+		padding-bottom: 10px;
+		padding-left: 5px;
+		vertical-align: middle;
+		display:inline-block;
+	}
+
+
 }
 </style>
 
 <div id="AttackerInput">
 	<div id="ui-attackerinputhead">
 		<h2>Attacker Information</h2>
-		<button id='ui-addplayerbutton' class="player_button" onclick="javascript:addPlayerNode()">Add Player</button>
+		<button id='ui-addplayerbutton' onclick="javascript:addPlayerNode()">Add Player</button>
 	</div>
 	
 	<div id="ui-attackerinputbody">
