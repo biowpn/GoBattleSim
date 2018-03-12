@@ -349,7 +349,9 @@ function relabelAll(){
 		playerNode.children[2].id = "ui-playertail-" + i;
 		playerNode.children[2].children[0].id = "add_party:" + i;
 		playerNode.children[2].children[1].id = "remove_player:" + i;
-
+		
+		document.getElementById("add_party:" + i).setAttribute('class', 'player_button');
+		document.getElementById("remove_player:" + i).setAttribute('class', 'player_button');
 		$( '#ui-playertail-' + i ).controlgroup();
 		
 	}
@@ -1342,7 +1344,6 @@ function createBattleLogTable(log, playerCount){
 	
 	var sameTimeEvents = [];
 	for (var i = 0; i < log.length; i++){
-		// table.children[1].appendChild(createRow(log[i]), "td");
 		var rawEntry = log[i];
 		
 		for (var attr in rawEntry){
