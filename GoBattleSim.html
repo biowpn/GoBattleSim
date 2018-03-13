@@ -11,10 +11,8 @@
 <script type="text/javascript" src="Populate_local.js"></script>
 
 <style>
-	table{
-		width: 100%;
-	}
 	table {
+		width: 100%;
 		margin-bottom: 0px;
 	}
 	div#ui-attackerinputbody h4 {
@@ -25,8 +23,9 @@
 		border-radius: 2px;
 	}
 	th, td {
-		vertical-align: center;
+		vertical-align: middle;
 		text-align: center;
+		line-height: normal;
 	}
 	div#DefenderInput td,	
 	div#AttackerInput td {
@@ -35,8 +34,9 @@
 	}
 	input, select {
 		width: 100%;
-                margin-bottom:0px !important;
+        margin-bottom:0px !important;
 	}
+	
 	button {
 		width: 100%;
 	}
@@ -56,9 +56,12 @@
 	
 
 	.player_button {
+		vertical-align: middle;
+		height: 31.6px;
 		color: #3076b2 !important;
 		background-color: white;
 		border: 1px solid #3076b2;
+		padding: 0px 0px;
 	}
 	
 	.player_button:hover{
@@ -67,9 +70,12 @@
 	}
 	
 	.player_button:focus{
+		vertical-align: middle;
+		height: 31.6px;
 		color: #3076b2 !important;
 		background-color: white;
 		border: 1px solid #3076b2;
+		padding: 0px 0px;
 	}
 	
 	
@@ -106,18 +112,11 @@
 	div#ui-mastersummarytable_filter label {
 		text-align: left;
 	}
-	div#ui-defenderinputbody,
-	.ui-sortable-handle .ui-sortable > div {
-		background: #f1f1f1;
-		padding: 5px 8px;
-		border-radius: 3px;
-		margin: 10px 0px;
-		border: 1px solid #ddd;
-	}
 	
 	img{
 		max-width: 100%;
 		max-height: 100%;
+		vertical-align: middle !important;
 	}
 	.apitem-pokemon-icon {
 		display:inline-block;
@@ -128,14 +127,46 @@
 	.apitem-move-icon {
 		display:inline-block;
 		align: center;
-		vertical-align: middle;
+		vertical-align: middle !important;
 		height: 20px;
 	}
 	.apitem-label{
 		padding-left: 5px;
-		vertical-align: middle;
+		vertical-align: middle !important;
 		display:inline-block;
 	}
+	
+	.section-body, div#ui-defenderinputbody > div{
+		background: #f1f1f1;
+		padding: 5px 8px;
+		border-radius: 3px;
+		margin: 10px 0px;
+		border: 1px solid #ddd;
+	}
+	
+	
+	#icons {
+		margin: 0;
+		padding: 0;
+	}
+	#icons li {
+		margin: 2px;
+		padding: 8px 0;
+		cursor: pointer;
+		float: right;
+		list-style: none;
+	}
+	#icons span.ui-icon {
+		float: right;
+		margin: 0 8px;
+	}
+	
+	.ui-autocomplete {
+		max-height: 300px;
+		overflow-y: auto;
+		overflow-x: hidden;
+		padding-right: 20px;
+	} 
 
 }
 </style>

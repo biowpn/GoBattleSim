@@ -24,8 +24,8 @@ var CHARGED_MOVE_OPTIONS = [];
 
 const MAX_QUEUE_SIZE = 65536;
 const MAX_SIM_PER_CONFIG = 1024;
-const DEFAULT_SUMMARY_TABLE_METRICS = ['battle_result','duration','dfdr_HP_lost_percent','total_deaths'];
-const DEFAULT_SUMMARY_TABLE_HEADERS = ['Outcome','Time','Progress','#Death'];
+const DEFAULT_SUMMARY_TABLE_METRICS = ['battle_result','duration','tdo_percent','dps', 'total_deaths'];
+const DEFAULT_SUMMARY_TABLE_HEADERS = ['Outcome','Time','TDO%','DPS','#Death'];
 
 var simQueue = []; // Batch individual sims configurations here
 var simResults = []; // This is used to store all sims
@@ -83,6 +83,11 @@ function pokemon_img_by_id(dex, size){
 	while (dex_string.length < 3)
 		dex_string = "0" + dex_string;
 	return "<img src='https://pokemongo.gamepress.gg/assets/img/sprites/" + dex_string + size + ".png'></img>";
+}
+
+function toTitleCase(str)
+{
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
 function jsonToURI(json){ return encodeURIComponent(JSON.stringify(json)); }
@@ -207,6 +212,7 @@ function createPartyNode(){
 	partyNode.children[0].innerHTML = "<h4>Unlabeled Party</h4>";
 	
 	// 2. Body
+	partyNode.children[1].setAttribute('class', 'section-body');
 	partyNode.children[1].appendChild(createAttackerNode());
 	
 	// 3. Tail
@@ -251,6 +257,7 @@ function createPlayerNode(){
 	playerNode.children[0].innerHTML = "<h3>Unlabeled Player</h3>";
 	
 	// 2. Body
+	playerNode.children[1].setAttribute('class', 'section-body');
 	playerNode.children[1].appendChild(createPartyNode());
 	
 	// 3. Tail
@@ -452,6 +459,12 @@ function manual_render_autocomplete_move_item(ul, item){
 
 function autocompletePokemonNode(address){
 	const address_const = address;
+	
+	try{
+		$( '#ui-species-' + address_const ).autocomplete("destroy");
+	}catch(err){
+	}
+	
 	$( '#ui-species-' + address ).autocomplete({
 		minLength : 0,
 		delay : 0,
@@ -508,12 +521,19 @@ function autocompletePokemonNodeMoves(address, species_idx){
 	var thisFastMoveOptions = [];
 	var thisChargedMoveOptions = [];
 	
+	try{
+		$( '#ui-fmove-' + address ).autocomplete("destroy");
+		$( '#ui-cmove-' + address ).autocomplete("destroy");
+	}catch(err){
+		
+	}
+	
 	if (species_idx >= 0){
 		POKEMON_SPECIES_DATA[species_idx].fastMoves.concat(POKEMON_SPECIES_DATA[species_idx].fastMoves_legacy)
 			.concat(POKEMON_SPECIES_DATA[species_idx].fastMoves_exclusive).forEach(function(move){
 				var moveData = FAST_MOVE_DATA[get_fmove_index_by_name(move)];
 				thisFastMoveOptions.push({
-					label: moveData.name,
+					label: toTitleCase(moveData.name),
 					icon: moveData.pokeTypeIcon
 				});
 			});
@@ -521,7 +541,7 @@ function autocompletePokemonNodeMoves(address, species_idx){
 			.concat(POKEMON_SPECIES_DATA[species_idx].chargedMoves_exclusive).forEach(function(move){
 				var moveData = CHARGED_MOVE_DATA[get_cmove_index_by_name(move)];
 				thisChargedMoveOptions.push({
-					label: moveData.name,
+					label: toTitleCase(moveData.name),
 					icon: moveData.pokeTypeIcon
 				});
 			});
@@ -529,12 +549,13 @@ function autocompletePokemonNodeMoves(address, species_idx){
 		thisFastMoveOptions = FAST_MOVE_OPTIONS;
 		thisChargedMoveOptions = CHARGED_MOVE_OPTIONS;
 	}
-		
+	
 	$( '#ui-fmove-' + address ).autocomplete({
 		minLength : 0,
 		delay : 0,
 		source: thisFastMoveOptions
 	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_move_item;
+	
 	$( '#ui-cmove-' + address ).autocomplete({
 		minLength : 0,
 		delay : 0,
@@ -710,9 +731,9 @@ function writeAttackerNode(node, pkmConfig){
 	var row3 = node.children[1].children[2].children[1];
 	
 	if (pkmConfig.box_index >= 0)
-		row1.children[0].children[0].value = '$' + pkmConfig.box_index + ' ' + pkmConfig.nickname + ' (' + pkmConfig.species +')';
+		row1.children[0].children[0].value = '$' + pkmConfig.box_index + ' ' + pkmConfig.nickname + ' [' + toTitleCase(pkmConfig.species) +']';
 	else
-		row1.children[0].children[0].value = pkmConfig.species;
+		row1.children[0].children[0].value = toTitleCase(pkmConfig.species);
 	
 	var species_idx = get_species_index_by_name(pkmConfig.species);
 	if (species_idx < 0){
@@ -726,8 +747,8 @@ function writeAttackerNode(node, pkmConfig){
 	row2.children[1].children[0].value = pkmConfig.stmiv;
 	row2.children[2].children[0].value = pkmConfig.atkiv;
 	row2.children[3].children[0].value = pkmConfig.defiv;
-	row3.children[0].children[0].value = pkmConfig.fmove;
-	row3.children[1].children[0].value = pkmConfig.cmove;
+	row3.children[0].children[0].value = toTitleCase(pkmConfig.fmove);
+	row3.children[1].children[0].value = toTitleCase(pkmConfig.cmove);
 	row3.children[2].children[0].value = pkmConfig.dodge;
 }
 
@@ -763,7 +784,7 @@ function writeDefenderNode(node, pkmConfig, raidTier){
 	var row3 = node.children[1].children[2].children[1];
 	
 	if (pkmConfig.box_index >= 0)
-		row1.children[0].children[0].value = '$' + pkmConfig.box_index + ' ' + pkmConfig.nickname + ' (' + pkmConfig.species +')';
+		row1.children[0].children[0].value = '$' + pkmConfig.box_index + ' ' + pkmConfig.nickname + ' [' + toTitleCase(pkmConfig.species) +']';
 	else
 		row1.children[0].children[0].value = pkmConfig['species'];
 	
@@ -774,8 +795,8 @@ function writeDefenderNode(node, pkmConfig, raidTier){
 		node.children[0].innerHTML = pokemon_img_by_id(POKEMON_SPECIES_DATA[species_idx].dex);
 	}
 	
-	row3.children[0].children[0].value = pkmConfig['fmove'];
-	row3.children[1].children[0].value = pkmConfig['cmove'];
+	row3.children[0].children[0].value = toTitleCase(pkmConfig['fmove']);
+	row3.children[1].children[0].value = toTitleCase(pkmConfig['cmove']);
 	if (document.getElementById("battleMode").value == "gym"){
 		row2.children[0].children[0].value = pkmConfig['level'];
 		row2.children[1].children[0].value = pkmConfig['stmiv'];
@@ -1104,22 +1125,24 @@ function runSim(cfg){
 function averageResults(results){
 	var avrgResult = results[0];
 	var numResults = results.length;
-	var sumWin = 0, sumDuration = 0, sumEnemyHPLostPctg = 0, sumDeaths = 0;
+	var sumWin = 0, sumDuration = 0, sumTDOPctg = 0, sumTDO = 0, sumDeaths = 0;
 	for (var i = 0; i < numResults; i++){
 		var gs = results[i]['generalStat'];
 		if (gs['battle_result'] == 'Win')
 			sumWin++;
 		sumDuration += gs['duration'];
-		sumEnemyHPLostPctg += gs['dfdr_HP_lost_percent'];
+		sumTDOPctg += gs['tdo_percent'];
+		sumTDO += gs['tdo'];
 		sumDeaths += gs['total_deaths'];
 	}
 	if (numResults > 1){
-		avrgResult['generalStat']['battle_result'] = Math.round(sumWin/numResults*100)/100 + " Win";
+		avrgResult['generalStat']['battle_result'] = Math.round(sumWin/numResults*10000)/100 + "% Win";
 	}else{
 		avrgResult['generalStat']['battle_result'] = results[0]['generalStat']['battle_result'];
 	}
 	avrgResult['generalStat']['duration'] = Math.round(sumDuration/numResults*10)/10;
-	avrgResult['generalStat']['dfdr_HP_lost_percent'] = Math.round(sumEnemyHPLostPctg/numResults*100)/100;
+	avrgResult['generalStat']['tdo_percent'] = Math.round(sumTDOPctg/numResults*100)/100;
+	avrgResult['generalStat']['dps'] = Math.round(sumTDO/sumDuration*100)/100;
 	avrgResult['generalStat']['total_deaths'] = Math.round(sumDeaths/numResults*100)/100;
 	
 	return avrgResult;
@@ -1154,7 +1177,10 @@ function createMasterSummaryTable(){
 		MasterSummaryTableMetrics.forEach(function(m){
 			row.push((m[0] == '*') ? sim.input.enumeratedValues[m] : sim.output.generalStat[m]);
 		});
-		row.push("<a onclick='displayDetail("+i+")'>Detail</a>");
+		if (sim.input.generalSettings.reportType == 'enum')
+			row.push("<a onclick='displayDetail("+i+")'>Detail</a>");
+		else
+			row.push('');
 		table.children[2].appendChild(createRow(row, "td"));
 	}
 	
@@ -1212,27 +1238,6 @@ function displayMasterSummaryTable(){
 			)
 			.on( 'change', function (){
 				table.column( colIdx ).search( $(this).val() ).draw();
-				/*
-				var temptable = table.column( colIdx ).search( $(this).val() );
-				var order_idx = MasterSummaryTableMetricsFilterOrder.indexOf(parseInt(this.id.split('-')[3]));
-				if (order_idx == -1)
-					MasterSummaryTableMetricsFilterOrder.push(parseInt(this.id.split('-')[3]));
-				else{
-					if ($(this).val() == ' ')
-						MasterSummaryTableMetricsFilterOrder.splice(order_idx);
-					else
-						MasterSummaryTableMetricsFilterOrder.splice(order_idx + 1);
-					for (var i = 0; i < MasterSummaryTableMetrics.length; i++){
-						if (!MasterSummaryTableMetricsFilterOrder.includes(i)){
-							var selectToMod = document.getElementById('ui-mst-select-' + i);
-							selectToMod.value = ' ';
-							//selectToMod.innerHTML = '';
-							// temptable.column( i ).search( '' );
-						}
-					}
-				}
-				temptable.draw();
-				*/
 			} );
 			
 		select[0].id = 'ui-mst-select-' + colIdx;
@@ -1353,10 +1358,10 @@ function createBattleLogTable(log, playerCount){
 				rawEntry[attr] = pkmInfo.icon;
 			}else if (fragments[0] == 'fmove'){
 				var moveInfo = FAST_MOVE_DATA[parseInt(fragments[1])];
-				rawEntry[attr] = createIconLabelDiv(moveInfo.pokeTypeIcon, moveInfo.name, 'apitem-move-icon');
+				rawEntry[attr] = createIconLabelDiv(moveInfo.pokeTypeIcon, toTitleCase(moveInfo.name), 'apitem-move-icon');
 			}else if (fragments[0] == 'cmove'){
 				var moveInfo = CHARGED_MOVE_DATA[parseInt(fragments[1])];
-				rawEntry[attr] = createIconLabelDiv(moveInfo.pokeTypeIcon, moveInfo.name, 'apitem-move-icon');
+				rawEntry[attr] = createIconLabelDiv(moveInfo.pokeTypeIcon, toTitleCase(moveInfo.name), 'apitem-move-icon');
 			}
 		}
 		

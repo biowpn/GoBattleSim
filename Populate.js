@@ -31,7 +31,7 @@ function populateAll(){
 		for (var i = 0; i < USER_POKEBOX.length; i++){
 			USER_POKEBOX[i].box_index = i;
 			POKEMON_SPECIES_OPTIONS.push({
-				label: "$" + i + " " + USER_POKEBOX[i].nickname,
+				label: "$" + i + " " + USER_POKEBOX[i].nickname + " [" + toTitleCase(USER_POKEBOX[i].species) + "]",
 				icon: pokemon_img_by_id(POKEMON_SPECIES_DATA[USER_POKEBOX[i].index].dex)
 			});
 		}
@@ -47,19 +47,19 @@ function populateAll(){
 			});
 			delete pkm.exclusiveMoves;
 			POKEMON_SPECIES_OPTIONS.push({
-				label: pkm.name,
+				label: toTitleCase(pkm.name),
 				icon: pokemon_img_by_id(pkm.dex)
 			});
 		}
 		for (var i = 0; i < FAST_MOVE_DATA.length; i++){
 			FAST_MOVE_OPTIONS.push({
-				label: FAST_MOVE_DATA[i].name,
+				label: toTitleCase(FAST_MOVE_DATA[i].name),
 				icon: FAST_MOVE_DATA[i].pokeTypeIcon
 			});
 		}
 		for (var i = 0; i < CHARGED_MOVE_DATA.length; i++){
 			CHARGED_MOVE_OPTIONS.push({
-				label: CHARGED_MOVE_DATA[i].name,
+				label: toTitleCase(CHARGED_MOVE_DATA[i].name),
 				icon: CHARGED_MOVE_DATA[i].pokeTypeIcon
 			});
 		}

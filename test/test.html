@@ -10,17 +10,20 @@
 
 
 <style>
-
-	
-	.myImageStyle{
-		display:inline-block;
-		align: center;
-		vertical-align: middle;
+	#icons {
+		margin: 0;
+		padding: 0;
 	}
-	
-	.myTextStyle{
-		display:inline-block;
-		vertical-align: middle;
+	#icons li {
+		margin: 2px;
+		padding: 8px 0;
+		cursor: pointer;
+		float: right;
+		list-style: none;
+	}
+	#icons span.ui-icon {
+		float: right;
+		margin: 0 8px;
 	}
 
 
@@ -29,14 +32,30 @@
 
 <div>
 
-<div class='myImageStyle'><img src='https://vignette.wikia.nocookie.net/pokemongo/images/4/43/Icon_Normal.png'></img></div><div class="myTextStyle">This is Poliwrath</div>
+
+<h2 class="demoHeaders">Framework Icons (content color preview)</h2>
+<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>
+<span id="icons">
+	
+	<li class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-clipboard"></span></li>
+	<li class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-copy"></span></li>
+	<li class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-closethick"></span></li>
+	
+</span>
 
 </div>
 
 
 
 <script>
-
+$( "#icons li" ).hover(
+	function() {
+		$( this ).addClass( "ui-state-hover" );
+	},
+	function() {
+		$( this ).removeClass( "ui-state-hover" );
+	}
+);
 
 
 </script>

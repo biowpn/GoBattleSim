@@ -776,11 +776,13 @@ World.prototype.get_statistics = function(){
 	else
 		general_stat['battle_result'] = "Win";
 	
-	var dfdr_HP_lost = this.dfdr.maxHP - this.dfdr.HP;
-	general_stat['dfdr_HP_lost_percent'] = Math.round(dfdr_HP_lost / this.dfdr.maxHP*1000)/10;
+	general_stat['tdo'] = this.dfdr.maxHP - this.dfdr.HP;
+	general_stat['tdo_percent'] = Math.round(general_stat['tdo'] / this.dfdr.maxHP *1000)/10;
+	general_stat['dps'] = Math.round(general_stat['tdo'] / (this.battle_length/1000) *100)/100;
+	
 	for (var i = 0; i < this.playersArr.length; i++){
 		var player = this.playersArr[i];
-		var ts = player.get_statistics(dfdr_HP_lost);
+		var ts = player.get_statistics(general_stat['tdo']);
 		general_stat['total_deaths'] += ts['num_deaths'];
 		player_stats.push(ts);
 		pokemon_stats.push([]);

@@ -12150,26 +12150,26 @@ $(document).ready(function(){
 	for (var i = 0; i < USER_POKEBOX.length; i++){
 		USER_POKEBOX[i].box_index = i;
 		POKEMON_SPECIES_OPTIONS.push({
-			label: "$" + i + " " + USER_POKEBOX[i].nickname,
+			label: "$" + i + " " + USER_POKEBOX[i].nickname + " [" + toTitleCase(USER_POKEBOX[i].species) + "]",
 			icon: pokemon_img_by_id(POKEMON_SPECIES_DATA[USER_POKEBOX[i].index].dex)
 		});
 	}
 	for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++){
 		var pkm = POKEMON_SPECIES_DATA[i];
 		POKEMON_SPECIES_OPTIONS.push({
-			label: pkm.name,
+			label: toTitleCase(pkm.name),
 			icon: pokemon_img_by_id(pkm.dex)
 		});
 	}
 	for (var i = 0; i < FAST_MOVE_DATA.length; i++){
 		FAST_MOVE_OPTIONS.push({
-			label: FAST_MOVE_DATA[i].name,
+			label: toTitleCase(FAST_MOVE_DATA[i].name),
 			icon: FAST_MOVE_DATA[i].pokeTypeIcon
 		});
 	}
 	for (var i = 0; i < CHARGED_MOVE_DATA.length; i++){
 		CHARGED_MOVE_OPTIONS.push({
-			label: CHARGED_MOVE_DATA[i].name,
+			label: toTitleCase(CHARGED_MOVE_DATA[i].name),
 			icon: CHARGED_MOVE_DATA[i].pokeTypeIcon
 		});
 	}
@@ -12198,21 +12198,21 @@ $(document).ready(function(){
 								revive_strategy : true,
 								pokemon_list: [{
 									copies: 6,
-									species: "machamp", 
+									species: "Machamp", 
 									level: 40,
 									atkiv: 15,
 									defiv: 15,
 									stmiv: 15,
-									fmove: "counter",
-									cmove: "close combat",
+									fmove: "Counter",
+									cmove: "Close Combat",
 									dodge: 1
 								}]
 							}]
 						}],
 		dfdrSettings : {	
-							species: "tyranitar", 
-							fmove: "bite",
-							cmove: "fire blast",
+							species: "Tyranitar", 
+							fmove: "Bite",
+							cmove: "Fire Blast",
 							raid_tier: 3
 						}
 	};
