@@ -37,6 +37,20 @@
         margin-bottom:0px !important;
 	}
 	
+	.input-with-icon{
+		background-color: white !important;
+		padding-left: 40px !important;
+		background-repeat: no-repeat;
+	}
+	.species-input-with-icon{
+		background-size: 30px 30px;
+		background-position: 5px;
+	}
+	.move-input-with-icon{
+		background-size: 20px 20px;
+		background-position: 10px;
+	}
+	
 	button {
 		width: 100%;
 	}
@@ -63,12 +77,10 @@
 		border: 1px solid #3076b2;
 		padding: 0px 0px;
 	}
-	
 	.player_button:hover{
 		color: #fff !important;
 		background-color: #366ea2;
 	}
-	
 	.player_button:focus{
 		vertical-align: middle;
 		height: 31.6px;
@@ -76,6 +88,26 @@
 		background-color: white;
 		border: 1px solid #3076b2;
 		padding: 0px 0px;
+	}
+	
+	.pokemon-control-buttons{
+		float: right;
+		display: inline;
+	}
+	.button-icon{
+		margin: 4px;
+		cursor:pointer;
+		height: 30px;
+		width: 30px;
+	}
+	.button-icon-copy{
+		background: url(https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bw_copy.png) no-repeat;
+	}
+	.button-icon-paste{
+		background: url(https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bw_paste.png) no-repeat;
+	}
+	.button-icon-close{
+		background: url(https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bw_close.png) no-repeat;
 	}
 	
 	
@@ -104,7 +136,7 @@
 	    padding: 0px 0px 10px 8px;
 	}
 	div#feedback_buttons {
-    margin-bottom: 15px;
+		margin-bottom: 15px;
 	}
 	div#feedback_message {
 	    margin-bottom: 10px;
@@ -142,23 +174,6 @@
 		border-radius: 3px;
 		margin: 10px 0px;
 		border: 1px solid #ddd;
-	}
-	
-	
-	#icons {
-		margin: 0;
-		padding: 0;
-	}
-	#icons li {
-		margin: 2px;
-		padding: 8px 0;
-		cursor: pointer;
-		float: right;
-		list-style: none;
-	}
-	#icons span.ui-icon {
-		float: right;
-		margin: 0 8px;
 	}
 	
 	.ui-autocomplete {
@@ -259,7 +274,10 @@
 
 
 <h2>Feedback</h2>
-<div id="feedback_message"></div>
+<div id="feedback_message">
+<p><em>Thanks for using <a href="https://github.com/ymenghank/GoBattleSim">GoBattleSim</a>, a simulator developed by <a href="https://www.reddit.com/user/biowpn">u/biowpn</a> and inspired by <a href="https://www.reddit.com/user/doublefelix921">u/doublefelix921</a>'s <a href="https://github.com/doublefelix921/battlesim">BattleSim</a>.</p>
+</div>
+
 <div id="feedback_buttons"></div>
 <div id="feedback_table1"></div>
 <div id="feedback_table2"></div>

@@ -214,7 +214,7 @@ Pokemon.prototype.attribute_damage = function(dmg, mType){
 Pokemon.prototype.get_statistics = function(){
 	var stat = {
 		player_code: this.playerCode,
-		img : pokemon_img_by_id(this.dex),
+		index : this.index,
 		name : this.name,
 		hp : this.HP,
 		energy : this.energy,

@@ -10,52 +10,54 @@
 
 
 <style>
-	#icons {
-		margin: 0;
-		padding: 0;
+	.ui-button{
+		background-color: #3076b2;
 	}
-	#icons li {
-		margin: 2px;
-		padding: 8px 0;
-		cursor: pointer;
+	.ui-button:hover {
+		background-color: #366ea2;
+	}
+	.ui-button:focus{
+		background-color: #3076b2;
+	}
+	
+	
+	.pokemon-control-buttons{
 		float: right;
-		list-style: none;
+		display: inline;
 	}
-	#icons span.ui-icon {
-		float: right;
-		margin: 0 8px;
+	.button-icon{
+		background-color: white;
+		cursor:pointer;
+		height: 30px;
+		width: 30px;
+	} 
+	.button-icon-copy{
+		background: url(https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bw_copy.png) no-repeat;
 	}
+	.button-icon-paste{
+		background: url(https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bw_paste.png) no-repeat;
+	}
+	.button-icon-close{
+		background: url(https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bw_close.png) no-repeat;
+	}
+	
 
 
 </style>
-
-
 <div>
+	<img src='https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bw_copy.png'></img>
 
+	<div id='test' class='pokemon-control-buttons'>
 
-<h2 class="demoHeaders">Framework Icons (content color preview)</h2>
-<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>
-<span id="icons">
-	
-	<li class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-clipboard"></span></li>
-	<li class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-copy"></span></li>
-	<li class="ui-state-default ui-corner-all"><span class="ui-icon ui-icon-closethick"></span></li>
-	
-</span>
+	<button class='button-icon button-icon-copy'></button>
+	<button class='button-icon button-icon-paste'></button>
+	<button class='button-icon button-icon-close'></button>
+
+	</div>
 
 </div>
 
-
-
 <script>
-$( "#icons li" ).hover(
-	function() {
-		$( this ).addClass( "ui-state-hover" );
-	},
-	function() {
-		$( this ).removeClass( "ui-state-hover" );
-	}
-);
-
+	//$('#test').controlgroup();
 
 </script>

@@ -32,7 +32,7 @@ function populateAll(){
 			USER_POKEBOX[i].box_index = i;
 			POKEMON_SPECIES_OPTIONS.push({
 				label: "$" + i + " " + USER_POKEBOX[i].nickname + " [" + toTitleCase(USER_POKEBOX[i].species) + "]",
-				icon: pokemon_img_by_id(POKEMON_SPECIES_DATA[USER_POKEBOX[i].index].dex)
+				icon: pokemon_icon_url_by_dex(POKEMON_SPECIES_DATA[USER_POKEBOX[i].index].dex)
 			});
 		}
 		for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++){
@@ -48,7 +48,7 @@ function populateAll(){
 			delete pkm.exclusiveMoves;
 			POKEMON_SPECIES_OPTIONS.push({
 				label: toTitleCase(pkm.name),
-				icon: pokemon_img_by_id(pkm.dex)
+				icon: pokemon_icon_url_by_dex(pkm.dex)
 			});
 		}
 		for (var i = 0; i < FAST_MOVE_DATA.length; i++){
@@ -85,7 +85,7 @@ var USER_POKEBOX_FETCHED = false;
 
 // Read Pokemon Data
 $.ajax({ 
-	url: 'https://game-press.nyc3.digitaloceanspaces.com/sites/pogo/pokemon-data-full.json?v2', 
+	url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pokemon-data-full.json', 
 	dataType: 'json', 
 	success: function(data){
 		for(var i = 0; i < data.length; i++){
@@ -103,8 +103,8 @@ $.ajax({
 				chargedMoves_legacy : getMovesFromString(data[i].field_legacy_charge_moves),
 				exclusiveMoves : getMovesFromString(data[i].exclusive_moves),
 				rating : parseFloat(data[i].rating) || 0,
-				image: "<img source='" + data[i].uri + "'></img>",
-				icon: pokemon_img_by_id(data[i].number)
+				image: data[i].uri,
+				icon: pokemon_icon_url_by_dex(data[i].number)
 			};
 			if (!POKEMON_BY_TYPE_INDICES.hasOwnProperty(pkmData.pokeType1))
 				POKEMON_BY_TYPE_INDICES[pkmData.pokeType1] = [];
@@ -128,7 +128,7 @@ $.ajax({
 
 // Read move data
 $.ajax({
-	url: 'https://game-press.nyc3.digitaloceanspaces.com/sites/pogo/move-data-full.json', 
+	url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/move-data-full.json', 
 	dataType: 'json', 
 	success: function(data){
 		for(var i = 0; i < data.length; i++){
@@ -141,7 +141,7 @@ $.ajax({
 					energyDelta: Math.abs(parseInt(data[i].energy_gain)),
 					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
 					duration: parseFloat(data[i].cooldown)*1000,
-					pokeTypeIcon: "<img src='https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_metal_" + data[i].move_type.toLowerCase() +".png'></img>"
+					pokeTypeIcon: "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_metal_" + data[i].move_type.toLowerCase() +".png"
 				};
 
 				FAST_MOVE_DATA.push(move);
@@ -154,7 +154,7 @@ $.ajax({
 					energyDelta: -Math.abs(parseInt(data[i].energy_cost)),
 					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000,
 					duration: parseFloat(data[i].cooldown)*1000,
-					pokeTypeIcon: "<img src='https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + data[i].move_type.toLowerCase() +".png'></img>"
+					pokeTypeIcon: "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + data[i].move_type.toLowerCase() +".png"
 				};
 
 				CHARGED_MOVE_DATA.push(move);

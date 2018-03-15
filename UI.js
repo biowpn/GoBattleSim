@@ -41,7 +41,6 @@ var MasterSummaryTableHeaders = {};
 var MasterSummaryTableMetricsFilterOrder = [];
 
 
-
 /* 
  * UI CORE FUNCTIONS 
  */
@@ -60,9 +59,12 @@ function createNewMetric(metric, nameDisplayed){
 }
 
 
-function createElement(type, innerHTML){
+function createElement(type, innerHTML, attrsAndValues){
 	var e = document.createElement(type);
 	e.innerHTML = innerHTML;
+	for (var attr in attrsAndValues){
+		e.setAttribute(attr, attrsAndValues[attr]);
+	}
 	return e;
 }
 
@@ -77,12 +79,13 @@ function createRow(rowData, type){
 	return row;
 }
 
-function pokemon_img_by_id(dex, size){
+function pokemon_icon_url_by_dex(dex, size){
+	dex = Math.max(0, dex);
 	size = size || "MS";
 	var dex_string = dex.toString();
 	while (dex_string.length < 3)
 		dex_string = "0" + dex_string;
-	return "<img src='https://pokemongo.gamepress.gg/assets/img/sprites/" + dex_string + size + ".png'></img>";
+	return "https://pokemongo.gamepress.gg/assets/img/sprites/" + dex_string + size + ".png";
 }
 
 function toTitleCase(str)
@@ -131,19 +134,60 @@ function writeUserInputFromUrl(url){
 
 function createAttackerNode(){
 	var pokemonNode = document.createElement("div");
-	pokemonNode.appendChild(document.createElement("div")); // head, contain the label of this Pokemon
+	pokemonNode.appendChild(document.createElement("div")); // head
 	pokemonNode.appendChild(document.createElement("div")); // body, contain species/moves/etc configurations
-	pokemonNode.appendChild(document.createElement("div")); // tail, contain controls
+	pokemonNode.appendChild(document.createElement("div")); // tail
 	
 	// 1. Head
-	pokemonNode.children[0].innerHTML = "<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>";
-
+	// pokemonNode.children[0].appendChild(createElement('img','',{src: 'https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'}));
+	// var controlButtonDiv = document.createElement('div');
+	// controlButtonDiv.setAttribute('class', 'pokemon-control-buttons');
+	pokemonNode.children[0].setAttribute('class', 'pokemon-control-buttons');
+	
+	var copyPokemonButton = document.createElement('button');
+	copyPokemonButton.setAttribute('class', 'button-icon button-icon-copy');
+	copyPokemonButton.setAttribute('title', 'Copy');
+	copyPokemonButton.onclick = function(){
+		var pokemonNodeToCopyFrom = document.getElementById('ui-pokemon-' + this.id.split(':')[1]);
+		atkrCopyPasteClipboard = parseAttackerNode(pokemonNodeToCopyFrom);
+	}
+	
+	var pastePokemonButton = document.createElement('button');
+	pastePokemonButton.setAttribute('class', 'button-icon button-icon-paste');
+	pastePokemonButton.setAttribute('title', 'Paste');
+	pastePokemonButton.onclick = function(){
+		var pokemonNodeToPasteTo = document.getElementById('ui-pokemon-' + this.id.split(':')[1]);
+		writeAttackerNode(pokemonNodeToPasteTo, atkrCopyPasteClipboard);
+	}
+	
+	var removePokemonButton = document.createElement('button');
+	removePokemonButton.setAttribute('class', 'button-icon button-icon-close');
+	removePokemonButton.setAttribute('title', 'Remove');
+	removePokemonButton.onclick = function(){
+	var pokemonNodeToRemove = document.getElementById('ui-pokemon-' + this.id.split(':')[1]);
+	if (pokemonNodeToRemove.parentNode.children.length > 1){
+			pokemonNodeToRemove.parentNode.removeChild(pokemonNodeToRemove);
+			relabelAll();
+		}else{
+			send_feedback("Cannot remove the only Pokemon of the party.");
+		}
+	}
+	pokemonNode.children[0].appendChild(copyPokemonButton);
+	pokemonNode.children[0].appendChild(pastePokemonButton);
+	pokemonNode.children[0].appendChild(removePokemonButton);
+	
+	
 	// 2. Body
+	pokemonNode.children[1].setAttribute('class', 'section-body');
 	var tb1 = createElement("table", "<colgroup><col width=75%><col width=25%></colgroup>");
 	tb1.appendChild(createRow(['',''],'td'));
-	tb1.children[1].children[0].innerHTML = "<input type='text' placeholder='Species'>";
-	tb1.children[1].children[1].innerHTML = "<input type='number' placeholder='Copies' min='1' max='6'>";
-	tb1.children[1].children[1].children[0].value = 1;
+	
+	tb1.children[1].children[0].appendChild(createElement('input','',{
+		type: 'text', placeholder: 'Species', class: 'input-with-icon species-input-with-icon', style: 'background-image: url('+pokemon_icon_url_by_dex(0)+')'
+	}));
+	tb1.children[1].children[1].appendChild(createElement('input','',{
+		type: 'number', placeholder: 'Copies', min: 1, max: 6, value: 1
+	}));
 	tb1.children[1].children[1].children[0].onchange = function(){
 		var addrIndices = this.id.split('-');
 		var pokemonCount = countPokemonFromParty(addrIndices[2] + '-' + addrIndices[3]);
@@ -162,42 +206,21 @@ function createAttackerNode(){
 
 	var tb3 = createElement("table", "<colgroup><col width=35%><col width=35%><col width=30%></colgroup>");
 	tb3.appendChild(createRow(['','',''],'td'));
-	tb3.children[1].children[0].innerHTML = "<input type='text' placeholder='Fast Move'>";
-	tb3.children[1].children[1].innerHTML = "<input type='text' placeholder='Charged Move'>";
-	tb3.children[1].children[2].innerHTML = "<select><option value='0'>No Dodge</option><option value='1'>Dodge Charged</option><option value='2'>Dodge All</option></select></td>";
+	tb3.children[1].children[0].appendChild(createElement('input','',{
+		type: 'text', placeholder: 'Fast Move', class: 'input-with-icon move-input-with-icon', style: 'background-image: url()'
+	}));
+	tb3.children[1].children[1].appendChild(createElement('input','',{
+		type: 'text', placeholder: 'Charged Move', class: 'input-with-icon move-input-with-icon', style: 'background-image: url()'
+	}));
+
+	tb3.children[1].children[2].innerHTML = "<select><option value='0'>No Dodge</option><option value='1'>Dodge Charged</option><option value='2'>Dodge All</option></select>";
 	
 	pokemonNode.children[1].appendChild(tb1);
 	pokemonNode.children[1].appendChild(tb2);
 	pokemonNode.children[1].appendChild(tb3);
 	
 	// 3. Tail
-	pokemonNode.children[2].style = 'width:100%';
-	var copyPokemonButton = createElement("button", "Copy");
-	copyPokemonButton.style = 'width:25%';
-	copyPokemonButton.onclick = function(){
-		var pokemonNodeToCopyFrom = document.getElementById('ui-pokemon-' + this.id.split(':')[1]);
-		atkrCopyPasteClipboard = parseAttackerNode(pokemonNodeToCopyFrom);
-	}
-	var pastePokemonButton = createElement("button", "Paste");
-	pastePokemonButton.style = 'width:25%';
-	pastePokemonButton.onclick = function(){
-		var pokemonNodeToPasteTo = document.getElementById('ui-pokemon-' + this.id.split(':')[1]);
-		writeAttackerNode(pokemonNodeToPasteTo, atkrCopyPasteClipboard);
-	}
-	var removePokemonButton = createElement("button", "Remove Pokemon");
-	removePokemonButton.style = 'width:50%';
-	removePokemonButton.onclick = function(){
-var pokemonNodeToRemove = document.getElementById('ui-pokemon-' + this.id.split(':')[1]);
-if (pokemonNodeToRemove.parentNode.children.length > 1){
-			pokemonNodeToRemove.parentNode.removeChild(pokemonNodeToRemove);
-			relabelAll();
-		}else{
-			send_feedback("Cannot remove the only Pokemon of the party.");
-		}
-	}
-	pokemonNode.children[2].appendChild(copyPokemonButton);
-	pokemonNode.children[2].appendChild(pastePokemonButton);
-	pokemonNode.children[2].appendChild(removePokemonButton);
+	
 	
 	return pokemonNode;
 }
@@ -326,18 +349,17 @@ function relabelAll(){
 				var pokemonNode = pokemonNodes[k];
 				pokemonNode.id = 'ui-pokemon-' + i + '-' + j + '-' + k;
 				
+				pokemonNode.children[0].id = 'ui-pokemonhead-' + i + '-' + j + '-' + k;
+				pokemonNode.children[0].children[0].id = 'copy_pokemon:' + i + '-' + j + '-' + k;
+				pokemonNode.children[0].children[1].id = 'paste_pokemon:' + i + '-' + j + '-' + k;
+				pokemonNode.children[0].children[2].id = 'remove_pokemon:' + i + '-' + j + '-' + k;
+				
 				var tables = pokemonNode.children[1].children;
 				tables[0].children[1].children[0].children[0].id = 'ui-species-' + i + '-' + j + '-' + k;
 				tables[0].children[1].children[1].children[0].id = 'ui-copies-' + i + '-' + j + '-' + k;
 				tables[2].children[1].children[0].children[0].id = 'ui-fmove-' + i + '-' + j + '-' + k;
 				tables[2].children[1].children[1].children[0].id = 'ui-cmove-' + i + '-' + j + '-' + k;
-				
-				pokemonNode.children[2].id = 'ui-pokemontail-' + i + '-' + j + '-' + k;
-				pokemonNode.children[2].children[0].id = 'copy_pokemon:' + i + '-' + j + '-' + k;
-				pokemonNode.children[2].children[1].id = 'paste_pokemon:' + i + '-' + j + '-' + k;
-				pokemonNode.children[2].children[2].id = 'remove_pokemon:' + i + '-' + j + '-' + k;
-				$( '#ui-pokemontail-' + i + '-' + j + '-' + k ).controlgroup();
-				
+
 				autocompletePokemonNode(i + '-' + j + '-' + k);
 			}
 			$( '#ui-partybody-' + i + '-' + j ).sortable({axis: 'y'});
@@ -374,11 +396,17 @@ function createDefenderNode(){
 	defenderNode.appendChild(document.createElement("div")); // body, contain Party Nodes
 	defenderNode.appendChild(document.createElement("div")); // tail, contain controls
 	
+	// 1. Head
+	// defenderNode.children[0].appendChild(createElement('img'));
+	
 	
 	// 2. Body
 	var tb1 = createElement("table", "<colgroup><col width=100%></colgroup>");
 	tb1.appendChild(createRow(['']));
-	tb1.children[1].children[0].innerHTML = "<input type='text' placeholder='Species' id='ui-species-d'>";
+	tb1.children[1].children[0].appendChild(createElement('input','',{
+		type: 'text', placeholder: 'Species', class: 'input-with-icon species-input-with-icon', id: 'ui-species-d',
+		style: 'background-image: url('+pokemon_icon_url_by_dex(0)+')'
+	}));
 
 	// By default, set to raid mode input
 	var tb2 = createElement("table", "<colgroup><col width=100%></colgroup>");
@@ -396,8 +424,12 @@ function createDefenderNode(){
 	
 	var tb3 = createElement("table", "<colgroup><col width=50%><col width=50%></colgroup>");
 	tb3.appendChild(createRow(['','']));
-	tb3.children[1].children[0].innerHTML = "<input type='text' placeholder='Fast Move' id='ui-fmove-d'>";
-	tb3.children[1].children[1].innerHTML = "<input type='text' placeholder='Charged Move' id='ui-cmove-d'>";
+	tb3.children[1].children[0].appendChild(createElement('input','',{
+		type: 'text', placeholder: 'Fast Move', class: 'input-with-icon move-input-with-icon', id: 'ui-fmove-d', style: 'background-image: url()'
+	}));
+	tb3.children[1].children[1].appendChild(createElement('input','',{
+		type: 'text', placeholder: 'Charged Move', class: 'input-with-icon move-input-with-icon', id: 'ui-cmove-d', style: 'background-image: url()'
+	}));
 	
 	defenderNode.children[1].appendChild(tb1);
 	defenderNode.children[1].appendChild(tb2);
@@ -438,8 +470,8 @@ function updateDefenderNode(){
 	}
 }
 
-function createIconLabelDiv(icon, label, iconClass){
-	return "<div class='" + iconClass + "'>" + icon + "</div><div class='apitem-label'>" + label + "</div>";
+function createIconLabelDiv(iconURL, label, iconClass){
+	return "<div class='" + iconClass + "'>" + "<img src='"+iconURL+"'></img>" + "</div><div class='apitem-label'>" + label + "</div>";
 }
 
 
@@ -456,7 +488,6 @@ function manual_render_autocomplete_move_item(ul, item){
         .appendTo( ul );
 }
 
-
 function autocompletePokemonNode(address){
 	const address_const = address;
 	
@@ -471,37 +502,28 @@ function autocompletePokemonNode(address){
 		source : POKEMON_SPECIES_OPTIONS,
 		select : function(event, ui) {
 			this.value = ui.item.value;
-			var inputStr = this.value.trim();
-			var species_idx = get_species_index_by_name(inputStr);
+			$(this).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item:{value:$(this).val()}});
+		},
+		change : function (event, ui){
 			var thisPokemonNode = document.getElementById('ui-pokemon-' + address_const);
+			var inputStr = this.value;
+			var species_idx = get_species_index_by_name(inputStr), dex = 0;
 			if (inputStr[0] == '$'){
 				var box_idx = parseInt(inputStr.slice(1).split(' ')[0]);
-				species_idx = get_species_index_by_name(USER_POKEBOX[box_idx].species);
-				if (address_const != 'd')
-					writeAttackerNode(thisPokemonNode, USER_POKEBOX[box_idx]);
-				else
-					writeDefenderNode(thisPokemonNode, USER_POKEBOX[box_idx]);
-			}
-			thisPokemonNode.children[0].innerHTML = pokemon_img_by_id(POKEMON_SPECIES_DATA[species_idx].dex);
-			autocompletePokemonNodeMoves(address_const, species_idx);
-		},
-		change : function(event, ui){
-			var inputStr = this.value.trim();
-			var species_idx = get_species_index_by_name(inputStr);
-			var thisPokemonNode = document.getElementById('ui-pokemon-' + address_const);
-			if (species_idx >= 0){
-				thisPokemonNode.children[0].innerHTML = pokemon_img_by_id(POKEMON_SPECIES_DATA[species_idx].dex);
-				autocompletePokemonNodeMoves(address_const, species_idx);
-				return;
-			}else if (inputStr[0] == '$'){
-				var box_idx = parseInt(this.value.slice(1).split(' ')[0]);
-				if (box_idx >= 0 && box_idx <= USER_POKEBOX.length)
+				if (box_idx >= 0 && box_idx <= USER_POKEBOX.length){
 					species_idx = get_species_index_by_name(USER_POKEBOX[box_idx].species);
+					if (address_const != 'd')
+						writeAttackerNode(thisPokemonNode, USER_POKEBOX[box_idx]);
+					else
+						writeDefenderNode(thisPokemonNode, USER_POKEBOX[box_idx]);
+				}
 			}
-			if (species_idx < 0){
-				thisPokemonNode.children[0].innerHTML = "<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>";
-				autocompletePokemonNodeMoves(address_const, -1);
+			if (species_idx >= 0){
+				dex = POKEMON_SPECIES_DATA[species_idx].dex;
 			}
+			document.getElementById('ui-species-' + address_const).setAttribute('style', 
+				'background-image: url('+pokemon_icon_url_by_dex(dex)+')');
+			autocompletePokemonNodeMoves(address_const, species_idx);
 		}
 	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_pokemon_item;
 	
@@ -550,16 +572,44 @@ function autocompletePokemonNodeMoves(address, species_idx){
 		thisChargedMoveOptions = CHARGED_MOVE_OPTIONS;
 	}
 	
+	const address_const = address;
+	
 	$( '#ui-fmove-' + address ).autocomplete({
 		minLength : 0,
 		delay : 0,
-		source: thisFastMoveOptions
+		source: thisFastMoveOptions,
+		select : function(event, ui) {
+			this.value = ui.item.value;
+			$(this).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item:{value:$(this).val()}});
+		},
+		change : function(event, ui) {
+			var inputStr = this.value;
+			var move_idx = get_fmove_index_by_name(inputStr);
+			if (move_idx >= 0){
+				this.setAttribute('style', 'background-image: url(' + FAST_MOVE_DATA[move_idx].pokeTypeIcon + ')');
+			}else{
+				this.setAttribute('style', 'background-image: url()');
+			}
+		}
 	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_move_item;
 	
 	$( '#ui-cmove-' + address ).autocomplete({
 		minLength : 0,
 		delay : 0,
-		source: thisChargedMoveOptions
+		source: thisChargedMoveOptions,
+		select : function(event, ui) {
+			this.value = ui.item.value;
+			$(this).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item:{value:$(this).val()}});
+		},
+		change : function(event, ui) {
+			var inputStr = this.value;
+			var move_idx = get_cmove_index_by_name(inputStr);
+			if (move_idx >= 0){
+				this.setAttribute('style', 'background-image: url(' + CHARGED_MOVE_DATA[move_idx].pokeTypeIcon + ')');
+			}else{
+				this.setAttribute('style', 'background-image: url()');
+			}
+		}
 	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_move_item;
 	
 	$( '#ui-fmove-' + address ).bind("focus", function(){$(this).autocomplete("search", "");});
@@ -737,9 +787,10 @@ function writeAttackerNode(node, pkmConfig){
 	
 	var species_idx = get_species_index_by_name(pkmConfig.species);
 	if (species_idx < 0){
-		node.children[0].innerHTML = "<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>";
+		row1.children[0].children[0].setAttribute('style', 'background-image: url('+pokemon_icon_url_by_dex(0)+')');
 	}else{
-		node.children[0].innerHTML = pokemon_img_by_id(POKEMON_SPECIES_DATA[species_idx].dex);
+		row1.children[0].children[0].setAttribute('style', 
+			'background-image: url('+pokemon_icon_url_by_dex(POKEMON_SPECIES_DATA[species_idx].dex)+')');
 	}
 	
 	row1.children[1].children[0].value = pkmConfig.copies;
@@ -747,8 +798,14 @@ function writeAttackerNode(node, pkmConfig){
 	row2.children[1].children[0].value = pkmConfig.stmiv;
 	row2.children[2].children[0].value = pkmConfig.atkiv;
 	row2.children[3].children[0].value = pkmConfig.defiv;
+	
 	row3.children[0].children[0].value = toTitleCase(pkmConfig.fmove);
+	row3.children[0].children[0].setAttribute('style', 
+		"background-image: url(" + FAST_MOVE_DATA[get_fmove_index_by_name(pkmConfig.fmove)].pokeTypeIcon + ')');
 	row3.children[1].children[0].value = toTitleCase(pkmConfig.cmove);
+	row3.children[1].children[0].setAttribute('style', 
+		"background-image: url(" + CHARGED_MOVE_DATA[get_cmove_index_by_name(pkmConfig.cmove)].pokeTypeIcon + ')');
+	
 	row3.children[2].children[0].value = pkmConfig.dodge;
 }
 
@@ -790,13 +847,18 @@ function writeDefenderNode(node, pkmConfig, raidTier){
 	
 	var species_idx = get_species_index_by_name(pkmConfig.species);
 	if (species_idx < 0){
-		node.children[0].innerHTML = "<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>";
+		row1.children[0].children[0].setAttribute('style', 'background-image: url('+pokemon_icon_url_by_dex(0)+')');
 	}else{
-		node.children[0].innerHTML = pokemon_img_by_id(POKEMON_SPECIES_DATA[species_idx].dex);
+		row1.children[0].children[0].setAttribute('style', 'background-image: url('+pokemon_icon_url_by_dex(POKEMON_SPECIES_DATA[species_idx].dex)+')');
 	}
 	
 	row3.children[0].children[0].value = toTitleCase(pkmConfig['fmove']);
+	row3.children[0].children[0].setAttribute('style', 
+		"background-image: url(" + FAST_MOVE_DATA[get_fmove_index_by_name(pkmConfig.fmove)].pokeTypeIcon + ')');
 	row3.children[1].children[0].value = toTitleCase(pkmConfig['cmove']);
+	row3.children[1].children[0].setAttribute('style', 
+		"background-image: url(" + CHARGED_MOVE_DATA[get_cmove_index_by_name(pkmConfig.cmove)].pokeTypeIcon + ')');
+	
 	if (document.getElementById("battleMode").value == "gym"){
 		row2.children[0].children[0].value = pkmConfig['level'];
 		row2.children[1].children[0].value = pkmConfig['stmiv'];
@@ -1196,7 +1258,7 @@ function createPlayerStatisticsString(playerStat){
 
 function createPokemonStatisticsTable(pokemonStats){
 	var table = document.createElement("table");
-	table.appendChild(createRow(["<img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img>",
+	table.appendChild(createRow(["<img src='" + pokemon_icon_url_by_dex(0) + "'></img>",
 								"HP",
 								"Energy",
 								"TDO",
@@ -1205,7 +1267,8 @@ function createPokemonStatisticsTable(pokemonStats){
 								"TEW"],"th"));
 	for (var i = 0; i < pokemonStats.length; i++){
 		var ps = pokemonStats[i];
-		table.appendChild(createRow([ps.img, ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, ps.tew],"td"));
+		table.appendChild(createRow(["<img src='" + pokemon_icon_url_by_dex(POKEMON_SPECIES_DATA[ps.index].dex) + "'></img>", 
+			ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, ps.tew],"td"));
 	}
 	return table;
 }
@@ -1355,7 +1418,7 @@ function createBattleLogTable(log, playerCount){
 			var fragments = rawEntry[attr].toString().split(':');
 			if (fragments[0] == 'pokemon'){
 				var pkmInfo = POKEMON_SPECIES_DATA[parseInt(fragments[1])];
-				rawEntry[attr] = pkmInfo.icon;
+				rawEntry[attr] = "<img src='" + pkmInfo.icon + "'></img>";
 			}else if (fragments[0] == 'fmove'){
 				var moveInfo = FAST_MOVE_DATA[parseInt(fragments[1])];
 				rawEntry[attr] = createIconLabelDiv(moveInfo.pokeTypeIcon, toTitleCase(moveInfo.name), 'apitem-move-icon');
