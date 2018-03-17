@@ -10,6 +10,8 @@ var DODGE_COOLDOWN_MS = 500;
 var DODGEWINDOW_LENGTH_MS = 700;
 var DODGED_DAMAGE_REDUCTION_PERCENT = 0.75;
 var ARENA_ENTRY_LAG_MS = 3000;
+var FAST_MOVE_LAG_MS = 25;
+var CHARGED_MOVE_LAG_MS = 100;
 var SWITCHING_DELAY_MS = 750;
 var TIMELIMIT_GYM_MS = 100000;
 var REJOIN_TIME_MS = 7000;
@@ -421,6 +423,7 @@ function World(cfg){
 
 // Player's Pokemon uses a move
 World.prototype.atkr_use_move = function(pkm, pkm_hurt, move, t){
+	t += move.moveType == 'f' ? FAST_MOVE_LAG_MS : CHARGED_MOVE_LAG_MS;
 	var dmg = damage(pkm, pkm_hurt, move, this.weather);
 	this.tline.enqueue(new Event("Hurt", t + move.dws, pkm_hurt, pkm, move, dmg, 0));
 	this.tline.enqueue(new Event("EnergyDelta", t + move.dws, pkm, 0, 0, 0, move.energyDelta));
@@ -447,10 +450,10 @@ World.prototype.enqueueActions = function(pkm, pkm_hurt, t, actions){
 	for (var i = 0; i < actions.length; i++){
 		if (actions[i] == 'f'){ // Use fast move
 			this.tline.enqueue(new Event("Announce", tFree, pkm, pkm_hurt, pkm.fmove, 0, 0));
-			tFree += pkm.fmove.duration;
+			tFree += pkm.fmove.duration + FAST_MOVE_LAG_MS;
 		} else if (actions[i] == 'c'){ // Use charge move
 			this.tline.enqueue(new Event("Announce", tFree, pkm, pkm_hurt, pkm.cmove, 0, 0));
-			tFree += pkm.cmove.duration;
+			tFree += pkm.cmove.duration + CHARGED_MOVE_LAG_MS;
 		} else if (actions[i] == 'd'){ // dodge
 			this.tline.enqueue(new Event("Dodge", tFree, pkm, 0, 0, 0, 0));
 			tFree += DODGE_COOLDOWN_MS;
@@ -534,15 +537,15 @@ World.prototype.atkr_choose = function (pkm, t){
 			if (pkm.HP > dodgedDmg){
 				// (a) if this Pokemon can survive the dodged damage, then it's better to dodge
 				var res = strategyMaxDmg(timeTillHurt, pkm.energy, fDmg, pkm.fmove.energyDelta, 
-										pkm.fmove.duration, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration);
+										pkm.fmove.duration + FAST_MOVE_LAG_MS, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration + CHARGED_MOVE_LAG_MS);
 				return res[2].concat([Math.max(timeTillHurt - DODGEWINDOW_LENGTH_MS - res[1], 0), 'd']);
 			} else{
 				// (b) otherwise, just don't bother to dodge, and YOLO!
 				// Compare two strategies: a FMove at the end (resF) or a CMove at the end (resC) by exploiting DWS
-				var resF = strategyMaxDmg(timeTillHurt - pkm.fmove.dws, pkm.energy, fDmg, pkm.fmove.energyDelta, 
-										pkm.fmove.duration, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration);
-				var resC = strategyMaxDmg(timeTillHurt - pkm.cmove.dws, pkm.energy + pkm.cmove.energyDelta, fDmg, pkm.fmove.energyDelta, 
-										pkm.fmove.duration, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration);
+				var resF = strategyMaxDmg(timeTillHurt - pkm.fmove.dws - FAST_MOVE_LAG_MS, pkm.energy, fDmg, pkm.fmove.energyDelta, 
+										pkm.fmove.duration + FAST_MOVE_LAG_MS, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration + CHARGED_MOVE_LAG_MS);
+				var resC = strategyMaxDmg(timeTillHurt - pkm.cmove.dws - CHARGED_MOVE_LAG_MS, pkm.energy + pkm.cmove.energyDelta, fDmg, pkm.fmove.energyDelta, 
+										pkm.fmove.duration + FAST_MOVE_LAG_MS, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration + CHARGED_MOVE_LAG_MS);
 				if (resC[0] + cDmg > resF[0] + fDmg && resC[1] >= 0){ 
 					// Use a cmove at the end is better, on the condition that it obeys the energy rule
 					return resC[2].concat('c');

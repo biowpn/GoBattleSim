@@ -12211,7 +12211,7 @@ $(document).ready(function(){
 								}]
 							}]
 						}],
-		dfdrSettings : {	
+		dfdrSettings : {
 							species: "Tyranitar", 
 							fmove: "Bite",
 							cmove: "Fire Blast",

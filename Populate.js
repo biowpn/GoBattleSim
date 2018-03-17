@@ -85,7 +85,7 @@ var USER_POKEBOX_FETCHED = false;
 
 // Read Pokemon Data
 $.ajax({ 
-	url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pokemon-data-full.json', 
+	url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pokemon-data-full.json?new', 
 	dataType: 'json', 
 	success: function(data){
 		for(var i = 0; i < data.length; i++){
@@ -128,7 +128,7 @@ $.ajax({
 
 // Read move data
 $.ajax({
-	url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/move-data-full.json', 
+	url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/move-data-full.json?new', 
 	dataType: 'json', 
 	success: function(data){
 		for(var i = 0; i < data.length; i++){
@@ -141,9 +141,8 @@ $.ajax({
 					energyDelta: Math.abs(parseInt(data[i].energy_gain)),
 					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
 					duration: parseFloat(data[i].cooldown)*1000,
-					pokeTypeIcon: "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_metal_" + data[i].move_type.toLowerCase() +".png"
+					pokeTypeIcon: "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + data[i].move_type.toLowerCase() +".png"
 				};
-
 				FAST_MOVE_DATA.push(move);
 			}else if (data[i].move_category == "Charge Move"){
 				var move = {
@@ -156,13 +155,16 @@ $.ajax({
 					duration: parseFloat(data[i].cooldown)*1000,
 					pokeTypeIcon: "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + data[i].move_type.toLowerCase() +".png"
 				};
-
 				CHARGED_MOVE_DATA.push(move);
 			}else{
 				console.log("Unrecogized move type:");
 				console.log(data[i]);
 			}
 		}
+		// Temporary fixing Frenzy Plant as the json file hasn't been updated
+		try{
+			CHARGED_MOVE_DATA[get_cmove_index_by_name('frenzy plant')].duration = 2800;
+		}catch(err){}
 		MOVE_DATA_FETCHED = true;
 	},
 	complete: function(jqXHR, textStatus){
@@ -179,7 +181,7 @@ $(document).ready(function(){
 		populateAll();
 	}else if(userID2){
 		$.ajax({ 
-			url: '/user-pokemon-json-list?uid_raw=' + userID2, 
+			url: '/user-pokemon-json-list?new&uid_raw=' + userID2, 
 			dataType: 'json',
 			success: function(data){ 
 				for (var i = 0; i < data.length; i++){
@@ -219,5 +221,4 @@ $(document).ready(function(){
 		USER_POKEBOX_FETCHED = true;
 		populateAll();
 	}
-	
 });

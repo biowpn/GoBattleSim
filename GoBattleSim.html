@@ -4,6 +4,7 @@
 <link href="https://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/scroller/1.4.4/css/scroller.dataTables.min.css" rel="stylesheet">
+<link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
 
 
 <script type="text/javascript" src="GoBattleSimLib.js"></script>
@@ -41,6 +42,7 @@
 		background-color: white !important;
 		padding-left: 40px !important;
 		background-repeat: no-repeat;
+		text-align: start;
 	}
 	.species-input-with-icon{
 		background-size: 30px 30px;
@@ -64,9 +66,6 @@
 	.ui-button:hover {
 		background-color: #366ea2;
 	}
-	.ui-button:focus{
-		background-color: #3076b2;
-	}
 	
 
 	.player_button {
@@ -81,36 +80,34 @@
 		color: #fff !important;
 		background-color: #366ea2;
 	}
-	.player_button:focus{
-		vertical-align: middle;
-		height: 31.6px;
-		color: #3076b2 !important;
-		background-color: white;
-		border: 1px solid #3076b2;
-		padding: 0px 0px;
+	
+	.section-node-head{
+		height: 30px;
+		padding-bottom: 3px;
+	}
+	.section-pokemon-node-title{
+		font-size: 18;
+		display: inline-block;
+	}
+	.section-party-node-title{
+		font-size: 20;
+		display: inline-block;
+	}
+	.section-player-node-title{
+		font-size: 22;
+		display: inline-block;
 	}
 	
-	.pokemon-control-buttons{
+	.section-buttons-panel{
 		float: right;
-		display: inline;
 	}
 	.button-icon{
+		background-color: transparent;
 		margin: 4px;
 		cursor:pointer;
 		height: 30px;
 		width: 30px;
-	}
-	.button-icon-copy{
-		background: url(https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bw_copy.png) no-repeat;
-	}
-	.button-icon-paste{
-		background: url(https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bw_paste.png) no-repeat;
-	}
-	.button-icon-close{
-		background: url(https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bw_close.png) no-repeat;
-	}
-	
-	
+	}	
 	
 	.ui-checkboxradio-label{
 		color: white;
@@ -174,6 +171,15 @@
 		border-radius: 3px;
 		margin: 10px 0px;
 		border: 1px solid #ddd;
+	}
+	.section-player-node{
+		background: #BED2E1;
+	}
+	.section-party-node{
+		background: #A7C9E3;
+	}
+	.section-pokemon-node{
+		background: #7EB9E6;
 	}
 	
 	.ui-autocomplete {

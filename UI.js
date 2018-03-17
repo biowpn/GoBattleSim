@@ -88,6 +88,14 @@ function pokemon_icon_url_by_dex(dex, size){
 	return "https://pokemongo.gamepress.gg/assets/img/sprites/" + dex_string + size + ".png";
 }
 
+function get_all_moves_by_index(pkmIndex, moveType){
+	return POKEMON_SPECIES_DATA[pkmIndex][moveType + "Moves"].
+		concat(POKEMON_SPECIES_DATA[pkmIndex][moveType + "Moves_legacy"]).
+		concat(POKEMON_SPECIES_DATA[pkmIndex][moveType + "Moves_exclusive"]);
+}
+
+
+
 function toTitleCase(str)
 {
     return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
@@ -134,51 +142,62 @@ function writeUserInputFromUrl(url){
 
 function createAttackerNode(){
 	var pokemonNode = document.createElement("div");
+	pokemonNode.setAttribute('class', 'section-body section-pokemon-node');
 	pokemonNode.appendChild(document.createElement("div")); // head
-	pokemonNode.appendChild(document.createElement("div")); // body, contain species/moves/etc configurations
+	pokemonNode.appendChild(document.createElement("div")); // body
 	pokemonNode.appendChild(document.createElement("div")); // tail
 	
 	// 1. Head
-	// pokemonNode.children[0].appendChild(createElement('img','',{src: 'https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'}));
-	// var controlButtonDiv = document.createElement('div');
-	// controlButtonDiv.setAttribute('class', 'pokemon-control-buttons');
-	pokemonNode.children[0].setAttribute('class', 'pokemon-control-buttons');
+	pokemonNode.children[0].setAttribute('class', 'section-node-head');
+	pokemonNode.children[0].innerHTML = "<span class='section-pokemon-node-title'>Unlabeled Pokemon</span>";
 	
-	var copyPokemonButton = document.createElement('button');
-	copyPokemonButton.setAttribute('class', 'button-icon button-icon-copy');
-	copyPokemonButton.setAttribute('title', 'Copy');
+	var controlButtonDiv = document.createElement('div');
+	controlButtonDiv.setAttribute('class', 'section-buttons-panel');
+	
+	var minimizePokemonButton = createElement('button','<i class="fa fa-minus" aria-hidden="true"></i>',{
+		class: 'button-icon', title: 'Minimize'
+	});
+	minimizePokemonButton.onclick = function(){
+		$('#ui-pokemonbody-' + this.id.split(':')[1]).slideToggle('fast');this.blur();
+	}
+	controlButtonDiv.appendChild(minimizePokemonButton);
+	
+	var copyPokemonButton = createElement('button','<i class="fa fa-files-o" aria-hidden="true"></i>', {
+		class: 'button-icon', title: 'Copy'
+	});
 	copyPokemonButton.onclick = function(){
 		var pokemonNodeToCopyFrom = document.getElementById('ui-pokemon-' + this.id.split(':')[1]);
-		atkrCopyPasteClipboard = parseAttackerNode(pokemonNodeToCopyFrom);
+		atkrCopyPasteClipboard = parseAttackerNode(pokemonNodeToCopyFrom);this.blur();
 	}
+	controlButtonDiv.appendChild(copyPokemonButton);
 	
-	var pastePokemonButton = document.createElement('button');
-	pastePokemonButton.setAttribute('class', 'button-icon button-icon-paste');
-	pastePokemonButton.setAttribute('title', 'Paste');
+	var pastePokemonButton = createElement('button','<i class="fa fa-clipboard" aria-hidden="true"></i>', {
+		class: 'button-icon', title: 'Paste'
+	});
 	pastePokemonButton.onclick = function(){
 		var pokemonNodeToPasteTo = document.getElementById('ui-pokemon-' + this.id.split(':')[1]);
-		writeAttackerNode(pokemonNodeToPasteTo, atkrCopyPasteClipboard);
+		writeAttackerNode(pokemonNodeToPasteTo, atkrCopyPasteClipboard);this.blur();
 	}
+	controlButtonDiv.appendChild(pastePokemonButton);
 	
-	var removePokemonButton = document.createElement('button');
-	removePokemonButton.setAttribute('class', 'button-icon button-icon-close');
-	removePokemonButton.setAttribute('title', 'Remove');
+	var removePokemonButton = createElement('button', '<i class="fa fa-times" aria-hidden="true"></i>', {
+		class: 'button-icon', title: 'Remove'
+	});
 	removePokemonButton.onclick = function(){
-	var pokemonNodeToRemove = document.getElementById('ui-pokemon-' + this.id.split(':')[1]);
-	if (pokemonNodeToRemove.parentNode.children.length > 1){
+		var pokemonNodeToRemove = document.getElementById('ui-pokemon-' + this.id.split(':')[1]);
+		if (pokemonNodeToRemove.parentNode.children.length > 1){
 			pokemonNodeToRemove.parentNode.removeChild(pokemonNodeToRemove);
 			relabelAll();
 		}else{
 			send_feedback("Cannot remove the only Pokemon of the party.");
 		}
+		this.blur();
 	}
-	pokemonNode.children[0].appendChild(copyPokemonButton);
-	pokemonNode.children[0].appendChild(pastePokemonButton);
-	pokemonNode.children[0].appendChild(removePokemonButton);
+	controlButtonDiv.appendChild(removePokemonButton);
 	
+	pokemonNode.children[0].appendChild(controlButtonDiv);
 	
 	// 2. Body
-	pokemonNode.children[1].setAttribute('class', 'section-body');
 	var tb1 = createElement("table", "<colgroup><col width=75%><col width=25%></colgroup>");
 	tb1.appendChild(createRow(['',''],'td'));
 	
@@ -227,20 +246,49 @@ function createAttackerNode(){
 
 function createPartyNode(){
 	var partyNode = document.createElement("div");
-	partyNode.appendChild(document.createElement("div")); // head, contain the label of this Party
-	partyNode.appendChild(document.createElement("div")); // body, contain Pokemon Nodes
-	partyNode.appendChild(document.createElement("div")); // tail, contain controls
+	partyNode.setAttribute('class', 'section-body section-party-node');
+	partyNode.appendChild(document.createElement("div")); // head
+	partyNode.appendChild(document.createElement("div")); // body
+	partyNode.appendChild(document.createElement("div")); // tail
 	
 	// 1. Head
-	partyNode.children[0].innerHTML = "<h4>Unlabeled Party</h4>";
+	partyNode.children[0].setAttribute('class', 'section-node-head');
+	partyNode.children[0].innerHTML = "<span class='section-party-node-title'>Unlabeled Party</span>";
+	
+	var controlButtonDiv = document.createElement('div');
+	controlButtonDiv.setAttribute('class', 'section-buttons-panel');
+	
+	var minimizePartyButton = createElement('button','<i class="fa fa-minus" aria-hidden="true"></i>',{
+		class: 'button-icon', title: 'Minimize'
+	});
+	minimizePartyButton.onclick = function(){
+		$('#ui-partybody-' + this.id.split(':')[1]).slideToggle('fast');this.blur();
+	}
+	controlButtonDiv.appendChild(minimizePartyButton);
+	
+	var removePartyButton = createElement('button','<i class="fa fa-times" aria-hidden="true"></i>',{
+		class: 'button-icon', title: 'Remove'
+	});
+	removePartyButton.onclick = function(){
+		var partyNodeToRemove = document.getElementById('ui-party-' + this.id.split(':')[1]);
+		if (partyNodeToRemove.parentNode.children.length > 1){
+			partyNodeToRemove.parentNode.removeChild(partyNodeToRemove);
+			relabelAll();
+		}else{
+			send_feedback("Cannot remove the only party of the player.");
+		}
+		this.blur();
+	}
+	controlButtonDiv.appendChild(removePartyButton);
+	
+	partyNode.children[0].appendChild(controlButtonDiv);
 	
 	// 2. Body
-	partyNode.children[1].setAttribute('class', 'section-body');
 	partyNode.children[1].appendChild(createAttackerNode());
 	
 	// 3. Tail
 	partyNode.children[2].style = "width:100%";
-	partyNode.children[2].innerHTML = "<label style='width:25%'>Max Revive<input type='checkbox'></label>";
+	partyNode.children[2].innerHTML = "<label style='width:50%'>Max Revive<input type='checkbox'></label>";
 	
 	var addPokemonButton = createElement("button", "Add Pokemon");
 	addPokemonButton.style = "width:50%";
@@ -252,54 +300,39 @@ function createPartyNode(){
 		}else{
 			send_feedback("Exceeding Maximum number of Pokemon per party.");
 		}
+		this.blur();
 	}
-	var removePartyButton = createElement("button", "Remove Party");
-	removePartyButton.style = "width:25%";
-	removePartyButton.onclick = function(){
-		var partyNodeToRemove = document.getElementById('ui-party-' + this.id.split(':')[1]);
-		if (partyNodeToRemove.parentNode.children.length > 1){
-			partyNodeToRemove.parentNode.removeChild(partyNodeToRemove);
-			relabelAll();
-		}else{
-			send_feedback("Cannot remove the only party of the player.");
-		}
-	}
+	
 	partyNode.children[2].appendChild(addPokemonButton);
-	partyNode.children[2].appendChild(removePartyButton);
 	
 	return partyNode;
 }
 
 function createPlayerNode(){
 	var playerNode = document.createElement("div");
-	playerNode.appendChild(document.createElement("div")); // head, contain the label of this Player
-	playerNode.appendChild(document.createElement("div")); // body, contain Party Nodes
-	playerNode.appendChild(document.createElement("div")); // tail, contain controls
+	playerNode.setAttribute('class', 'section-body section-player-node');
+	playerNode.appendChild(document.createElement("div")); // head
+	playerNode.appendChild(document.createElement("div")); // body
+	playerNode.appendChild(document.createElement("div")); // tail
 	
 	// 1. Head
-	playerNode.children[0].innerHTML = "<h3>Unlabeled Player</h3>";
+	playerNode.children[0].setAttribute('class', 'section-node-head');
+	playerNode.children[0].innerHTML = "<span class='section-player-node-title'>Unlabeled Player</span>";
 	
-	// 2. Body
-	playerNode.children[1].setAttribute('class', 'section-body');
-	playerNode.children[1].appendChild(createPartyNode());
+	var controlButtonDiv = document.createElement('div');
+	controlButtonDiv.setAttribute('class', 'section-buttons-panel');
 	
-	// 3. Tail
-	playerNode.children[2].style = "width:100%";
-
-	
-	var addPartyButton = createElement("button", "Add Party");
-	addPartyButton.style = "width:50%";
-	addPartyButton.onclick = function(){
-		var playerNodeToAddPartyTo = document.getElementById('ui-player-' + this.id.split(':')[1]);
-		if(playerNodeToAddPartyTo.children[1].children.length < MAX_NUM_PARTIES_PER_PLAYER){
-				playerNodeToAddPartyTo.children[1].appendChild(createPartyNode());
-				relabelAll();
-		}else{
-			send_feedback("Exceeding Maximum number of Parties per player.");
-		}
+	var minimizePlayerButton = createElement('button','<i class="fa fa-minus" aria-hidden="true"></i>',{
+		class: 'button-icon', title: 'Minimize'
+	});
+	minimizePlayerButton.onclick = function(){
+		$('#ui-playerbody-' + this.id.split(':')[1]).slideToggle('fast');this.blur();
 	}
-	var removePlayerButton = createElement("button", "Remove Player");
-	removePlayerButton.style = "width:50%";
+	controlButtonDiv.appendChild(minimizePlayerButton);
+	
+	var removePlayerButton = createElement('button','<i class="fa fa-times" aria-hidden="true"></i>',{
+		class: 'button-icon', title: 'Remove'
+	});
 	removePlayerButton.onclick = function(){
 		if (document.getElementById('ui-attackerinputbody').children.length > 1){
 			var playerNodeToRemove = document.getElementById('ui-player-' + this.id.split(':')[1]);
@@ -309,9 +342,30 @@ function createPlayerNode(){
 		}else{
 			send_feedback("Cannot remove the only player");
 		}
+		this.blur();
+	}
+	controlButtonDiv.appendChild(removePlayerButton);
+	
+	playerNode.children[0].appendChild(controlButtonDiv);
+	
+	// 2. Body
+	playerNode.children[1].appendChild(createPartyNode());
+	
+	// 3. Tail
+	playerNode.children[2].style = "width:100%";
+	var addPartyButton = createElement("button", "Add Party");
+	//addPartyButton.style = "width:50%";
+	addPartyButton.onclick = function(){
+		var playerNodeToAddPartyTo = document.getElementById('ui-player-' + this.id.split(':')[1]);
+		if(playerNodeToAddPartyTo.children[1].children.length < MAX_NUM_PARTIES_PER_PLAYER){
+				playerNodeToAddPartyTo.children[1].appendChild(createPartyNode());
+				relabelAll();
+		}else{
+			send_feedback("Exceeding Maximum number of Parties per player.");
+		}
+		this.blur();
 	}
 	playerNode.children[2].appendChild(addPartyButton);
-	playerNode.children[2].appendChild(removePlayerButton);
 	
 	return playerNode;
 }
@@ -334,6 +388,8 @@ function relabelAll(){
 		playerNode.id = 'ui-player-' + i;
 		
 		playerNode.children[0].children[0].innerHTML = "Player " + (i+1);
+		playerNode.children[0].children[1].children[0].id = 'minimize_player:' + i;
+		playerNode.children[0].children[1].children[1].id = "remove_player:" + i;
 		
 		playerNode.children[1].id = 'ui-playerbody-' + i;
 		var partyNodes = playerNode.children[1].children;
@@ -342,6 +398,8 @@ function relabelAll(){
 			partyNode.id = 'ui-party-' + i + '-' + j;
 			
 			partyNode.children[0].children[0].innerHTML = "Party " + (j+1);
+			partyNode.children[0].children[1].children[0].id = 'minimize_party:' + i + '-' + j;
+			partyNode.children[0].children[1].children[1].id = 'remove_party:' + i + '-' + j;
 			
 			partyNode.children[1].id = 'ui-partybody-' + i + '-' + j;
 			var pokemonNodes = partyNode.children[1].children;
@@ -350,10 +408,13 @@ function relabelAll(){
 				pokemonNode.id = 'ui-pokemon-' + i + '-' + j + '-' + k;
 				
 				pokemonNode.children[0].id = 'ui-pokemonhead-' + i + '-' + j + '-' + k;
-				pokemonNode.children[0].children[0].id = 'copy_pokemon:' + i + '-' + j + '-' + k;
-				pokemonNode.children[0].children[1].id = 'paste_pokemon:' + i + '-' + j + '-' + k;
-				pokemonNode.children[0].children[2].id = 'remove_pokemon:' + i + '-' + j + '-' + k;
+				pokemonNode.children[0].children[0].innerHTML = 'Pokemon ' + (k+1);
+				pokemonNode.children[0].children[1].children[0].id = 'minimize_pokemon:' + i + '-' + j + '-' + k;
+				pokemonNode.children[0].children[1].children[1].id = 'copy_pokemon:' + i + '-' + j + '-' + k;
+				pokemonNode.children[0].children[1].children[2].id = 'paste_pokemon:' + i + '-' + j + '-' + k;
+				pokemonNode.children[0].children[1].children[3].id = 'remove_pokemon:' + i + '-' + j + '-' + k;
 				
+				pokemonNode.children[1].id = 'ui-pokemonbody-' + i + '-' + j + '-' + k;
 				var tables = pokemonNode.children[1].children;
 				tables[0].children[1].children[0].children[0].id = 'ui-species-' + i + '-' + j + '-' + k;
 				tables[0].children[1].children[1].children[0].id = 'ui-copies-' + i + '-' + j + '-' + k;
@@ -369,7 +430,6 @@ function relabelAll(){
 			partyNode.children[2].children[0]['id'] = 'revive_strategy_label:' + i + '-' + j;
 			partyNode.children[2].children[0].id = 'revive_strategy:' + i + '-' + j;
 			partyNode.children[2].children[1].id = 'add_pokemon:' + i + '-' + j;
-			partyNode.children[2].children[2].id = 'remove_party:' + i + '-' + j;
 			
 			$( '#ui-partytail-' + i + '-' + j ).controlgroup();
 		}
@@ -377,10 +437,8 @@ function relabelAll(){
 		
 		playerNode.children[2].id = "ui-playertail-" + i;
 		playerNode.children[2].children[0].id = "add_party:" + i;
-		playerNode.children[2].children[1].id = "remove_player:" + i;
 		
 		document.getElementById("add_party:" + i).setAttribute('class', 'player_button');
-		document.getElementById("remove_player:" + i).setAttribute('class', 'player_button');
 		$( '#ui-playertail-' + i ).controlgroup();
 		
 	}
@@ -471,9 +529,12 @@ function updateDefenderNode(){
 }
 
 function createIconLabelDiv(iconURL, label, iconClass){
-	return "<div class='" + iconClass + "'>" + "<img src='"+iconURL+"'></img>" + "</div><div class='apitem-label'>" + label + "</div>";
+	return "<div><span class='" + iconClass + "'>" + "<img src='"+iconURL+"'></img></span><span class='apitem-label'>" + label + "</span></div>";
 }
 
+function createIconLabelDiv2(iconURL, label, iconClass){
+	return "<div class='input-with-icon " + iconClass + "' style='background-image: url(" + iconURL + ")'>" + label + "</div>";
+}
 
 
 function manual_render_autocomplete_pokemon_item(ul, item){
@@ -551,16 +612,14 @@ function autocompletePokemonNodeMoves(address, species_idx){
 	}
 	
 	if (species_idx >= 0){
-		POKEMON_SPECIES_DATA[species_idx].fastMoves.concat(POKEMON_SPECIES_DATA[species_idx].fastMoves_legacy)
-			.concat(POKEMON_SPECIES_DATA[species_idx].fastMoves_exclusive).forEach(function(move){
+		get_all_moves_by_index(species_idx, 'fast').forEach(function(move){
 				var moveData = FAST_MOVE_DATA[get_fmove_index_by_name(move)];
 				thisFastMoveOptions.push({
 					label: toTitleCase(moveData.name),
 					icon: moveData.pokeTypeIcon
 				});
 			});
-		POKEMON_SPECIES_DATA[species_idx].chargedMoves.concat(POKEMON_SPECIES_DATA[species_idx].chargedMoves_legacy)
-			.concat(POKEMON_SPECIES_DATA[species_idx].chargedMoves_exclusive).forEach(function(move){
+		get_all_moves_by_index(species_idx, 'charged').forEach(function(move){
 				var moveData = CHARGED_MOVE_DATA[get_cmove_index_by_name(move)];
 				thisChargedMoveOptions.push({
 					label: toTitleCase(moveData.name),
@@ -800,13 +859,19 @@ function writeAttackerNode(node, pkmConfig){
 	row2.children[3].children[0].value = pkmConfig.defiv;
 	
 	row3.children[0].children[0].value = toTitleCase(pkmConfig.fmove);
-	row3.children[0].children[0].setAttribute('style', 
+	try{
+		row3.children[0].children[0].setAttribute('style', 
 		"background-image: url(" + FAST_MOVE_DATA[get_fmove_index_by_name(pkmConfig.fmove)].pokeTypeIcon + ')');
+	}catch(err){}
+	
 	row3.children[1].children[0].value = toTitleCase(pkmConfig.cmove);
-	row3.children[1].children[0].setAttribute('style', 
+	try{
+		row3.children[1].children[0].setAttribute('style', 
 		"background-image: url(" + CHARGED_MOVE_DATA[get_cmove_index_by_name(pkmConfig.cmove)].pokeTypeIcon + ')');
+	}catch(err){}
 	
 	row3.children[2].children[0].value = pkmConfig.dodge;
+	
 }
 
 function writePartyNode(node, partyConfig){
@@ -852,12 +917,17 @@ function writeDefenderNode(node, pkmConfig, raidTier){
 		row1.children[0].children[0].setAttribute('style', 'background-image: url('+pokemon_icon_url_by_dex(POKEMON_SPECIES_DATA[species_idx].dex)+')');
 	}
 	
-	row3.children[0].children[0].value = toTitleCase(pkmConfig['fmove']);
-	row3.children[0].children[0].setAttribute('style', 
+	row3.children[0].children[0].value = toTitleCase(pkmConfig.fmove);
+	try{
+		row3.children[0].children[0].setAttribute('style', 
 		"background-image: url(" + FAST_MOVE_DATA[get_fmove_index_by_name(pkmConfig.fmove)].pokeTypeIcon + ')');
-	row3.children[1].children[0].value = toTitleCase(pkmConfig['cmove']);
-	row3.children[1].children[0].setAttribute('style', 
+	}catch(err){}
+	
+	row3.children[1].children[0].value = toTitleCase(pkmConfig.cmove);
+	try{
+		row3.children[1].children[0].setAttribute('style', 
 		"background-image: url(" + CHARGED_MOVE_DATA[get_cmove_index_by_name(pkmConfig.cmove)].pokeTypeIcon + ')');
+	}catch(err){}
 	
 	if (document.getElementById("battleMode").value == "gym"){
 		row2.children[0].children[0].value = pkmConfig['level'];
@@ -943,18 +1013,24 @@ function unpackSpeciesKeyword(str){
 
 function unpackMoveKeyword(str, moveType, pkmIndex){
 	var prefix = (moveType == 'f') ? "fast" : "charged";
+	var MovesData = (moveType == 'f') ? FAST_MOVE_DATA : CHARGED_MOVE_DATA;
 	pred = (moveType == 'f') ? get_fmove_index_by_name : get_cmove_index_by_name;
 
 	str = str.toLowerCase();
 	var moveIndices = [];
 	var moveNames = [];
 	if (str == '' || str == 'aggr'){
-		moveNames = POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves"];
-		moveNames = moveNames.concat(POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves_legacy"]);
-		moveNames = moveNames.concat(POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves_exclusive"]);
+		moveNames = get_all_moves_by_index(pkmIndex, prefix);
 	}
 	else if (str == 'cur')
 		moveNames = POKEMON_SPECIES_DATA[pkmIndex][prefix + "Moves"];
+	else if (str == 'stab'){
+		get_all_moves_by_index(pkmIndex, prefix).forEach(function(move){
+			var move_idx = pred(move);
+			if (MovesData[move_idx].pokeType == POKEMON_SPECIES_DATA[pkmIndex].pokeType1 || MovesData[move_idx].pokeType == POKEMON_SPECIES_DATA[pkmIndex].pokeType2)
+				moveIndices.push(move_idx);
+		});
+	}
 	else if (str[0] == '{' && str[str.length - 1] == '}')
 		moveNames = str.slice(1, str.length - 1).split(',');
 	else if (str == 'all'){
@@ -987,7 +1063,8 @@ function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
 			for (var i = 0; i < USER_POKEBOX.length; i++){
 				copyAllInfo(pkmInfo, USER_POKEBOX[i], false);
 				pkmInfo.box_index = i;
-				cfg['enumeratedValues'][enumVariableName] = '$' + i + ' ' + USER_POKEBOX[i].nickname;
+				cfg['enumeratedValues'][enumVariableName] = createIconLabelDiv2(
+					POKEMON_SPECIES_DATA[pkmInfo.index].icon, pkmInfo.nickname + ' [' + toTitleCase(pkmInfo.species) + ']', 'species-input-with-icon');
 				enqueueSim(cfg);
 			}
 		}else{
@@ -1002,7 +1079,8 @@ function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
 			for (var k = 0; k < indices.length; k++){
 				pkmInfo.index = indices[k];
 				pkmInfo.species = POKEMON_SPECIES_DATA[indices[k]].name;
-				cfg['enumeratedValues'][enumVariableName] = pkmInfo.species;
+				cfg['enumeratedValues'][enumVariableName] = createIconLabelDiv2(
+					POKEMON_SPECIES_DATA[pkmInfo.index].icon, toTitleCase(pkmInfo.species), 'species-input-with-icon');
 				enqueueSim(cfg);
 			}
 		}
@@ -1084,7 +1162,8 @@ function parseMoveExpression(cfg, pkmInfo, enumPrefix, moveType){
 		for (var k = 0; k < moveIndices.length; k++){
 			pkmInfo[moveType+'move_index'] = moveIndices[k];
 			pkmInfo[moveType+'move'] = MovesData[moveIndices[k]].name;
-			cfg['enumeratedValues'][enumVariableName] = pkmInfo[moveType+'move'];
+			cfg['enumeratedValues'][enumVariableName] = createIconLabelDiv2(
+				MovesData[moveIndices[k]].pokeTypeIcon, toTitleCase(MovesData[moveIndices[k]].name), 'move-input-with-icon');
 			enqueueSim(cfg);
 		}
 		return -1;
@@ -1106,6 +1185,7 @@ function parseMoveExpression(cfg, pkmInfo, enumPrefix, moveType){
 	}
 	return (pkmInfo[moveType+'move_index'] >= 0) ? 0 : -1;
 }
+
 
 function parsePokemonInput(cfg, pkmInfo, enumPrefix){
 	if (parseSpeciesExpression(cfg, pkmInfo, enumPrefix) == -1)
