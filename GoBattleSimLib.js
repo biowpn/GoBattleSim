@@ -10,12 +10,13 @@ var DODGE_COOLDOWN_MS = 500;
 var DODGEWINDOW_LENGTH_MS = 700;
 var DODGED_DAMAGE_REDUCTION_PERCENT = 0.75;
 var ARENA_ENTRY_LAG_MS = 3000;
+var ARENA_EARLY_TERMINATION_MS = 3000;
 var FAST_MOVE_LAG_MS = 25;
 var CHARGED_MOVE_LAG_MS = 100;
 var SWITCHING_DELAY_MS = 750;
 var TIMELIMIT_GYM_MS = 100000;
-var REJOIN_TIME_MS = 7000;
-var ITEM_MENU_TIME_MS = 1500;
+var REJOIN_TIME_MS = 10000;
+var ITEM_MENU_TIME_MS = 2000;
 var EACH_MAX_REVIVE_TIME_MS = 800;
 
 const MAX_NUM_POKEMON_PER_PARTY = 6;
@@ -221,6 +222,7 @@ Pokemon.prototype.get_statistics = function(){
 		hp : this.HP,
 		energy : this.energy,
 		tdo: this.tdo,
+		tdo_fmove : this.tdo_fmove,
 		duration : Math.round(this.total_time_active_ms/100)/10,
 		dps : Math.round(this.tdo / (this.total_time_active_ms/1000)*100)/100,
 		tew : this.total_energy_wasted
@@ -415,6 +417,8 @@ function World(cfg){
 	this.dfdr = new Pokemon(cfg['dfdrSettings']);
 	
 	this.tline = new Timeline();
+	this.any_player_active_bool = true;
+	this.any_attacker_fainted_bool = false;
 	this.projected_atkrHurtEvent = null;
 	this.battle_length = 0;
 	this.log = [];
@@ -620,9 +624,12 @@ World.prototype.battle = function (){
 	dfdr.active = true;
 
 	
-	while (dfdr.HP > 0 && this.any_player_active() && t < this.timelimit_ms){
+	while (dfdr.HP > 0 && this.any_player_active_bool){
 		var e = this.tline.list.shift();
 		t = e.t;
+		if (t >= this.timelimit_ms - ARENA_EARLY_TERMINATION_MS)
+			break;
+		
 		// 1. First process the event
 		if (e.name == "AtkrFree"){
 			var actions = this.atkr_choose(e.subject, t);
@@ -633,6 +640,8 @@ World.prototype.battle = function (){
 			if (e.subject.active && e.object.active){
 				e.subject.take_damage(e.dmg);
 				e.subject.has_dodged_next_attack = false;
+				if (e.subject.HP <= 0 && e.subject.raidTier == 0)
+					this.any_attacker_fainted_bool = true;
 				e.object.attribute_damage(e.dmg, e.move.moveType);
 				elog.push(e);
 			}
@@ -647,7 +656,7 @@ World.prototype.battle = function (){
 		}else if (e.name == "Dodge"){
 			var eHurt = this.nextHurtEventOf(e.subject);
 			if (eHurt && (eHurt.t - DODGEWINDOW_LENGTH_MS) <= t && t <= eHurt.t && !e.dodged){
-				eHurt.dmg = Math.floor(eHurt.dmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
+				eHurt.dmg = Math.max(1, Math.floor(eHurt.dmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT)));
 				e.dodged = true;
 			}
 			elog.push(e);
@@ -663,23 +672,26 @@ World.prototype.battle = function (){
 			this.projected_atkrHurtEvent = null;
 		
 		// 2. Check if some attacker fainted
-		for (var i = 0; i < this.playersArr.length; i++){
-			var this_player = this.playersArr[i];
-			var old_pkm = this_player.active_pkm;
-			if (old_pkm && old_pkm.HP <= 0){
-				for (var j = 0; j < this.tline.list.length; j++){
-					var thisEvent =  this.tline.list[j];
-					if (thisEvent.name == "AtkrFree" && thisEvent.subject.playerCode == old_pkm.playerCode && thisEvent.subject.index_party == old_pkm.index_party)
-						this.tline.list.splice(j--, 1);
+		if (this.any_attacker_fainted_bool){
+			for (var i = 0; i < this.playersArr.length; i++){
+				var this_player = this.playersArr[i];
+				var old_pkm = this_player.active_pkm;
+				if (old_pkm && old_pkm.HP <= 0){
+					for (var j = 0; j < this.tline.list.length; j++){
+						var thisEvent =  this.tline.list[j];
+						if (thisEvent.name == "AtkrFree" && thisEvent.subject.playerCode == old_pkm.playerCode && thisEvent.subject.index_party == old_pkm.index_party)
+							this.tline.list.splice(j--, 1);
+					}
+					old_pkm.time_leave_ms = t;
+					old_pkm.total_time_active_ms += t - old_pkm.time_enter_ms;
+					var delay = this_player.next_pokemon_up(); // Ask for sending another attacker
+					var new_pkm = this_player.active_pkm;
+					if (new_pkm)
+						this.tline.enqueue(new Event("Enter", t + delay, new_pkm, 0,0,0,0));
 				}
-				
-				old_pkm.time_leave_ms = t;
-				old_pkm.total_time_active_ms += t - old_pkm.time_enter_ms;
-				var delay = this_player.next_pokemon_up(); // Ask for sending another attacker
-				var new_pkm = this_player.active_pkm;
-				if (new_pkm)
-					this.tline.enqueue(new Event("Enter", t + delay, new_pkm, 0,0,0,0));
 			}
+			this.any_attacker_fainted_bool = false;
+			this.any_player_active_bool = this.any_player_active();
 		}
 		
 		// 3. Check if the defender fainted

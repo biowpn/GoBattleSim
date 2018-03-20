@@ -455,8 +455,6 @@ function createDefenderNode(){
 	defenderNode.appendChild(document.createElement("div")); // tail, contain controls
 	
 	// 1. Head
-	// defenderNode.children[0].appendChild(createElement('img'));
-	
 	
 	// 2. Body
 	var tb1 = createElement("table", "<colgroup><col width=100%></colgroup>");
@@ -466,7 +464,7 @@ function createDefenderNode(){
 		style: 'background-image: url('+pokemon_icon_url_by_dex(0)+')'
 	}));
 
-	// By default, set to raid mode input
+	// By default, set to Tier 5 raid
 	var tb2 = createElement("table", "<colgroup><col width=100%></colgroup>");
 	tb2.appendChild(createRow(['']));
 	tb2.children[1].children[0].innerHTML = "Raid Tier";
@@ -477,8 +475,8 @@ function createDefenderNode(){
 		option.value = i;
 		raidSelection.appendChild(option);
 	}
+	raidSelection.children[4].setAttribute("selected", "selected");
 	tb2.children[1].children[0].appendChild(raidSelection);
-	
 	
 	var tb3 = createElement("table", "<colgroup><col width=50%><col width=50%></colgroup>");
 	tb3.appendChild(createRow(['','']));
@@ -494,7 +492,6 @@ function createDefenderNode(){
 	defenderNode.children[1].appendChild(tb3);
 	
 	// 3. Tail
-	// Nothing
 	
 	return defenderNode;
 }

@@ -66,7 +66,6 @@ function populateAll(){
 		addPlayerNode();
 		document.getElementById("ui-defenderinputbody").innerHTML = "";
 		document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
-		updateDefenderNode();
 		autocompletePokemonNode('d');
 		document.getElementById("simPerConfig").value = 1;
 		

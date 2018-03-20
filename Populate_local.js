@@ -1852,6 +1852,16 @@ var CHARGED_MOVE_DATA = [
     "dws": 1400,
     "duration": 1700,
     "pokeTypeIcon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png"
+  },
+  {
+    "name": "blast burn",
+    "moveType": "c",
+    "power": 100,
+    "pokeType": "fire",
+    "energyDelta": -50,
+    "dws": 2100,
+    "duration": 2800,
+    "pokeTypeIcon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fire.png"
   }
 ];
 
@@ -12178,7 +12188,6 @@ $(document).ready(function(){
 	addPlayerNode();
 	document.getElementById("ui-defenderinputbody").innerHTML = "";
 	document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
-	updateDefenderNode();
 	autocompletePokemonNode('d');
 	document.getElementById("simPerConfig").value = 1;
 
@@ -12188,6 +12197,7 @@ $(document).ready(function(){
 
 $(document).ready(function(){
 	// Debug
+	return;
 	var dbgs = {
 		generalSettings : {battleMode: "raid", 
 							weather : "EXTREME", 
