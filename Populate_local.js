@@ -12158,40 +12158,14 @@ USER_POKEBOX = [
 
 
 $(document).ready(function(){
-	// Populate default input options
-	for (var i = 0; i < USER_POKEBOX.length; i++){
-		USER_POKEBOX[i].box_index = i;
-		POKEMON_SPECIES_OPTIONS.push({
-			label: "$" + i + " " + USER_POKEBOX[i].nickname + " [" + toTitleCase(USER_POKEBOX[i].species) + "]",
-			icon: pokemon_icon_url_by_dex(POKEMON_SPECIES_DATA[USER_POKEBOX[i].index].dex)
-		});
-	}
-	for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++){
-		var pkm = POKEMON_SPECIES_DATA[i];
-		POKEMON_SPECIES_OPTIONS.push({
-			label: toTitleCase(pkm.name),
-			icon: pokemon_icon_url_by_dex(pkm.dex)
-		});
-	}
-	for (var i = 0; i < FAST_MOVE_DATA.length; i++){
-		FAST_MOVE_OPTIONS.push({
-			label: toTitleCase(FAST_MOVE_DATA[i].name),
-			icon: FAST_MOVE_DATA[i].pokeTypeIcon
-		});
-	}
-	for (var i = 0; i < CHARGED_MOVE_DATA.length; i++){
-		CHARGED_MOVE_OPTIONS.push({
-			label: toTitleCase(CHARGED_MOVE_DATA[i].name),
-			icon: CHARGED_MOVE_DATA[i].pokeTypeIcon
-		});
-	}
+	autocompleteMoveEditForm();
+	autocompletePokemonEditForm();
+	
 	addPlayerNode();
 	document.getElementById("ui-defenderinputbody").innerHTML = "";
 	document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
 	autocompletePokemonNode('d');
 	document.getElementById("simPerConfig").value = 1;
-
-	
 });
 
 

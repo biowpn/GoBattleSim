@@ -24,17 +24,8 @@ function getMovesFromString(S){
 }
 
 
-// Populate default input options
 function populateAll(){
 	if (POKEMON_SPECIES_DATA_FETCHED && MOVE_DATA_FETCHED && USER_POKEBOX_FETCHED){
-		// Populate default input options
-		for (var i = 0; i < USER_POKEBOX.length; i++){
-			USER_POKEBOX[i].box_index = i;
-			POKEMON_SPECIES_OPTIONS.push({
-				label: "$" + i + " " + USER_POKEBOX[i].nickname + " [" + toTitleCase(USER_POKEBOX[i].species) + "]",
-				icon: pokemon_icon_url_by_dex(POKEMON_SPECIES_DATA[USER_POKEBOX[i].index].dex)
-			});
-		}
 		for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++){
 			var pkm = POKEMON_SPECIES_DATA[i];
 			pkm.fastMoves_exclusive = [];
@@ -46,23 +37,10 @@ function populateAll(){
 					pkm.chargedMoves_exclusive.push(move);
 			});
 			delete pkm.exclusiveMoves;
-			POKEMON_SPECIES_OPTIONS.push({
-				label: toTitleCase(pkm.name),
-				icon: pokemon_icon_url_by_dex(pkm.dex)
-			});
 		}
-		for (var i = 0; i < FAST_MOVE_DATA.length; i++){
-			FAST_MOVE_OPTIONS.push({
-				label: toTitleCase(FAST_MOVE_DATA[i].name),
-				icon: FAST_MOVE_DATA[i].pokeTypeIcon
-			});
-		}
-		for (var i = 0; i < CHARGED_MOVE_DATA.length; i++){
-			CHARGED_MOVE_OPTIONS.push({
-				label: toTitleCase(CHARGED_MOVE_DATA[i].name),
-				icon: CHARGED_MOVE_DATA[i].pokeTypeIcon
-			});
-		}
+		autocompleteMoveEditForm();
+		autocompletePokemonEditForm();
+		
 		addPlayerNode();
 		document.getElementById("ui-defenderinputbody").innerHTML = "";
 		document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());

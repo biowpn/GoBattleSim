@@ -655,7 +655,7 @@ World.prototype.battle = function (){
 			elog.push(e);
 		}else if (e.name == "Dodge"){
 			var eHurt = this.nextHurtEventOf(e.subject);
-			if (eHurt && (eHurt.t - DODGEWINDOW_LENGTH_MS) <= t && t <= eHurt.t && !e.dodged){
+			if (eHurt && !e.dodged && (eHurt.t - DODGEWINDOW_LENGTH_MS) <= t && t <= eHurt.t){
 				eHurt.dmg = Math.max(1, Math.floor(eHurt.dmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT)));
 				e.dodged = true;
 			}
