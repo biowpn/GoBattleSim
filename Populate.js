@@ -23,6 +23,38 @@ function getMovesFromString(S){
 	return res;
 }
 
+function processUserPokeboxRawData(data){
+	var box = [];
+	for (var i = 0; i < data.length; i++){
+		var species_idx = get_species_index_by_name(data[i].species.toLowerCase());
+		if (species_idx >= 0){
+			var pkmRaw = {
+				index : species_idx,
+				species : data[i].species.toLowerCase(),
+				copies: 1,
+				level: 0,
+				baseStm : POKEMON_SPECIES_DATA[species_idx].baseStm,
+				baseAtk : POKEMON_SPECIES_DATA[species_idx].baseAtk,
+				baseDef : POKEMON_SPECIES_DATA[species_idx].baseDef,
+				stmiv: parseInt(data[i].sta),
+				atkiv: parseInt(data[i].atk),
+				defiv: parseInt(data[i].def),
+				fmove: data[i].fast_move.toLowerCase(),
+				fmove_index : get_fmove_index_by_name(data[i].fast_move.toLowerCase()),
+				cmove: data[i].charge_move.toLowerCase(),
+				cmove_index : get_cmove_index_by_name(data[i].charge_move.toLowerCase()),
+				dodge: 0,
+				nickname : data[i].nickname,
+				image: POKEMON_SPECIES_DATA[species_idx].image,
+				icon: POKEMON_SPECIES_DATA[species_idx].icon
+			};
+			pkmRaw.level = calculateLevelByCP(pkmRaw, parseInt(data[i].cp));
+			box.push(pkmRaw);
+		}
+	}
+	return box;
+}
+
 
 function populateAll(){
 	if (POKEMON_SPECIES_DATA_FETCHED && MOVE_DATA_FETCHED && USER_POKEBOX_FETCHED){
@@ -40,6 +72,7 @@ function populateAll(){
 		}
 		autocompleteMoveEditForm();
 		autocompletePokemonEditForm();
+		udpateUserTable();
 		
 		addPlayerNode();
 		document.getElementById("ui-defenderinputbody").innerHTML = "";
@@ -138,10 +171,6 @@ $.ajax({
 				console.log(data[i]);
 			}
 		}
-		// Temporary fixing Frenzy Plant as the json file hasn't been updated
-		try{
-			CHARGED_MOVE_DATA[get_cmove_index_by_name('frenzy plant')].duration = 2800;
-		}catch(err){}
 		MOVE_DATA_FETCHED = true;
 	},
 	complete: function(jqXHR, textStatus){
@@ -153,41 +182,14 @@ $.ajax({
 // Read User Pokebox
 $(document).ready(function(){
 	if(typeof userID2 == 'undefined'){
-		console.log("Fail to load USER_POKEBOX because userID2 is not defined");
 		USER_POKEBOX_FETCHED = true;
 		populateAll();
 	}else if(userID2){
-		$.ajax({ 
-			url: '/user-pokemon-json-list?new&uid_raw=' + userID2, 
+		$.ajax({
+			url: '/user-pokemon-json-list?new&uid_raw=' + userID2,
 			dataType: 'json',
-			success: function(data){ 
-				for (var i = 0; i < data.length; i++){
-					var species_idx = get_species_index_by_name(data[i].species.toLowerCase());
-					if (species_idx >= 0){
-						var pkmRaw = {
-							index : species_idx,
-							species : data[i].species.toLowerCase(),
-							copies: 1,
-							level: 0,
-							baseStm : POKEMON_SPECIES_DATA[species_idx].baseStm,
-							baseAtk : POKEMON_SPECIES_DATA[species_idx].baseAtk,
-							baseDef : POKEMON_SPECIES_DATA[species_idx].baseDef,
-							stmiv: parseInt(data[i].sta),
-							atkiv: parseInt(data[i].atk),
-							defiv: parseInt(data[i].def),
-							fmove: data[i].fast_move.toLowerCase(),
-							fmove_index : get_fmove_index_by_name(data[i].fast_move.toLowerCase()),
-							cmove: data[i].charge_move.toLowerCase(),
-							cmove_index : get_cmove_index_by_name(data[i].charge_move.toLowerCase()),
-							dodge: 0,
-							nickname : data[i].nickname,
-							image: POKEMON_SPECIES_DATA[species_idx].image,
-							icon: POKEMON_SPECIES_DATA[species_idx].icon
-						};
-						pkmRaw.level = calculateLevelByCP(pkmRaw, parseInt(data[i].cp));
-						USER_POKEBOX.push(pkmRaw);
-					}
-				}
+			success: function(data){
+				USERS_INFO.push({id: userID2, box: processUserPokeboxRawData(data)});
 				USER_POKEBOX_FETCHED = true;
 			},
 			complete: function(jqXHR, textStatus){

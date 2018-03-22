@@ -193,10 +193,11 @@
 </style>
 
 <div id='menu'>
-	<table><colgroup><col width=50%><col width=50%></colgroup>
+	<table><colgroup><col width=33%><col width=33%><col width=34%></colgroup>
 		<tr>
 			<td><button id='moveEditFormOpener'>Add/Edit Move</button></td>
 			<td><button id='pokemonEditFormOpener'>Add/Edit Pokemon Species</button></td>
+			<td><button id='userEditFormOpener'>Add/Remove User</button></td>
 		</tr>
 	</table>
 </div>
@@ -381,6 +382,32 @@
 </div>
 
 
+<div id='userEditForm' title="Add/Edit User">
+	<h4>List of Users</h4>
+	<table id='userEditForm-userTable'>
+		<thead>
+			<tr><th>Player No.</th><th>UserID</th><th>PokeBox Length</th></tr>
+		</thead>
+		<tbody>
+		
+		</tbody>
+	</table>
+	
+	<br>
+	<input type='text' id='userEditForm-userID-1' placeholder='userID To Add/Remove'></input>
+	<table><colgroup><col width=50%><col width=50%></colgroup>
+		<tr>
+			<td><button onclick='userEditFormAddUser()'>Add User</button></td>
+			<td><button onclick='userEditFormRemoveUser()'>Remove User</button></td>
+		</tr>
+	</table>
+	
+	<div id='userEditForm-feedback'>
+	</div>
+</div>
+
+
+
 <script>
 
 $( "#moveEditForm" ).dialog({ 
@@ -399,7 +426,6 @@ $( "#pokemonEditFormOpener" ).click(function() {
   $( "#pokemonEditForm" ).dialog( "open" );
 });
 
-
 var moveEditFormPokeTypeSelect = document.getElementById('moveEditForm-pokeType');
 var pokemonEditFormPokeType1Select = document.getElementById('pokemonEditForm-pokeType1');
 var pokemonEditFormPokeType2Select = document.getElementById('pokemonEditForm-pokeType2');
@@ -409,5 +435,14 @@ for (var type in POKEMON_TYPE_ADVANTAGES){
 	pokemonEditFormPokeType2Select.appendChild(createElement('option', toTitleCase(type), {value : type}));
 }
 pokemonEditFormPokeType2Select.appendChild(createElement('option', 'None', {value : 'none'}));
+
+
+$( "#userEditForm" ).dialog({ 
+	autoOpen: false,
+	width: 600
+});
+$( "#userEditFormOpener" ).click(function() {
+  $( "#userEditForm" ).dialog( "open" );
+});
 
 </script>

@@ -3,7 +3,7 @@
  */
 
 // Storing user's Pokebox
-var USER_POKEBOX = [];
+var USERS_INFO = [];
 
 // Pre-defined collections of Pokemon
 var BEST_ATTACKERS_BY_TYPE_INDICES = [211, 247, 383, 242, 281, 67, 145, 243, 93, 102, 382, 143, 142, 88, 149, 75, 375, 381];
@@ -84,6 +84,39 @@ function get_all_moves_by_index(pkmIndex, moveType){
 	return POKEMON_SPECIES_DATA[pkmIndex][moveType + "Moves"].
 		concat(POKEMON_SPECIES_DATA[pkmIndex][moveType + "Moves_legacy"]).
 		concat(POKEMON_SPECIES_DATA[pkmIndex][moveType + "Moves_exclusive"]);
+}
+
+function getPokemonSpeciesOptions(userIndex){
+	var speciesOptions = [];
+	if (0 <= userIndex && userIndex < USERS_INFO.length){
+		var userBox = USERS_INFO[userIndex].box;
+		for (var i = 0; i < userBox.length; i++){
+			userBox[i].box_index = i;
+			speciesOptions.push({
+				label: "$" + i + " " + userBox[i].nickname + " [" + toTitleCase(userBox[i].species) + "]",
+				icon: pokemon_icon_url_by_dex(POKEMON_SPECIES_DATA[userBox[i].index].dex)
+			});
+		}
+	}
+	POKEMON_SPECIES_DATA.forEach(function(pkm){
+		speciesOptions.push({
+			label: toTitleCase(pkm.name),
+			icon: pokemon_icon_url_by_dex(pkm.dex)
+		});
+	});
+	return speciesOptions;
+}
+
+function getMoveOptions(moveType){
+	var moveDatabase = moveType == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA;
+	var moveOptions = [];
+	moveDatabase.forEach(function(move){
+		moveOptions.push({
+			label: toTitleCase(move.name),
+			icon: move.pokeTypeIcon
+		});
+	});
+	return moveOptions;
 }
 
 
@@ -536,7 +569,7 @@ function autocompletePokemonNode(address){
 	$( '#ui-species-' + address ).autocomplete({
 		minLength : 0,
 		delay : 0,
-		source : getPokemonSpeciesOptions(true),
+		source : getPokemonSpeciesOptions(address == 'd' ? 0 : parseInt(address.split('-')[0])),
 		select : function(event, ui) {
 			this.value = ui.item.value;
 			$(this).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item:{value:$(this).val()}});
@@ -546,13 +579,17 @@ function autocompletePokemonNode(address){
 			var inputStr = this.value;
 			var species_idx = get_species_index_by_name(inputStr), dex = 0;
 			if (inputStr[0] == '$'){
-				var box_idx = parseInt(inputStr.slice(1).split(' ')[0]);
-				if (box_idx >= 0 && box_idx <= USER_POKEBOX.length){
-					species_idx = get_species_index_by_name(USER_POKEBOX[box_idx].species);
-					if (address_const != 'd')
-						writeAttackerNode(thisPokemonNode, USER_POKEBOX[box_idx]);
-					else
-						writeDefenderNode(thisPokemonNode, USER_POKEBOX[box_idx]);
+				var user_idx = (address == 'd' ? 0 : parseInt(address.split('-')[0]));
+				if (user_idx < USERS_INFO.length){
+					var thisBox = USERS_INFO[user_idx].box;
+					var box_idx = parseInt(inputStr.slice(1).split(' ')[0]);
+					if (box_idx >= 0 && box_idx <= thisBox.length){
+						species_idx = get_species_index_by_name(thisBox[box_idx].species);
+						if (address_const != 'd')
+							writeAttackerNode(thisPokemonNode, thisBox[box_idx]);
+						else
+							writeDefenderNode(thisPokemonNode, thisBox[box_idx]);
+					}
 				}
 			}
 			if (species_idx >= 0){
@@ -569,9 +606,13 @@ function autocompletePokemonNode(address){
 	var currentVal = $( '#ui-species-' + address ).val();
 	var current_species_idx = get_species_index_by_name(currentVal);
 	if (currentVal[0] == '$'){
-		var box_idx = parseInt(currentVal.slice(1).split(' ')[0]);
-		if (box_idx >= 0 && box_idx <= USER_POKEBOX.length)
-			current_species_idx = get_species_index_by_name(USER_POKEBOX[box_idx].species);
+		var user_idx = (address == 'd' ? 0 : parseInt(address.split('-')[0]));
+		if (user_idx < USERS_INFO.length){
+			var thisBox = USERS_INFO[user_idx].box;
+			var box_idx = parseInt(currentVal.slice(1).split(' ')[0]);
+			if (box_idx >= 0 && box_idx <= thisBox.length)
+				current_species_idx = get_species_index_by_name(thisBox[box_idx].species);
+		}
 	}
 	autocompletePokemonNodeMoves(address_const, current_species_idx);
 }
@@ -658,6 +699,11 @@ function parseAttackerNode(node){
 	var row2 = node.children[1].children[1].children[1];
 	var row3 = node.children[1].children[2].children[1];
 	
+	var box = [];
+	var userIndex = parseInt(node.id.split('-')[2]);
+	if (userIndex < USERS_INFO.length)
+		box = USERS_INFO[userIndex].box;
+	
 	var box_idx = -1;
 	var nameInputValue = row1.children[0].children[0].value.trim();
 	if (nameInputValue[0] == '$')
@@ -668,8 +714,8 @@ function parseAttackerNode(node){
 		index : -1,
 		fmove_index : -1,
 		cmove_index : -1,
-		nickname : box_idx >= 0 ? USER_POKEBOX[box_idx].nickname : "",
-		species: box_idx >= 0 ? USER_POKEBOX[box_idx].species : (nameInputValue || '*'),
+		nickname : box_idx >= 0 ? box[box_idx].nickname : "",
+		species: box_idx >= 0 ? box[box_idx].species : (nameInputValue || '*'),
 		copies: parseInt(row1.children[1].children[0].value) || 1,
 		level: row2.children[0].children[0].value.trim(),
 		stmiv: row2.children[1].children[0].value.trim(),
@@ -691,7 +737,6 @@ function parsePartyNode(node){
 	};
 	for (var k = 0; k < node.children[1].children.length; k++)
 		party_cfg.pokemon_list.push(parseAttackerNode(node.children[1].children[k]));
-	
 	return party_cfg;
 }
 
@@ -701,7 +746,6 @@ function parsePlayerNode(node){
 	};
 	for (var j = 0; j < node.children[1].children.length; j++)
 		player_cfg.party_list.push(parsePartyNode(node.children[1].children[j]));
-	
 	return player_cfg;
 }
 
@@ -711,6 +755,9 @@ function parseDefenderNode(node){
 	var row2 = node.children[1].children[1];
 	var row3 = node.children[2].children[1];
 	
+	var box = [];
+	if (USERS_INFO.length > 0)
+		box = USERS_INFO[0].box; // Defender is always user 1 for now
 	var box_idx = -1;
 	var nameInputValue = row1.children[0].children[0].value.trim();
 	if (nameInputValue[0] == '$')
@@ -722,8 +769,8 @@ function parseDefenderNode(node){
 		fmove_index : -1,
 		cmove_index : -1,
 		team_idx : -1,
-		nickname : box_idx >= 0 ? USER_POKEBOX[box_idx].nickname : null,
-		species: box_idx >= 0 ? USER_POKEBOX[box_idx].species : nameInputValue,
+		nickname : box_idx >= 0 ? box[box_idx].nickname : null,
+		species: box_idx >= 0 ? box[box_idx].species : nameInputValue,
 		level : 1,
 		atkiv : 0,
 		defiv : 0,
@@ -773,11 +820,12 @@ function readUserInput(){
 	var defenderNode = document.getElementById("ui-defenderinputbody").children[0];
 	var dfdr_info = parseDefenderNode(defenderNode);
 	
-	return {generalSettings : gSettings,
-			atkrSettings : player_list,
-			dfdrSettings : dfdr_info,
-			enumeratedValues : {}
-			};
+	return {
+		generalSettings : gSettings,
+		atkrSettings : player_list,
+		dfdrSettings : dfdr_info,
+		enumeratedValues : {}
+	};
 }
 
 
@@ -789,8 +837,6 @@ function copyAllInfo(pkm_to, pkm_from, minimized){
 	pkm_to.stmiv = pkm_from.stmiv;
 	pkm_to.fmove = pkm_from.fmove;
 	pkm_to.cmove = pkm_from.cmove;
-	
-	
 	if (!minimized){
 		pkm_to.nickname = pkm_from.nickname;
 		pkm_to.box_index = pkm_from.box_index;
@@ -844,20 +890,17 @@ function writeAttackerNode(node, pkmConfig){
 
 function writePartyNode(node, partyConfig){
 	node.children[1].innerHTML = "";
-
 	for (var k = 0; k < partyConfig.pokemon_list.length; k++){
 		var pokemonNode = createAttackerNode();
 		writeAttackerNode(pokemonNode, partyConfig.pokemon_list[k]);
 		node.children[1].appendChild(pokemonNode);
 	}
-	
 	node.children[2].children[0].children[0].checked = partyConfig.revive_strategy;
 	$('#' + node.children[2].id).controlgroup('refresh');
 }
 
 function writePlayerNode(node, playerConfig){
 	node.children[1].innerHTML = "";
-
 	for (var j = 0; j < playerConfig.party_list.length; j++){
 		var partyNode = createPartyNode();
 		writePartyNode(partyNode, playerConfig.party_list[j]);
@@ -1014,22 +1057,26 @@ function unpackMoveKeyword(str, moveType, pkmIndex){
 
 
 
-function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
+function parseSpeciesExpression(cfg, pkmInfo, address){
 	if (pkmInfo.index >= 0)
 		return 0;
 	var expressionStr = pkmInfo.species;
 
 	if (expressionStr[0] == '*'){// Enumerator
-		var enumVariableName = '*' + enumPrefix + '.species';
+		var enumVariableName = '*' + address + '.species';
 		if (expressionStr[1] == '$'){ // Special case: User Pokebox. Also set the Level, IVs and moves
-			if (USER_POKEBOX.length > 0 && !MasterSummaryTableMetrics.includes(enumVariableName))
-				createNewMetric(enumVariableName);
-			for (var i = 0; i < USER_POKEBOX.length; i++){
-				copyAllInfo(pkmInfo, USER_POKEBOX[i], false);
-				pkmInfo.box_index = i;
-				cfg['enumeratedValues'][enumVariableName] = createIconLabelDiv2(
-					POKEMON_SPECIES_DATA[pkmInfo.index].icon, pkmInfo.nickname + ' [' + toTitleCase(pkmInfo.species) + ']', 'species-input-with-icon');
-				enqueueSim(cfg);
+			var userIndex = parseInt(address.split('-')[0]) - 1;
+			if (userIndex < USERS_INFO.length){
+				var thisBox = USERS_INFO[userIndex].box;
+				if (thisBox.length > 0 && !MasterSummaryTableMetrics.includes(enumVariableName))
+					createNewMetric(enumVariableName);
+				for (var i = 0; i < thisBox.length; i++){
+					copyAllInfo(pkmInfo, thisBox[i], false);
+					pkmInfo.box_index = i;
+					cfg['enumeratedValues'][enumVariableName] = createIconLabelDiv2(
+						POKEMON_SPECIES_DATA[pkmInfo.index].icon, pkmInfo.nickname + ' [' + toTitleCase(pkmInfo.species) + ']', 'species-input-with-icon');
+					enqueueSim(cfg);
+				}
 			}
 		}else{
 			var indices = unpackSpeciesKeyword(expressionStr.slice(1));
@@ -1039,7 +1086,6 @@ function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
 			}
 			if (!MasterSummaryTableMetrics.includes(enumVariableName))
 				createNewMetric(enumVariableName);
-					
 			for (var k = 0; k < indices.length; k++){
 				pkmInfo.index = indices[k];
 				pkmInfo.species = POKEMON_SPECIES_DATA[indices[k]].name;
@@ -1070,7 +1116,7 @@ function parseSpeciesExpression(cfg, pkmInfo, enumPrefix){
 	return (pkmInfo.index >= 0) ? 0 : -1;
 }
 
-function parseRangeExpression(cfg, pkmInfo, enumPrefix, attr){
+function parseRangeExpression(cfg, pkmInfo, address, attr){
 	if (typeof pkmInfo[attr] == typeof 0)
 		return 0;
 	
@@ -1088,7 +1134,7 @@ function parseRangeExpression(cfg, pkmInfo, enumPrefix, attr){
 		}
 		return -1;
 	} else if (pkmInfo[attr].includes('-')){
-		var enumVariableName = '*' + enumPrefix + '.' + attr;
+		var enumVariableName = '*' + address + '.' + attr;
 		if (!MasterSummaryTableMetrics.includes(enumVariableName))
 			createNewMetric(enumVariableName);
 		var bounds = pkmInfo[attr].split('-');
@@ -1108,14 +1154,14 @@ function parseRangeExpression(cfg, pkmInfo, enumPrefix, attr){
 	}
 }
 
-function parseMoveExpression(cfg, pkmInfo, enumPrefix, moveType){
+function parseMoveExpression(cfg, pkmInfo, address, moveType){
 	if (pkmInfo[moveType+'move_index'] >= 0)
 		return 0;
 	var expressionStr = pkmInfo[moveType+'move'];
 	var MovesData = (moveType == 'f') ? FAST_MOVE_DATA : CHARGED_MOVE_DATA;
 	
 	if (expressionStr[0] == '*'){ // Enumerator
-		var enumVariableName = '*' + enumPrefix + '.' + moveType + 'move';
+		var enumVariableName = '*' + address + '.' + moveType + 'move';
 		var moveIndices = unpackMoveKeyword(expressionStr.slice(1), moveType, pkmInfo.index);
 		if (moveIndices.length == 0){
 			send_feedback(expressionStr + " parsed to none", true);
@@ -1151,20 +1197,20 @@ function parseMoveExpression(cfg, pkmInfo, enumPrefix, moveType){
 }
 
 
-function parsePokemonInput(cfg, pkmInfo, enumPrefix){
-	if (parseSpeciesExpression(cfg, pkmInfo, enumPrefix) == -1)
+function parsePokemonInput(cfg, pkmInfo, address){
+	if (parseSpeciesExpression(cfg, pkmInfo, address) == -1)
 		return -1;
-	if (parseRangeExpression(cfg, pkmInfo, enumPrefix, 'level') == -1)
+	if (parseRangeExpression(cfg, pkmInfo, address, 'level') == -1)
 		return -1;
-	if (parseRangeExpression(cfg, pkmInfo, enumPrefix, 'atkiv') == -1)
+	if (parseRangeExpression(cfg, pkmInfo, address, 'atkiv') == -1)
 		return -1;
-	if (parseRangeExpression(cfg, pkmInfo, enumPrefix, 'defiv') == -1)
+	if (parseRangeExpression(cfg, pkmInfo, address, 'defiv') == -1)
 		return -1;
-	if (parseRangeExpression(cfg, pkmInfo, enumPrefix, 'stmiv') == -1)
+	if (parseRangeExpression(cfg, pkmInfo, address, 'stmiv') == -1)
 		return -1;
-	if (parseMoveExpression(cfg, pkmInfo, enumPrefix, 'f') == -1)
+	if (parseMoveExpression(cfg, pkmInfo, address, 'f') == -1)
 		return -1;
-	if (parseMoveExpression(cfg, pkmInfo, enumPrefix, 'c') == -1)
+	if (parseMoveExpression(cfg, pkmInfo, address, 'c') == -1)
 		return -1;
 	return 0;
 }
@@ -1498,38 +1544,6 @@ function main(){
 	send_feedback("Simulations were done.", true);
 }
 
-function getPokemonSpeciesOptions(includedUserPokebox){
-	var speciesOptions = [];
-	if (includedUserPokebox){
-		for (var i = 0; i < USER_POKEBOX.length; i++){
-			USER_POKEBOX[i].box_index = i;
-			speciesOptions.push({
-				label: "$" + i + " " + USER_POKEBOX[i].nickname + " [" + toTitleCase(USER_POKEBOX[i].species) + "]",
-				icon: pokemon_icon_url_by_dex(POKEMON_SPECIES_DATA[USER_POKEBOX[i].index].dex)
-			});
-		}
-	}
-	POKEMON_SPECIES_DATA.forEach(function(pkm){
-		speciesOptions.push({
-			label: toTitleCase(pkm.name),
-			icon: pokemon_icon_url_by_dex(pkm.dex)
-		});
-	});
-	return speciesOptions;
-}
-
-function getMoveOptions(moveType){
-	var moveDatabase = moveType == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA;
-	var moveOptions = [];
-	moveDatabase.forEach(function(move){
-		moveOptions.push({
-			label: toTitleCase(move.name),
-			icon: move.pokeTypeIcon
-		});
-	});
-	return moveOptions;
-}
-
 
 function moveEditFormSubmit(){
 	var moveType_input = document.getElementById('moveEditForm-moveType').value;
@@ -1665,7 +1679,7 @@ function autocompletePokemonEditForm(){
 		appendTo : '#pokemonEditForm',
 		minLength : 0,
 		delay : 0,
-		source: getPokemonSpeciesOptions(false),
+		source: getPokemonSpeciesOptions(-1),
 		select : function(event, ui) {
 			this.value = ui.item.value;
 			$(this).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item:{value:$(this).val()}});
@@ -1682,7 +1696,7 @@ function autocompletePokemonEditForm(){
 				}
 				if (pkmInfo.fastMoves_exclusive.length > 0){
 					if (fmoves_exp.length > 0) fmoves_exp += ', ';
-					fmoves_exp += ',' + pkmInfo.fastMoves_exclusive.join('**, ') + '**';
+					fmoves_exp += pkmInfo.fastMoves_exclusive.join('**, ') + '**';
 				}
 				
 				var cmoves_exp = pkmInfo.chargedMoves.join(', ');
@@ -1692,7 +1706,7 @@ function autocompletePokemonEditForm(){
 				}
 				if (pkmInfo.chargedMoves_exclusive.length > 0){
 					if (cmoves_exp.length > 0) cmoves_exp += ', ';
-					cmoves_exp += ',' + pkmInfo.chargedMoves_exclusive.join('**, ') + '**';
+					cmoves_exp += pkmInfo.chargedMoves_exclusive.join('**, ') + '**';
 				}
 				
 				this.setAttribute('style', 'background-image: url(' + POKEMON_SPECIES_DATA[pkm_idx].icon + ')');
@@ -1709,4 +1723,51 @@ function autocompletePokemonEditForm(){
 	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_pokemon_item;
 	
 	document.getElementById('pokemonEditForm-name' ).onfocus = function(){$(this).autocomplete("search", "");}
+}
+
+
+function userEditFormAddUser(){
+	var userID = document.getElementById('userEditForm-userID-1').value.trim();
+	send_feedback("Connecting to server...", false, 'userEditForm-feedback');
+	
+	$.ajax({ 
+		url: '/user-pokemon-json-list?new&uid_raw=' + userID,
+		dataType: 'json',
+		success: function(data){
+			var importedBox = processUserPokeboxRawData(data);
+			USERS_INFO.push({id: userID, box: importedBox});
+			relabelAll();
+			udpateUserTable();
+			send_feedback("Successfully imported user " + userID + " with " + importedBox.length + " Pokemon", false, 'userEditForm-feedback');
+		},
+		error: function(){
+			send_feedback("Failed to import user " + userID, false, 'userEditForm-feedback');
+		}
+	});
+}
+
+function userEditFormRemoveUser(){
+	var userID = document.getElementById('userEditForm-userID-1').value.trim();
+	var userIdxToRemove = -1;
+	for (var i = 0; i < USERS_INFO.length; i++){
+		if (USERS_INFO[i].id == userID)
+			userIdxToRemove = i;
+	}
+	if (userIdxToRemove >= 0){
+		USERS_INFO.splice(userIdxToRemove, 1);
+		relabelAll();
+		udpateUserTable();
+		send_feedback("Successfully removed user " + userID, false, 'userEditForm-feedback');
+	}else{
+		send_feedback("No user with ID " + userID + " was found", false, 'userEditForm-feedback');
+	}
+}
+
+
+function udpateUserTable(){
+	var table = document.getElementById('userEditForm-userTable');
+	table.children[1].innerHTML = '';
+	for (var i = 0; i < USERS_INFO.length; i++){
+		table.children[1].appendChild(createRow([i+1, USERS_INFO[i].id, USERS_INFO[i].box.length],'td'));
+	}
 }
