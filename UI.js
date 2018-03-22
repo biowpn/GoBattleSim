@@ -583,7 +583,7 @@ function autocompletePokemonNode(address){
 				if (user_idx < USERS_INFO.length){
 					var thisBox = USERS_INFO[user_idx].box;
 					var box_idx = parseInt(inputStr.slice(1).split(' ')[0]);
-					if (box_idx >= 0 && box_idx <= thisBox.length){
+					if (box_idx >= 0 && box_idx < thisBox.length){
 						species_idx = get_species_index_by_name(thisBox[box_idx].species);
 						if (address_const != 'd')
 							writeAttackerNode(thisPokemonNode, thisBox[box_idx]);
@@ -610,7 +610,7 @@ function autocompletePokemonNode(address){
 		if (user_idx < USERS_INFO.length){
 			var thisBox = USERS_INFO[user_idx].box;
 			var box_idx = parseInt(currentVal.slice(1).split(' ')[0]);
-			if (box_idx >= 0 && box_idx <= thisBox.length)
+			if (box_idx >= 0 && box_idx < thisBox.length)
 				current_species_idx = get_species_index_by_name(thisBox[box_idx].species);
 		}
 	}
@@ -699,15 +699,18 @@ function parseAttackerNode(node){
 	var row2 = node.children[1].children[1].children[1];
 	var row3 = node.children[1].children[2].children[1];
 	
-	var box = [];
-	var userIndex = parseInt(node.id.split('-')[2]);
+	var box = [], userIndex = parseInt(node.id.split('-')[2]);
 	if (userIndex < USERS_INFO.length)
 		box = USERS_INFO[userIndex].box;
 	
-	var box_idx = -1;
-	var nameInputValue = row1.children[0].children[0].value.trim();
-	if (nameInputValue[0] == '$')
+	var box_idx = -1, nameInputValue = row1.children[0].children[0].value.trim();
+	if (nameInputValue[0] == '$'){
 		box_idx = parseInt(nameInputValue.slice(1).split(' ')[0]);
+		if (box_idx == NaN || box_idx < 0 || box_idx >= box.length){
+			send_feedback('Invalid PokeBox index', true);
+			box_idx = -1;
+		}
+	}
 	
 	var pkm_cfg = {
 		box_index : box_idx,
@@ -715,14 +718,14 @@ function parseAttackerNode(node){
 		fmove_index : -1,
 		cmove_index : -1,
 		nickname : box_idx >= 0 ? box[box_idx].nickname : "",
-		species: box_idx >= 0 ? box[box_idx].species : (nameInputValue || '*'),
+		species: box_idx >= 0 ? box[box_idx].species : nameInputValue,
 		copies: parseInt(row1.children[1].children[0].value) || 1,
 		level: row2.children[0].children[0].value.trim(),
 		stmiv: row2.children[1].children[0].value.trim(),
 		atkiv: row2.children[2].children[0].value.trim(),
 		defiv: row2.children[3].children[0].value.trim(),
-		fmove: row3.children[0].children[0].value.trim() || '*',
-		cmove: row3.children[1].children[0].value.trim() || '*',
+		fmove: row3.children[0].children[0].value.trim(),
+		cmove: row3.children[1].children[0].value.trim(),
 		dodge: row3.children[2].children[0].value,
 		raid_tier : 0
 	};
@@ -760,8 +763,13 @@ function parseDefenderNode(node){
 		box = USERS_INFO[0].box; // Defender is always user 1 for now
 	var box_idx = -1;
 	var nameInputValue = row1.children[0].children[0].value.trim();
-	if (nameInputValue[0] == '$')
+	if (nameInputValue[0] == '$'){
 		box_idx = parseInt(nameInputValue.slice(1).split(' ')[0]);
+		if (box_idx == NaN || box_idx < 0 || box_idx >= box.length){
+			send_feedback('Invalid PokeBox index', true);
+			box_idx = -1;
+		}
+	}
 	
 	var pkm_cfg = {
 		box_index : box_idx,
@@ -779,10 +787,10 @@ function parseDefenderNode(node){
 		cmove: row3.children[1].children[0].value.trim()
 	};
 	if (document.getElementById("battleMode").value == "gym"){
-		pkm_cfg['level'] = row2.children[0].children[0].value.trim() || '30',
-		pkm_cfg['stmiv'] = row2.children[1].children[0].value.trim() || '14',
-		pkm_cfg['atkiv'] = row2.children[2].children[0].value.trim() || '15',
-		pkm_cfg['defiv'] = row2.children[3].children[0].value.trim() || '13',
+		pkm_cfg['level'] = row2.children[0].children[0].value.trim(),
+		pkm_cfg['stmiv'] = row2.children[1].children[0].value.trim(),
+		pkm_cfg['atkiv'] = row2.children[2].children[0].value.trim(),
+		pkm_cfg['defiv'] = row2.children[3].children[0].value.trim(),
 		pkm_cfg['raid_tier'] = -1;
 	}else if (document.getElementById("battleMode").value == "raid"){
 		pkm_cfg['raid_tier'] = parseInt(document.getElementById("raidTier").value);
@@ -943,7 +951,7 @@ function writeDefenderNode(node, pkmConfig, raidTier){
 		row2.children[2].children[0].value = pkmConfig['atkiv'];
 		row2.children[3].children[0].value = pkmConfig['defiv'];
 	}else if (document.getElementById("battleMode").value ==  "raid"){
-		row2.children[0].children[0].value = pkmConfig['raid_tier'] || raidTier;
+		row2.children[0].children[0].value = pkmConfig['raid_tier'] || raidTier || 5;
 	}
 }
 
@@ -994,8 +1002,6 @@ function unpackSpeciesKeyword(str){
 			var pkm_idx = get_species_index_by_name(names[i].trim());
 			if (pkm_idx >= 0)
 				indices.push(pkm_idx);
-			else
-				send_feedback(names[i].trim() + " parsed to none inside list intializer", true);
 		}
 		return indices;
 	}else if (str == 'babt')
@@ -1017,6 +1023,8 @@ function unpackSpeciesKeyword(str){
 		return pokemonIndices;
 	}else if (POKEMON_BY_TYPE_INDICES.hasOwnProperty(str))
 		return POKEMON_BY_TYPE_INDICES[str];
+	else
+		return [];
 }
 
 function unpackMoveKeyword(str, moveType, pkmIndex){
@@ -1061,6 +1069,10 @@ function parseSpeciesExpression(cfg, pkmInfo, address){
 	if (pkmInfo.index >= 0)
 		return 0;
 	var expressionStr = pkmInfo.species;
+	if (expressionStr == ''){
+		send_feedback(address + " species input: Empty", true);
+		return -2;
+	}
 
 	if (expressionStr[0] == '*'){// Enumerator
 		var enumVariableName = '*' + address + '.species';
@@ -1081,8 +1093,8 @@ function parseSpeciesExpression(cfg, pkmInfo, address){
 		}else{
 			var indices = unpackSpeciesKeyword(expressionStr.slice(1));
 			if (indices.length == 0){
-				send_feedback(expressionStr + " parsed to none", true);
-				return -1;
+				send_feedback(address + " species input: Does not match any Pokemon for Enumerator", true);
+				return -2;
 			}
 			if (!MasterSummaryTableMetrics.includes(enumVariableName))
 				createNewMetric(enumVariableName);
@@ -1106,22 +1118,29 @@ function parseSpeciesExpression(cfg, pkmInfo, address){
 				copyAllInfo(pkmInfo, pkmConfigToCopyFrom, false);
 			enqueueSim(cfg);
 		}catch(err){
-			send_feedback(err);
+			send_feedback(address + " species input: Invalid address for Dynamic Assignment Operator", true);
+			return -2;
 		}
 		return -1;
 	}else{
-		pkmInfo.index = get_species_index_by_name(expressionStr);		
+		pkmInfo.index = get_species_index_by_name(expressionStr);
+		if (pkmInfo.index < 0){
+			send_feedback(address + " species input: Does not match any Pokemon", true);
+			return -2;
+		}else
+			return 0;
 	}
-	
-	return (pkmInfo.index >= 0) ? 0 : -1;
 }
 
 function parseRangeExpression(cfg, pkmInfo, address, attr){
 	if (typeof pkmInfo[attr] == typeof 0)
 		return 0;
+	if (pkmInfo[attr] == ''){
+		send_feedback(address + '.' + attr + ": Empty", true);
+		return -2;
+	}
 	
 	var LBound = (attr == 'level' ? 1 : 0), UBound = (attr == 'level' ? 40 : 15);
-	
 	if (pkmInfo[attr][0] == '='){ // Dynamic Assignment Operator
 		try{
 			var arr = pkmInfo[attr].slice(1).split('-');
@@ -1130,18 +1149,21 @@ function parseRangeExpression(cfg, pkmInfo, address, attr){
 			pkmInfo[attr] = pkmConfigToCopyFrom[attr];
 			enqueueSim(cfg);
 		}catch(err){
-			send_feedback(err);
+			send_feedback(address + '.' + attr + ": Invalid address for Dynamic Assignment Operator", true);
+			return -2;
 		}
 		return -1;
-	} else if (pkmInfo[attr].includes('-')){
+	}else if (pkmInfo[attr].includes('-')){
 		var enumVariableName = '*' + address + '.' + attr;
 		if (!MasterSummaryTableMetrics.includes(enumVariableName))
 			createNewMetric(enumVariableName);
 		var bounds = pkmInfo[attr].split('-');
-		bounds[0] = bounds[0].trim();
-		bounds[1] = bounds[1].trim();
-		LBound = Math.max((bounds[0] == '' ? LBound : parseInt(bounds[0])), LBound);
-		UBound = Math.min((bounds[1] == '' ? UBound : parseInt(bounds[1])), UBound);
+		LBound = Math.max((bounds[0].trim() == '' ? LBound : parseInt(bounds[0].trim())), LBound);
+		UBound = Math.min((bounds[1].trim() == '' ? UBound : parseInt(bounds[1].trim())), UBound);
+		if (LBound == NaN || UBound == NaN){
+			send_feedback(address + '.' + attr + ": Invalid range for Range Generator", true);
+			return -2;
+		}
 		for (var i = LBound; i <= UBound; i++){
 			pkmInfo[attr] = i;
 			cfg['enumeratedValues'][enumVariableName] = i;
@@ -1150,7 +1172,12 @@ function parseRangeExpression(cfg, pkmInfo, address, attr){
 		return -1;
 	}else{
 		pkmInfo[attr] = Math.max(LBound, Math.min(UBound, parseInt(pkmInfo[attr])));
-		return 0;
+		if (pkmInfo[attr] == NaN){
+			send_feedback(address + '.' + attr + ": Invalid numerical input", true);
+			return -2;
+		}
+		else
+			return 0;
 	}
 }
 
@@ -1158,14 +1185,19 @@ function parseMoveExpression(cfg, pkmInfo, address, moveType){
 	if (pkmInfo[moveType+'move_index'] >= 0)
 		return 0;
 	var expressionStr = pkmInfo[moveType+'move'];
+	if (expressionStr == ''){
+		send_feedback(address + '.' + moveType + "move: Empty", true);
+		return -2;
+	}
+	
 	var MovesData = (moveType == 'f') ? FAST_MOVE_DATA : CHARGED_MOVE_DATA;
 	
 	if (expressionStr[0] == '*'){ // Enumerator
 		var enumVariableName = '*' + address + '.' + moveType + 'move';
 		var moveIndices = unpackMoveKeyword(expressionStr.slice(1), moveType, pkmInfo.index);
 		if (moveIndices.length == 0){
-			send_feedback(expressionStr + " parsed to none", true);
-			return -1;
+			send_feedback(address + '.' + moveType + "move: Does not match any move for Enumerator", true);
+			return -2;
 		}
 		if (!MasterSummaryTableMetrics.includes(enumVariableName))
 			createNewMetric(enumVariableName);
@@ -1186,33 +1218,37 @@ function parseMoveExpression(cfg, pkmInfo, address, moveType){
 			pkmInfo[moveType+'move'] = pkmConfigToCopyFrom[moveType+'move'];
 			enqueueSim(cfg);
 		}catch(err){
-			send_feedback(err);
+			send_feedback(address + '.' + moveType + "move: Invalid address for Dynamic Assignment Operator", true);
+			return -2;
 		}
 		return -1;
 	}else{
 		pred = (moveType == 'f') ? get_fmove_index_by_name : get_cmove_index_by_name;
 		pkmInfo[moveType+'move_index'] = pred(expressionStr);
+		if (pkmInfo[moveType+'move_index'] < 0){
+			send_feedback(address + '.' + moveType + "move: Does not match any move", true);
+			return -2;
+		}else
+			return 0;
 	}
-	return (pkmInfo[moveType+'move_index'] >= 0) ? 0 : -1;
 }
 
 
 function parsePokemonInput(cfg, pkmInfo, address){
-	if (parseSpeciesExpression(cfg, pkmInfo, address) == -1)
-		return -1;
-	if (parseRangeExpression(cfg, pkmInfo, address, 'level') == -1)
-		return -1;
-	if (parseRangeExpression(cfg, pkmInfo, address, 'atkiv') == -1)
-		return -1;
-	if (parseRangeExpression(cfg, pkmInfo, address, 'defiv') == -1)
-		return -1;
-	if (parseRangeExpression(cfg, pkmInfo, address, 'stmiv') == -1)
-		return -1;
-	if (parseMoveExpression(cfg, pkmInfo, address, 'f') == -1)
-		return -1;
-	if (parseMoveExpression(cfg, pkmInfo, address, 'c') == -1)
-		return -1;
-	return 0;
+	var statusCode = parseSpeciesExpression(cfg, pkmInfo, address);
+	if (statusCode != 0) return statusCode;
+	statusCode = parseRangeExpression(cfg, pkmInfo, address, 'level');
+	if (statusCode != 0) return statusCode;
+	statusCode = parseRangeExpression(cfg, pkmInfo, address, 'atkiv');
+	if (statusCode != 0) return statusCode;
+	statusCode = parseRangeExpression(cfg, pkmInfo, address, 'defiv');
+	if (statusCode != 0) return statusCode;
+	statusCode = parseRangeExpression(cfg, pkmInfo, address, 'stmiv');
+	if (statusCode != 0) return statusCode;
+	statusCode = parseMoveExpression(cfg, pkmInfo, address, 'f');
+	if (statusCode != 0) return statusCode;
+	statusCode = parseMoveExpression(cfg, pkmInfo, address, 'c');
+	return statusCode;
 }
 
 function parseWeatherInput(cfg){
@@ -1232,11 +1268,13 @@ function parseWeatherInput(cfg){
 
 
 function processQueue(cfg){
+	var statusCode = 0;
 	for (var i = enumPlayerStart; i < cfg['atkrSettings'].length; i++){
 		for (var j = enumPartyStart; j < cfg['atkrSettings'][i].party_list.length; j++){
 			for (var k = enumPokemonStart; k < cfg['atkrSettings'][i].party_list[j].pokemon_list.length; k++){
-				if (parsePokemonInput(cfg, cfg['atkrSettings'][i].party_list[j].pokemon_list[k], (i+1)+'-'+(j+1)+'-'+(k+1)) == -1)
-					return -1;
+				statusCode = parsePokemonInput(cfg, cfg['atkrSettings'][i].party_list[j].pokemon_list[k], (i+1)+'-'+(j+1)+'-'+(k+1));
+				if (statusCode != 0)
+					return statusCode;
 				enumPokemonStart++;
 			}
 			enumPartyStart++;
@@ -1246,13 +1284,15 @@ function processQueue(cfg){
 		enumPartyStart = 0;
 		enumPokemonStart = 0;
 	}
-	if (parsePokemonInput(cfg, cfg['dfdrSettings'], 'd') == -1)
-		return -1;
+	statusCode = parsePokemonInput(cfg, cfg['dfdrSettings'], 'd');
+	if (statusCode != 0)
+		return statusCode;
 	
-	if (parseWeatherInput(cfg) == -1){
-		return -1;
-	}
-	return 0;
+	statusCode = parseWeatherInput(cfg);
+	if (statusCode != 0)
+		return statusCode;
+	
+	return statusCode;
 }
 
 function runSim(cfg){
@@ -1304,6 +1344,7 @@ function clearFeedbackTables(){
 }
 
 function clearAllSims(){
+	send_feedback("");
 	simResults = [];
 	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0]);
 	initMasterSummaryTableMetrics();
@@ -1528,20 +1569,23 @@ function send_feedback(msg, appending, feedbackDivId){
 }
 
 function main(){
+	send_feedback("======== GO ========", true);
 	initMasterSummaryTableMetrics();
-	var userInput = readUserInput();
+	var userInput = readUserInput(), statusCode = 0;
 	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
-	simQueue.push(userInput);
-	send_feedback("");
+	simQueue = [userInput];
 	while (simQueue.length > 0){
-		var cfg = simQueue[0];
-		if (processQueue(cfg) == -1)
+		statusCode = processQueue(simQueue[0]);
+		if (statusCode == -1)
 			simQueue.shift();
+		else if (statusCode == -2)
+			break;
 		else
 			runSim(simQueue.shift());
 	}
 	displayMasterSummaryTable();
-	send_feedback("Simulations were done.", true);
+	if (simResults.length > 0)
+		send_feedback("Simulations were done.", true);
 }
 
 
