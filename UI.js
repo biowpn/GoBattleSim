@@ -485,11 +485,10 @@ function createDefenderNode(){
 	// By default, set to Tier 5 raid
 	var tb2 = createElement("table", "<colgroup><col width=100%></colgroup>");
 	tb2.appendChild(createRow(['']));
-	tb2.children[1].children[0].innerHTML = "Raid Tier";
 	var raidSelection = document.createElement("select");
 	raidSelection.id = "raidTier";
 	for (var i = 1; i <= 5; i++){
-		var option = createElement("option", i);
+		var option = createElement("option", "Tier " + i);
 		option.value = i;
 		raidSelection.appendChild(option);
 	}
@@ -531,11 +530,10 @@ function updateDefenderNode(){
 	}else if (mode == "raid"){
 		tb2.innerHTML = "<colgroup><col width=100%></colgroup>";
 		tb2.appendChild(createRow(['']));
-		tb2.children[1].children[0].innerHTML = "Raid Tier";
 		var raidSelection = document.createElement("select");
 		raidSelection.id = "raidTier";
 		for (var i = 1; i <= 5; i++){
-			var option = createElement("option", i);
+			var option = createElement("option", "Tier " + i);
 			option.value = i;
 			raidSelection.appendChild(option);
 		}
@@ -806,6 +804,7 @@ function readUserInput(){
 		gSettings['raidTier'] = (parseInt(document.getElementById("raidTier").value));
 	else if (document.getElementById("battleMode").value == "gym")
 		gSettings['raidTier'] = -1;
+	gSettings['immortalDefender'] = parseInt(document.getElementById("immortalDefender").value);
 	gSettings['weather'] = document.getElementById("weather").value;
 	gSettings['dodgeBug'] = parseInt(document.getElementById("dodgeBug").value);
 	gSettings['simPerConfig'] = Math.max(1, Math.min(MAX_SIM_PER_CONFIG, parseInt(document.getElementById("simPerConfig").value)));
@@ -959,6 +958,7 @@ function writeDefenderNode(node, pkmConfig, raidTier){
 
 function writeUserInput(cfg){
 	document.getElementById("battleMode").value = (cfg['generalSettings']['raidTier'] == -1) ? "gym" : "raid";
+	document.getElementById("immortalDefender").value = cfg['generalSettings']['immortalDefender'] || 0;
 	document.getElementById("weather").value = cfg['generalSettings']['weather'];
 	document.getElementById("dodgeBug").value = cfg['generalSettings']['dodgeBug'];
 	document.getElementById("simPerConfig").value = cfg['generalSettings']['simPerConfig'];
@@ -1312,29 +1312,101 @@ function runSim(cfg){
 }
 
 function averageResults(results){
-	var avrgResult = results[0];
-	var numResults = results.length;
-	var sumWin = 0, sumDuration = 0, sumTDOPctg = 0, sumTDO = 0, sumDeaths = 0;
-	for (var i = 0; i < numResults; i++){
-		var gs = results[i]['generalStat'];
-		if (gs['battle_result'] == 'Win')
-			sumWin++;
-		sumDuration += gs['duration'];
-		sumTDOPctg += gs['tdo_percent'];
-		sumTDO += gs['tdo'];
-		sumDeaths += gs['total_deaths'];
-	}
-	if (numResults > 1){
-		avrgResult['generalStat']['battle_result'] = Math.round(sumWin/numResults*10000)/100 + "% Win";
-	}else{
-		avrgResult['generalStat']['battle_result'] = results[0]['generalStat']['battle_result'];
-	}
-	avrgResult['generalStat']['duration'] = Math.round(sumDuration/numResults*10)/10;
-	avrgResult['generalStat']['tdo_percent'] = Math.round(sumTDOPctg/numResults*100)/100;
-	avrgResult['generalStat']['dps'] = Math.round(sumTDO/sumDuration*100)/100;
-	avrgResult['generalStat']['total_deaths'] = Math.round(sumDeaths/numResults*100)/100;
+	var avrgR = JSON.parse(JSON.stringify(results[0])), numResults = results.length, numPlayer = results[0].playerStats.length;
 	
-	return avrgResult;
+	// These are the metrics to sum and average
+	var generalStat_attrs = ['duration', 'tdo_percent', 'tdo', 'total_deaths'];
+	var playerStats_attrs = ['tdo', 'tdo_percentage', 'num_rejoin'];
+	var pokemonStats_attrs = ['hp', 'energy', 'tdo', 'duration', 'tew'];
+	
+	// 1. Initialize everything to 0
+	avrgR['generalStat']['battle_result'] = 0;
+	generalStat_attrs.forEach(function(attr){
+		avrgR.generalStat[attr] = 0;
+	});
+
+	for (var j = 0; j < numPlayer; j++){
+		playerStats_attrs.forEach(function(attr){
+			avrgR.playerStats[j][attr] = 0;
+		});
+	}
+	
+	for (var j = 0; j < numPlayer; j++){
+		for (var k = 0; k < avrgR.pokemonStats[j].length; k++){
+			for (var p = 0; p < avrgR.pokemonStats[j][k].length; p++){
+				pokemonStats_attrs.forEach(function(attr){
+					avrgR.pokemonStats[j][k][p][attr] = 0;
+				});
+			}
+		}
+	}
+	pokemonStats_attrs.forEach(function(attr){
+		avrgR.pokemonStats[numPlayer - 1][attr] = 0;
+	});
+	
+	// 2. Sum them up
+	for (var i = 0; i < numResults; i++){
+		var result = results[i];
+		
+		// generalStat
+		if (result.generalStat.battle_result == 'Win')
+			avrgR.generalStat.battle_result++;
+		generalStat_attrs.forEach(function(attr){
+			avrgR.generalStat[attr] += result.generalStat[attr];
+		});
+		
+		// playerStats
+		for (var j = 0; j < numPlayer; j++){
+			playerStats_attrs.forEach(function(attr){
+				avrgR.playerStats[j][attr] += result.playerStats[j][attr];
+			});
+		}
+		// pokemonStats, excluding defender first
+		for (var j = 0; j < numPlayer; j++){
+			for (var k = 0; k < result.pokemonStats[j].length; k++){
+				for (var p = 0; p < result.pokemonStats[j][k].length; p++){
+					pokemonStats_attrs.forEach(function(attr){
+						avrgR.pokemonStats[j][k][p][attr] += result.pokemonStats[j][k][p][attr];
+					});
+				}
+			}
+		}
+		// pokemonStats, defender
+		pokemonStats_attrs.forEach(function(attr){
+			avrgR.pokemonStats[numPlayer - 1][attr] += result.pokemonStats[numPlayer - 1][attr];
+		});
+	}
+	
+	// 3. Divide and get the results
+	avrgR.generalStat.battle_result = Math.round(avrgR.generalStat.battle_result/numResults*10000)/100 + "% Win";
+	avrgR.generalStat.dps = Math.round(avrgR.generalStat.tdo/avrgR.generalStat.duration*100)/100;
+	generalStat_attrs.forEach(function(attr){
+		avrgR.generalStat[attr] = Math.round(avrgR.generalStat[attr]/numResults*100)/100;
+	});
+
+	for (var j = 0; j < numPlayer; j++){
+		playerStats_attrs.forEach(function(attr){
+			avrgR.playerStats[j][attr] = Math.round(avrgR.playerStats[j][attr]/numResults*100)/100;
+		});
+	}
+	
+	for (var j = 0; j < numPlayer; j++){
+		for (var k = 0; k < result.pokemonStats[j].length; k++){
+			for (var p = 0; p < result.pokemonStats[j][k].length; p++){
+				pokemonStats_attrs.forEach(function(attr){
+					avrgR.pokemonStats[j][k][p][attr] = Math.round(avrgR.pokemonStats[j][k][p][attr]/numResults*100)/100;
+				});
+				avrgR.pokemonStats[j][k][p].dps = Math.round(avrgR.pokemonStats[j][k][p].tdo/avrgR.pokemonStats[j][k][p].duration*100)/100;
+			}
+		}
+	}
+	
+	pokemonStats_attrs.forEach(function(attr){
+		avrgR.pokemonStats[numPlayer][attr] = Math.round(avrgR.pokemonStats[numPlayer][attr]/numResults*100)/100;
+	});
+	avrgR.pokemonStats[numPlayer].dps = Math.round(avrgR.pokemonStats[numPlayer].tdo/avrgR.pokemonStats[numPlayer].duration*100)/100;
+	
+	return avrgR;
 }
 
 
@@ -1365,10 +1437,7 @@ function createMasterSummaryTable(){
 		MasterSummaryTableMetrics.forEach(function(m){
 			row.push((m[0] == '*') ? sim.input.enumeratedValues[m] : sim.output.generalStat[m]);
 		});
-		if (sim.input.generalSettings.reportType == 'enum')
-			row.push("<a onclick='displayDetail("+i+")'>Detail</a>");
-		else
-			row.push('');
+		row.push("<a onclick='displayDetail("+i+")'>Detail</a>");
 		table.children[2].appendChild(createRow(row, "td"));
 	}
 	

@@ -12733,7 +12733,7 @@ $(document).ready(function(){
 
 $(document).ready(function(){
 	// Debug
-	return;
+	//return;
 	var dbgs = {
 		generalSettings : {battleMode: "raid", 
 							weather : "EXTREME", 
@@ -12761,7 +12761,7 @@ $(document).ready(function(){
 							species: "Tyranitar", 
 							fmove: "Bite",
 							cmove: "Fire Blast",
-							raid_tier: 3
+							raid_tier: 4
 						}
 	};
 

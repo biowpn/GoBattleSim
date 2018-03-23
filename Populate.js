@@ -32,10 +32,8 @@ function processUserPokeboxRawData(data){
 				index : species_idx,
 				species : data[i].species.toLowerCase(),
 				copies: 1,
+				cp: parseInt(data[i].cp),
 				level: 0,
-				baseStm : POKEMON_SPECIES_DATA[species_idx].baseStm,
-				baseAtk : POKEMON_SPECIES_DATA[species_idx].baseAtk,
-				baseDef : POKEMON_SPECIES_DATA[species_idx].baseDef,
 				stmiv: parseInt(data[i].sta),
 				atkiv: parseInt(data[i].atk),
 				defiv: parseInt(data[i].def),
@@ -44,11 +42,12 @@ function processUserPokeboxRawData(data){
 				cmove: data[i].charge_move.toLowerCase(),
 				cmove_index : get_cmove_index_by_name(data[i].charge_move.toLowerCase()),
 				dodge: 0,
-				nickname : data[i].nickname,
-				image: POKEMON_SPECIES_DATA[species_idx].image,
-				icon: POKEMON_SPECIES_DATA[species_idx].icon
+				nickname : data[i].nickname
 			};
-			pkmRaw.level = calculateLevelByCP(pkmRaw, parseInt(data[i].cp));
+			for (var attr in POKEMON_SPECIES_DATA[species_idx])
+				pkmRaw[attr] = POKEMON_SPECIES_DATA[species_idx][attr];
+			
+			pkmRaw.level = calculateLevelByCP(pkmRaw, pkmRaw.cp);
 			box.push(pkmRaw);
 		}
 	}

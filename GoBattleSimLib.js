@@ -153,6 +153,7 @@ function Pokemon(cfg){
 	this.dodgeStrat = parseInt(cfg.dodge) || 0;
 	this.has_dodged_next_attack = false;
 	this.active = false;
+	this.immortal = false;
 	this.index_party = cfg.index_party;
 	
 	// Some statistics for performance analysis
@@ -196,7 +197,7 @@ Pokemon.prototype.gain_energy = function(energyDelta, fromDamage){
 Pokemon.prototype.take_damage = function(dmg){
 	this.HP -= dmg;
 	var overKilledPart = 0;
-	if (this.HP <= 0){
+	if (this.HP <= 0 && !this.immortal){
 		this.num_deaths++;
 		this.active = false;
 		overKilledPart = -this.HP;
@@ -406,7 +407,8 @@ function World(cfg){
 	this.weather = cfg['generalSettings']['weather'] || "EXTREME";
 	this.log_style = cfg['generalSettings']['logStyle'] || 0;
 	this.random_seed = cfg['generalSettings']['randomSeed'] || 0;
-	this.dodge_bug = cfg['generalSettings']['dodgeBug'] || false;
+	this.dodge_bug = cfg['generalSettings']['dodgeBug'] || 0;
+	this.immortal_defender = cfg['generalSettings']['immortalDefender'] || 0;
 	
 	// Set up players
 	this.playersArr = [];
@@ -415,6 +417,14 @@ function World(cfg){
 	
 	// Set up defender
 	this.dfdr = new Pokemon(cfg['dfdrSettings']);
+	if (this.immortal_defender){
+		this.dfdr.immortal = true;
+		this.playersArr.forEach(function(player){
+			player.partiesArr.forEach(function(party){
+				party.revive_strategy = false;
+			});
+		});
+	}
 	
 	this.tline = new Timeline();
 	this.any_player_active_bool = true;
@@ -623,11 +633,10 @@ World.prototype.battle = function (){
 	this.initial_dfdr_choose(dfdr, t);
 	dfdr.active = true;
 
-	
-	while (dfdr.HP > 0 && this.any_player_active_bool){
+	while (dfdr.active && this.any_player_active_bool){
 		var e = this.tline.list.shift();
 		t = e.t;
-		if (t >= this.timelimit_ms - ARENA_EARLY_TERMINATION_MS)
+		if (t >= this.timelimit_ms - ARENA_EARLY_TERMINATION_MS && !this.immortal_defender)
 			break;
 		
 		// 1. First process the event
@@ -674,8 +683,7 @@ World.prototype.battle = function (){
 		// 2. Check if some attacker fainted
 		if (this.any_attacker_fainted_bool){
 			for (var i = 0; i < this.playersArr.length; i++){
-				var this_player = this.playersArr[i];
-				var old_pkm = this_player.active_pkm;
+				var this_player = this.playersArr[i], old_pkm = this.playersArr[i].active_pkm;
 				if (old_pkm && old_pkm.HP <= 0){
 					for (var j = 0; j < this.tline.list.length; j++){
 						var thisEvent =  this.tline.list[j];
@@ -685,9 +693,8 @@ World.prototype.battle = function (){
 					old_pkm.time_leave_ms = t;
 					old_pkm.total_time_active_ms += t - old_pkm.time_enter_ms;
 					var delay = this_player.next_pokemon_up(); // Ask for sending another attacker
-					var new_pkm = this_player.active_pkm;
-					if (new_pkm)
-						this.tline.enqueue(new Event("Enter", t + delay, new_pkm, 0,0,0,0));
+					if (this_player.active_pkm)
+						this.tline.enqueue(new Event("Enter", t + delay, this_player.active_pkm, 0,0,0,0));
 				}
 			}
 			this.any_attacker_fainted_bool = false;
@@ -695,7 +702,7 @@ World.prototype.battle = function (){
 		}
 		
 		// 3. Check if the defender fainted
-		if (dfdr.HP <= 0){
+		if (!dfdr.active){
 			dfdr.time_leave_ms = t;
 			dfdr.total_time_active_ms += t - dfdr.time_enter_ms;
 		}
@@ -786,10 +793,7 @@ World.prototype.get_statistics = function(){
 	
 	general_stat['duration'] = Math.round(this.battle_length/100)/10;
 	general_stat['total_deaths'] = 0;
-	if (this.dfdr.HP > 0) // defender is still active
-		general_stat['battle_result'] = "Lose";
-	else
-		general_stat['battle_result'] = "Win";
+	general_stat['battle_result'] = this.dfdr.active ? "Lose" : "Win";
 	
 	general_stat['tdo'] = this.dfdr.maxHP - this.dfdr.HP;
 	general_stat['tdo_percent'] = Math.round(general_stat['tdo'] / this.dfdr.maxHP *1000)/10;
