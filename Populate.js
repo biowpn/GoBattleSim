@@ -150,7 +150,7 @@ $.ajax({
 					energyDelta: Math.abs(parseInt(data[i].energy_gain)),
 					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
 					duration: parseFloat(data[i].cooldown)*1000,
-					pokeTypeIcon: "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + data[i].move_type.toLowerCase() +".png"
+					pokeTypeIcon: poketype_icon_url_by_name(data[i].move_type)
 				};
 				FAST_MOVE_DATA.push(move);
 			}else if (data[i].move_category == "Charge Move"){
@@ -162,7 +162,7 @@ $.ajax({
 					energyDelta: -Math.abs(parseInt(data[i].energy_cost)),
 					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000,
 					duration: parseFloat(data[i].cooldown)*1000,
-					pokeTypeIcon: "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + data[i].move_type.toLowerCase() +".png"
+					pokeTypeIcon: poketype_icon_url_by_name(data[i].move_type)
 				};
 				CHARGED_MOVE_DATA.push(move);
 			}else{

@@ -151,12 +151,15 @@ function Pokemon(cfg){
 		this.playerCode = -1;
 	}
 	this.dodgeStrat = parseInt(cfg.dodge) || 0;
-	this.has_dodged_next_attack = false;
-	this.active = false;
 	this.immortal = false;
 	this.index_party = cfg.index_party;
 	
-	// Some statistics for performance analysis
+	this.init();
+}
+
+Pokemon.prototype.init = function(){
+	this.has_dodged_next_attack = false;
+	this.active = false;
 	this.time_enter_ms = 0;
 	this.time_leave_ms = 0;
 	this.total_time_active_ms = 0;
@@ -248,6 +251,14 @@ function Party(cfg){
 			this.pokemonArr.push(new Pokemon(pkmCfg));
 		}
 	}
+	
+	this.init();
+}
+
+Party.prototype.init = function(){
+	this.pokemonArr.forEach(function(pkm){
+		pkm.init();
+	});
 	this.active_idx = 0;
 	this.active_pkm = this.pokemonArr[0];
 }
@@ -302,7 +313,13 @@ function Player(cfg){
 		cfg.party_list[j].player_code = this.playerCode;
 		this.partiesArr.push(new Party(cfg.party_list[j]));
 	}
-	
+	this.init();
+}
+
+Player.prototype.init = function(){
+	this.partiesArr.forEach(function(party){
+		party.init();
+	});
 	this.active_idx = 0;
 	this.active_pkm = this.partiesArr[0].active_pkm;
 	this.num_rejoin = 0;
@@ -406,7 +423,6 @@ function World(cfg){
 		this.timelimit_ms = TIMELIMIT_RAID_MS[this.raid_tier - 1];
 	this.weather = cfg['generalSettings']['weather'] || "EXTREME";
 	this.log_style = cfg['generalSettings']['logStyle'] || 0;
-	this.random_seed = cfg['generalSettings']['randomSeed'] || 0;
 	this.dodge_bug = cfg['generalSettings']['dodgeBug'] || 0;
 	this.immortal_defender = cfg['generalSettings']['immortalDefender'] || 0;
 	
@@ -426,13 +442,21 @@ function World(cfg){
 		});
 	}
 	
+	this.init();
+}
+
+World.prototype.init = function(){
+	this.playersArr.forEach(function(player){
+		player.init();
+	});
+	this.dfdr.init();
+	
 	this.tline = new Timeline();
 	this.any_player_active_bool = true;
 	this.any_attacker_fainted_bool = false;
 	this.projected_atkrHurtEvent = null;
 	this.battle_length = 0;
 	this.log = [];
-
 }
 
 // Player's Pokemon uses a move

@@ -196,8 +196,8 @@
 	<table><colgroup><col width=33%><col width=33%><col width=34%></colgroup>
 		<tr>
 			<td><button id='moveEditFormOpener'>Add/Edit Move</button></td>
-			<td><button id='pokemonEditFormOpener'>Add/Edit Pokemon Species</button></td>
-			<td><button id='userEditFormOpener'>Add/Remove User</button></td>
+			<td><button id='pokemonEditFormOpener'>Add/Edit Species</button></td>
+			<td><button id='userEditFormOpener'>Manage User/Box</button></td>
 		</tr>
 	</table>
 </div>
@@ -394,7 +394,7 @@
 	<h4>List of Users</h4>
 	<table id='userEditForm-userTable'>
 		<thead>
-			<tr><th>Player No.</th><th>UserID</th><th>PokeBox Length</th></tr>
+			<tr> <th>Player No.</th> <th>UserID</th> <th>PokeBox Length</th> <th>Action</th> </tr>
 		</thead>
 		<tbody>
 		
@@ -411,6 +411,37 @@
 	</table>
 	
 	<div id='userEditForm-feedback'>
+	</div>
+</div>
+
+
+<div id='boxEditForm' title="Manage Pokebox">
+	<h4 id='boxEditForm-title'>User: </h4>
+	<table id='boxEditForm-pokemonTable'>
+		<thead>
+			<tr>
+				<th>#</th>
+				<th><img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img></th>
+				<th>Type1</th>
+				<th>Type2</th>
+				<th>Nickname</th>
+				<th>CP</th>
+				<th>Level</th>
+				<th>HP IV</th>
+				<th>Atk IV</th>
+				<th>Def IV</th>
+				<th>Fast Move</th>
+				<th>Charged Move</th>
+			</tr>
+		</thead>
+		<tbody>
+		
+		</tbody>
+	</table>
+	<br>
+	<button onclick='boxEditFormSubmit()' id='boxEditForm-submit'>Save</button>
+	
+	<div id='boxEditForm-feedback'>
 	</div>
 </div>
 
@@ -452,5 +483,21 @@ $( "#userEditForm" ).dialog({
 $( "#userEditFormOpener" ).click(function() {
   $( "#userEditForm" ).dialog( "open" );
 });
+
+
+
+$( "#boxEditForm" ).dialog({ 
+	autoOpen: false,
+	width: 600
+});
+
+var boxEditFormTable = $( '#boxEditForm-pokemonTable' ).DataTable({
+	scrollX: true,
+	scrollY: '50vh',
+	scroller: true,
+	searching: false
+});
+
+
 
 </script>

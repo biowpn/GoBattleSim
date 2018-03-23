@@ -17,8 +17,7 @@ var TIER5_BOSSES_CURRENT_INDICES = [149, 383];
 var RELEVANT_ATTACKERS_INDICES = [];
 var POKEMON_BY_TYPE_INDICES = {};
 
-const MAX_QUEUE_SIZE = 65536;
-const MAX_SIM_PER_CONFIG = 1024;
+const MAX_QUEUE_SIZE = 100000;
 const DEFAULT_SUMMARY_TABLE_METRICS = ['battle_result','duration','tdo_percent','dps', 'total_deaths'];
 const DEFAULT_SUMMARY_TABLE_HEADERS = ['Outcome','Time','TDO%','DPS','#Death'];
 
@@ -65,7 +64,10 @@ function createRow(rowData, type){
 	var row = document.createElement("tr");
 	for (var i = 0; i < rowData.length; i++){
 		var d = document.createElement(type);
-		d.innerHTML = rowData[i];
+		if (typeof rowData[i] == typeof '' || typeof rowData[i] == typeof 0)
+			d.innerHTML = rowData[i];
+		else
+			d.appendChild(rowData[i]);
 		row.appendChild(d);
 	}
 	return row;
@@ -79,6 +81,33 @@ function pokemon_icon_url_by_dex(dex, size){
 		dex_string = "0" + dex_string;
 	return "https://pokemongo.gamepress.gg/assets/img/sprites/" + dex_string + size + ".png";
 }
+
+function poketype_icon_url_by_name(type){
+	return "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + type.toLowerCase() + ".png";
+}
+
+function createIconLabelDiv(iconURL, label, iconClass){
+	return "<div><span class='" + iconClass + "'>" + "<img src='"+iconURL+"'></img></span><span class='apitem-label'>" + label + "</span></div>";
+}
+
+function createIconLabelDiv2(iconURL, label, iconClass){
+	return "<div class='input-with-icon " + iconClass + "' style='background-image: url(" + iconURL + ")'>" + label + "</div>";
+}
+
+
+function manual_render_autocomplete_pokemon_item(ul, item){
+    return $( "<li>" )
+        .append( "<div>" + createIconLabelDiv(item.icon, item.label, 'apitem-pokemon-icon') + "</div>" )
+        .appendTo( ul );
+}
+
+function manual_render_autocomplete_move_item(ul, item){
+    return $( "<li>" )
+		.append( "<div>" + createIconLabelDiv(item.icon, item.label, 'apitem-move-icon') + "</div>" )
+        .appendTo( ul );
+}
+
+
 
 function get_all_moves_by_index(pkmIndex, moveType){
 	return POKEMON_SPECIES_DATA[pkmIndex][moveType + "Moves"].
@@ -541,26 +570,6 @@ function updateDefenderNode(){
 	}
 }
 
-function createIconLabelDiv(iconURL, label, iconClass){
-	return "<div><span class='" + iconClass + "'>" + "<img src='"+iconURL+"'></img></span><span class='apitem-label'>" + label + "</span></div>";
-}
-
-function createIconLabelDiv2(iconURL, label, iconClass){
-	return "<div class='input-with-icon " + iconClass + "' style='background-image: url(" + iconURL + ")'>" + label + "</div>";
-}
-
-
-function manual_render_autocomplete_pokemon_item(ul, item){
-    return $( "<li>" )
-        .append( "<div>" + createIconLabelDiv(item.icon, item.label, 'apitem-pokemon-icon') + "</div>" )
-        .appendTo( ul );
-}
-
-function manual_render_autocomplete_move_item(ul, item){
-    return $( "<li>" )
-		.append( "<div>" + createIconLabelDiv(item.icon, item.label, 'apitem-move-icon') + "</div>" )
-        .appendTo( ul );
-}
 
 function autocompletePokemonNode(address){
 	const address_const = address;	
@@ -807,7 +816,7 @@ function readUserInput(){
 	gSettings['immortalDefender'] = parseInt(document.getElementById("immortalDefender").value);
 	gSettings['weather'] = document.getElementById("weather").value;
 	gSettings['dodgeBug'] = parseInt(document.getElementById("dodgeBug").value);
-	gSettings['simPerConfig'] = Math.max(1, Math.min(MAX_SIM_PER_CONFIG, parseInt(document.getElementById("simPerConfig").value)));
+	gSettings['simPerConfig'] = Math.max(1, parseInt(document.getElementById("simPerConfig").value));
 	gSettings['reportType'] = document.getElementById("reportType").value;
 	if (gSettings['reportType'] == 'avrg')
 		gSettings['logStyle'] = 0;
@@ -1296,10 +1305,11 @@ function processQueue(cfg){
 }
 
 function runSim(cfg){
-	var interResults = [];
+	var app_world = new World(cfg);
 	var numSimRun = parseInt(cfg['generalSettings']['simPerConfig']);
+	var interResults = [];
 	for (var i = 0; i < numSimRun; i++){
-		var app_world = new World(cfg);
+		app_world.init();
 		app_world.battle();
 		interResults.push(app_world.get_statistics());
 	}
@@ -1881,6 +1891,52 @@ function udpateUserTable(){
 	var table = document.getElementById('userEditForm-userTable');
 	table.children[1].innerHTML = '';
 	for (var i = 0; i < USERS_INFO.length; i++){
-		table.children[1].appendChild(createRow([i+1, USERS_INFO[i].id, USERS_INFO[i].box.length],'td'));
+		table.children[1].appendChild(createRow([
+			i+1,
+			USERS_INFO[i].id,
+			USERS_INFO[i].box.length,
+			'<button onclick="udpateBoxTable('+i+')">Manage Box</button>'
+		],'td'));
 	}
+}
+
+
+function udpateBoxTable(userIndex){
+	document.getElementById('boxEditForm-title').innerHTML = 'User ' + USERS_INFO[userIndex].id;
+	var box = USERS_INFO[userIndex].box;
+	
+	boxEditFormTable.clear();
+	for (var i = 0; i < box.length; i++){
+		boxEditFormTable.row.add([
+			i+1,
+			createIconLabelDiv2(box[i].icon, toTitleCase(box[i].species), 'species-input-with-icon'),
+			createIconLabelDiv2(poketype_icon_url_by_name(box[i].pokeType1), toTitleCase(box[i].pokeType1), 'move-input-with-icon'),
+			box[i].pokeType2 == 'none' ? '' : createIconLabelDiv2(poketype_icon_url_by_name(box[i].pokeType2), toTitleCase(box[i].pokeType2), 'move-input-with-icon'),
+			box[i].nickname,
+			box[i].cp,
+			box[i].level,
+			box[i].stmiv,
+			box[i].atkiv,
+			box[i].defiv,
+			createIconLabelDiv2(FAST_MOVE_DATA[box[i].fmove_index].pokeTypeIcon, toTitleCase(box[i].fmove), 'move-input-with-icon'),
+			createIconLabelDiv2(CHARGED_MOVE_DATA[box[i].cmove_index].pokeTypeIcon, toTitleCase(box[i].cmove), 'move-input-with-icon')
+		]);
+	}
+	boxEditFormTable.draw();
+	$( "#boxEditForm" ).dialog( "open" );
+	
+	const userIndex_const = userIndex;
+	document.getElementById('boxEditForm-submit').onclick = function(){
+		boxEditFormSubmit(userIndex_const);
+	}
+}
+
+function boxEditFormSubmit(userIndex){
+	var data = $( '#boxEditForm-pokemonTable' ).DataTable().rows().data(), newBox = [];
+	for (var i = 0; i < data.length; i++){
+		newBox[i] = USERS_INFO[userIndex].box[parseInt(data[i][0]) - 1];
+	}
+	USERS_INFO[userIndex].box = newBox;
+	relabelAll();
+	send_feedback("Box order has been saved", false, 'boxEditForm-feedback');
 }
