@@ -5,17 +5,10 @@
 // Storing user's Pokebox
 var USERS_INFO = [];
 
-// Pre-defined collections of Pokemon
-var BEST_ATTACKERS_BY_TYPE_INDICES = [211, 247, 383, 242, 281, 67, 145, 243, 93, 102, 382, 143, 142, 88, 149, 75, 375, 381];
-var TIER1_BOSSES_CURRENT_INDICES = [128, 319, 332, 360];
-var TIER2_BOSSES_CURRENT_INDICES = [86, 90, 301, 302];
-var TIER3_BOSSES_CURRENT_INDICES = [67, 123, 183, 220];
-var TIER4_BOSSES_CURRENT_INDICES = [130, 142, 159, 247, 305, 358];
-var TIER5_BOSSES_CURRENT_INDICES = [149, 383];
+
 
 // To be populated dynamically
 var RELEVANT_ATTACKERS_INDICES = [];
-var POKEMON_BY_TYPE_INDICES = {};
 
 const MAX_QUEUE_SIZE = 100000;
 const DEFAULT_SUMMARY_TABLE_METRICS = ['battle_result','duration','tdo_percent','dps', 'total_deaths'];
@@ -33,9 +26,172 @@ var enumDefender = 0;
 var MasterSummaryTableMetrics = [];
 var MasterSummaryTableHeaders = {};
 
+const LOGICAL_OPERATORS = {
+	',': 0,
+	'&': 1
+};
+
+const acceptedNumericalAttributes = [
+	'cp','atkiv','defiv','stmiv','level',
+	'baseAtk','baseDef','baseStm', 'rating'
+];
+
 /* 
  * UI CORE FUNCTIONS 
  */
+ 
+function parseNumericalRange(str){
+	for (var i = 0; i < acceptedNumericalAttributes.length; i++){
+		var attr = acceptedNumericalAttributes[i];
+		if (str.substring(0, attr.length) == attr.toLowerCase())
+			return [attr, str.slice(attr.length)];
+	};
+	return ['', str];
+}
+
+function createSimplePredicate(str){
+	str = str.trim();
+	if (str == ''){
+		return function(obj){return true;}
+	}else if (str[0] == '!'){
+		return function(obj){return !(createSimplePredicate(str.slice(1))(obj));};
+	}
+	
+	var numericalParameters = parseNumericalRange(str.toLowerCase());
+	if (numericalParameters[0] != ''){ // Match numerical attributes
+		var bounds = numericalParameters[1].split('-');
+		const attr = numericalParameters[0], LBound = parseInt(bounds[0]) || 0, UBound = parseInt(bounds[bounds.length-1]) || 10000000;
+		return function(obj){
+			return LBound <= obj[attr] && obj[attr] <= UBound;
+		};
+	}else if (POKEMON_TYPE_ADVANTAGES.hasOwnProperty(str.toLowerCase()) || str.toLowerCase() == 'none'){ // Match types
+		const str_const = str.toLowerCase();
+		return function(obj){
+			return ([obj.pokeType, obj.pokeType1, obj.pokeType2].includes(str_const));
+		};
+	}else if (str[0] == '@'){ // Match moves
+		const str_const = str.slice(1).toLowerCase();
+		return function(obj){
+			var possibleValues = [obj.fmove, obj.cmove];
+			if (typeof obj.fmove_index == typeof 0)
+				possibleValues.push(FAST_MOVE_DATA[obj.fmove_index].pokeType);
+			if (typeof obj.cmove_index == typeof 0)
+				possibleValues.push(CHARGED_MOVE_DATA[obj.cmove_index].pokeType);
+			for (var i = 0; i < possibleValues.length; i++){
+				if (possibleValues[i] && possibleValues[i].includes(str_const))
+					return true;
+			}
+			return false;
+		};
+	}else if (str[0] == '$'){ // Box
+		return function(obj){
+			return (typeof obj.box_index != 'undefined' && obj.box_index >= 0);
+		};
+	}else if (str.includes(':=')){ // Cutomized attribute match
+		var attrAndValue = str.split(':=');
+		const attr_const = attrAndValue[0].trim(), value_const = attrAndValue[1].trim();
+		return function(obj){
+			return obj[attr_const] && obj[attr_const].toString() == value_const;
+		};
+	}else{ // Match name/nickname/species
+		const str_const = str.toLowerCase();
+		return function(obj){
+			if (obj.species && obj.species.includes(str_const))
+				return true;
+			return obj.label.toLowerCase().includes(str_const);
+		}
+	}
+}
+
+function checkParenthesesBalanced(str){
+	var leftParaCount = 0;
+	for (var i = 0; i < str.length; i++){
+		if (str[i] == '(')
+			leftParaCount++;
+		else if (str[i] == ')')
+			leftParaCount--;
+		if (leftParaCount < 0)
+			return false;
+	}
+	return leftParaCount == 0;
+}
+
+function createComplexPredicate(str){
+	var tokensArr = [], stack = [], tempStr = '';
+	
+	// 1.Infix to Postfix
+	for (var i = 0; i < str.length; i++){
+		if (str[i] == '('){
+			if (tempStr.length > 0){
+				tokensArr.push(tempStr);
+				tempStr = '';
+			}
+			stack.push(str[i]);
+		}else if (str[i] == ')'){
+			if (tempStr.length > 0){
+				tokensArr.push(tempStr);
+				tempStr = '';
+			}
+			while (stack[stack.length-1] != '(')
+				tokensArr.push(stack.pop());
+			stack.pop();
+		}else if (str[i] in LOGICAL_OPERATORS){
+			if (tempStr.length > 0){
+				tokensArr.push(tempStr);
+				tempStr = '';
+			}
+			while(stack.length && stack[stack.length-1] != '(' && LOGICAL_OPERATORS[str[i]] <= LOGICAL_OPERATORS[stack[stack.length-1]])
+				tokensArr.push(stack.pop());
+			stack.push(str[i]);
+		}else
+			tempStr += str[i];
+	}
+	if (tempStr.length > 0){
+		tokensArr.push(tempStr);
+	}
+	while (stack.length > 0)
+		tokensArr.push(stack.pop());
+
+	// 2. Evaluate the stack
+	stack = [];
+	for (var i = 0; i < tokensArr.length; i++){
+		if (!(tokensArr[i] in LOGICAL_OPERATORS))
+			tokensArr[i] = createSimplePredicate(tokensArr[i]);
+	}
+	for (var i = 0; i < tokensArr.length; i++){
+		if (tokensArr[i] in LOGICAL_OPERATORS){
+			const pred1 = stack.pop();
+			if (tokensArr[i] == ','){
+				const pred2 = stack.pop();
+				stack.push(function(obj){
+					return pred1(obj) || pred2(obj);
+				});
+			}else if (tokensArr[i] == '&'){
+				const pred2 = stack.pop();
+				stack.push(function(obj){
+					return pred1(obj) && pred2(obj);
+				});
+			}
+		}else{
+			stack.push(tokensArr[i]);
+		}
+	}
+	
+	return stack[0];
+}
+
+
+function universalGetter(expression, Space){
+	var result = [];
+	pred = createComplexPredicate(expression);
+	Space.forEach(function(obj){
+		if (pred(obj))
+			result.push(obj);
+	});
+	return result;
+}
+ 
+
 
 function initMasterSummaryTableMetrics(){
 	MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
@@ -72,6 +228,7 @@ function createRow(rowData, type){
 	}
 	return row;
 }
+
 
 function pokemon_icon_url_by_dex(dex, size){
 	dex = Math.max(0, dex);
@@ -116,22 +273,20 @@ function get_all_moves_by_index(pkmIndex, moveType){
 }
 
 function getPokemonSpeciesOptions(userIndex){
+	if (userIndex == NaN)
+		userIndex = 0;
 	var speciesOptions = [];
 	if (0 <= userIndex && userIndex < USERS_INFO.length){
 		var userBox = USERS_INFO[userIndex].box;
 		for (var i = 0; i < userBox.length; i++){
 			userBox[i].box_index = i;
-			speciesOptions.push({
-				label: "$" + i + " " + userBox[i].nickname + " [" + toTitleCase(userBox[i].species) + "]",
-				icon: pokemon_icon_url_by_dex(POKEMON_SPECIES_DATA[userBox[i].index].dex)
-			});
+			userBox[i].label = "$" + i + " " + userBox[i].nickname + " [" + toTitleCase(userBox[i].species) + "]";
+			speciesOptions.push(userBox[i]);
 		}
 	}
 	POKEMON_SPECIES_DATA.forEach(function(pkm){
-		speciesOptions.push({
-			label: toTitleCase(pkm.name),
-			icon: pokemon_icon_url_by_dex(pkm.dex)
-		});
+		pkm.label = toTitleCase(pkm.name); //to remove later
+		speciesOptions.push(pkm);
 	});
 	return speciesOptions;
 }
@@ -575,8 +730,19 @@ function autocompletePokemonNode(address){
 	const address_const = address;	
 	$( '#ui-species-' + address ).autocomplete({
 		minLength : 0,
-		delay : 0,
-		source : getPokemonSpeciesOptions(address == 'd' ? 0 : parseInt(address.split('-')[0])),
+		delay : 500,
+		source : function(request, response){
+			var searchStr = request.term;
+			if (searchStr[0] == '*')
+				searchStr = searchStr.slice(1);
+			var fullSet = getPokemonSpeciesOptions(parseInt(address_const.split('-')[0])), testSet = [];
+			try{
+				testSet = universalGetter(searchStr, fullSet);
+			}catch(err){
+				testSet = [];
+			}
+			response(testSet);
+		},
 		select : function(event, ui) {
 			this.value = ui.item.value;
 			$(this).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item:{value:$(this).val()}});
@@ -1000,40 +1166,19 @@ function enqueueSim(cfg){
 		send_feedback("Too many sims to unpack. Try to use less enumerators");
 }
 
-function unpackSpeciesKeyword(str){
-	str = str.trim().toLowerCase();
-	if (str == '' || str == 'rlvt')
-		return RELEVANT_ATTACKERS_INDICES;
-	else if (str[0] == '{' && str[str.length - 1] == '}'){
-		var names = str.slice(1, str.length - 1).trim().split(',');
-		var indices = [];
-		for (var i = 0; i < names.length; i++){
-			var pkm_idx = get_species_index_by_name(names[i].trim());
-			if (pkm_idx >= 0)
-				indices.push(pkm_idx);
-		}
-		return indices;
-	}else if (str == 'babt')
-		return BEST_ATTACKERS_BY_TYPE_INDICES;
-	else if (str == 't1')
-		return TIER1_BOSSES_CURRENT_INDICES;
-	else if (str == 't2')
-		return TIER2_BOSSES_CURRENT_INDICES;
-	else if (str == 't3')
-		return TIER3_BOSSES_CURRENT_INDICES;
-	else if (str == 't4')
-		return TIER4_BOSSES_CURRENT_INDICES;
-	else if (str == 't5')
-		return TIER5_BOSSES_CURRENT_INDICES;
-	else if (str == 'all'){
-		var pokemonIndices = [];
-		for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++)
-			pokemonIndices.push(i);
-		return pokemonIndices;
-	}else if (POKEMON_BY_TYPE_INDICES.hasOwnProperty(str))
-		return POKEMON_BY_TYPE_INDICES[str];
-	else
+function getSpeciesFromComplexExpression(str, fullSet){
+	if (str == ''){ // special case
+		var result = [];
+		RELEVANT_ATTACKERS_INDICES.forEach(function(idx){
+			result.push(POKEMON_SPECIES_DATA[idx]);
+		});
+		return result;
+	}
+	if(!checkParenthesesBalanced(str)){
+		send_feedback(address + " species input: Unbalanced Parentheses", true);
 		return [];
+	}
+	return universalGetter(str, fullSet);
 }
 
 function unpackMoveKeyword(str, moveType, pkmIndex){
@@ -1085,35 +1230,34 @@ function parseSpeciesExpression(cfg, pkmInfo, address){
 
 	if (expressionStr[0] == '*'){// Enumerator
 		var enumVariableName = '*' + address + '.species';
-		if (expressionStr[1] == '$'){ // Special case: User Pokebox. Also set the Level, IVs and moves
-			var userIndex = parseInt(address.split('-')[0]) - 1;
-			if (userIndex < USERS_INFO.length){
-				var thisBox = USERS_INFO[userIndex].box;
-				if (thisBox.length > 0 && !MasterSummaryTableMetrics.includes(enumVariableName))
-					createNewMetric(enumVariableName);
-				for (var i = 0; i < thisBox.length; i++){
-					copyAllInfo(pkmInfo, thisBox[i], false);
-					pkmInfo.box_index = i;
-					cfg['enumeratedValues'][enumVariableName] = createIconLabelDiv2(
+		if (!MasterSummaryTableMetrics.includes(enumVariableName))
+			createNewMetric(enumVariableName);
+		
+		var userIndex = parseInt(address.split('-')[0]) - 1 || 0;
+		try{
+			var matchedResults = getSpeciesFromComplexExpression(expressionStr.slice(1), getPokemonSpeciesOptions(userIndex));
+		}catch(err){
+			send_feedback(address + " species input: Invalid Expression", true);
+			console.log(err);
+			return -2;
+		}
+		if (matchedResults.length == 0){
+			send_feedback(address + " species input: Does not match any Pokemon", true);
+			return -2;
+		}
+		
+		for (var i = 0; i < matchedResults.length; i++){
+			if (matchedResults[i].box_index >= 0){
+				copyAllInfo(pkmInfo, matchedResults[i], false);
+				cfg['enumeratedValues'][enumVariableName] = createIconLabelDiv2(
 						POKEMON_SPECIES_DATA[pkmInfo.index].icon, pkmInfo.nickname + ' [' + toTitleCase(pkmInfo.species) + ']', 'species-input-with-icon');
-					enqueueSim(cfg);
-				}
-			}
-		}else{
-			var indices = unpackSpeciesKeyword(expressionStr.slice(1));
-			if (indices.length == 0){
-				send_feedback(address + " species input: Does not match any Pokemon for Enumerator", true);
-				return -2;
-			}
-			if (!MasterSummaryTableMetrics.includes(enumVariableName))
-				createNewMetric(enumVariableName);
-			for (var k = 0; k < indices.length; k++){
-				pkmInfo.index = indices[k];
-				pkmInfo.species = POKEMON_SPECIES_DATA[indices[k]].name;
+			}else{
+				pkmInfo.index = matchedResults[i].index;
+				pkmInfo.species = matchedResults[i].name;
 				cfg['enumeratedValues'][enumVariableName] = createIconLabelDiv2(
 					POKEMON_SPECIES_DATA[pkmInfo.index].icon, toTitleCase(pkmInfo.species), 'species-input-with-icon');
-				enqueueSim(cfg);
 			}
+			enqueueSim(cfg);
 		}
 		return -1;
 	}else if (expressionStr[0] == '='){// Dynamic Assignment Operator
@@ -1583,6 +1727,7 @@ function displayDetail(i){
 		searching: false,
 		ordering: false
 	});
+	
 	$( "#feedback_table2" ).accordion({
 		active: false,
 		collapsible: true,
@@ -1905,6 +2050,8 @@ function udpateBoxTable(userIndex){
 	document.getElementById('boxEditForm-title').innerHTML = 'User ' + USERS_INFO[userIndex].id;
 	var box = USERS_INFO[userIndex].box;
 	
+	$( "#boxEditForm" ).dialog( "open" );
+
 	boxEditFormTable.clear();
 	for (var i = 0; i < box.length; i++){
 		boxEditFormTable.row.add([
@@ -1922,8 +2069,7 @@ function udpateBoxTable(userIndex){
 			createIconLabelDiv2(CHARGED_MOVE_DATA[box[i].cmove_index].pokeTypeIcon, toTitleCase(box[i].cmove), 'move-input-with-icon')
 		]);
 	}
-	boxEditFormTable.draw();
-	$( "#boxEditForm" ).dialog( "open" );
+	boxEditFormTable.columns.adjust().draw();
 	
 	const userIndex_const = userIndex;
 	document.getElementById('boxEditForm-submit').onclick = function(){

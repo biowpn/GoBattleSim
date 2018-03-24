@@ -99,7 +99,9 @@ $.ajax({
 	success: function(data){
 		for(var i = 0; i < data.length; i++){
 			var pkmData = {
+				index: i,
 				dex : parseInt(data[i].number),
+				box_index : -1,
 				name : data[i].title_1.toLowerCase(),
 				pokeType1 : getPokemonType1FromString(data[i].field_pokemon_type),
 				pokeType2 : getPokemonType2FromString(data[i].field_pokemon_type),
@@ -113,15 +115,9 @@ $.ajax({
 				exclusiveMoves : getMovesFromString(data[i].exclusive_moves),
 				rating : parseFloat(data[i].rating) || 0,
 				image: data[i].uri,
-				icon: pokemon_icon_url_by_dex(data[i].number)
-			};
-			if (!POKEMON_BY_TYPE_INDICES.hasOwnProperty(pkmData.pokeType1))
-				POKEMON_BY_TYPE_INDICES[pkmData.pokeType1] = [];
-			POKEMON_BY_TYPE_INDICES[pkmData.pokeType1].push(i);
-			if (!POKEMON_BY_TYPE_INDICES.hasOwnProperty(pkmData.pokeType2))
-				POKEMON_BY_TYPE_INDICES[pkmData.pokeType2] = [];
-			POKEMON_BY_TYPE_INDICES[pkmData.pokeType2].push(i);
-			
+				icon: pokemon_icon_url_by_dex(data[i].number),
+				label: toTitleCase(data[i].title_1)
+			};			
 			if (pkmData.rating >= 2.5)
 				RELEVANT_ATTACKERS_INDICES.push(i);
 
