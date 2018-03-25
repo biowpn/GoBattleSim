@@ -131,13 +131,14 @@ $.ajax({
 		populateAll();
 	}
 });		
-		
+
 
 // Read move data
 $.ajax({
 	url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/move-data-full.json?new', 
 	dataType: 'json', 
 	success: function(data){
+		var fmoveCount = 0, cmoveCount = 0;
 		for(var i = 0; i < data.length; i++){
 			var move = {
 				name: data[i].title.toLowerCase(),
@@ -149,10 +150,12 @@ $.ajax({
 				icon: poketype_icon_url_by_name(data[i].move_type)
 			};
 			if (data[i].move_category == "Fast Move"){
+				move.index = fmoveCount++;
 				move.moveType = 'f';
 				move.energyDelta = Math.abs(parseInt(data[i].energy_gain));
 				FAST_MOVE_DATA.push(move);
 			}else if (data[i].move_category == "Charge Move"){
+				move.index = cmoveCount++;
 				move.moveType = 'c';
 				move.energyDelta = -Math.abs(parseInt(data[i].energy_cost));
 				CHARGED_MOVE_DATA.push(move);
