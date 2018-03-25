@@ -23,6 +23,39 @@ function getMovesFromString(S){
 	return res;
 }
 
+function processUserPokeboxRawData(data){
+	var box = [];
+	for (var i = 0; i < data.length; i++){
+		var species_idx = get_species_index_by_name(data[i].species.toLowerCase());
+		if (species_idx >= 0){
+			var pkmRaw = {
+				index : species_idx,
+				box_index : i,
+				species : data[i].species.toLowerCase(),
+				copies: 1,
+				cp: parseInt(data[i].cp),
+				level: 0,
+				stmiv: parseInt(data[i].sta),
+				atkiv: parseInt(data[i].atk),
+				defiv: parseInt(data[i].def),
+				fmove: data[i].fast_move.toLowerCase(),
+				fmove_index : get_fmove_index_by_name(data[i].fast_move.toLowerCase()),
+				cmove: data[i].charge_move.toLowerCase(),
+				cmove_index : get_cmove_index_by_name(data[i].charge_move.toLowerCase()),
+				dodge: 0,
+				nickname : data[i].nickname
+			};
+			for (var attr in POKEMON_SPECIES_DATA[species_idx])
+				pkmRaw[attr] = POKEMON_SPECIES_DATA[species_idx][attr];
+			
+			pkmRaw.label = "$" + i + " " + data[i].nickname;
+			pkmRaw.level = calculateLevelByCP(pkmRaw, pkmRaw.cp);
+			box.push(pkmRaw);
+		}
+	}
+	return box;
+}
+
 
 function populateAll(){
 	if (POKEMON_SPECIES_DATA_FETCHED && MOVE_DATA_FETCHED && USER_POKEBOX_FETCHED){
@@ -40,6 +73,7 @@ function populateAll(){
 		}
 		autocompleteMoveEditForm();
 		autocompletePokemonEditForm();
+		udpateUserTable();
 		
 		addPlayerNode();
 		document.getElementById("ui-defenderinputbody").innerHTML = "";
@@ -67,7 +101,9 @@ $.ajax({
 	success: function(data){
 		for(var i = 0; i < data.length; i++){
 			var pkmData = {
+				index: i,
 				dex : parseInt(data[i].number),
+				box_index : -1,
 				name : data[i].title_1.toLowerCase(),
 				pokeType1 : getPokemonType1FromString(data[i].field_pokemon_type),
 				pokeType2 : getPokemonType2FromString(data[i].field_pokemon_type),
@@ -81,15 +117,9 @@ $.ajax({
 				exclusiveMoves : getMovesFromString(data[i].exclusive_moves),
 				rating : parseFloat(data[i].rating) || 0,
 				image: data[i].uri,
-				icon: pokemon_icon_url_by_dex(data[i].number)
-			};
-			if (!POKEMON_BY_TYPE_INDICES.hasOwnProperty(pkmData.pokeType1))
-				POKEMON_BY_TYPE_INDICES[pkmData.pokeType1] = [];
-			POKEMON_BY_TYPE_INDICES[pkmData.pokeType1].push(i);
-			if (!POKEMON_BY_TYPE_INDICES.hasOwnProperty(pkmData.pokeType2))
-				POKEMON_BY_TYPE_INDICES[pkmData.pokeType2] = [];
-			POKEMON_BY_TYPE_INDICES[pkmData.pokeType2].push(i);
-			
+				icon: pokemon_icon_url_by_dex(data[i].number),
+				label: toTitleCase(data[i].title_1)
+			};			
 			if (pkmData.rating >= 2.5)
 				RELEVANT_ATTACKERS_INDICES.push(i);
 
@@ -101,47 +131,39 @@ $.ajax({
 		populateAll();
 	}
 });		
-		
+
 
 // Read move data
 $.ajax({
 	url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/move-data-full.json?new', 
 	dataType: 'json', 
 	success: function(data){
+		var fmoveCount = 0, cmoveCount = 0;
 		for(var i = 0; i < data.length; i++){
+			var move = {
+				name: data[i].title.toLowerCase(),
+				power: parseInt(data[i].power),
+				pokeType: data[i].move_type.toLowerCase(),
+				dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
+				duration: parseFloat(data[i].cooldown)*1000,
+				label: toTitleCase(data[i].title),
+				icon: poketype_icon_url_by_name(data[i].move_type)
+			};
 			if (data[i].move_category == "Fast Move"){
-				var move = {
-					name: data[i].title.toLowerCase(),
-					moveType: "f",
-					power: parseInt(data[i].power),
-					pokeType: data[i].move_type.toLowerCase(),
-					energyDelta: Math.abs(parseInt(data[i].energy_gain)),
-					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
-					duration: parseFloat(data[i].cooldown)*1000,
-					pokeTypeIcon: "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + data[i].move_type.toLowerCase() +".png"
-				};
+				move.index = fmoveCount++;
+				move.moveType = 'f';
+				move.energyDelta = Math.abs(parseInt(data[i].energy_gain));
 				FAST_MOVE_DATA.push(move);
 			}else if (data[i].move_category == "Charge Move"){
-				var move = {
-					name: data[i].title.toLowerCase(),
-					moveType: "c",
-					power: parseInt(data[i].power),
-					pokeType: data[i].move_type.toLowerCase(),
-					energyDelta: -Math.abs(parseInt(data[i].energy_cost)),
-					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000,
-					duration: parseFloat(data[i].cooldown)*1000,
-					pokeTypeIcon: "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + data[i].move_type.toLowerCase() +".png"
-				};
+				move.index = cmoveCount++;
+				move.moveType = 'c';
+				move.energyDelta = -Math.abs(parseInt(data[i].energy_cost));
 				CHARGED_MOVE_DATA.push(move);
 			}else{
 				console.log("Unrecogized move type:");
 				console.log(data[i]);
 			}
 		}
-		// Temporary fixing Frenzy Plant as the json file hasn't been updated
-		try{
-			CHARGED_MOVE_DATA[get_cmove_index_by_name('frenzy plant')].duration = 2800;
-		}catch(err){}
 		MOVE_DATA_FETCHED = true;
 	},
 	complete: function(jqXHR, textStatus){
@@ -153,41 +175,14 @@ $.ajax({
 // Read User Pokebox
 $(document).ready(function(){
 	if(typeof userID2 == 'undefined'){
-		console.log("Fail to load USER_POKEBOX because userID2 is not defined");
 		USER_POKEBOX_FETCHED = true;
 		populateAll();
 	}else if(userID2){
-		$.ajax({ 
-			url: '/user-pokemon-json-list?new&uid_raw=' + userID2, 
+		$.ajax({
+			url: '/user-pokemon-json-list?new&uid_raw=' + userID2,
 			dataType: 'json',
-			success: function(data){ 
-				for (var i = 0; i < data.length; i++){
-					var species_idx = get_species_index_by_name(data[i].species.toLowerCase());
-					if (species_idx >= 0){
-						var pkmRaw = {
-							index : species_idx,
-							species : data[i].species.toLowerCase(),
-							copies: 1,
-							level: 0,
-							baseStm : POKEMON_SPECIES_DATA[species_idx].baseStm,
-							baseAtk : POKEMON_SPECIES_DATA[species_idx].baseAtk,
-							baseDef : POKEMON_SPECIES_DATA[species_idx].baseDef,
-							stmiv: parseInt(data[i].sta),
-							atkiv: parseInt(data[i].atk),
-							defiv: parseInt(data[i].def),
-							fmove: data[i].fast_move.toLowerCase(),
-							fmove_index : get_fmove_index_by_name(data[i].fast_move.toLowerCase()),
-							cmove: data[i].charge_move.toLowerCase(),
-							cmove_index : get_cmove_index_by_name(data[i].charge_move.toLowerCase()),
-							dodge: 0,
-							nickname : data[i].nickname,
-							image: POKEMON_SPECIES_DATA[species_idx].image,
-							icon: POKEMON_SPECIES_DATA[species_idx].icon
-						};
-						pkmRaw.level = calculateLevelByCP(pkmRaw, parseInt(data[i].cp));
-						USER_POKEBOX.push(pkmRaw);
-					}
-				}
+			success: function(data){
+				USERS_INFO.push({id: userID2, box: processUserPokeboxRawData(data)});
 				USER_POKEBOX_FETCHED = true;
 			},
 			complete: function(jqXHR, textStatus){

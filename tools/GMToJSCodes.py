@@ -4,7 +4,7 @@ import json
 import os
 
 # this should be the most current GM file
-GMFileName_Current = "GAME_MASTER 2017.01.17.json"
+GMFileName_Current = "GAME_MASTER.json"
 
 # the file that will contain the dumped json
 outFile = 'result.txt'
