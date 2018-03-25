@@ -65,7 +65,7 @@ function damage(dmg_giver, dmg_taker, move, weather){
 }
 
 function calculateCP(pkm){
-	return Math.max(10, Math.round((pkm.baseAtk+pkm.atkiv)*Math.sqrt((pkm.baseDef+pkm.defiv)*(pkm.baseStm+pkm.stmiv))*pkm.cpm*pkm.cpm/10));
+	return Math.max(10, Math.floor((pkm.baseAtk+pkm.atkiv)*Math.sqrt((pkm.baseDef+pkm.defiv)*(pkm.baseStm+pkm.stmiv))*pkm.cpm*pkm.cpm/10));
 }
 
 function calculateLevelByCP(pkm, CP){
@@ -125,7 +125,8 @@ function Pokemon(cfg){
 	this.atkiv = parseInt(cfg.atkiv);
 	this.defiv = parseInt(cfg.defiv);
 	this.stmiv = parseInt(cfg.stmiv);
-	this.cpm = CPM_TABLE[Math.round(2* parseInt(cfg.level) - 2)];
+	this.level = parseFloat(cfg.level);
+	this.cpm = CPM_TABLE[Math.round(2*this.level - 2)];
 	
 	var fmoveIndex = (cfg.fmove_index >= 0) ? cfg.fmove_index : get_fmove_index_by_name(cfg.fmove);
 	var cmoveIndex = (cfg.cmove_index >= 0) ? cfg.cmove_index : get_cmove_index_by_name(cfg.cmove);

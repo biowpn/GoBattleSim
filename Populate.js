@@ -30,6 +30,7 @@ function processUserPokeboxRawData(data){
 		if (species_idx >= 0){
 			var pkmRaw = {
 				index : species_idx,
+				box_index : i,
 				species : data[i].species.toLowerCase(),
 				copies: 1,
 				cp: parseInt(data[i].cp),
@@ -47,6 +48,7 @@ function processUserPokeboxRawData(data){
 			for (var attr in POKEMON_SPECIES_DATA[species_idx])
 				pkmRaw[attr] = POKEMON_SPECIES_DATA[species_idx][attr];
 			
+			pkmRaw.label = "$" + i + " " + data[i].nickname;
 			pkmRaw.level = calculateLevelByCP(pkmRaw, pkmRaw.cp);
 			box.push(pkmRaw);
 		}
@@ -137,29 +139,22 @@ $.ajax({
 	dataType: 'json', 
 	success: function(data){
 		for(var i = 0; i < data.length; i++){
+			var move = {
+				name: data[i].title.toLowerCase(),
+				power: parseInt(data[i].power),
+				pokeType: data[i].move_type.toLowerCase(),
+				dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
+				duration: parseFloat(data[i].cooldown)*1000,
+				label: toTitleCase(data[i].title),
+				icon: poketype_icon_url_by_name(data[i].move_type)
+			};
 			if (data[i].move_category == "Fast Move"){
-				var move = {
-					name: data[i].title.toLowerCase(),
-					moveType: "f",
-					power: parseInt(data[i].power),
-					pokeType: data[i].move_type.toLowerCase(),
-					energyDelta: Math.abs(parseInt(data[i].energy_gain)),
-					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
-					duration: parseFloat(data[i].cooldown)*1000,
-					pokeTypeIcon: poketype_icon_url_by_name(data[i].move_type)
-				};
+				move.moveType = 'f';
+				move.energyDelta = Math.abs(parseInt(data[i].energy_gain));
 				FAST_MOVE_DATA.push(move);
 			}else if (data[i].move_category == "Charge Move"){
-				var move = {
-					name: data[i].title.toLowerCase(),
-					moveType: "c",
-					power: parseInt(data[i].power),
-					pokeType: data[i].move_type.toLowerCase(),
-					energyDelta: -Math.abs(parseInt(data[i].energy_cost)),
-					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000,
-					duration: parseFloat(data[i].cooldown)*1000,
-					pokeTypeIcon: poketype_icon_url_by_name(data[i].move_type)
-				};
+				move.moveType = 'c';
+				move.energyDelta = -Math.abs(parseInt(data[i].energy_cost));
 				CHARGED_MOVE_DATA.push(move);
 			}else{
 				console.log("Unrecogized move type:");
