@@ -128,12 +128,11 @@ function Pokemon(cfg){
 	this.level = parseFloat(cfg.level);
 	this.cpm = CPM_TABLE[Math.round(2*this.level - 2)];
 	
+	
 	var fmoveIndex = (cfg.fmove_index >= 0) ? cfg.fmove_index : get_fmove_index_by_name(cfg.fmove);
 	var cmoveIndex = (cfg.cmove_index >= 0) ? cfg.cmove_index : get_cmove_index_by_name(cfg.cmove);
 	this.fmove = FAST_MOVE_DATA[fmoveIndex];
-	this.fmove.index = fmoveIndex;
 	this.cmove = CHARGED_MOVE_DATA[cmoveIndex];
-	this.cmove.index = cmoveIndex;
 	
 	this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
 	this.Def = (this.baseDef + this.defiv) * this.cpm;

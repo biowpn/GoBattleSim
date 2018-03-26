@@ -32,7 +32,6 @@ function processUserPokeboxRawData(data){
 				index : species_idx,
 				box_index : i,
 				species : data[i].species.toLowerCase(),
-				copies: 1,
 				cp: parseInt(data[i].cp),
 				level: 0,
 				stmiv: parseInt(data[i].sta),
@@ -42,7 +41,6 @@ function processUserPokeboxRawData(data){
 				fmove_index : get_fmove_index_by_name(data[i].fast_move.toLowerCase()),
 				cmove: data[i].charge_move.toLowerCase(),
 				cmove_index : get_cmove_index_by_name(data[i].charge_move.toLowerCase()),
-				dodge: 0,
 				nickname : data[i].nickname
 			};
 			for (var attr in POKEMON_SPECIES_DATA[species_idx])
@@ -94,6 +92,8 @@ var USER_POKEBOX_FETCHED = false;
 
 // TODO: Get CPM data: https://pokemongo.gamepress.gg/assets/data/cpm.json
 
+// TODO: Get Type Advantages data
+
 // Read Pokemon Data
 $.ajax({ 
 	url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pokemon-data-full.json?new', 
@@ -119,10 +119,7 @@ $.ajax({
 				image: data[i].uri,
 				icon: pokemon_icon_url_by_dex(data[i].number),
 				label: toTitleCase(data[i].title_1)
-			};			
-			if (pkmData.rating >= 2.5)
-				RELEVANT_ATTACKERS_INDICES.push(i);
-
+			};
 			POKEMON_SPECIES_DATA.push(pkmData);
 		}
 		POKEMON_SPECIES_DATA_FETCHED = true;
