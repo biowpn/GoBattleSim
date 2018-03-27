@@ -473,6 +473,7 @@ for (var type in POKEMON_TYPE_ADVANTAGES){
 	pokemonEditFormPokeType1Select.appendChild(createElement('option', toTitleCase(type), {value : type}));
 	pokemonEditFormPokeType2Select.appendChild(createElement('option', toTitleCase(type), {value : type}));
 }
+pokemonEditFormPokeType1Select.appendChild(createElement('option', 'None', {value : 'none'}));
 pokemonEditFormPokeType2Select.appendChild(createElement('option', 'None', {value : 'none'}));
 
 
@@ -497,7 +498,6 @@ var boxEditFormTable = $( '#boxEditForm-pokemonTable' ).DataTable({
 	scroller: true,
 	searching: false
 });
-
 
 
 </script>

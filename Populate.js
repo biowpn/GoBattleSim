@@ -69,6 +69,15 @@ function populateAll(){
 			});
 			delete pkm.exclusiveMoves;
 		}
+		
+		// Populate valid IV and Level values
+		for (var i = 0; i < 16; i++){
+			IV_VALUES.push({value: i});
+		}
+		for (var i = 1; i <= 40; i += 0.5){
+			LEVEL_VALUES.push({value: i});
+		}
+		
 		autocompleteMoveEditForm();
 		autocompletePokemonEditForm();
 		udpateUserTable();
@@ -80,7 +89,7 @@ function populateAll(){
 		document.getElementById("simPerConfig").value = 1;
 		
 		if (window.location.href.includes('?'))
-			writeUserInputFromUrl(window.location.href);
+			writeUserInput(uriToJSON(window.location.href.split('?')[1]));
 	}
 }
 /* End of Helper Functions */

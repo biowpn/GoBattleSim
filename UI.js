@@ -29,7 +29,7 @@ const SELECTORS = ['*', '?'];
 const acceptedNumericalAttributes = [
 	'cp','atkiv','defiv','stmiv','level', 'maxhp',
 	'baseAtk','baseDef','baseStm', 'rating',
-	'power', 'duration', 'dws', 'energyDelta'
+	'power', 'duration', 'dws', 'energyDelta', 'value'
 ];
 
 /* 
@@ -912,12 +912,16 @@ function parseDefenderNode(node){
 		stamp: ''
 	};
 	if (document.getElementById("battleMode").value == "gym"){
-		pkm_cfg['level'] = row2.children[0].children[0].value.trim(),
-		pkm_cfg['stmiv'] = row2.children[1].children[0].value.trim(),
-		pkm_cfg['atkiv'] = row2.children[2].children[0].value.trim(),
-		pkm_cfg['defiv'] = row2.children[3].children[0].value.trim(),
+		pkm_cfg['level'] = row2.children[0].children[0].value.trim();
+		pkm_cfg['stmiv'] = row2.children[1].children[0].value.trim();
+		pkm_cfg['atkiv'] = row2.children[2].children[0].value.trim();
+		pkm_cfg['defiv'] = row2.children[3].children[0].value.trim();
 		pkm_cfg['raid_tier'] = -1;
 	}else if (document.getElementById("battleMode").value == "raid"){
+		pkm_cfg['level'] = 20;
+		pkm_cfg['stmiv'] = 15;
+		pkm_cfg['atkiv'] = 15;
+		pkm_cfg['defiv'] = 15;
 		pkm_cfg['raid_tier'] = parseInt(document.getElementById("raidTier").value);
 	}
 	return pkm_cfg;
@@ -979,7 +983,8 @@ function writeAttackerNode(node, pkmConfig){
 	var species_idx = ('index' in pkmConfig) ? pkmConfig.index : get_species_index_by_name(pkmConfig.species);
 	row1.children[0].children[0].value = pkmConfig.label || toTitleCase(pkmConfig.species);
 	row1.children[0].children[0].setAttribute('style', 'background-image: url('+pokemon_icon_url_by_index(species_idx)+')');
-	row1.children[1].children[0].value = pkmConfig.copies;
+	if (pkmConfig.hasOwnProperty('copies'))
+		row1.children[1].children[0].value = pkmConfig.copies;
 	row2.children[0].children[0].value = pkmConfig.level;
 	row2.children[1].children[0].value = pkmConfig.stmiv;
 	row2.children[2].children[0].value = pkmConfig.atkiv;
@@ -991,8 +996,9 @@ function writeAttackerNode(node, pkmConfig){
 	row3.children[1].children[0].value = toTitleCase(pkmConfig.cmove);
 	row3.children[1].children[0].setAttribute('style', 
 		"background-image: url(" + move_icon_url_by_index('c', get_cmove_index_by_name(pkmConfig.cmove)) + ')');
-
-	row3.children[2].children[0].value = pkmConfig.dodge;
+	
+	if (pkmConfig.hasOwnProperty('dodge'))
+		row3.children[2].children[0].value = pkmConfig.dodge;
 }
 
 function writePartyNode(node, partyConfig){
@@ -1084,161 +1090,93 @@ function getPokemonInfoFromAddress(cfg, address){
 	}
 }
 
-
-function parseSpeciesExpression(cfg, address){
-	var pkmInfo = getPokemonInfoFromAddress(cfg, address);
-	if (pkmInfo.stamp.includes('species'))
-		return 0;
-	pkmInfo.stamp += ' species';
-	
-	var expressionStr = pkmInfo.species;
-	if (pkmInfo.index >= 0){
-		enqueueSim(JSON.parse(JSON.stringify(cfg)));
-	}else if ((idx = get_species_index_by_name(expressionStr)) >= 0){
-		pkmInfo.index = POKEMON_SPECIES_DATA[idx].index;
-		enqueueSim(JSON.parse(JSON.stringify(cfg)));
-	}else if (expressionStr[0] == '='){// Dynamic Assignment Operator
-		try{
-			copyAllInfo(pkmInfo, getPokemonInfoFromAddress(cfg, expressionStr.slice(1)));
-			enqueueSim(JSON.parse(JSON.stringify(cfg)));
-		}catch(err){
-			send_feedback(address + " species input: Invalid address for Dynamic Assignment Operator", true);
-			return -2;
-		}
-	}else{
-		var selector = expressionStr[0];
-		if (SELECTORS.includes(selector))
-			expressionStr = expressionStr.slice(1).trim();
-
-		createNewMetric('*' + address + '.species');
-		var matches = universalGetter(expressionStr, getPokemonSpeciesOptions(parseInt(address.split('-')[0]) - 1));
-		if (matches.length == 0){
-			send_feedback(address + " species input: Does not match any Pokemon", true);
-			return -2;
-		}
-		var values = [matches[matches.length - 1]]; // Default
-		if (selector == '*'){
-			values = matches;
-		}else if (selector == '?'){
-			values = [matches[Math.floor(Math.random() * matches.length)]];
-		}
-		for (var i = 0; i < values.length; i++){
-			var cfg_copy = JSON.parse(JSON.stringify(cfg));
-			copyAllInfo(getPokemonInfoFromAddress(cfg_copy, address), values[i]);
-			enqueueSim(cfg_copy);
-		}
-	}
-	return -1;
-}
-
-function parseRangeExpression(cfg, address, attr){
+function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, universe){
 	var pkmInfo = getPokemonInfoFromAddress(cfg, address);
 	if (pkmInfo.stamp.includes(attr))
 		return 0;
 	pkmInfo.stamp += ' ' + attr;
 	
-	var LBound = (attr == 'level' ? 1 : 0), UBound = (attr == 'level' ? 40 : 15);
-	if (typeof pkmInfo[attr] == typeof 0 || pkmInfo.raid_tier > 0){
-		enqueueSim(JSON.parse(JSON.stringify(cfg)));
-	}else if (pkmInfo[attr][0] == '='){ // Dynamic Assignment Operator
-		try{
-			pkmInfo[attr] = getPokemonInfoFromAddress(cfg, pkmInfo[attr].slice(1))[attr];
-			enqueueSim(JSON.parse(JSON.stringify(cfg)));
-		}catch(err){
-			send_feedback(address + '.' + attr + ": Invalid address for Dynamic Assignment Operator", true);
-			return -2;
-		}
-	}else if (pkmInfo[attr].includes('-')){
-		createNewMetric('*' + address + '.' + attr);
-		var bounds = pkmInfo[attr].split('-');
-		LBound = Math.max((bounds[0].trim() == '' ? LBound : parseInt(bounds[0])), LBound);
-		UBound = Math.min((bounds[1].trim() == '' ? UBound : parseInt(bounds[1])), UBound);
-		if (LBound == NaN || UBound == NaN){
-			send_feedback(address + '.' + attr + ": Invalid range for Range Generator", true);
-			return -2;
-		}
-		for (var i = LBound; i <= UBound; i++){
-			var cfg_copy = JSON.parse(JSON.stringify(cfg));
-			getPokemonInfoFromAddress(cfg_copy, address)[attr] = i;
-			enqueueSim(cfg_copy);
-		}
-	}else{
-		pkmInfo[attr] = Math.max(LBound, Math.min(UBound, parseInt(pkmInfo[attr])));
-		if (pkmInfo[attr] == NaN){
-			send_feedback(address + '.' + attr + ": Invalid numerical input", true);
-			return -2;
-		}else
-			enqueueSim(JSON.parse(JSON.stringify(cfg)));
+	var expressionStr = pkmInfo[attr], expressionStr_default = '', input_type = 0;
+	if (attr == 'species'){
+		input_type = 0;
+	}else if (['level','atkiv','defiv','stmiv'].includes(attr)){
+		input_type = 1;
+	}else if (attr == 'fmove'){
+		input_type = 2;
+		expressionStr_default = 'current,legacy,exclusive';
+		markMoveDatabase('f', pkmInfo.index);
+	}else if (attr == 'cmove'){
+		input_type = 2;
+		expressionStr_default = 'current,legacy,exclusive';
+		markMoveDatabase('c', pkmInfo.index);
 	}
-	return -1;
-}
-
-function parseMoveExpression(cfg, address, moveType){
-	var pkmInfo = getPokemonInfoFromAddress(cfg, address);
-	if (pkmInfo.stamp.includes(moveType + 'move'))
-		return 0;
-	pkmInfo.stamp += ' ' + moveType + 'move';
 	
-	var expressionStr = pkmInfo[moveType+'move'];
-	var moveDatabase = (moveType == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA);
-	pred = (moveType == 'f' ? get_fmove_index_by_name : get_cmove_index_by_name);
-	
-	if (pkmInfo[moveType+'move_index'] >= 0){
+	var exact_match_idx = pred(expressionStr);
+	if ((typeof pkmInfo[attr_idx] == typeof 0) && pkmInfo[attr_idx] >= 0){
 		enqueueSim(JSON.parse(JSON.stringify(cfg)));
-	}else if ((idx = pred(expressionStr)) >= 0){
-		pkmInfo[moveType+'move_index'] = moveDatabase[idx].index;
+	}else if (exact_match_idx != NaN && exact_match_idx >= 0){ // Exact Match
+		pkmInfo[attr_idx] = exact_match_idx;
 		enqueueSim(JSON.parse(JSON.stringify(cfg)));
 	}else if (expressionStr[0] == '='){// Dynamic Assignment Operator
 		try{
-			pkmInfo[moveType+'move_index'] = getPokemonInfoFromAddress(cfg, expressionStr.slice(1))[moveType+'move_index'];
+			pkmInfo[attr_idx] = getPokemonInfoFromAddress(cfg, expressionStr.slice(1))[attr_idx];
 			enqueueSim(JSON.parse(JSON.stringify(cfg)));
 		}catch(err){
-			send_feedback(address + '.' + moveType + "move: Invalid address for Dynamic Assignment Operator", true);
+			send_feedback(address + '.' + attr + ": Invalid address for Dynamic Assignment", true);
 			return -2;
 		}
-	}else{
+	}else{ // Regular Expression
 		var selector = expressionStr[0];
 		if (SELECTORS.includes(selector))
 			expressionStr = expressionStr.slice(1).trim();
-		expressionStr = expressionStr || 'current,legacy,exclusive'; // Default grand movepool
+		createNewMetric('*' + address + '.' + attr);
 		
-		createNewMetric('*' + address + '.' + moveType + 'move');
-		markMoveDatabase(moveType, pkmInfo.index);
-		var matches = universalGetter(expressionStr, moveDatabase);
+		expressionStr = expressionStr || expressionStr_default;
+		if (input_type == 1)
+			expressionStr = 'value' + expressionStr;
+		
+		var matches = universalGetter(expressionStr, universe);
 		if (matches.length == 0){
-			send_feedback(address + '.' + moveType + "move: Does not match any move", true);
-			return -1;
+			send_feedback(address + '.' + attr + ": No match", true);
+			return -2;
 		}
+		
 		var values = [matches[matches.length - 1]]; // Default
 		if (selector == '*'){
 			values = matches;
 		}else if (selector == '?'){
 			values = [matches[Math.floor(Math.random() * matches.length)]];
 		}
+		
 		for (var i = 0; i < values.length; i++){
 			var cfg_copy = JSON.parse(JSON.stringify(cfg));
-			getPokemonInfoFromAddress(cfg_copy, address)[moveType+'move_index'] = values[i].index;
+			if (input_type == 0)
+				copyAllInfo(getPokemonInfoFromAddress(cfg_copy, address), values[i]);
+			else if (input_type == 1)
+				getPokemonInfoFromAddress(cfg_copy, address)[attr_idx] = values[i].value;
+			else if (input_type == 2)
+				getPokemonInfoFromAddress(cfg_copy, address)[attr_idx] = values[i].index;
 			enqueueSim(cfg_copy);
 		}
 	}
 	return -1;
 }
 
-
 function parsePokemonInput(cfg, address){
-	statusCode = parseSpeciesExpression(cfg, address);
+	statusCode = parsePokemonAttributeExpression(cfg, address, 'species', 'index', 
+		get_species_index_by_name, getPokemonSpeciesOptions(parseInt(address.split('-')[0]) - 1));
 	if (statusCode) return statusCode;
-	statusCode = parseRangeExpression(cfg, address, 'level');
+	statusCode = parsePokemonAttributeExpression(cfg, address, 'level', 'level', parseFloat, LEVEL_VALUES);
 	if (statusCode) return statusCode;
-	statusCode = parseRangeExpression(cfg, address, 'atkiv');
+	statusCode = parsePokemonAttributeExpression(cfg, address, 'atkiv', 'atkiv', parseInt, IV_VALUES);
 	if (statusCode) return statusCode;
-	statusCode = parseRangeExpression(cfg, address, 'defiv');
+	statusCode = parsePokemonAttributeExpression(cfg, address, 'defiv', 'defiv', parseInt, IV_VALUES);
 	if (statusCode) return statusCode;
-	statusCode = parseRangeExpression(cfg, address, 'stmiv');
+	statusCode = parsePokemonAttributeExpression(cfg, address, 'stmiv', 'stmiv', parseInt, IV_VALUES);
 	if (statusCode) return statusCode;
-	statusCode = parseMoveExpression(cfg, address, 'f');
+	statusCode = parsePokemonAttributeExpression(cfg, address, 'fmove', 'fmove_index', get_fmove_index_by_name, FAST_MOVE_DATA);
 	if (statusCode) return statusCode;
-	statusCode = parseMoveExpression(cfg, address, 'c');
+	statusCode = parsePokemonAttributeExpression(cfg, address, 'cmove', 'cmove_index', get_cmove_index_by_name, CHARGED_MOVE_DATA);
 	if (statusCode) return statusCode;
 	
 	return 0;
@@ -1411,11 +1349,12 @@ function createMasterSummaryTable(){
 	var table = createElement('table','<thead></thead><tfoot></tfoot><tbody></tbody>',{
 		width:'100%', id :'ui-mastersummarytable', cellspacing:'0', class : 'display nowrap'
 	});
-	table.children[0].appendChild(createRow(MasterSummaryTableHeaders.concat(["Details"]),"th"));
-	table.children[1].appendChild(createRow(MasterSummaryTableHeaders.concat(["Details"]),"th"));
+	var headers = ['#'].concat(MasterSummaryTableHeaders).concat(["Details"]);
+	table.children[0].appendChild(createRow(headers,"th"));
+	table.children[1].appendChild(createRow(headers,"th"));
 	for (var i = 0; i < simResults.length; i++){
 		var sim = simResults[i];
-		var row = [];
+		var row = [i+1];
 		MasterSummaryTableMetrics.forEach(function(m){
 			if (m[0] == '*'){
 				m = m.slice(1);
@@ -1668,7 +1607,6 @@ function moveEditFormSubmit(){
 	autocompleteMoveEditForm();
 }
 
-
 function autocompleteMoveEditForm(){
 	var moveType_input = document.getElementById('moveEditForm-moveType').value;
 	var moveDatabase = (moveType_input == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA);
@@ -1870,7 +1808,6 @@ function udpateUserTable(){
 		],'td'));
 	}
 }
-
 
 function udpateBoxTable(userIndex){
 	document.getElementById('boxEditForm-title').innerHTML = 'User ' + USERS_INFO[userIndex].id;
