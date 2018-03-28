@@ -173,13 +173,10 @@
 		border: 1px solid #ddd;
 	}
 	.section-player-node{
-		background: #BED2E1;
 	}
 	.section-party-node{
-		background: #A7C9E3;
 	}
 	.section-pokemon-node{
-		background: #7EB9E6;
 	}
 	
 	.ui-autocomplete {
@@ -193,10 +190,11 @@
 </style>
 
 <div id='menu'>
-	<table><colgroup><col width=33%><col width=33%><col width=34%></colgroup>
+	<table><colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>
 		<tr>
 			<td><button id='moveEditFormOpener'>Add/Edit Move</button></td>
 			<td><button id='pokemonEditFormOpener'>Add/Edit Species</button></td>
+			<td><button id='parameterEditFormOpener'>Edit Paramaters</button></td>
 			<td><button id='userEditFormOpener'>Manage User/Box</button></td>
 		</tr>
 	</table>
@@ -446,8 +444,34 @@
 </div>
 
 
+<div id='parameterEditForm' title='Edit Paramaters'>
+	<table id='parameterEditForm-Table'>
+		<thead>
+			<tr>
+				<th>Paramater</th>
+				<th>Value</th>
+			</tr>
+		</thead>
+		<tbody>
+
+		</tbody>
+	</table>
+	<br>
+	<button onclick='parameterEditFormSubmit()' id='parameterEditForm-submit'>Save</button>
+	
+	<div id='parameterEditForm-feedback'>
+	</div>
+</div>
+
 
 <script>
+
+const HSL_COLORS = [
+	['hsl(209, 100%, 90%)','hsl(209, 100%, 80%)','hsl(209, 100%, 70%)'],
+	['hsl(0, 100%, 90%)','hsl(0, 100%, 80%)','hsl(0, 100%, 70%)'],
+	['hsl(48, 100%, 90%)','hsl(48, 100%, 70%)','hsl(48, 100%, 50%)'],
+	['hsl(120, 60%, 90%)','hsl(120, 60%, 70%)','hsl(120, 60%, 50%)']
+];
 
 $( "#moveEditForm" ).dialog({ 
 	autoOpen: false,
@@ -498,6 +522,28 @@ var boxEditFormTable = $( '#boxEditForm-pokemonTable' ).DataTable({
 	scroller: true,
 	searching: false
 });
+
+
+$( "#parameterEditForm" ).dialog({ 
+	autoOpen: false,
+	width: 600,
+	maxHeight: 700
+});
+$( "#parameterEditFormOpener" ).click(function() {
+  $( "#parameterEditForm" ).dialog( "open" );
+});
+
+
+var parameterTable = document.getElementById('parameterEditForm-Table');
+editableParameters.forEach(function(attr){
+	var row = createRow([
+		attr,
+		"<input type='number' id='parameterEditForm-" + attr + "'></input>"
+	],'td');
+	row.children[1].children[0].value = window[attr];
+	parameterTable.children[1].appendChild(row);
+});
+
 
 
 </script>

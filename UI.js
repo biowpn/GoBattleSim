@@ -2,14 +2,9 @@
  * GLOBAL VARIABLES 
  */
 
-// Storing user's Pokebox
 var USERS_INFO = [];
-
-const DEFAULT_SUMMARY_TABLE_METRICS = ['battle_result','duration','tdo_percent','dps', 'total_deaths'];
-const DEFAULT_SUMMARY_TABLE_HEADERS = ['Outcome','Time','TDO%','DPS','#Death'];
-
-var simQueue = []; // Batch individual sims configurations here
-var simResults = []; // This is used to store all sims
+var simQueue = [];
+var simResults = [];
 var atkrCopyPasteClipboard = null;
 
 var enumPlayerStart = 0;
@@ -17,9 +12,12 @@ var enumPartyStart = 0;
 var enumPokemonStart = 0;
 var enumDefender = 0;
 
+var MetricsByWhichToAverage = {};
 var MasterSummaryTableMetrics = [];
 var MasterSummaryTableHeaders = {};
 
+const DEFAULT_SUMMARY_TABLE_METRICS = ['battle_result','duration','tdo_percent','dps', 'total_deaths'];
+const DEFAULT_SUMMARY_TABLE_HEADERS = ['Outcome','Time','TDO%','DPS','#Death'];
 const LOGICAL_OPERATORS = {
 	',': 0,
 	'&': 1,
@@ -27,9 +25,14 @@ const LOGICAL_OPERATORS = {
 };
 const SELECTORS = ['*', '?'];
 const acceptedNumericalAttributes = [
-	'cp','atkiv','defiv','stmiv','level', 'maxhp',
+	'cp','atkiv','defiv','stmiv','level', 'maxhp','dex',
 	'baseAtk','baseDef','baseStm', 'rating',
 	'power', 'duration', 'dws', 'energyDelta', 'value'
+];
+const editableParameters = [
+	'POKEMON_MAX_ENERGY','STAB_MULTIPLIER','WAB_MULTIPLIER','DODGE_COOLDOWN_MS','DODGEWINDOW_LENGTH_MS',
+	'DODGED_DAMAGE_REDUCTION_PERCENT','ARENA_ENTRY_LAG_MS','ARENA_EARLY_TERMINATION_MS','FAST_MOVE_LAG_MS',
+	'CHARGED_MOVE_LAG_MS','SWITCHING_DELAY_MS','REJOIN_TIME_MS','ITEM_MENU_TIME_MS','EACH_MAX_REVIVE_TIME_MS'
 ];
 
 /* 
@@ -180,7 +183,34 @@ function universalGetter(expression, Space){
 	});
 	return result;
 }
- 
+
+function sortByMetric(arr, metric){
+	for (var i = 0; i < arr.length; i++)
+		arr[i].index = i;
+	if (metric.includes('.')){
+		var address = metric.split('.')[0], attr = metric.split('.')[1];
+		if (address == 'd'){
+			arr.sort(function(obj1, obj2){
+				var v1 = obj1.input.dfdrSettings[attr], v2 = obj2.input.dfdrSettings[attr];
+				return v1 > v2 ? 1 : (v1 < v2 ? -1 : (obj1.index - obj2.index));
+			});
+		}else{
+			var i = parseInt(address.split('-')[0])-1, j = parseInt(address.split('-')[1])-1, k = parseInt(address.split('-')[2])-1;
+			arr.sort(function(obj1, obj2){
+				var v1 = obj1.input.atkrSettings[i].party_list[j].pokemon_list[k][attr],
+					v2 = obj2.input.atkrSettings[i].party_list[j].pokemon_list[k][attr];
+				return v1 > v2 ? 1 : (v1 < v2 ? -1 : (obj1.index - obj2.index));
+			});
+		}
+	}else{
+		arr.sort(function(obj1, obj2){
+			var v1 = obj1.generalSettings[attr], v2 = obj2.generalSettings[attr];
+			return v1 > v2 ? 1 : (v1 < v2 ? -1 : (obj1.index - obj2.index));
+		});
+	}
+}
+
+
 
 function initMasterSummaryTableMetrics(){
 	MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
@@ -189,6 +219,7 @@ function initMasterSummaryTableMetrics(){
 	enumPartyStart = 0;
 	enumPokemonStart = 0;
 	enumDefender = 0;
+	MetricsByWhichToAverage = {};
 }
 
 function createNewMetric(metric, nameDisplayed){
@@ -577,6 +608,7 @@ function relabelAll(){
 	for (var i = 0; i < playerNodes.length; i++){
 		var playerNode = playerNodes[i];
 		playerNode.id = 'ui-player-' + i;
+		playerNode.setAttribute('style', 'background:' + HSL_COLORS[i%HSL_COLORS.length][0]);
 		
 		playerNode.children[0].children[0].innerHTML = "Player " + (i+1);
 		playerNode.children[0].children[1].children[0].id = 'minimize_player:' + i;
@@ -587,6 +619,7 @@ function relabelAll(){
 		for (var j = 0; j < partyNodes.length; j++){
 			var partyNode = partyNodes[j];
 			partyNode.id = 'ui-party-' + i + '-' + j;
+			partyNode.setAttribute('style', 'background:' + HSL_COLORS[i%HSL_COLORS.length][1]);
 			
 			partyNode.children[0].children[0].innerHTML = "Party " + (j+1);
 			partyNode.children[0].children[1].children[0].id = 'minimize_party:' + i + '-' + j;
@@ -597,6 +630,7 @@ function relabelAll(){
 			for (var k = 0; k < pokemonNodes.length; k++){
 				var pokemonNode = pokemonNodes[k];
 				pokemonNode.id = 'ui-pokemon-' + i + '-' + j + '-' + k;
+				pokemonNode.setAttribute('style', 'background:' + HSL_COLORS[i%HSL_COLORS.length][2]);
 				
 				pokemonNode.children[0].id = 'ui-pokemonhead-' + i + '-' + j + '-' + k;
 				pokemonNode.children[0].children[0].innerHTML = 'Pokemon ' + (k+1);
@@ -1073,11 +1107,6 @@ function writeUserInput(cfg){
 }
 
 
-function enqueueSim(cfg_copy){
-	simQueue.push(cfg_copy);
-}
-
-
 function getPokemonInfoFromAddress(cfg, address){
 	// console.log(cfg);
 	if (address == 'd')
@@ -1095,32 +1124,30 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 	if (pkmInfo.stamp.includes(attr))
 		return 0;
 	pkmInfo.stamp += ' ' + attr;
+	if ((typeof pkmInfo[attr_idx] == typeof 0) && pkmInfo[attr_idx] >= 0){
+		simQueue.unshift(cfg);
+		return -1;
+	}
 	
 	var expressionStr = pkmInfo[attr], expressionStr_default = '', input_type = 0;
 	if (attr == 'species'){
 		input_type = 0;
 	}else if (['level','atkiv','defiv','stmiv'].includes(attr)){
 		input_type = 1;
-	}else if (attr == 'fmove'){
+	}else if (attr == 'fmove' || attr == 'cmove'){
 		input_type = 2;
 		expressionStr_default = 'current,legacy,exclusive';
-		markMoveDatabase('f', pkmInfo.index);
-	}else if (attr == 'cmove'){
-		input_type = 2;
-		expressionStr_default = 'current,legacy,exclusive';
-		markMoveDatabase('c', pkmInfo.index);
+		markMoveDatabase(attr[0], pkmInfo.index);
 	}
 	
 	var exact_match_idx = pred(expressionStr);
-	if ((typeof pkmInfo[attr_idx] == typeof 0) && pkmInfo[attr_idx] >= 0){
-		enqueueSim(JSON.parse(JSON.stringify(cfg)));
-	}else if (exact_match_idx != NaN && exact_match_idx >= 0){ // Exact Match
+	if (exact_match_idx != NaN && exact_match_idx >= 0){ // Exact Match
 		pkmInfo[attr_idx] = exact_match_idx;
-		enqueueSim(JSON.parse(JSON.stringify(cfg)));
+		simQueue.unshift(cfg);
 	}else if (expressionStr[0] == '='){// Dynamic Assignment Operator
 		try{
 			pkmInfo[attr_idx] = getPokemonInfoFromAddress(cfg, expressionStr.slice(1))[attr_idx];
-			enqueueSim(JSON.parse(JSON.stringify(cfg)));
+			simQueue.unshift(cfg);
 		}catch(err){
 			send_feedback(address + '.' + attr + ": Invalid address for Dynamic Assignment", true);
 			return -2;
@@ -1129,8 +1156,6 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 		var selector = expressionStr[0];
 		if (SELECTORS.includes(selector))
 			expressionStr = expressionStr.slice(1).trim();
-		createNewMetric('*' + address + '.' + attr);
-		
 		expressionStr = expressionStr || expressionStr_default;
 		if (input_type == 1)
 			expressionStr = 'value' + expressionStr;
@@ -1141,22 +1166,21 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 			return -2;
 		}
 		
-		var values = [matches[matches.length - 1]]; // Default
-		if (selector == '*'){
-			values = matches;
+		if (selector == '*' || selector == ''){
+			createNewMetric('*' + address + '.' + attr);
 		}else if (selector == '?'){
-			values = [matches[Math.floor(Math.random() * matches.length)]];
+			MetricsByWhichToAverage[address + '.' + attr_idx] = matches.length;
 		}
 		
-		for (var i = 0; i < values.length; i++){
+		for (var i = 0; i < matches.length; i++){
 			var cfg_copy = JSON.parse(JSON.stringify(cfg));
 			if (input_type == 0)
-				copyAllInfo(getPokemonInfoFromAddress(cfg_copy, address), values[i]);
+				copyAllInfo(getPokemonInfoFromAddress(cfg_copy, address), matches[i]);
 			else if (input_type == 1)
-				getPokemonInfoFromAddress(cfg_copy, address)[attr_idx] = values[i].value;
+				getPokemonInfoFromAddress(cfg_copy, address)[attr_idx] = matches[i].value;
 			else if (input_type == 2)
-				getPokemonInfoFromAddress(cfg_copy, address)[attr_idx] = values[i].index;
-			enqueueSim(cfg_copy);
+				getPokemonInfoFromAddress(cfg_copy, address)[attr_idx] = matches[i].index;
+			simQueue.push(cfg_copy);
 		}
 	}
 	return -1;
@@ -1187,7 +1211,7 @@ function parseWeatherInput(cfg){
 		createNewMetric('weather');
 		for (var i = 0; i < WEATHER_LIST.length; i++){
 			cfg.generalSettings.weather = WEATHER_LIST[i];
-			enqueueSim(JSON.parse(JSON.stringify(cfg)));
+			simQueue.push(JSON.parse(JSON.stringify(cfg)));
 		}
 		return -1;
 	}else{
@@ -1223,7 +1247,7 @@ function processQueue(cfg){
 	return 0;
 }
 
-function runSim(cfg){
+function runSim(cfg, resCollector){
 	var app_world = new World(cfg);
 	var numSimRun = parseInt(cfg['generalSettings']['simPerConfig']);
 	var interResults = [];
@@ -1233,14 +1257,14 @@ function runSim(cfg){
 		interResults.push(app_world.get_statistics());
 	}
 	if (cfg['generalSettings']['reportType'] == 'avrg')
-		simResults.push({input: cfg, output: averageResults(interResults)});
+		resCollector.push({input: cfg, output: averageOutputs(interResults)});
 	else if (cfg['generalSettings']['reportType'] == 'enum'){
 		for (var i = 0; i < interResults.length; i++)
-			simResults.push({input: cfg, output: interResults[i]});
+			resCollector.push({input: cfg, output: interResults[i]});
 	}
 }
 
-function averageResults(results){
+function averageOutputs(results){
 	var avrgR = JSON.parse(JSON.stringify(results[0])), numResults = results.length, numPlayer = results[0].playerStats.length;
 	
 	// These are the metrics to sum and average
@@ -1328,6 +1352,7 @@ function averageResults(results){
 	});
 	avrgR.pokemonStats[numPlayer].dps = Math.round(avrgR.pokemonStats[numPlayer].tdo/avrgR.pokemonStats[numPlayer].duration*100)/100;
 	
+	avrgR.battleLog = [];
 	return avrgR;
 }
 
@@ -1457,7 +1482,8 @@ function displayDetail(i){
 	var output = simResults[i]['output'];
 	var fbSection = document.getElementById("feedback_table1");
 	for (var i = 0; i < output.pokemonStats.length - 1; i++){
-		fbSection.appendChild(createElement('h4',createPlayerStatisticsString(output.playerStats[i])));
+		fbSection.appendChild(createElement('h4',createPlayerStatisticsString(output.playerStats[i]), 
+			{style: 'background:' + HSL_COLORS[i%HSL_COLORS.length][0]}));
 		var playerDiv = document.createElement('div');
 		playerDiv.id = 'ui-playerstat-' + i;
 		for (var j = 0; j < output.pokemonStats[i].length; j++){
@@ -1542,7 +1568,11 @@ function createBattleLogTable(log, playerCount){
 		attrs.forEach(function(a){
 			rowData.push(rawEntry[a]);
 		});
-		table.children[1].appendChild(createRow(rowData), "td");
+		var row = createRow(rowData);
+		for (var k = 0; k < row.children.length - 2; k++){
+			row.children[k+1].setAttribute('style','background:' + HSL_COLORS[k%HSL_COLORS.length][0]);
+		}
+		table.children[1].appendChild(row, "td");
 	}
 	return table;
 }
@@ -1558,11 +1588,13 @@ function send_feedback(msg, appending, feedbackDivId){
 		feedbackSection.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
 }
 
+
 function main(){
 	send_feedback("======== GO ========", true);
 	initMasterSummaryTableMetrics();
-	var userInput = readUserInput();
+	var userInput = readUserInput(), tempResults = [];
 	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
+	
 	simQueue = [userInput];
 	while (simQueue.length > 0){
 		var job = simQueue.shift();
@@ -1570,8 +1602,26 @@ function main(){
 		if (statusCode == -2)
 			break;
 		else if (statusCode == 0)
-			runSim(job);
+			runSim(job, tempResults);
 	}
+	for (var metric in MetricsByWhichToAverage){
+		var numSimsBy = MetricsByWhichToAverage[metric];
+		if (numSimsBy <= 1)
+			continue;
+		var numRepeat = Math.round(tempResults.length / numSimsBy), postAvrgResults = [];
+		sortByMetric(tempResults, metric);
+		for (var i = 0; i < numRepeat; i++){
+			var tempOutputsToAverage = [];
+			for (var j = 0; j < numSimsBy; j++)
+				tempOutputsToAverage.push(tempResults[i + j * numRepeat].output);
+			postAvrgResults.push({
+				input: tempResults[i].input,
+				output: averageOutputs(tempOutputsToAverage)
+			});
+		}
+		tempResults = postAvrgResults;
+	}
+	simResults = simResults.concat(tempResults);
 	displayMasterSummaryTable();
 	send_feedback("======= DONE =======", true);
 }
@@ -1847,4 +1897,13 @@ function boxEditFormSubmit(userIndex){
 	USERS_INFO[userIndex].box = newBox;
 	relabelAll();
 	send_feedback("Box order has been saved", false, 'boxEditForm-feedback');
+}
+
+function parameterEditFormSubmit(){
+	editableParameters.forEach(function(attr){
+		var value = parseFloat(document.getElementById('parameterEditForm-'+attr).value);
+		if (value)
+			window[attr] = value;
+	});
+	send_feedback("Parameters have been updated", false, 'parameterEditForm-feedback');
 }

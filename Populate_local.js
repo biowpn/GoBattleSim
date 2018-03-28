@@ -15028,6 +15028,7 @@ $(document).ready(function(){
 
 $(document).ready(function(){
 	// Debug
+	USERS_INFO = [];
 	// return;
 	var dbgs = {
 		generalSettings : {battleMode: "raid", 
