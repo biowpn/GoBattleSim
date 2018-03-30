@@ -15005,30 +15005,9 @@ USERS_INFO = [
   }
 ];
 
-$(document).ready(function(){
-	// Populate valid IV and Level values
-	for (var i = 0; i < 16; i++){
-		IV_VALUES.push({value: i});
-	}
-	for (var i = 1; i <= 40; i += 0.5){
-		LEVEL_VALUES.push({value: i});
-	}
-		
-	autocompleteMoveEditForm();
-	autocompletePokemonEditForm();
-	udpateUserTable();
-	
-	addPlayerNode();
-	document.getElementById("ui-defenderinputbody").innerHTML = "";
-	document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
-	autocompletePokemonNode('d');
-	document.getElementById("simPerConfig").value = 1;
-});
-
 
 $(document).ready(function(){
 	// Debug
-	USERS_INFO = [];
 	// return;
 	var dbgs = {
 		generalSettings : {battleMode: "raid", 

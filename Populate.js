@@ -23,6 +23,24 @@ function getMovesFromString(S){
 	return res;
 }
 
+// Handle Exclusive moves
+function handleExclusiveMoves(pokemonDataBase){
+	for (var i = 0; i < pokemonDataBase.length; i++){
+		var pkm = pokemonDataBase[i];
+		if (pkm.exclusiveMoves){
+			pkm.fastMoves_exclusive = [];
+			pkm.chargedMoves_exclusive = [];
+			pkm.exclusiveMoves.forEach(function(move){
+				if (get_fmove_index_by_name(move) >= 0)
+					pkm.fastMoves_exclusive.push(move);
+				else if (get_cmove_index_by_name(move) >= 0)
+					pkm.chargedMoves_exclusive.push(move);
+			});
+			delete pkm.exclusiveMoves;
+		}
+	}
+}
+
 function processUserPokeboxRawData(data){
 	var box = [];
 	for (var i = 0; i < data.length; i++){
@@ -55,48 +73,7 @@ function processUserPokeboxRawData(data){
 }
 
 
-function populateAll(){
-	if (POKEMON_SPECIES_DATA_FETCHED && MOVE_DATA_FETCHED && USER_POKEBOX_FETCHED){
-		for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++){
-			var pkm = POKEMON_SPECIES_DATA[i];
-			pkm.fastMoves_exclusive = [];
-			pkm.chargedMoves_exclusive = [];
-			pkm.exclusiveMoves.forEach(function(move){
-				if (get_fmove_index_by_name(move) >= 0)
-					pkm.fastMoves_exclusive.push(move);
-				else if (get_cmove_index_by_name(move) >= 0)
-					pkm.chargedMoves_exclusive.push(move);
-			});
-			delete pkm.exclusiveMoves;
-		}
-		
-		// Populate valid IV and Level values
-		for (var i = 0; i < 16; i++){
-			IV_VALUES.push({value: i});
-		}
-		for (var i = 1; i <= 40; i += 0.5){
-			LEVEL_VALUES.push({value: i});
-		}
-		
-		autocompleteMoveEditForm();
-		autocompletePokemonEditForm();
-		udpateUserTable();
-		
-		addPlayerNode();
-		document.getElementById("ui-defenderinputbody").innerHTML = "";
-		document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
-		autocompletePokemonNode('d');
-		document.getElementById("simPerConfig").value = 1;
-		
-		if (window.location.href.includes('?'))
-			writeUserInput(uriToJSON(window.location.href.split('?')[1]));
-	}
-}
 /* End of Helper Functions */
-
-var POKEMON_SPECIES_DATA_FETCHED = false;
-var MOVE_DATA_FETCHED = false;
-var USER_POKEBOX_FETCHED = false;
 
 
 // TODO: Get CPM data: https://pokemongo.gamepress.gg/assets/data/cpm.json
@@ -104,99 +81,164 @@ var USER_POKEBOX_FETCHED = false;
 // TODO: Get Type Advantages data
 
 // Read Pokemon Data
-$.ajax({ 
-	url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pokemon-data-full.json?new', 
-	dataType: 'json', 
-	success: function(data){
-		for(var i = 0; i < data.length; i++){
-			var pkmData = {
-				index: i,
-				dex : parseInt(data[i].number),
-				box_index : -1,
-				name : data[i].title_1.toLowerCase(),
-				pokeType1 : getPokemonType1FromString(data[i].field_pokemon_type),
-				pokeType2 : getPokemonType2FromString(data[i].field_pokemon_type),
-				baseAtk : parseInt(data[i].atk),
-				baseDef : parseInt(data[i].def),
-				baseStm : parseInt(data[i].sta),
-				fastMoves : getMovesFromString(data[i].field_primary_moves),
-				chargedMoves : getMovesFromString(data[i].field_secondary_moves),
-				fastMoves_legacy : getMovesFromString(data[i].field_legacy_quick_moves),
-				chargedMoves_legacy : getMovesFromString(data[i].field_legacy_charge_moves),
-				exclusiveMoves : getMovesFromString(data[i].exclusive_moves),
-				rating : parseFloat(data[i].rating) || 0,
-				image: data[i].uri,
-				icon: pokemon_icon_url_by_dex(data[i].number),
-				label: toTitleCase(data[i].title_1)
-			};
-			POKEMON_SPECIES_DATA.push(pkmData);
+function loadLatestPokemonData(oncomplete){
+	oncomplete = oncomplete || function(){return;};
+	
+	$.ajax({ 
+		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pokemon-data-full.json?new', 
+		dataType: 'json', 
+		success: function(data){
+			for(var i = 0; i < data.length; i++){
+				var pkmData = {
+					index: i,
+					dex : parseInt(data[i].number),
+					box_index : -1,
+					name : data[i].title_1.toLowerCase(),
+					pokeType1 : getPokemonType1FromString(data[i].field_pokemon_type),
+					pokeType2 : getPokemonType2FromString(data[i].field_pokemon_type),
+					baseAtk : parseInt(data[i].atk),
+					baseDef : parseInt(data[i].def),
+					baseStm : parseInt(data[i].sta),
+					fastMoves : getMovesFromString(data[i].field_primary_moves),
+					chargedMoves : getMovesFromString(data[i].field_secondary_moves),
+					fastMoves_legacy : getMovesFromString(data[i].field_legacy_quick_moves),
+					chargedMoves_legacy : getMovesFromString(data[i].field_legacy_charge_moves),
+					exclusiveMoves : getMovesFromString(data[i].exclusive_moves),
+					rating : parseFloat(data[i].rating) || 0,
+					image: data[i].uri,
+					icon: pokemon_icon_url_by_dex(data[i].number),
+					label: toTitleCase(data[i].title_1)
+				};
+				POKEMON_SPECIES_DATA.push(pkmData);
+			}
+			
+		},
+		complete: function(jqXHR, textStatus){
+			handleExclusiveMoves(POKEMON_SPECIES_DATA);
+			handleExclusiveMoves(POKEMON_SPECIES_DATA_LOCAL);
+			oncomplete();
 		}
-		POKEMON_SPECIES_DATA_FETCHED = true;
-	},
-	complete: function(jqXHR, textStatus){
-		populateAll();
-	}
-});		
+	});		
+}
+
 
 
 // Read move data
-$.ajax({
-	url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/move-data-full.json?new', 
-	dataType: 'json', 
-	success: function(data){
-		var fmoveCount = 0, cmoveCount = 0;
-		for(var i = 0; i < data.length; i++){
-			var move = {
-				name: data[i].title.toLowerCase(),
-				power: parseInt(data[i].power),
-				pokeType: data[i].move_type.toLowerCase(),
-				dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
-				duration: parseFloat(data[i].cooldown)*1000,
-				label: toTitleCase(data[i].title),
-				icon: poketype_icon_url_by_name(data[i].move_type)
-			};
-			if (data[i].move_category == "Fast Move"){
-				move.index = fmoveCount++;
-				move.moveType = 'f';
-				move.energyDelta = Math.abs(parseInt(data[i].energy_gain));
-				FAST_MOVE_DATA.push(move);
-			}else if (data[i].move_category == "Charge Move"){
-				move.index = cmoveCount++;
-				move.moveType = 'c';
-				move.energyDelta = -Math.abs(parseInt(data[i].energy_cost));
-				CHARGED_MOVE_DATA.push(move);
-			}else{
-				console.log("Unrecogized move type:");
-				console.log(data[i]);
+function loadLatestMoveData(oncomplete){
+	oncomplete = oncomplete || function(){return;};
+	
+	$.ajax({
+		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/move-data-full.json?new', 
+		dataType: 'json', 
+		success: function(data){
+			var fmoveCount = 0, cmoveCount = 0;
+			for(var i = 0; i < data.length; i++){
+				var move = {
+					name: data[i].title.toLowerCase(),
+					power: parseInt(data[i].power),
+					pokeType: data[i].move_type.toLowerCase(),
+					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
+					duration: parseFloat(data[i].cooldown)*1000,
+					label: toTitleCase(data[i].title),
+					icon: poketype_icon_url_by_name(data[i].move_type)
+				};
+				if (data[i].move_category == "Fast Move"){
+					move.index = fmoveCount++;
+					move.moveType = 'f';
+					move.energyDelta = Math.abs(parseInt(data[i].energy_gain));
+					FAST_MOVE_DATA.push(move);
+				}else if (data[i].move_category == "Charge Move"){
+					move.index = cmoveCount++;
+					move.moveType = 'c';
+					move.energyDelta = -Math.abs(parseInt(data[i].energy_cost));
+					CHARGED_MOVE_DATA.push(move);
+				}else{
+					console.log("Ignore:");
+					console.log(move);
+				}
 			}
+		},
+		complete: function(jqXHR, textStatus){
+			oncomplete();
 		}
-		MOVE_DATA_FETCHED = true;
-	},
-	complete: function(jqXHR, textStatus){
-		populateAll();
-	}
-});
-
+	});
+}
 	
 // Read User Pokebox
+function loadLatestPokeBox(userid, oncomplete){
+	oncomplete = oncomplete || function(){return;};
+	if (!(POKEMON_SPECIES_DATA_FETCHED && FAST_MOVE_DATA_FETCHED && CHARGED_MOVE_DATA_FETCHED)){
+		return;
+	}
+	CURRENT_USER_BOX_FECTHED = true;
+	
+	$.ajax({ 
+		url: '/user-pokemon-json-list?new&uid_raw=' + userid,
+		dataType: 'json',
+		success: function(data){
+			var importedBox = processUserPokeboxRawData(data);
+			USERS_INFO.push({id: userid, box: importedBox});
+			udpateUserTable();
+			send_feedback("Successfully imported user " + userid + " with " + importedBox.length + " Pokemon", false, 'userEditForm-feedback');
+			oncomplete();
+		},
+		error: function(){
+			send_feedback("Failed to import user " + userid, false, 'userEditForm-feedback');
+		}
+	});
+}
+
+
+
 $(document).ready(function(){
-	if(typeof userID2 == 'undefined'){
-		USER_POKEBOX_FETCHED = true;
-		populateAll();
-	}else if(userID2){
-		$.ajax({
-			url: '/user-pokemon-json-list?new&uid_raw=' + userID2,
-			dataType: 'json',
-			success: function(data){
-				USERS_INFO.push({id: userID2, box: processUserPokeboxRawData(data)});
-				USER_POKEBOX_FETCHED = true;
-			},
-			complete: function(jqXHR, textStatus){
-				populateAll();
+	if (!POKEMON_SPECIES_DATA_FETCHED){
+		loadLatestPokemonData(function(){
+			POKEMON_SPECIES_DATA_FETCHED = true;
+			
+			for (var i = 0; i < POKEMON_SPECIES_DATA_LOCAL.length; i++){
+				POKEMON_SPECIES_DATA_LOCAL[i].index = POKEMON_SPECIES_DATA.length + i;
+				POKEMON_SPECIES_DATA.push(POKEMON_SPECIES_DATA_LOCAL[i]);
+			}
+			
+			if (typeof userID2 != 'underfined' && userID2 && !CURRENT_USER_BOX_FECTHED){
+				loadLatestPokeBox(userID2, function(){
+					udpateUserTable();
+				});
+			}
+			
+			if (!WRITTEN_USER_INPUT_FROM_INIT_URL){
+				if (window.location.href.includes('?'))
+					writeUserInput(uriToJSON(window.location.href.split('?')[1]));
+				WRITTEN_USER_INPUT_FROM_INIT_URL = true;
 			}
 		});
-	}else{
-		USER_POKEBOX_FETCHED = true;
-		populateAll();
+	}
+
+	if (!(FAST_MOVE_DATA_FETCHED && CHARGED_MOVE_DATA_FETCHED)){
+		loadLatestMoveData(function(){ 
+			FAST_MOVE_DATA_FETCHED = true; 
+			CHARGED_MOVE_DATA_FETCHED = true;
+			
+			for (var i = 0; i < FAST_MOVE_DATA_LOCAL.length; i++){
+				FAST_MOVE_DATA_LOCAL[i].index = FAST_MOVE_DATA.length + i;
+				FAST_MOVE_DATA.push(FAST_MOVE_DATA_LOCAL[i]);
+			}
+			for (var i = 0; i < CHARGED_MOVE_DATA_LOCAL.length; i++){
+				CHARGED_MOVE_DATA_LOCAL[i].index = CHARGED_MOVE_DATA.length + i;
+				CHARGED_MOVE_DATA.push(CHARGED_MOVE_DATA_LOCAL[i]);
+			}
+			
+			if (typeof userID2 != 'underfined' && userID2 && !CURRENT_USER_BOX_FECTHED){
+				loadLatestPokeBox(userID2, function(){
+					udpateUserTable();
+				});
+			}
+			
+			if (!WRITTEN_USER_INPUT_FROM_INIT_URL){
+				if (window.location.href.includes('?'))
+					writeUserInput(uriToJSON(window.location.href.split('?')[1]));
+				WRITTEN_USER_INPUT_FROM_INIT_URL = true;
+			}
+		});
 	}
 });
