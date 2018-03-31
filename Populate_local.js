@@ -9,8 +9,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 0,
     "moveType": "f",
-    "energyDelta": 5,
-    "marker": "all stab"
+    "energyDelta": 5
   },
   {
     "name": "acid",
@@ -22,8 +21,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_poison.png",
     "index": 1,
     "moveType": "f",
-    "energyDelta": 8,
-    "marker": "all"
+    "energyDelta": 8
   },
   {
     "name": "bite",
@@ -35,8 +33,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_dark.png",
     "index": 2,
     "moveType": "f",
-    "energyDelta": 4,
-    "marker": "all"
+    "energyDelta": 4
   },
   {
     "name": "bubble",
@@ -48,8 +45,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
     "index": 3,
     "moveType": "f",
-    "energyDelta": 14,
-    "marker": "all"
+    "energyDelta": 14
   },
   {
     "name": "bug bite",
@@ -61,8 +57,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bug.png",
     "index": 4,
     "moveType": "f",
-    "energyDelta": 6,
-    "marker": "all"
+    "energyDelta": 6
   },
   {
     "name": "bullet punch",
@@ -74,8 +69,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_steel.png",
     "index": 5,
     "moveType": "f",
-    "energyDelta": 10,
-    "marker": "all"
+    "energyDelta": 10
   },
   {
     "name": "confusion",
@@ -87,8 +81,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_psychic.png",
     "index": 6,
     "moveType": "f",
-    "energyDelta": 15,
-    "marker": "all"
+    "energyDelta": 15
   },
   {
     "name": "dragon breath",
@@ -100,8 +93,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_dragon.png",
     "index": 7,
     "moveType": "f",
-    "energyDelta": 4,
-    "marker": "all"
+    "energyDelta": 4
   },
   {
     "name": "ember",
@@ -113,8 +105,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fire.png",
     "index": 8,
     "moveType": "f",
-    "energyDelta": 10,
-    "marker": "all"
+    "energyDelta": 10
   },
   {
     "name": "feint attack",
@@ -126,8 +117,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_dark.png",
     "index": 9,
     "moveType": "f",
-    "energyDelta": 9,
-    "marker": "all"
+    "energyDelta": 9
   },
   {
     "name": "fire fang",
@@ -139,8 +129,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fire.png",
     "index": 10,
     "moveType": "f",
-    "energyDelta": 8,
-    "marker": "all"
+    "energyDelta": 8
   },
   {
     "name": "fury cutter",
@@ -152,8 +141,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bug.png",
     "index": 11,
     "moveType": "f",
-    "energyDelta": 6,
-    "marker": "all"
+    "energyDelta": 6
   },
   {
     "name": "frost breath",
@@ -165,8 +153,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ice.png",
     "index": 12,
     "moveType": "f",
-    "energyDelta": 8,
-    "marker": "all"
+    "energyDelta": 8
   },
   {
     "name": "karate chop",
@@ -178,8 +165,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fighting.png",
     "index": 13,
     "moveType": "f",
-    "energyDelta": 10,
-    "marker": "all"
+    "energyDelta": 10
   },
   {
     "name": "low kick",
@@ -191,8 +177,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fighting.png",
     "index": 14,
     "moveType": "f",
-    "energyDelta": 6,
-    "marker": "all"
+    "energyDelta": 6
   },
   {
     "name": "lick",
@@ -204,8 +189,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ghost.png",
     "index": 15,
     "moveType": "f",
-    "energyDelta": 6,
-    "marker": "all"
+    "energyDelta": 6
   },
   {
     "name": "metal claw",
@@ -217,8 +201,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_steel.png",
     "index": 16,
     "moveType": "f",
-    "energyDelta": 7,
-    "marker": "all"
+    "energyDelta": 7
   },
   {
     "name": "mud shot",
@@ -230,8 +213,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ground.png",
     "index": 17,
     "moveType": "f",
-    "energyDelta": 7,
-    "marker": "all"
+    "energyDelta": 7
   },
   {
     "name": "mud slap",
@@ -243,8 +225,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ground.png",
     "index": 18,
     "moveType": "f",
-    "energyDelta": 12,
-    "marker": "all"
+    "energyDelta": 12
   },
   {
     "name": "peck",
@@ -256,8 +237,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_flying.png",
     "index": 19,
     "moveType": "f",
-    "energyDelta": 10,
-    "marker": "all"
+    "energyDelta": 10
   },
   {
     "name": "poison sting",
@@ -269,8 +249,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_poison.png",
     "index": 20,
     "moveType": "f",
-    "energyDelta": 7,
-    "marker": "all"
+    "energyDelta": 7
   },
   {
     "name": "pound",
@@ -282,8 +261,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 21,
     "moveType": "f",
-    "energyDelta": 6,
-    "marker": "all stab current"
+    "energyDelta": 6
   },
   {
     "name": "psycho cut",
@@ -295,8 +273,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_psychic.png",
     "index": 22,
     "moveType": "f",
-    "energyDelta": 8,
-    "marker": "all"
+    "energyDelta": 8
   },
   {
     "name": "quick attack",
@@ -308,8 +285,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 23,
     "moveType": "f",
-    "energyDelta": 10,
-    "marker": "all stab"
+    "energyDelta": 10
   },
   {
     "name": "razor leaf",
@@ -321,8 +297,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_grass.png",
     "index": 24,
     "moveType": "f",
-    "energyDelta": 7,
-    "marker": "all"
+    "energyDelta": 7
   },
   {
     "name": "rock smash",
@@ -334,8 +309,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fighting.png",
     "index": 25,
     "moveType": "f",
-    "energyDelta": 10,
-    "marker": "all"
+    "energyDelta": 10
   },
   {
     "name": "rock throw",
@@ -347,8 +321,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_rock.png",
     "index": 26,
     "moveType": "f",
-    "energyDelta": 7,
-    "marker": "all"
+    "energyDelta": 7
   },
   {
     "name": "scratch",
@@ -360,8 +333,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 27,
     "moveType": "f",
-    "energyDelta": 4,
-    "marker": "all stab"
+    "energyDelta": 4
   },
   {
     "name": "spark",
@@ -373,8 +345,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_electric.png",
     "index": 28,
     "moveType": "f",
-    "energyDelta": 9,
-    "marker": "all"
+    "energyDelta": 9
   },
   {
     "name": "steel wing",
@@ -386,8 +357,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_steel.png",
     "index": 29,
     "moveType": "f",
-    "energyDelta": 6,
-    "marker": "all"
+    "energyDelta": 6
   },
   {
     "name": "sucker punch",
@@ -399,8 +369,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_dark.png",
     "index": 30,
     "moveType": "f",
-    "energyDelta": 8,
-    "marker": "all"
+    "energyDelta": 8
   },
   {
     "name": "thunder shock",
@@ -412,8 +381,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_electric.png",
     "index": 31,
     "moveType": "f",
-    "energyDelta": 8,
-    "marker": "all"
+    "energyDelta": 8
   },
   {
     "name": "vine whip",
@@ -425,8 +393,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_grass.png",
     "index": 32,
     "moveType": "f",
-    "energyDelta": 6,
-    "marker": "all"
+    "energyDelta": 6
   },
   {
     "name": "water gun",
@@ -438,8 +405,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
     "index": 33,
     "moveType": "f",
-    "energyDelta": 5,
-    "marker": "all"
+    "energyDelta": 5
   },
   {
     "name": "wing attack",
@@ -451,8 +417,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_flying.png",
     "index": 34,
     "moveType": "f",
-    "energyDelta": 9,
-    "marker": "all"
+    "energyDelta": 9
   },
   {
     "name": "zen headbutt",
@@ -464,8 +429,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_psychic.png",
     "index": 35,
     "moveType": "f",
-    "energyDelta": 10,
-    "marker": "all current"
+    "energyDelta": 10
   },
   {
     "name": "poison jab",
@@ -477,8 +441,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_poison.png",
     "index": 36,
     "moveType": "f",
-    "energyDelta": 7,
-    "marker": "all"
+    "energyDelta": 7
   },
   {
     "name": "ice shard",
@@ -490,8 +453,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ice.png",
     "index": 37,
     "moveType": "f",
-    "energyDelta": 12,
-    "marker": "all"
+    "energyDelta": 12
   },
   {
     "name": "shadow claw",
@@ -503,8 +465,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ghost.png",
     "index": 38,
     "moveType": "f",
-    "energyDelta": 6,
-    "marker": "all"
+    "energyDelta": 6
   },
   {
     "name": "splash",
@@ -516,8 +477,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
     "index": 39,
     "moveType": "f",
-    "energyDelta": 20,
-    "marker": "all"
+    "energyDelta": 20
   },
   {
     "name": "cut",
@@ -529,8 +489,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 40,
     "moveType": "f",
-    "energyDelta": 5,
-    "marker": "all stab"
+    "energyDelta": 5
   },
   {
     "name": "transform",
@@ -543,7 +502,10 @@ var FAST_MOVE_DATA = [
     "index": 41,
     "moveType": "f",
     "energyDelta": 0,
-    "marker": "all stab"
+    "effect": {
+      "name": "transform",
+      "remaining": 1
+    }
   },
   {
     "name": "counter",
@@ -555,8 +517,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fighting.png",
     "index": 42,
     "moveType": "f",
-    "energyDelta": 8,
-    "marker": "all"
+    "energyDelta": 8
   },
   {
     "name": "powder snow",
@@ -568,8 +529,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ice.png",
     "index": 43,
     "moveType": "f",
-    "energyDelta": 15,
-    "marker": "all"
+    "energyDelta": 15
   },
   {
     "name": "charge beam",
@@ -581,8 +541,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_electric.png",
     "index": 44,
     "moveType": "f",
-    "energyDelta": 15,
-    "marker": "all"
+    "energyDelta": 15
   },
   {
     "name": "volt switch",
@@ -594,8 +553,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_electric.png",
     "index": 45,
     "moveType": "f",
-    "energyDelta": 25,
-    "marker": "all"
+    "energyDelta": 25
   },
   {
     "name": "dragon tail",
@@ -607,8 +565,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_dragon.png",
     "index": 46,
     "moveType": "f",
-    "energyDelta": 9,
-    "marker": "all"
+    "energyDelta": 9
   },
   {
     "name": "air slash",
@@ -620,8 +577,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_flying.png",
     "index": 47,
     "moveType": "f",
-    "energyDelta": 10,
-    "marker": "all"
+    "energyDelta": 10
   },
   {
     "name": "infestation",
@@ -633,8 +589,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bug.png",
     "index": 48,
     "moveType": "f",
-    "energyDelta": 14,
-    "marker": "all"
+    "energyDelta": 14
   },
   {
     "name": "struggle bug",
@@ -646,8 +601,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bug.png",
     "index": 49,
     "moveType": "f",
-    "energyDelta": 15,
-    "marker": "all"
+    "energyDelta": 15
   },
   {
     "name": "astonish",
@@ -659,8 +613,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ghost.png",
     "index": 50,
     "moveType": "f",
-    "energyDelta": 14,
-    "marker": "all"
+    "energyDelta": 14
   },
   {
     "name": "hex",
@@ -672,8 +625,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ghost.png",
     "index": 51,
     "moveType": "f",
-    "energyDelta": 15,
-    "marker": "all"
+    "energyDelta": 15
   },
   {
     "name": "iron tail",
@@ -685,8 +637,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_steel.png",
     "index": 52,
     "moveType": "f",
-    "energyDelta": 7,
-    "marker": "all"
+    "energyDelta": 7
   },
   {
     "name": "fire spin",
@@ -698,8 +649,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fire.png",
     "index": 53,
     "moveType": "f",
-    "energyDelta": 10,
-    "marker": "all"
+    "energyDelta": 10
   },
   {
     "name": "water gun (blastoise)",
@@ -711,8 +661,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
     "index": 54,
     "moveType": "f",
-    "energyDelta": 6,
-    "marker": "all"
+    "energyDelta": 6
   },
   {
     "name": "bullet seed",
@@ -724,8 +673,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_grass.png",
     "index": 55,
     "moveType": "f",
-    "energyDelta": 14,
-    "marker": "all"
+    "energyDelta": 14
   },
   {
     "name": "extrasensory",
@@ -737,8 +685,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_psychic.png",
     "index": 56,
     "moveType": "f",
-    "energyDelta": 12,
-    "marker": "all"
+    "energyDelta": 12
   },
   {
     "name": "snarl",
@@ -750,8 +697,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_dark.png",
     "index": 57,
     "moveType": "f",
-    "energyDelta": 12,
-    "marker": "all"
+    "energyDelta": 12
   },
   {
     "name": "hidden power",
@@ -763,8 +709,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 58,
     "moveType": "f",
-    "energyDelta": 15,
-    "marker": "all stab"
+    "energyDelta": 15
   },
   {
     "name": "present",
@@ -776,8 +721,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 59,
     "moveType": "f",
-    "energyDelta": 20,
-    "marker": "all stab"
+    "energyDelta": 20
   },
   {
     "name": "waterfall",
@@ -789,8 +733,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
     "index": 60,
     "moveType": "f",
-    "energyDelta": 8,
-    "marker": "all"
+    "energyDelta": 8
   },
   {
     "name": "yawn",
@@ -802,8 +745,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 61,
     "moveType": "f",
-    "energyDelta": 15,
-    "marker": "all stab"
+    "energyDelta": 15
   },
   {
     "name": "take down",
@@ -815,8 +757,7 @@ var FAST_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 62,
     "moveType": "f",
-    "energyDelta": 10,
-    "marker": "all stab"
+    "energyDelta": 10
   }
 ];
 
@@ -831,8 +772,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_flying.png",
     "index": 0,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "air cutter",
@@ -844,8 +784,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_flying.png",
     "index": 1,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "ancient power",
@@ -857,8 +796,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_rock.png",
     "index": 2,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "aqua jet",
@@ -870,8 +808,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
     "index": 3,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "aqua tail",
@@ -883,8 +820,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
     "index": 4,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "blizzard",
@@ -896,8 +832,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ice.png",
     "index": 5,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "body slam",
@@ -909,8 +844,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 6,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all stab"
+    "energyDelta": -33
   },
   {
     "name": "bone club",
@@ -922,8 +856,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ground.png",
     "index": 7,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "brick break",
@@ -935,8 +868,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fighting.png",
     "index": 8,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "bubble beam",
@@ -948,8 +880,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
     "index": 9,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "bug buzz",
@@ -961,8 +892,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bug.png",
     "index": 10,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "bulldoze",
@@ -974,8 +904,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ground.png",
     "index": 11,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "cross chop",
@@ -987,8 +916,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fighting.png",
     "index": 12,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "cross poison",
@@ -1000,8 +928,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_poison.png",
     "index": 13,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "dark pulse",
@@ -1013,8 +940,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_dark.png",
     "index": 14,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "dazzling gleam",
@@ -1026,8 +952,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fairy.png",
     "index": 15,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all current"
+    "energyDelta": -50
   },
   {
     "name": "dig",
@@ -1039,8 +964,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ground.png",
     "index": 16,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "disarming voice",
@@ -1052,8 +976,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fairy.png",
     "index": 17,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "discharge",
@@ -1065,8 +988,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_electric.png",
     "index": 18,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "dragon claw",
@@ -1078,8 +1000,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_dragon.png",
     "index": 19,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "dragon pulse",
@@ -1091,8 +1012,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_dragon.png",
     "index": 20,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "draining kiss",
@@ -1104,8 +1024,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fairy.png",
     "index": 21,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "drill peck",
@@ -1117,8 +1036,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_flying.png",
     "index": 22,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "earthquake",
@@ -1130,8 +1048,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ground.png",
     "index": 23,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "fire blast",
@@ -1143,8 +1060,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fire.png",
     "index": 24,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "fire punch",
@@ -1156,8 +1072,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fire.png",
     "index": 25,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "flame burst",
@@ -1169,8 +1084,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fire.png",
     "index": 26,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "flame wheel",
@@ -1182,8 +1096,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fire.png",
     "index": 27,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "flamethrower",
@@ -1195,8 +1108,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fire.png",
     "index": 28,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "flash cannon",
@@ -1208,8 +1120,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_steel.png",
     "index": 29,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "gunk shot",
@@ -1221,8 +1132,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_poison.png",
     "index": 30,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "heat wave",
@@ -1234,8 +1144,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fire.png",
     "index": 31,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "horn attack",
@@ -1247,8 +1156,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 32,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all stab"
+    "energyDelta": -33
   },
   {
     "name": "hydro pump",
@@ -1260,8 +1168,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
     "index": 33,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "hyper beam",
@@ -1273,8 +1180,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 34,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all stab current"
+    "energyDelta": -100
   },
   {
     "name": "hyper fang",
@@ -1286,8 +1192,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 35,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all stab"
+    "energyDelta": -50
   },
   {
     "name": "ice beam",
@@ -1299,8 +1204,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ice.png",
     "index": 36,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "ice punch",
@@ -1312,8 +1216,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ice.png",
     "index": 37,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "icy wind",
@@ -1325,8 +1228,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ice.png",
     "index": 38,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "iron head",
@@ -1338,8 +1240,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_steel.png",
     "index": 39,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "low sweep",
@@ -1351,8 +1252,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fighting.png",
     "index": 40,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "magnet bomb",
@@ -1364,8 +1264,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_steel.png",
     "index": 41,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "megahorn",
@@ -1377,8 +1276,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bug.png",
     "index": 42,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "moonblast",
@@ -1390,8 +1288,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fairy.png",
     "index": 43,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "mud bomb",
@@ -1403,8 +1300,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ground.png",
     "index": 44,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "night slash",
@@ -1416,8 +1312,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_dark.png",
     "index": 45,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "petal blizzard",
@@ -1429,8 +1324,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_grass.png",
     "index": 46,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "play rough",
@@ -1442,8 +1336,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fairy.png",
     "index": 47,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "poison fang",
@@ -1455,8 +1348,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_poison.png",
     "index": 48,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "power gem",
@@ -1468,8 +1360,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_rock.png",
     "index": 49,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "power whip",
@@ -1481,8 +1372,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_grass.png",
     "index": 50,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "psybeam",
@@ -1494,8 +1384,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_psychic.png",
     "index": 51,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "psychic",
@@ -1507,8 +1396,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_psychic.png",
     "index": 52,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all current"
+    "energyDelta": -100
   },
   {
     "name": "psyshock",
@@ -1520,8 +1408,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_psychic.png",
     "index": 53,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "rock slide",
@@ -1533,8 +1420,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_rock.png",
     "index": 54,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "rock tomb",
@@ -1546,8 +1432,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_rock.png",
     "index": 55,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "scald",
@@ -1559,8 +1444,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
     "index": 56,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "seed bomb",
@@ -1572,8 +1456,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_grass.png",
     "index": 57,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "shadow ball",
@@ -1585,8 +1468,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ghost.png",
     "index": 58,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "signal beam",
@@ -1598,8 +1480,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bug.png",
     "index": 59,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "sludge",
@@ -1611,8 +1492,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_poison.png",
     "index": 60,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "sludge bomb",
@@ -1624,8 +1504,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_poison.png",
     "index": 61,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "sludge wave",
@@ -1637,8 +1516,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_poison.png",
     "index": 62,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "solar beam",
@@ -1650,8 +1528,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_grass.png",
     "index": 63,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "stomp",
@@ -1663,8 +1540,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 64,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all stab"
+    "energyDelta": -50
   },
   {
     "name": "stone edge",
@@ -1676,8 +1552,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_rock.png",
     "index": 65,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "struggle",
@@ -1689,8 +1564,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 66,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all stab"
+    "energyDelta": -33
   },
   {
     "name": "submission",
@@ -1702,8 +1576,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fighting.png",
     "index": 67,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "swift",
@@ -1715,8 +1588,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 68,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all stab"
+    "energyDelta": -50
   },
   {
     "name": "thunder",
@@ -1728,8 +1600,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_electric.png",
     "index": 69,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "thunder punch",
@@ -1741,8 +1612,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_electric.png",
     "index": 70,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "thunderbolt",
@@ -1754,8 +1624,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_electric.png",
     "index": 71,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "twister",
@@ -1767,8 +1636,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_dragon.png",
     "index": 72,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "vice grip",
@@ -1780,8 +1648,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 73,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all stab"
+    "energyDelta": -33
   },
   {
     "name": "water pulse",
@@ -1793,8 +1660,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
     "index": 74,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "wrap",
@@ -1806,8 +1672,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
     "index": 75,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all stab"
+    "energyDelta": -33
   },
   {
     "name": "x-scissor",
@@ -1819,8 +1684,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bug.png",
     "index": 76,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "flame charge",
@@ -1832,8 +1696,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fire.png",
     "index": 77,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "hurricane",
@@ -1845,8 +1708,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_flying.png",
     "index": 78,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "drill run",
@@ -1858,8 +1720,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ground.png",
     "index": 79,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "brine",
@@ -1871,8 +1732,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
     "index": 80,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "ominous wind",
@@ -1884,8 +1744,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ghost.png",
     "index": 81,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "leaf blade",
@@ -1897,8 +1756,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_grass.png",
     "index": 82,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "psystrike",
@@ -1910,8 +1768,7 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_psychic.png",
     "index": 83,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "close combat",
@@ -1923,8 +1780,26 @@ var CHARGED_MOVE_DATA = [
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fighting.png",
     "index": 84,
     "moveType": "c",
+    "energyDelta": -100
+  },
+  {
+    "name": "giga drain",
+    "power": 50,
+    "pokeType": "grass",
+    "dws": 1200,
+    "duration": 3900,
+    "label": "Giga Drain",
+    "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_grass.png",
+    "index": 85,
+    "moveType": "c",
     "energyDelta": -100,
-    "marker": "all"
+    "effect": {
+      "name": "hp_draining",
+      "multipliers": [
+        0.5
+      ],
+      "remaining": -1
+    }
   },
   {
     "name": "dynamic punch",
@@ -1934,10 +1809,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 2700,
     "label": "Dynamic Punch",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fighting.png",
-    "index": 85,
+    "index": 86,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "focus blast",
@@ -1947,10 +1821,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 3500,
     "label": "Focus Blast",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fighting.png",
-    "index": 86,
+    "index": 87,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "aurora beam",
@@ -1960,10 +1833,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 3550,
     "label": "Aurora Beam",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ice.png",
-    "index": 87,
+    "index": 88,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "wild charge",
@@ -1973,10 +1845,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 2600,
     "label": "Wild Charge",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_electric.png",
-    "index": 88,
+    "index": 89,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "rest",
@@ -1986,10 +1857,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 1900,
     "label": "Rest",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
-    "index": 89,
+    "index": 90,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all stab"
+    "energyDelta": -33
   },
   {
     "name": "scald (blastoise)",
@@ -1999,10 +1869,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 4700,
     "label": "Scald (Blastoise)",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
-    "index": 90,
+    "index": 91,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "hydro pump (blastoise)",
@@ -2012,10 +1881,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 4500,
     "label": "Hydro Pump (Blastoise)",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
-    "index": 91,
+    "index": 92,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "wrap (green/pink)",
@@ -2025,10 +1893,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 2900,
     "label": "Wrap (Green/pink)",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_normal.png",
-    "index": 92,
+    "index": 93,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all stab"
+    "energyDelta": -33
   },
   {
     "name": "zap cannon",
@@ -2038,10 +1905,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 3700,
     "label": "Zap Cannon",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_electric.png",
-    "index": 93,
+    "index": 94,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "avalanche",
@@ -2051,10 +1917,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 2700,
     "label": "Avalanche",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ice.png",
-    "index": 94,
+    "index": 95,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "heart stamp",
@@ -2064,10 +1929,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 1900,
     "label": "Heart Stamp",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_psychic.png",
-    "index": 95,
+    "index": 96,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "brave bird",
@@ -2077,10 +1941,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 2000,
     "label": "Brave Bird",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_flying.png",
-    "index": 96,
+    "index": 97,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "sky attack",
@@ -2090,10 +1953,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 2000,
     "label": "Sky Attack",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_flying.png",
-    "index": 97,
+    "index": 98,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "sand tomb",
@@ -2103,10 +1965,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 4000,
     "label": "Sand Tomb",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ground.png",
-    "index": 98,
+    "index": 99,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "rock blast",
@@ -2116,10 +1977,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 2100,
     "label": "Rock Blast",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_rock.png",
-    "index": 99,
+    "index": 100,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "silver wind",
@@ -2129,10 +1989,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 3700,
     "label": "Silver Wind",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_bug.png",
-    "index": 100,
+    "index": 101,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "night shade",
@@ -2142,10 +2001,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 2600,
     "label": "Night Shade",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ghost.png",
-    "index": 101,
+    "index": 102,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "gyro ball",
@@ -2155,10 +2013,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 3300,
     "label": "Gyro Ball",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_steel.png",
-    "index": 102,
+    "index": 103,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "heavy slam",
@@ -2168,10 +2025,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 2100,
     "label": "Heavy Slam",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_steel.png",
-    "index": 103,
+    "index": 104,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "overheat",
@@ -2181,10 +2037,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 4000,
     "label": "Overheat",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fire.png",
-    "index": 104,
+    "index": 105,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "grass knot",
@@ -2194,10 +2049,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 2600,
     "label": "Grass Knot",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_grass.png",
-    "index": 105,
+    "index": 106,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "energy ball",
@@ -2207,10 +2061,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 3900,
     "label": "Energy Ball",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_grass.png",
-    "index": 106,
+    "index": 107,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "future sight",
@@ -2220,10 +2073,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 2700,
     "label": "Future Sight",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_psychic.png",
-    "index": 107,
+    "index": 108,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "mega drain",
@@ -2233,10 +2085,16 @@ var CHARGED_MOVE_DATA = [
     "duration": 2600,
     "label": "Mega Drain",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_grass.png",
-    "index": 108,
+    "index": 109,
     "moveType": "c",
     "energyDelta": -50,
-    "marker": "all"
+    "effect": {
+      "name": "hp_draining",
+      "multipliers": [
+        0.5
+      ],
+      "remaining": -1
+    }
   },
   {
     "name": "mirror coat",
@@ -2246,10 +2104,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 2600,
     "label": "Mirror Coat",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_psychic.png",
-    "index": 109,
+    "index": 110,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "outrage",
@@ -2259,10 +2116,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 3900,
     "label": "Outrage",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_dragon.png",
-    "index": 110,
+    "index": 111,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "crunch",
@@ -2272,10 +2128,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 3200,
     "label": "Crunch",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_dark.png",
-    "index": 111,
+    "index": 112,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "foul play",
@@ -2285,10 +2140,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 2000,
     "label": "Foul Play",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_dark.png",
-    "index": 112,
+    "index": 113,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "shadow sneak",
@@ -2298,10 +2152,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 2900,
     "label": "Shadow Sneak",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ghost.png",
-    "index": 113,
+    "index": 114,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "shadow punch",
@@ -2311,10 +2164,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 1700,
     "label": "Shadow Punch",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ghost.png",
-    "index": 114,
+    "index": 115,
     "moveType": "c",
-    "energyDelta": -33,
-    "marker": "all"
+    "energyDelta": -33
   },
   {
     "name": "parabolic charge",
@@ -2324,10 +2176,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 2800,
     "label": "Parabolic Charge",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_electric.png",
-    "index": 115,
+    "index": 116,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "surf",
@@ -2337,10 +2188,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 1700,
     "label": "Surf",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
-    "index": 116,
+    "index": 117,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "draco meteor",
@@ -2350,10 +2200,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 3600,
     "label": "Draco Meteor",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_dragon.png",
-    "index": 117,
+    "index": 118,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "doom desire",
@@ -2363,10 +2212,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 1700,
     "label": "Doom Desire",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_steel.png",
-    "index": 118,
+    "index": 119,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "psycho boost",
@@ -2376,10 +2224,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 4000,
     "label": "Psycho Boost",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_psychic.png",
-    "index": 119,
+    "index": 120,
     "moveType": "c",
-    "energyDelta": -50,
-    "marker": "all"
+    "energyDelta": -50
   },
   {
     "name": "precipice blades",
@@ -2389,10 +2236,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 1700,
     "label": "Precipice Blades",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_ground.png",
-    "index": 120,
+    "index": 121,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "origin pulse",
@@ -2402,10 +2248,9 @@ var CHARGED_MOVE_DATA = [
     "duration": 1700,
     "label": "Origin Pulse",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_water.png",
-    "index": 121,
+    "index": 122,
     "moveType": "c",
-    "energyDelta": -100,
-    "marker": "all"
+    "energyDelta": -100
   },
   {
     "name": "frenzy plant",
@@ -2415,9 +2260,21 @@ var CHARGED_MOVE_DATA = [
     "duration": 2600,
     "label": "Frenzy Plant",
     "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_grass.png",
-    "index": 122,
+    "index": 123,
     "moveType": "c",
+    "energyDelta": -50
+  },
+  {
+    "name": "blast burn",
+    "moveType": "c",
+    "power": 100,
+    "pokeType": "fire",
     "energyDelta": -50,
+    "dws": 2150,
+    "duration": 2600,
+    "index": 124,
+    "label": "Blast Burn",
+    "icon": "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fire.png",
     "marker": "all"
   }
 ];

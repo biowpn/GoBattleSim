@@ -147,14 +147,11 @@ function loadLatestMoveData(oncomplete){
 					move.moveType = 'f';
 					move.energyDelta = Math.abs(parseInt(data[i].energy_gain));
 					FAST_MOVE_DATA.push(move);
-				}else if (data[i].move_category == "Charge Move"){
+				}else{
 					move.index = cmoveCount++;
 					move.moveType = 'c';
 					move.energyDelta = -Math.abs(parseInt(data[i].energy_cost));
 					CHARGED_MOVE_DATA.push(move);
-				}else{
-					console.log("Ignore:");
-					console.log(move);
 				}
 			}
 		},
@@ -188,6 +185,39 @@ function loadLatestPokeBox(userid, oncomplete){
 	});
 }
 
+// Manually Modify Data
+function manualModifyData(){
+	var fmove_transform = FAST_MOVE_DATA[get_fmove_index_by_name('transform')];
+	if (fmove_transform){
+		fmove_transform.effect = {
+			name : 'transform',
+			remaining : 1
+		};
+	}
+	
+	var cmove_mega_drain = CHARGED_MOVE_DATA[get_cmove_index_by_name('mega drain')];
+	if (cmove_mega_drain){
+		cmove_mega_drain.effect = {
+			name : 'hp_draining',
+			multipliers: [0.5],
+			remaining: -1
+		};
+	}
+	
+	var cmove_giga_drain = CHARGED_MOVE_DATA[get_cmove_index_by_name('giga drain')];
+	if (cmove_giga_drain){
+		cmove_giga_drain.effect = {
+			name : 'hp_draining',
+			multipliers: [0.5],
+			remaining: -1
+		};
+	}
+}
+
+
+
+
+
 
 
 $(document).ready(function(){
@@ -210,6 +240,7 @@ $(document).ready(function(){
 				if (window.location.href.includes('?'))
 					writeUserInput(uriToJSON(window.location.href.split('?')[1]));
 				WRITTEN_USER_INPUT_FROM_INIT_URL = true;
+				manualModifyData();
 			}
 		});
 	}
@@ -238,6 +269,7 @@ $(document).ready(function(){
 				if (window.location.href.includes('?'))
 					writeUserInput(uriToJSON(window.location.href.split('?')[1]));
 				WRITTEN_USER_INPUT_FROM_INIT_URL = true;
+				manualModifyData();
 			}
 		});
 	}
