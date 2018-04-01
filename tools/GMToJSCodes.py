@@ -105,6 +105,13 @@ def importGM(path=GMFileName_Current):
             pkm['fastMoves'] = [x[:-5].replace("_"," ").lower() for x in row['pokemonSettings']['quickMoves']]
             pkm['chargedMoves'] = [x.replace("_"," ").lower() for x in row['pokemonSettings']['cinematicMoves']]
 
+            for k,v in row['pokemonSettings']['camera'].items():
+                pkm['camera_' + k] = v
+                
+            for k,v in row['pokemonSettings']['encounter'].items():
+                pkm['encounter_' + k] = v
+            
+
             speciesdata.append(pkm)
 
 
@@ -170,13 +177,13 @@ RAID_BOSS_HP = [600, 1800, 3000, 7500, 12500]
 
 
 outF = open(outFile, 'w')
-outF.write("const FAST_MOVE_DATA = "+json.dumps(FAST_MOVE_DATA)+';\n\n')
-outF.write("const CHARGED_MOVE_DATA = "+json.dumps(CHARGED_MOVE_DATA)+';\n\n')
+##outF.write("const FAST_MOVE_DATA = "+json.dumps(FAST_MOVE_DATA)+';\n\n')
+##outF.write("const CHARGED_MOVE_DATA = "+json.dumps(CHARGED_MOVE_DATA)+';\n\n')
 outF.write("const POKEMON_SPECIES_DATA = "+json.dumps(POKEMON_SPECIES_DATA)+';\n\n')
-outF.write("const CPM_TABLE = "+json.dumps(CPM_TABLE)+';\n\n')
-outF.write("const POKEMON_TYPE_ADVANTAGES = "+json.dumps(POKEMON_TYPE_ADVANTAGES)+';\n\n')
-outF.write("const WEATHER_BOOSTED_TYPES = "+json.dumps(WEATHER_BOOSTED_TYPES)+';\n\n')
-outF.write("const WEATHER_LIST = "+json.dumps(WEATHER_LIST)+';\n\n')
-outF.write("const RAID_BOSS_CPM = "+json.dumps(RAID_BOSS_CPM)+';\n\n')
-outF.write("const RAID_BOSS_HP = "+json.dumps(RAID_BOSS_HP)+';\n\n')
+##outF.write("const CPM_TABLE = "+json.dumps(CPM_TABLE)+';\n\n')
+##outF.write("const POKEMON_TYPE_ADVANTAGES = "+json.dumps(POKEMON_TYPE_ADVANTAGES)+';\n\n')
+##outF.write("const WEATHER_BOOSTED_TYPES = "+json.dumps(WEATHER_BOOSTED_TYPES)+';\n\n')
+##outF.write("const WEATHER_LIST = "+json.dumps(WEATHER_LIST)+';\n\n')
+##outF.write("const RAID_BOSS_CPM = "+json.dumps(RAID_BOSS_CPM)+';\n\n')
+##outF.write("const RAID_BOSS_HP = "+json.dumps(RAID_BOSS_HP)+';\n\n')
 outF.close()

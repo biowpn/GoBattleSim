@@ -141,6 +141,7 @@ Pokemon.prototype.init = function(){
 	for (var attr in POKEMON_SPECIES_DATA[this.index]){
 		this[attr] = POKEMON_SPECIES_DATA[this.index][attr];
 	}
+	
 	this.fmove = JSON.parse(JSON.stringify(FAST_MOVE_DATA[this.fmove_index]));
 	this.cmove = JSON.parse(JSON.stringify(CHARGED_MOVE_DATA[this.cmove_index]));
 	
@@ -406,7 +407,7 @@ Timeline.prototype.enqueue = function (e){
 // Takes a configuration dictionary object "cfg" for sim parameters
 function World(cfg){
 	// Set up general
-	this.raid_tier = cfg['generalSettings']['raidTier'];
+	this.raid_tier = cfg['dfdrSettings']['raid_tier'];
 	if (this.raid_tier == -1)
 		this.timelimit_ms = TIMELIMIT_GYM_MS;
 	else

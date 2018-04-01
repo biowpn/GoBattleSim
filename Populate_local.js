@@ -13756,7 +13756,7 @@ USERS_INFO = [
     "box": [
       {
         "index": 383,
-        "box_index": 0,
+        "box_index": -1,
         "species": "rayquaza",
         "cp": 3627,
         "level": 40,
@@ -13766,7 +13766,7 @@ USERS_INFO = [
         "fmove": "dragon tail",
         "fmove_index": 46,
         "cmove": "outrage",
-        "cmove_index": 110,
+        "cmove_index": 111,
         "nickname": "FFD.DT.O",
         "dex": 384,
         "name": "rayquaza",
@@ -13786,15 +13786,16 @@ USERS_INFO = [
         ],
         "fastMoves_legacy": [],
         "chargedMoves_legacy": [],
-        "exclusiveMoves": [],
         "rating": 5,
         "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2017-08/384_0.png",
         "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/384MS.png",
-        "label": "$0 FFD.DT.O"
+        "label": "$0 FFD.DT.O",
+        "fastMoves_exclusive": [],
+        "chargedMoves_exclusive": []
       },
       {
         "index": 372,
-        "box_index": 1,
+        "box_index": -1,
         "species": "salamence",
         "cp": 3532,
         "level": 40,
@@ -13804,7 +13805,7 @@ USERS_INFO = [
         "fmove": "dragon tail",
         "fmove_index": 46,
         "cmove": "draco meteor",
-        "cmove_index": 117,
+        "cmove_index": 118,
         "nickname": "FFF.DT.DM",
         "dex": 373,
         "name": "salamence",
@@ -13824,15 +13825,16 @@ USERS_INFO = [
         ],
         "fastMoves_legacy": [],
         "chargedMoves_legacy": [],
-        "exclusiveMoves": [],
         "rating": 5,
         "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2017-08/373_0.png",
         "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/373MS.png",
-        "label": "$1 FFF.DT.DM"
+        "label": "$1 FFF.DT.DM",
+        "fastMoves_exclusive": [],
+        "chargedMoves_exclusive": []
       },
       {
         "index": 383,
-        "box_index": 2,
+        "box_index": -1,
         "species": "rayquaza",
         "cp": 3636,
         "level": 40,
@@ -13842,7 +13844,7 @@ USERS_INFO = [
         "fmove": "dragon tail",
         "fmove_index": 46,
         "cmove": "outrage",
-        "cmove_index": 110,
+        "cmove_index": 111,
         "nickname": "★Draco★",
         "dex": 384,
         "name": "rayquaza",
@@ -13862,15 +13864,16 @@ USERS_INFO = [
         ],
         "fastMoves_legacy": [],
         "chargedMoves_legacy": [],
-        "exclusiveMoves": [],
         "rating": 5,
         "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2017-08/384_0.png",
         "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/384MS.png",
-        "label": "$2 ★Draco★"
+        "label": "$2 ★Draco★",
+        "fastMoves_exclusive": [],
+        "chargedMoves_exclusive": []
       },
       {
         "index": 93,
-        "box_index": 3,
+        "box_index": -1,
         "species": "gengar",
         "cp": 2609,
         "level": 40,
@@ -13905,15 +13908,16 @@ USERS_INFO = [
           "sludge wave",
           "dark pulse"
         ],
-        "exclusiveMoves": [],
         "rating": 4,
         "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/94.png",
         "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/094MS.png",
-        "label": "$3 ★Exspira★"
+        "label": "$3 ★Exspira★",
+        "fastMoves_exclusive": [],
+        "chargedMoves_exclusive": []
       },
       {
         "index": 382,
-        "box_index": 4,
+        "box_index": -1,
         "species": "groudon",
         "cp": 4049,
         "level": 40,
@@ -13943,15 +13947,16 @@ USERS_INFO = [
         ],
         "fastMoves_legacy": [],
         "chargedMoves_legacy": [],
-        "exclusiveMoves": [],
         "rating": 5,
         "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2017-08/383_0.png",
         "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/383MS.png",
-        "label": "$4 ★Terra★"
+        "label": "$4 ★Terra★",
+        "fastMoves_exclusive": [],
+        "chargedMoves_exclusive": []
       },
       {
         "index": 148,
-        "box_index": 5,
+        "box_index": -1,
         "species": "dragonite",
         "cp": 3568,
         "level": 40,
@@ -13961,7 +13966,7 @@ USERS_INFO = [
         "fmove": "dragon tail",
         "fmove_index": 46,
         "cmove": "outrage",
-        "cmove_index": 110,
+        "cmove_index": 111,
         "nickname": "Sweeper",
         "dex": 149,
         "name": "dragonite",
@@ -13986,17 +13991,18 @@ USERS_INFO = [
           "dragon claw",
           "dragon pulse"
         ],
-        "exclusiveMoves": [
-          "draco meteor"
-        ],
         "rating": 5,
         "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/149.png",
         "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/149MS.png",
-        "label": "$5 Sweeper"
+        "label": "$5 Sweeper",
+        "fastMoves_exclusive": [],
+        "chargedMoves_exclusive": [
+          "draco meteor"
+        ]
       },
       {
         "index": 247,
-        "box_index": 6,
+        "box_index": -1,
         "species": "tyranitar",
         "cp": 3627,
         "level": 40,
@@ -14006,7 +14012,7 @@ USERS_INFO = [
         "fmove": "bite",
         "fmove_index": 2,
         "cmove": "crunch",
-        "cmove_index": 111,
+        "cmove_index": 112,
         "nickname": "★Tenebris★",
         "dex": 248,
         "name": "tyranitar",
@@ -14026,15 +14032,16 @@ USERS_INFO = [
         ],
         "fastMoves_legacy": [],
         "chargedMoves_legacy": [],
-        "exclusiveMoves": [],
         "rating": 5,
         "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-09/248.png",
         "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/248MS.png",
-        "label": "$6 ★Tenebris★"
+        "label": "$6 ★Tenebris★",
+        "fastMoves_exclusive": [],
+        "chargedMoves_exclusive": []
       },
       {
         "index": 67,
-        "box_index": 7,
+        "box_index": -1,
         "species": "machamp",
         "cp": 2881,
         "level": 40,
@@ -14044,7 +14051,7 @@ USERS_INFO = [
         "fmove": "counter",
         "fmove_index": 42,
         "cmove": "dynamic punch",
-        "cmove_index": 85,
+        "cmove_index": 86,
         "nickname": "★Champ★",
         "dex": 68,
         "name": "machamp",
@@ -14070,15 +14077,16 @@ USERS_INFO = [
           "stone edge",
           "submission"
         ],
-        "exclusiveMoves": [],
         "rating": 5,
         "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/68.png",
         "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/068MS.png",
-        "label": "$7 ★Champ★"
+        "label": "$7 ★Champ★",
+        "fastMoves_exclusive": [],
+        "chargedMoves_exclusive": []
       },
       {
         "index": 102,
-        "box_index": 8,
+        "box_index": -1,
         "species": "exeggutor",
         "cp": 2842,
         "level": 39,
@@ -14111,15 +14119,16 @@ USERS_INFO = [
           "zen headbutt"
         ],
         "chargedMoves_legacy": [],
-        "exclusiveMoves": [],
         "rating": 4.5,
         "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/103.png",
         "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/103MS.png",
-        "label": "$8 Grass Specialist"
+        "label": "$8 Grass Specialist",
+        "fastMoves_exclusive": [],
+        "chargedMoves_exclusive": []
       },
       {
         "index": 242,
-        "box_index": 9,
+        "box_index": -1,
         "species": "raikou",
         "cp": 3341,
         "level": 40,
@@ -14129,7 +14138,7 @@ USERS_INFO = [
         "fmove": "thunder shock",
         "fmove_index": 31,
         "cmove": "wild charge",
-        "cmove_index": 88,
+        "cmove_index": 89,
         "nickname": "★Bolt★",
         "dex": 243,
         "name": "raikou",
@@ -14149,15 +14158,16 @@ USERS_INFO = [
         ],
         "fastMoves_legacy": [],
         "chargedMoves_legacy": [],
-        "exclusiveMoves": [],
         "rating": 5,
         "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-09/243.png",
         "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/243MS.png",
-        "label": "$9 ★Bolt★"
+        "label": "$9 ★Bolt★",
+        "fastMoves_exclusive": [],
+        "chargedMoves_exclusive": []
       },
       {
         "index": 149,
-        "box_index": 10,
+        "box_index": -1,
         "species": "mewtwo",
         "cp": 3943,
         "level": 40,
@@ -14188,15 +14198,16 @@ USERS_INFO = [
         ],
         "fastMoves_legacy": [],
         "chargedMoves_legacy": [],
-        "exclusiveMoves": [],
         "rating": 5,
         "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/150.png",
         "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/150MS.png",
-        "label": "$10 ★Meow★"
+        "label": "$10 ★Meow★",
+        "fastMoves_exclusive": [],
+        "chargedMoves_exclusive": []
       },
       {
         "index": 148,
-        "box_index": 11,
+        "box_index": -1,
         "species": "dragonite",
         "cp": 3581,
         "level": 40,
@@ -14231,17 +14242,18 @@ USERS_INFO = [
           "dragon claw",
           "dragon pulse"
         ],
-        "exclusiveMoves": [
-          "draco meteor"
-        ],
         "rating": 5,
         "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/149.png",
         "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/149MS.png",
-        "label": "$11 ★Dracodux★"
+        "label": "$11 ★Dracodux★",
+        "fastMoves_exclusive": [],
+        "chargedMoves_exclusive": [
+          "draco meteor"
+        ]
       },
       {
         "index": 381,
-        "box_index": 12,
+        "box_index": -1,
         "species": "kyogre",
         "cp": 4056,
         "level": 40,
@@ -14272,15 +14284,16 @@ USERS_INFO = [
           "dragon tail"
         ],
         "chargedMoves_legacy": [],
-        "exclusiveMoves": [],
         "rating": 5,
         "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2017-08/382_0.png",
         "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/382MS.png",
-        "label": "$12 ★Aquarima★"
+        "label": "$12 ★Aquarima★",
+        "fastMoves_exclusive": [],
+        "chargedMoves_exclusive": []
       },
       {
         "index": 145,
-        "box_index": 13,
+        "box_index": -1,
         "species": "moltres",
         "cp": 3255,
         "level": 40,
@@ -14290,7 +14303,7 @@ USERS_INFO = [
         "fmove": "fire spin",
         "fmove_index": 53,
         "cmove": "overheat",
-        "cmove_index": 104,
+        "cmove_index": 105,
         "nickname": "★Ignis★",
         "dex": 146,
         "name": "moltres",
@@ -14313,15 +14326,16 @@ USERS_INFO = [
         "chargedMoves_legacy": [
           "flamethrower"
         ],
-        "exclusiveMoves": [],
         "rating": 4.5,
         "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/146.png",
         "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/146MS.png",
-        "label": "$13 ★Ignis★"
+        "label": "$13 ★Ignis★",
+        "fastMoves_exclusive": [],
+        "chargedMoves_exclusive": []
       },
       {
         "index": 148,
-        "box_index": 14,
+        "box_index": -1,
         "species": "dragonite",
         "cp": 3556,
         "level": 40,
@@ -14331,7 +14345,7 @@ USERS_INFO = [
         "fmove": "dragon breath",
         "fmove_index": 7,
         "cmove": "outrage",
-        "cmove_index": 110,
+        "cmove_index": 111,
         "nickname": "★Draeques★",
         "dex": 149,
         "name": "dragonite",
@@ -14356,507 +14370,14 @@ USERS_INFO = [
           "dragon claw",
           "dragon pulse"
         ],
-        "exclusiveMoves": [
-          "draco meteor"
-        ],
         "rating": 5,
         "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/149.png",
         "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/149MS.png",
-        "label": "$14 ★Draeques★"
-      }
-    ]
-  },
-  {
-    "id": "43611",
-    "box": [
-      {
-        "index": 381,
-        "box_index": -1,
-        "species": "kyogre",
-        "cp": 3817,
-        "level": 36,
-        "stmiv": 14,
-        "atkiv": 15,
-        "defiv": 13,
-        "fmove": "waterfall",
-        "fmove_index": 60,
-        "cmove": "hydro pump",
-        "cmove_index": 33,
-        "nickname": "Kylo Ren",
-        "dex": 382,
-        "name": "kyogre",
-        "pokeType1": "water",
-        "pokeType2": "none",
-        "baseAtk": 270,
-        "baseDef": 251,
-        "baseStm": 182,
-        "fastMoves": [
-          "waterfall"
-        ],
-        "chargedMoves": [
-          "hydro pump",
-          "blizzard",
-          "thunder"
-        ],
-        "fastMoves_legacy": [
-          "dragon tail"
-        ],
-        "chargedMoves_legacy": [],
-        "rating": 5,
-        "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2017-08/382_0.png",
-        "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/382MS.png",
-        "label": "$0 Kylo Ren",
+        "label": "$14 ★Draeques★",
         "fastMoves_exclusive": [],
-        "chargedMoves_exclusive": []
-      },
-      {
-        "index": 67,
-        "box_index": -1,
-        "species": "machamp",
-        "cp": 2603,
-        "level": 33.5,
-        "stmiv": 15,
-        "atkiv": 14,
-        "defiv": 14,
-        "fmove": "counter",
-        "fmove_index": 42,
-        "cmove": "dynamic punch",
-        "cmove_index": 85,
-        "nickname": "Machamp9",
-        "dex": 68,
-        "name": "machamp",
-        "pokeType1": "fighting",
-        "pokeType2": "none",
-        "baseAtk": 234,
-        "baseDef": 162,
-        "baseStm": 180,
-        "fastMoves": [
-          "bullet punch",
-          "counter"
-        ],
-        "chargedMoves": [
-          "heavy slam",
-          "dynamic punch",
-          "close combat"
-        ],
-        "fastMoves_legacy": [
-          "karate chop"
-        ],
-        "chargedMoves_legacy": [
-          "cross chop",
-          "stone edge",
-          "submission"
-        ],
-        "rating": 5,
-        "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/68.png",
-        "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/068MS.png",
-        "label": "$1 Machamp9",
-        "fastMoves_exclusive": [],
-        "chargedMoves_exclusive": []
-      },
-      {
-        "index": 67,
-        "box_index": -1,
-        "species": "machamp",
-        "cp": 2560,
-        "level": 33,
-        "stmiv": 9,
-        "atkiv": 15,
-        "defiv": 15,
-        "fmove": "counter",
-        "fmove_index": 42,
-        "cmove": "dynamic punch",
-        "cmove_index": 85,
-        "nickname": "Machamp8",
-        "dex": 68,
-        "name": "machamp",
-        "pokeType1": "fighting",
-        "pokeType2": "none",
-        "baseAtk": 234,
-        "baseDef": 162,
-        "baseStm": 180,
-        "fastMoves": [
-          "bullet punch",
-          "counter"
-        ],
-        "chargedMoves": [
-          "heavy slam",
-          "dynamic punch",
-          "close combat"
-        ],
-        "fastMoves_legacy": [
-          "karate chop"
-        ],
-        "chargedMoves_legacy": [
-          "cross chop",
-          "stone edge",
-          "submission"
-        ],
-        "rating": 5,
-        "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/68.png",
-        "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/068MS.png",
-        "label": "$2 Machamp8",
-        "fastMoves_exclusive": [],
-        "chargedMoves_exclusive": []
-      },
-      {
-        "index": 67,
-        "box_index": -1,
-        "species": "machamp",
-        "cp": 2554,
-        "level": 34,
-        "stmiv": 11,
-        "atkiv": 15,
-        "defiv": 7,
-        "fmove": "counter",
-        "fmove_index": 42,
-        "cmove": "dynamic punch",
-        "cmove_index": 85,
-        "nickname": "Machamp7",
-        "dex": 68,
-        "name": "machamp",
-        "pokeType1": "fighting",
-        "pokeType2": "none",
-        "baseAtk": 234,
-        "baseDef": 162,
-        "baseStm": 180,
-        "fastMoves": [
-          "bullet punch",
-          "counter"
-        ],
-        "chargedMoves": [
-          "heavy slam",
-          "dynamic punch",
-          "close combat"
-        ],
-        "fastMoves_legacy": [
-          "karate chop"
-        ],
-        "chargedMoves_legacy": [
-          "cross chop",
-          "stone edge",
-          "submission"
-        ],
-        "rating": 5,
-        "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/68.png",
-        "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/068MS.png",
-        "label": "$3 Machamp7",
-        "fastMoves_exclusive": [],
-        "chargedMoves_exclusive": []
-      },
-      {
-        "index": 67,
-        "box_index": -1,
-        "species": "machamp",
-        "cp": 2702,
-        "level": 37,
-        "stmiv": 11,
-        "atkiv": 14,
-        "defiv": 12,
-        "fmove": "karate chop",
-        "fmove_index": 13,
-        "cmove": "dynamic punch",
-        "cmove_index": 85,
-        "nickname": "MachampKC",
-        "dex": 68,
-        "name": "machamp",
-        "pokeType1": "fighting",
-        "pokeType2": "none",
-        "baseAtk": 234,
-        "baseDef": 162,
-        "baseStm": 180,
-        "fastMoves": [
-          "bullet punch",
-          "counter"
-        ],
-        "chargedMoves": [
-          "heavy slam",
-          "dynamic punch",
-          "close combat"
-        ],
-        "fastMoves_legacy": [
-          "karate chop"
-        ],
-        "chargedMoves_legacy": [
-          "cross chop",
-          "stone edge",
-          "submission"
-        ],
-        "rating": 5,
-        "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/68.png",
-        "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/068MS.png",
-        "label": "$4 MachampKC",
-        "fastMoves_exclusive": [],
-        "chargedMoves_exclusive": []
-      },
-      {
-        "index": 67,
-        "box_index": -1,
-        "species": "machamp",
-        "cp": 2736,
-        "level": 37,
-        "stmiv": 11,
-        "atkiv": 15,
-        "defiv": 15,
-        "fmove": "counter",
-        "fmove_index": 42,
-        "cmove": "dynamic punch",
-        "cmove_index": 85,
-        "nickname": "Machamp5",
-        "dex": 68,
-        "name": "machamp",
-        "pokeType1": "fighting",
-        "pokeType2": "none",
-        "baseAtk": 234,
-        "baseDef": 162,
-        "baseStm": 180,
-        "fastMoves": [
-          "bullet punch",
-          "counter"
-        ],
-        "chargedMoves": [
-          "heavy slam",
-          "dynamic punch",
-          "close combat"
-        ],
-        "fastMoves_legacy": [
-          "karate chop"
-        ],
-        "chargedMoves_legacy": [
-          "cross chop",
-          "stone edge",
-          "submission"
-        ],
-        "rating": 5,
-        "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/68.png",
-        "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/068MS.png",
-        "label": "$5 Machamp5",
-        "fastMoves_exclusive": [],
-        "chargedMoves_exclusive": []
-      },
-      {
-        "index": 67,
-        "box_index": -1,
-        "species": "machamp",
-        "cp": 2705,
-        "level": 37,
-        "stmiv": 11,
-        "atkiv": 15,
-        "defiv": 11,
-        "fmove": "counter",
-        "fmove_index": 42,
-        "cmove": "dynamic punch",
-        "cmove_index": 85,
-        "nickname": "Machamp4",
-        "dex": 68,
-        "name": "machamp",
-        "pokeType1": "fighting",
-        "pokeType2": "none",
-        "baseAtk": 234,
-        "baseDef": 162,
-        "baseStm": 180,
-        "fastMoves": [
-          "bullet punch",
-          "counter"
-        ],
-        "chargedMoves": [
-          "heavy slam",
-          "dynamic punch",
-          "close combat"
-        ],
-        "fastMoves_legacy": [
-          "karate chop"
-        ],
-        "chargedMoves_legacy": [
-          "cross chop",
-          "stone edge",
-          "submission"
-        ],
-        "rating": 5,
-        "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/68.png",
-        "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/068MS.png",
-        "label": "$6 Machamp4",
-        "fastMoves_exclusive": [],
-        "chargedMoves_exclusive": []
-      },
-      {
-        "index": 67,
-        "box_index": -1,
-        "species": "machamp",
-        "cp": 2816,
-        "level": 39,
-        "stmiv": 14,
-        "atkiv": 15,
-        "defiv": 12,
-        "fmove": "counter",
-        "fmove_index": 42,
-        "cmove": "dynamic punch",
-        "cmove_index": 85,
-        "nickname": "Machamp3",
-        "dex": 68,
-        "name": "machamp",
-        "pokeType1": "fighting",
-        "pokeType2": "none",
-        "baseAtk": 234,
-        "baseDef": 162,
-        "baseStm": 180,
-        "fastMoves": [
-          "bullet punch",
-          "counter"
-        ],
-        "chargedMoves": [
-          "heavy slam",
-          "dynamic punch",
-          "close combat"
-        ],
-        "fastMoves_legacy": [
-          "karate chop"
-        ],
-        "chargedMoves_legacy": [
-          "cross chop",
-          "stone edge",
-          "submission"
-        ],
-        "rating": 5,
-        "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/68.png",
-        "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/068MS.png",
-        "label": "$7 Machamp3",
-        "fastMoves_exclusive": [],
-        "chargedMoves_exclusive": []
-      },
-      {
-        "index": 67,
-        "box_index": -1,
-        "species": "machamp",
-        "cp": 2827,
-        "level": 38.5,
-        "stmiv": 15,
-        "atkiv": 15,
-        "defiv": 15,
-        "fmove": "counter",
-        "fmove_index": 42,
-        "cmove": "dynamic punch",
-        "cmove_index": 85,
-        "nickname": "Machamp2",
-        "dex": 68,
-        "name": "machamp",
-        "pokeType1": "fighting",
-        "pokeType2": "none",
-        "baseAtk": 234,
-        "baseDef": 162,
-        "baseStm": 180,
-        "fastMoves": [
-          "bullet punch",
-          "counter"
-        ],
-        "chargedMoves": [
-          "heavy slam",
-          "dynamic punch",
-          "close combat"
-        ],
-        "fastMoves_legacy": [
-          "karate chop"
-        ],
-        "chargedMoves_legacy": [
-          "cross chop",
-          "stone edge",
-          "submission"
-        ],
-        "rating": 5,
-        "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/68.png",
-        "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/068MS.png",
-        "label": "$8 Machamp2",
-        "fastMoves_exclusive": [],
-        "chargedMoves_exclusive": []
-      },
-      {
-        "index": 67,
-        "box_index": -1,
-        "species": "machamp",
-        "cp": 2819,
-        "level": 38.5,
-        "stmiv": 15,
-        "atkiv": 15,
-        "defiv": 14,
-        "fmove": "counter",
-        "fmove_index": 42,
-        "cmove": "dynamic punch",
-        "cmove_index": 85,
-        "nickname": "Machamp1",
-        "dex": 68,
-        "name": "machamp",
-        "pokeType1": "fighting",
-        "pokeType2": "none",
-        "baseAtk": 234,
-        "baseDef": 162,
-        "baseStm": 180,
-        "fastMoves": [
-          "bullet punch",
-          "counter"
-        ],
-        "chargedMoves": [
-          "heavy slam",
-          "dynamic punch",
-          "close combat"
-        ],
-        "fastMoves_legacy": [
-          "karate chop"
-        ],
-        "chargedMoves_legacy": [
-          "cross chop",
-          "stone edge",
-          "submission"
-        ],
-        "rating": 5,
-        "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/68.png",
-        "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/068MS.png",
-        "label": "$9 Machamp1",
-        "fastMoves_exclusive": [],
-        "chargedMoves_exclusive": []
-      },
-      {
-        "index": 93,
-        "box_index": -1,
-        "species": "gengar",
-        "cp": 2562,
-        "level": 40,
-        "stmiv": 13,
-        "atkiv": 12,
-        "defiv": 14,
-        "fmove": "shadow claw",
-        "fmove_index": 38,
-        "cmove": "shadow ball",
-        "cmove_index": 58,
-        "nickname": "魑魅魍魎",
-        "dex": 94,
-        "name": "gengar",
-        "pokeType1": "ghost",
-        "pokeType2": "poison",
-        "baseAtk": 261,
-        "baseDef": 156,
-        "baseStm": 120,
-        "fastMoves": [
-          "sucker punch",
-          "hex"
-        ],
-        "chargedMoves": [
-          "focus blast",
-          "shadow ball",
-          "sludge bomb"
-        ],
-        "fastMoves_legacy": [
-          "shadow claw"
-        ],
-        "chargedMoves_legacy": [
-          "sludge wave",
-          "dark pulse"
-        ],
-        "rating": 4,
-        "image": "https://pokemongo.gamepress.gg/sites/pokemongo/files/2016-07/94.png",
-        "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/094MS.png",
-        "label": "$10 魑魅魍魎",
-        "fastMoves_exclusive": [],
-        "chargedMoves_exclusive": []
+        "chargedMoves_exclusive": [
+          "draco meteor"
+        ]
       }
     ]
   }

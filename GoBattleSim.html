@@ -85,17 +85,18 @@
 	.section-node-head{
 		height: 30px;
 		padding-bottom: 3px;
+		text-align: center;
 	}
 	.section-pokemon-node-title{
-		font-size: 18;
+		float: left;
 		display: inline-block;
 	}
 	.section-party-node-title{
-		font-size: 20;
+		float: left;
 		display: inline-block;
 	}
 	.section-player-node-title{
-		font-size: 22;
+		float: left;
 		display: inline-block;
 	}
 	
@@ -235,7 +236,7 @@
 	<col width=20%><col width=20%><col width=20%><col width=20%><col width=20%>
 	<tr>
 		<th>Mode</th>
-		<td><select id="battleMode"  onchange="updateDefenderNode()">
+		<td><select id="battleMode"  onchange="updateDefenderNode(this.value)">
 				<option value="gym">Gym</option>
 				<option value="raid" selected="selected">Raid</option>
 			</select>
@@ -298,7 +299,6 @@
 
 <h2>Feedback</h2>
 <div id="feedback_message">
-<p><em>Thanks for using <a href="https://github.com/ymenghank/GoBattleSim">GoBattleSim</a>, a simulator developed by <a href="https://www.reddit.com/user/biowpn">u/biowpn</a> and inspired by <a href="https://www.reddit.com/user/doublefelix921">u/doublefelix921</a>'s <a href="https://github.com/doublefelix921/battlesim">BattleSim</a>. Special thanks to <a href='https://www.reddit.com/user/Poksreddit'>u/Poksreddit</a> who has been giving great feedback and those suggestions shaped what GoBattleSim looks like now.</p>
 </div>
 
 <div id="feedback_buttons"></div>
@@ -491,6 +491,12 @@
 	</div>
 </div>
 
+<div id="savePartyDialog" title="Save Party">
+</div>
+
+<div id="removePartyDialog" title="Remove Party">
+Do you want to remove this party from the saved parties?
+</div>
 
 <script>
 
@@ -529,11 +535,26 @@ if (localStorage){
 		for (var param in EDITABLE_PARAMETERS)
 			window[param] = EDITABLE_PARAMETERS[param];
 	}
+	if (localStorage.PARTIES_LOCAL){
+		PARTIES_LOCAL = JSON.parse(localStorage.PARTIES_LOCAL);
+	}
 }
 
 
 
 /* Initialize Modules*/
+$("#savePartyDialog").dialog({
+	autoOpen: false,
+	modal: true
+});
+
+$("#removePartyDialog").dialog({
+	autoOpen: false,
+	modal: true
+});
+
+
+
 $( "#moveEditForm" ).dialog({ 
 	autoOpen: false,
 	width: 600

@@ -3,6 +3,8 @@
  */
 
 var USERS_INFO = [];
+var PARTIES_LOCAL = {};
+
 var simQueue = [];
 var simResults = [];
 var atkrCopyPasteClipboard = null;
@@ -12,12 +14,9 @@ var enumPartyStart = 0;
 var enumPokemonStart = 0;
 var enumDefender = 0;
 
-const DEFAULT_SUMMARY_TABLE_METRICS = ['battle_result','duration','tdo_percent','dps', 'total_deaths'];
-const DEFAULT_SUMMARY_TABLE_HEADERS = ['Outcome','Time','TDO%','DPS','#Death'];
-
+const DEFAULT_SUMMARY_TABLE_METRICS = {battle_result:'Outcome', duration:'Time', tdo_percent:'TDO%', dps:'DPS', total_deaths:'#Death'};
 var MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
-var MasterSummaryTableHeaders = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_HEADERS));
-var MetricsByWhichToAverage = {};
+var MetricsByWhichToAverage = new Set();
 
 const LOGICAL_OPERATORS = {
 	',': 0,
@@ -139,6 +138,7 @@ function exportConfigToUrl(cfg){
 		}
 	}
 	copyAllInfo(cfg_min.dfdrSettings, cfg.dfdrSettings, true);
+	cfg_min.dfdrSettings.raid_tier = cfg.dfdrSettings.raid_tier;
 	return jsonToURI(cfg_min);
 }
  
@@ -287,45 +287,16 @@ function universalGetter(expression, Space){
 	return result;
 }
 
-function sortByMetric(arr, metric){
-	for (var i = 0; i < arr.length; i++)
-		arr[i].index = i;
-	if (metric.includes('.')){
-		var address = metric.split('.')[0], attr = metric.split('.')[1];
-		if (address == 'd'){
-			arr.sort(function(obj1, obj2){
-				var v1 = obj1.input.dfdrSettings[attr], v2 = obj2.input.dfdrSettings[attr];
-				return v1 > v2 ? 1 : (v1 < v2 ? -1 : (obj1.index - obj2.index));
-			});
-		}else{
-			var i = parseInt(address.split('-')[0])-1, j = parseInt(address.split('-')[1])-1, k = parseInt(address.split('-')[2])-1;
-			arr.sort(function(obj1, obj2){
-				var v1 = obj1.input.atkrSettings[i].party_list[j].pokemon_list[k][attr],
-					v2 = obj2.input.atkrSettings[i].party_list[j].pokemon_list[k][attr];
-				return v1 > v2 ? 1 : (v1 < v2 ? -1 : (obj1.index - obj2.index));
-			});
-		}
-	}else{
-		arr.sort(function(obj1, obj2){
-			var v1 = obj1.generalSettings[attr], v2 = obj2.generalSettings[attr];
-			return v1 > v2 ? 1 : (v1 < v2 ? -1 : (obj1.index - obj2.index));
-		});
-	}
-}
-
 function initMasterSummaryTableMetrics(){
 	enumPlayerStart = 0;
 	enumPartyStart = 0;
 	enumPokemonStart = 0;
 	enumDefender = 0;
-	MetricsByWhichToAverage = {};
+	MetricsByWhichToAverage = new Set();
 }
 
 function createNewMetric(metric, nameDisplayed){
-	if (!MasterSummaryTableMetrics.includes(metric)){
-		MasterSummaryTableMetrics.push(metric);
-		MasterSummaryTableHeaders.push(nameDisplayed || metric);
-	}
+	MasterSummaryTableMetrics[metric] = nameDisplayed || metric;
 }
 
 function getPokemonSpeciesOptions(userIndex){
@@ -487,6 +458,30 @@ function createPartyNode(){
 	partyNode.children[0].setAttribute('class', 'section-node-head');
 	partyNode.children[0].innerHTML = "<span class='section-party-node-title'>Unlabeled Party</span>";
 	
+	var partyNameInput = createElement('input','', {
+		type: 'text', style: 'width: 30%; display: inline-block'
+	});
+	$(partyNameInput).autocomplete({
+		minLength : 0,
+		delay : 0,
+		source : function(request, response){
+			var matches = [];
+			for (var partyName in PARTIES_LOCAL){
+				if (partyName.includes(request.term))
+					matches.push({
+						label: partyName, partyConfig: PARTIES_LOCAL[partyName]
+					});
+			}
+			response(matches);
+		},
+		select : function(event, ui) {
+			writePartyNode($('#ui-party_' + this.id.split('_')[1])[0], ui.item.partyConfig);
+			relabelAll();
+		}
+	});
+	partyNameInput.onfocus = function(){$(this).autocomplete("search", "");}
+	partyNode.children[0].appendChild(partyNameInput);
+	
 	var controlButtonDiv = document.createElement('div');
 	controlButtonDiv.setAttribute('class', 'section-buttons-panel');
 	
@@ -498,16 +493,60 @@ function createPartyNode(){
 	}
 	controlButtonDiv.appendChild(minimizePartyButton);
 	
+	var savePartyButton = createElement('button','<i class="fa fa-floppy-o" aria-hidden="true"></i>',{
+		class: 'button-icon', title: 'Save'
+	});
+	savePartyButton.onclick = function(){
+		var partyAddress = this.id.split('_')[1], partyName = $('#party-name_' + partyAddress)[0].value;
+		if (partyName.length > 0){
+			PARTIES_LOCAL[partyName] = parsePartyNode($('#ui-party_' + partyAddress)[0]);
+			localStorage.setItem('PARTIES_LOCAL', JSON.stringify(PARTIES_LOCAL));
+			var savePartyDialog = document.getElementById("savePartyDialog");
+			savePartyDialog.innerHTML = 'Party "' + partyName + '" has been saved!';
+			$(savePartyDialog).dialog({
+				buttons: {
+					"OK": function() {
+						$("#savePartyDialog").dialog("close");
+						document.getElementById('save-party_' + partyAddress).blur();
+					}
+				}
+			}).dialog('open');
+		}
+		this.blur();
+	}
+	controlButtonDiv.appendChild(savePartyButton);
+	
 	var removePartyButton = createElement('button','<i class="fa fa-times" aria-hidden="true"></i>',{
 		class: 'button-icon', title: 'Remove'
 	});
 	removePartyButton.onclick = function(){
-		var partyNodeToRemove = document.getElementById('ui-party_' + this.id.split('_')[1]);
+		var partyAddress = this.id.split('_')[1];
+		var partyNodeToRemove = document.getElementById('ui-party_' + partyAddress);
+		var partyName = document.getElementById('party-name_' + partyAddress).value;
+		var askForConfirm = PARTIES_LOCAL.hasOwnProperty(partyName);
 		if (partyNodeToRemove.parentNode.children.length > 1){
 			partyNodeToRemove.parentNode.removeChild(partyNodeToRemove);
 			relabelAll();
-		}else{
+		}else if (!askForConfirm){
 			send_feedback("Cannot remove the only party of the player.");
+		}
+		if (askForConfirm){
+			var removePartyDialog = document.getElementById('removePartyDialog');
+			removePartyDialog.innerHTML = 'Do you want to remove party "' + partyName + '" from saved parties?';
+			$(removePartyDialog).dialog({
+				buttons: {
+					"Yes": function() {
+						delete PARTIES_LOCAL[partyName];
+						localStorage.setItem('PARTIES_LOCAL', JSON.stringify(PARTIES_LOCAL));
+						$("#removePartyDialog").dialog("close");
+						document.getElementById('remove-party_' + partyAddress).blur();
+					},
+					"No": function(){
+						$("#removePartyDialog").dialog("close");
+						document.getElementById('remove-party_' + partyAddress).blur();
+					}
+				}
+			}).dialog('open');
 		}
 		this.blur();
 	}
@@ -634,8 +673,10 @@ function relabelAll(){
 			partyNode.setAttribute('style', 'background:' + HSL_COLORS[i%HSL_COLORS.length][1]);
 			
 			partyNode.children[0].children[0].innerHTML = "Party " + (j+1);
-			partyNode.children[0].children[1].children[0].id = 'minimize-party_' + i + '-' + j;
-			partyNode.children[0].children[1].children[1].id = 'remove-party_' + i + '-' + j;
+			partyNode.children[0].children[1].id = 'party-name_' + i + '-' + j;
+			partyNode.children[0].children[2].children[0].id = 'minimize-party_' + i + '-' + j;
+			partyNode.children[0].children[2].children[1].id = 'save-party_' + i + '-' + j;
+			partyNode.children[0].children[2].children[2].id = 'remove-party_' + i + '-' + j;
 			
 			partyNode.children[1].id = 'ui-partybody_' + i + '-' + j;
 			var pokemonNodes = partyNode.children[1].children;
@@ -694,11 +735,8 @@ function createDefenderNode(){
 	tb2.appendChild(createRow(['']));
 	var raidSelection = document.createElement("select");
 	raidSelection.id = "raidTier";
-	for (var i = 1; i <= 5; i++){
-		var option = createElement("option", "Tier " + i);
-		option.value = i;
-		raidSelection.appendChild(option);
-	}
+	for (var i = 1; i <= 5; i++)
+		raidSelection.appendChild(createElement('option', 'Tier ' + i, {value: i}));
 	raidSelection.children[4].setAttribute("selected", "selected");
 	tb2.children[1].children[0].appendChild(raidSelection);
 	
@@ -723,34 +761,6 @@ function createDefenderNode(){
 	// 3. Tail
 	
 	return defenderNode;
-}
-
-function updateDefenderNode(){
-	var defenderNode = document.getElementById("DefenderInput").children[1].children[0];
-	
-	var mode = document.getElementById("battleMode").value;
-	var tb2 = defenderNode.children[1].children[1];
-	tb2.innerHTML = "";
-	
-	if (mode == "gym"){
-		tb2.innerHTML = "<colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>";
-		tb2.appendChild(createRow(['','','','']));
-		tb2.children[1].children[0].innerHTML = "<input placeholder='Level'>";
-		tb2.children[1].children[1].innerHTML = "<input placeholder='HP. IV'>";
-		tb2.children[1].children[2].innerHTML = "<input placeholder='Atk. IV'>";
-		tb2.children[1].children[3].innerHTML = "<input placeholder='Def. IV'>";
-	}else if (mode == "raid"){
-		tb2.innerHTML = "<colgroup><col width=100%></colgroup>";
-		tb2.appendChild(createRow(['']));
-		var raidSelection = document.createElement("select");
-		raidSelection.id = "raidTier";
-		for (var i = 1; i <= 5; i++){
-			var option = createElement("option", "Tier " + i);
-			option.value = i;
-			raidSelection.appendChild(option);
-		}
-		tb2.children[1].children[0].appendChild(raidSelection);
-	}
 }
 
 
@@ -852,18 +862,15 @@ function parseAttackerNode(node){
 	var box_idx = -1, nameInputValue = row1.children[0].children[0].value.trim();
 	if (nameInputValue[0] == '$'){
 		box_idx = parseInt(nameInputValue.slice(1).split(' ')[0]);
-		if (box_idx == NaN || box_idx < 0 || box_idx >= box.length){
-			send_feedback('Invalid PokeBox index', true);
+		if (isNaN(box_idx) || box_idx < 0 || box_idx >= box.length)
 			box_idx = -1;
-		}
 	}
 	
 	var pkm_cfg = {
 		box_index : box_idx,
-		index : box_idx >= 0 ? box[box_idx].index : -1,
-		fmove_index : -1,
-		cmove_index : -1,
-		nickname : box_idx >= 0 ? box[box_idx].nickname : "",
+		index : box_idx >= 0 ? box[box_idx].index : get_species_index_by_name(nameInputValue),
+		fmove_index : get_fmove_index_by_name(row3.children[0].children[0].value),
+		cmove_index : get_cmove_index_by_name(row3.children[1].children[0].value),
 		species: box_idx >= 0 ? box[box_idx].species : nameInputValue,
 		copies: parseInt(row1.children[1].children[0].value) || 1,
 		level: row2.children[0].children[0].value.trim(),
@@ -907,23 +914,19 @@ function parseDefenderNode(node){
 	var box = [];
 	if (USERS_INFO.length > 0)
 		box = USERS_INFO[0].box; // Defender is always user 1 for now
-	var box_idx = -1;
-	var nameInputValue = row1.children[0].children[0].value.trim();
+	var box_idx = -1, nameInputValue = row1.children[0].children[0].value.trim();
 	if (nameInputValue[0] == '$'){
 		box_idx = parseInt(nameInputValue.slice(1).split(' ')[0]);
-		if (box_idx == NaN || box_idx < 0 || box_idx >= box.length){
-			send_feedback('Invalid PokeBox index', true);
+		if (isNaN(box_idx) || box_idx < 0 || box_idx >= box.length)
 			box_idx = -1;
-		}
 	}
 	
 	var pkm_cfg = {
 		box_index : box_idx,
-		index : box_idx >= 0 ? box[box_idx].index : -1,
-		fmove_index : -1,
-		cmove_index : -1,
+		index : box_idx >= 0 ? box[box_idx].index : get_species_index_by_name(nameInputValue),
+		fmove_index : get_fmove_index_by_name(row3.children[0].children[0].value),
+		cmove_index : get_cmove_index_by_name(row3.children[1].children[0].value),
 		team_idx : -1,
-		nickname : box_idx >= 0 ? box[box_idx].nickname : null,
 		species: box_idx >= 0 ? box[box_idx].species : nameInputValue,
 		level : 1,
 		atkiv : 0,
@@ -933,17 +936,13 @@ function parseDefenderNode(node){
 		cmove: row3.children[1].children[0].value.trim(),
 		stamp: ''
 	};
-	if (document.getElementById("battleMode").value == "gym"){
+	if (row2.children.length > 1){
 		pkm_cfg['level'] = row2.children[0].children[0].value.trim();
 		pkm_cfg['stmiv'] = row2.children[1].children[0].value.trim();
 		pkm_cfg['atkiv'] = row2.children[2].children[0].value.trim();
 		pkm_cfg['defiv'] = row2.children[3].children[0].value.trim();
 		pkm_cfg['raid_tier'] = -1;
-	}else if (document.getElementById("battleMode").value == "raid"){
-		pkm_cfg['level'] = 20;
-		pkm_cfg['stmiv'] = 15;
-		pkm_cfg['atkiv'] = 15;
-		pkm_cfg['defiv'] = 15;
+	}else{
 		pkm_cfg['raid_tier'] = parseInt(document.getElementById("raidTier").value);
 	}
 	return pkm_cfg;
@@ -953,10 +952,7 @@ function parseDefenderNode(node){
 function readUserInput(){
 	// 1. General Settings
 	var gSettings = {};
-	if (document.getElementById("battleMode").value == "raid")
-		gSettings['raidTier'] = (parseInt(document.getElementById("raidTier").value));
-	else if (document.getElementById("battleMode").value == "gym")
-		gSettings['raidTier'] = -1;
+	gSettings['battleMode'] = document.getElementById("battleMode").value;
 	gSettings['immortalDefender'] = parseInt(document.getElementById("immortalDefender").value);
 	gSettings['weather'] = document.getElementById("weather").value;
 	gSettings['dodgeBug'] = parseInt(document.getElementById("dodgeBug").value);
@@ -1031,8 +1027,8 @@ function writePartyNode(node, partyConfig){
 		writeAttackerNode(pokemonNode, partyConfig.pokemon_list[k]);
 		node.children[1].appendChild(pokemonNode);
 	}
-	node.children[2].children[0].children[0].checked = partyConfig.revive_strategy;
-	$('#' + node.children[2].id).controlgroup('refresh');
+	node.children[2].children[0].children[2].checked = partyConfig.revive_strategy;
+	$(node.children[2]).controlgroup('refresh');
 }
 
 function writePlayerNode(node, playerConfig){
@@ -1044,9 +1040,8 @@ function writePlayerNode(node, playerConfig){
 	}
 }
 
-function writeDefenderNode(node, pkmConfig, raidTier){
+function writeDefenderNode(node, pkmConfig){
 	var row1 = node.children[1].children[0].children[1];
-	var row2 = node.children[1].children[1].children[1];
 	var row3 = node.children[1].children[2].children[1];
 
 	var species_idx = ('index' in pkmConfig) ? pkmConfig.index : get_species_index_by_name(pkmConfig.species);
@@ -1061,19 +1056,35 @@ function writeDefenderNode(node, pkmConfig, raidTier){
 	row3.children[1].children[0].setAttribute('style', 
 		"background-image: url(" + move_icon_url_by_index('c', get_cmove_index_by_name(pkmConfig.cmove)) + ')');
 	
-	if (document.getElementById("battleMode").value == "gym"){
-		row2.children[0].children[0].value = pkmConfig['level'];
-		row2.children[1].children[0].value = pkmConfig['stmiv'];
-		row2.children[2].children[0].value = pkmConfig['atkiv'];
-		row2.children[3].children[0].value = pkmConfig['defiv'];
-	}else if (document.getElementById("battleMode").value ==  "raid"){
-		row2.children[0].children[0].value = pkmConfig['raid_tier'] || raidTier || 5;
+	var tb2 = node.children[1].children[1];
+	tb2.innerHTML = '';
+	if (!pkmConfig['raid_tier'] || pkmConfig['raid_tier'] == -1){ // gym
+		tb2.innerHTML = "<colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>";
+		tb2.appendChild(createRow(['','','','']));
+		tb2.children[1].children[0].appendChild(createElement('input','',{type: 'number', placeholder: 'Level', value: pkmConfig['level']}));
+		tb2.children[1].children[1].appendChild(createElement('input','',{type: 'number', placeholder: 'HP. IV', value: pkmConfig['stmiv']}));
+		tb2.children[1].children[2].appendChild(createElement('input','',{type: 'number', placeholder: 'Atk. IV', value: pkmConfig['atkiv']}));
+		tb2.children[1].children[3].appendChild(createElement('input','',{type: 'number', placeholder: 'Def. IV', value: pkmConfig['defiv']}));
+	}else if (pkmConfig['raid_tier'] > 0){ // raid
+		tb2.innerHTML = "<colgroup><col width=100%></colgroup>";
+		tb2.appendChild(createRow(['']));
+		var raidSelection = createElement('select', '', {id: 'raidTier'});
+		for (var i = 1; i <= 5; i++)
+			raidSelection.appendChild(createElement('option', 'Tier ' + i, {value: i}));
+		tb2.children[1].children[0].appendChild(raidSelection);
+		tb2.children[1].children[0].children[0].value = pkmConfig['raid_tier'] || 5;
 	}
+}
+
+function updateDefenderNode(mode){
+	var defenderNode = document.getElementById('ui-pokemon_d');
+	var curDefenderConfig = parseDefenderNode(defenderNode);
+	curDefenderConfig.raid_tier = (mode == 'raid' ? 5 : -1);
+	writeDefenderNode(defenderNode, curDefenderConfig);
 }
 
 
 function writeUserInput(cfg){
-	document.getElementById("battleMode").value = (cfg['generalSettings']['raidTier'] == -1) ? "gym" : "raid";
 	for (var attr in cfg['generalSettings']){
 		var dom = document.getElementById(attr);
 		if (dom) dom.value = cfg['generalSettings'][attr];
@@ -1091,13 +1102,11 @@ function writeUserInput(cfg){
 	var defenderFieldBody = document.getElementById("DefenderInput").children[1];
 	if (defenderFieldBody.children.length == 0)
 		defenderFieldBody.appendChild(createDefenderNode());
-	updateDefenderNode();
-	writeDefenderNode(defenderFieldBody.children[0], cfg['dfdrSettings'], cfg['generalSettings']['raidTier']);
+	writeDefenderNode(defenderFieldBody.children[0], cfg['dfdrSettings']);
 }
 
 
 function getPokemonInfoFromAddress(cfg, address){
-	// console.log(cfg);
 	if (address == 'd')
 		return cfg['dfdrSettings'];
 	else{
@@ -1114,7 +1123,7 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 		return 0;
 	pkmInfo.stamp += ' ' + attr;
 	if ((typeof pkmInfo[attr_idx] == typeof 0) && pkmInfo[attr_idx] >= 0){
-		simQueue.unshift(cfg);
+		simQueue.push(cfg);
 		return -1;
 	}
 	
@@ -1130,13 +1139,13 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 	}
 	
 	var exact_match_idx = pred(expressionStr);
-	if (exact_match_idx != NaN && exact_match_idx >= 0){ // Exact Match
+	if (!isNaN(exact_match_idx) && exact_match_idx >= 0){ // Exact Match
 		pkmInfo[attr_idx] = exact_match_idx;
-		simQueue.unshift(cfg);
+		simQueue.push(cfg);
 	}else if (expressionStr[0] == '='){// Dynamic Assignment Operator
 		try{
 			pkmInfo[attr_idx] = getPokemonInfoFromAddress(cfg, expressionStr.slice(1))[attr_idx];
-			simQueue.unshift(cfg);
+			simQueue.push(cfg);
 		}catch(err){
 			send_feedback(address + '.' + attr + ": Invalid address for Dynamic Assignment", true);
 			return -2;
@@ -1158,13 +1167,7 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 		if (selector == '*' || selector == ''){
 			createNewMetric('*' + address + '.' + attr);
 		}else if (selector == '?'){
-			if (MetricsByWhichToAverage.hasOwnProperty(address + '.' + attr_idx)){
-				if (MetricsByWhichToAverage[address + '.' + attr_idx] != matches.length){
-					send_feedback(address + '.' + attr + ": Failed to Average: values not aligned", true);
-					return -2;
-				}
-			}else
-				MetricsByWhichToAverage[address + '.' + attr_idx] = matches.length;
+			MetricsByWhichToAverage.add(address + '.' + attr_idx);
 		}
 		
 		for (var i = 0; i < matches.length; i++){
@@ -1257,6 +1260,7 @@ function runSim(cfg, resCollector){
 		for (var i = 0; i < interResults.length; i++)
 			resCollector.push({input: cfg, output: interResults[i]});
 	}
+	return interResults.length;
 }
 
 function averageOutputs(results){
@@ -1345,7 +1349,6 @@ function clearFeedbackTables(){
 function clearAllSims(){
 	initMasterSummaryTableMetrics();
 	MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
-	MasterSummaryTableHeaders = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_HEADERS));
 	send_feedback("");
 	simResults = [];
 	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0]);
@@ -1356,13 +1359,17 @@ function createMasterSummaryTable(){
 	var table = createElement('table','<thead></thead><tfoot></tfoot><tbody></tbody>',{
 		width:'100%', id :'ui-mastersummarytable', cellspacing:'0', class : 'display nowrap'
 	});
-	var headers = ['#'].concat(MasterSummaryTableHeaders).concat(["Details"]);
+	var headers = ['#'];
+	for (var m in MasterSummaryTableMetrics){
+		headers.push(MasterSummaryTableMetrics[m]);
+	}
+	headers.push('Detail');
 	table.children[0].appendChild(createRow(headers,"th"));
 	table.children[1].appendChild(createRow(headers,"th"));
 	for (var i = 0; i < simResults.length; i++){
 		var sim = simResults[i];
 		var row = [i+1];
-		MasterSummaryTableMetrics.forEach(function(m){
+		for (var m in MasterSummaryTableMetrics){
 			if (m[0] == '*'){
 				m = m.slice(1);
 				var pkmInfo = getPokemonInfoFromAddress(sim.input, m.split('.')[0]), attr = m.split('.')[1];
@@ -1383,7 +1390,7 @@ function createMasterSummaryTable(){
 				row.push(sim.input.generalSettings.weather);
 			}else
 				row.push(sim.output.generalStat[m]);
-		});
+		}
 		row.push("<a onclick='displayDetail("+i+")'>Detail</a>");
 		table.children[2].appendChild(createRow(row, "td"));
 	}
@@ -1577,7 +1584,7 @@ function send_feedback(msg, appending, feedbackDivId){
 function main(){
 	send_feedback("======== GO ========", true);
 	initMasterSummaryTableMetrics();
-	var userInput = readUserInput(), tempResults = [];
+	var userInput = readUserInput(), tempResults = [], numSimPerform = 0;
 	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
 	
 	simQueue = [userInput];
@@ -1587,33 +1594,33 @@ function main(){
 		if (statusCode == -2)
 			break;
 		else if (statusCode == 0)
-			runSim(job, tempResults);
+			numSimPerform += runSim(job, tempResults);
 	}
-	for (var metric in MetricsByWhichToAverage){
-		var numSimsBy = MetricsByWhichToAverage[metric];
-		if (numSimsBy <= 1)
-			continue;
-		var numRepeat = Math.round(tempResults.length / numSimsBy), postAvrgResults = [];
-		sortByMetric(tempResults, metric);
-		try{
-			for (var i = 0; i < numRepeat; i++){
-				var tempOutputsToAverage = [];
-				for (var j = 0; j < numSimsBy; j++)
-					tempOutputsToAverage.push(tempResults[i + j * numRepeat].output);
-				postAvrgResults.push({
-					input: tempResults[i].input,
-					output: averageOutputs(tempOutputsToAverage)
-				});
+	send_feedback(numSimPerform + " sims have been performed", true);
+	MetricsByWhichToAverage.forEach(function(metric){
+		var address = metric.split('.')[0], attr_idx = metric.split('.')[1];
+		for (var i = 0; i < tempResults.length; i++)
+			getPokemonInfoFromAddress(tempResults[i].input, address)[attr_idx] = -1;
+		var postAvrgResults = [];
+		while(tempResults.length > 0){
+			var thisInput = tempResults[0].input, thisInputStr = JSON.stringify(thisInput);
+			var preAvrgOutputs = [tempResults[0].output], unfitResults = [];
+			for (var i = 1; i < tempResults.length; i++){
+				if (JSON.stringify(tempResults[i].input) == thisInputStr)
+					preAvrgOutputs.push(tempResults[i].output);
+				else
+					unfitResults.push(tempResults[i]);
 			}
-			tempResults = postAvrgResults;
-		}catch(err){
-			send_feedback(metric + ": Failed to average. Aborted", true);
-			break;
+			tempResults = unfitResults;
+			postAvrgResults.push({
+				input: thisInput,
+				output: averageOutputs(preAvrgOutputs)
+			});
 		}
-	}
+		tempResults = postAvrgResults;
+	});
 	simResults = simResults.concat(tempResults);
 	displayMasterSummaryTable();
-	send_feedback("======= DONE =======", true);
 }
 
 
