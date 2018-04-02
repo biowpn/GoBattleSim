@@ -87,21 +87,17 @@
 		padding-bottom: 3px;
 		text-align: center;
 	}
-	.section-pokemon-node-title{
+	.section-node-title{
 		float: left;
 		display: inline-block;
-	}
-	.section-party-node-title{
-		float: left;
-		display: inline-block;
-	}
-	.section-player-node-title{
-		float: left;
-		display: inline-block;
+		width: 25%;
+		text-align: left;
 	}
 	
 	.section-buttons-panel{
 		float: right;
+		width: 25%;
+		text-align: right;
 	}
 	.button-icon{
 		background-color: transparent;
@@ -205,7 +201,7 @@
 <div id="AttackerInput">
 	<div id="ui-attackerinputhead">
 		<h2>Attacker Information</h2>
-		<button id='ui-addplayerbutton' class='player_button' onclick="javascript:addPlayerNode()">Add Player</button>
+		<button id='ui-addplayerbutton' class='player_button' onclick="addPlayerNode(); this.blur();">Add Player</button>
 	</div>
 	
 	<div id="ui-attackerinputbody">

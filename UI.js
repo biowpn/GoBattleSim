@@ -186,7 +186,7 @@ function createSimplePredicate(str){
 		}
 	}else if (str[0] == '$'){ // Box
 		return function(obj){
-			return (typeof obj.box_index != 'undefined' && obj.box_index >= 0);
+			return obj.box_index >= 0;
 		};
 	}else if (str[0] == '?'){ // Cutomized expression
 		const str_const = str.slice(1);
@@ -306,7 +306,7 @@ function getPokemonSpeciesOptions(userIndex){
 		var userBox = USERS_INFO[userIndex].box;
 		for (var i = 0; i < userBox.length; i++){
 			userBox[i].box_index = i;
-			userBox[i].label = "$" + i + " " + userBox[i].nickname;
+			userBox[i].label = '$ ' + userBox[i].nickname;
 			speciesOptions.push(userBox[i]);
 		}
 	}
@@ -336,15 +336,11 @@ function markMoveDatabase(moveType, species_idx){
 
 
 function createAttackerNode(){
-	var pokemonNode = document.createElement("div");
-	pokemonNode.setAttribute('class', 'section-body section-pokemon-node');
-	pokemonNode.appendChild(document.createElement("div")); // head
-	pokemonNode.appendChild(document.createElement("div")); // body
-	pokemonNode.appendChild(document.createElement("div")); // tail
+	var pokemonNode = createElement('div', '<div></div><div></div><div></div>', {class: 'section-body section-pokemon-node'});
 	
 	// 1. Head
 	pokemonNode.children[0].setAttribute('class', 'section-node-head');
-	pokemonNode.children[0].innerHTML = "<span class='section-pokemon-node-title'>Unlabeled Pokemon</span>";
+	pokemonNode.children[0].innerHTML = "<span class='section-node-title'>Unlabeled Pokemon</span>";
 	
 	var controlButtonDiv = document.createElement('div');
 	controlButtonDiv.setAttribute('class', 'section-buttons-panel');
@@ -398,7 +394,7 @@ function createAttackerNode(){
 	
 	var speciesInput = createElement('input','',{
 		type: 'text', placeholder: 'Species', class: 'input-with-icon species-input-with-icon', 
-		style: 'background-image: url('+pokemon_icon_url_by_index(-1)+')', index: -1
+		style: 'background-image: url('+pokemon_icon_url_by_index(-1)+')', index: -1, box_index: -1
 	});
 	autocompletePokemonNodeSpecies(speciesInput);
 	tb1.children[1].children[0].appendChild(speciesInput);
@@ -426,12 +422,14 @@ function createAttackerNode(){
 	tb3.appendChild(createRow(['','',''],'td'));
 	
 	var fmoveInput = createElement('input','',{
-		type: 'text', placeholder: 'Fast Move', class: 'input-with-icon move-input-with-icon', style: 'background-image: url()'
+		type: 'text', placeholder: 'Fast Move', index: -1,
+		class: 'input-with-icon move-input-with-icon', style: 'background-image: url()'
 	});
 	autocompletePokemonNodeMoves(fmoveInput);
 	tb3.children[1].children[0].appendChild(fmoveInput);
 	var cmoveInput = createElement('input','',{
-		type: 'text', placeholder: 'Charged Move', class: 'input-with-icon move-input-with-icon', style: 'background-image: url()'
+		type: 'text', placeholder: 'Charged Move', index: -1,
+		class: 'input-with-icon move-input-with-icon', style: 'background-image: url()'
 	});
 	autocompletePokemonNodeMoves(cmoveInput);
 	tb3.children[1].children[1].appendChild(cmoveInput);
@@ -448,18 +446,14 @@ function createAttackerNode(){
 }
 
 function createPartyNode(){
-	var partyNode = document.createElement("div");
-	partyNode.setAttribute('class', 'section-body section-party-node');
-	partyNode.appendChild(document.createElement("div")); // head
-	partyNode.appendChild(document.createElement("div")); // body
-	partyNode.appendChild(document.createElement("div")); // tail
+	var partyNode = createElement('div', '<div></div><div></div><div></div>', {class: 'section-body section-party-node'});
 	
 	// 1. Head
 	partyNode.children[0].setAttribute('class', 'section-node-head');
-	partyNode.children[0].innerHTML = "<span class='section-party-node-title'>Unlabeled Party</span>";
+	partyNode.children[0].innerHTML = "<span class='section-node-title'>Unlabeled Party</span>";
 	
 	var partyNameInput = createElement('input','', {
-		type: 'text', style: 'width: 30%; display: inline-block'
+		type: 'text', style: 'width: 30%; display: inline-block; text-align: center;'
 	});
 	$(partyNameInput).autocomplete({
 		minLength : 0,
@@ -581,15 +575,11 @@ function createPartyNode(){
 }
 
 function createPlayerNode(){
-	var playerNode = document.createElement("div");
-	playerNode.setAttribute('class', 'section-body section-player-node');
-	playerNode.appendChild(document.createElement("div")); // head
-	playerNode.appendChild(document.createElement("div")); // body
-	playerNode.appendChild(document.createElement("div")); // tail
+	var playerNode = createElement('div', '<div></div><div></div><div></div>', {class: 'section-body section-player-node'});
 	
 	// 1. Head
 	playerNode.children[0].setAttribute('class', 'section-node-head');
-	playerNode.children[0].innerHTML = "<span class='section-player-node-title'>Unlabeled Player</span>";
+	playerNode.children[0].innerHTML = "<span class='section-node-title'>Unlabeled Player</span>";
 	
 	var controlButtonDiv = document.createElement('div');
 	controlButtonDiv.setAttribute('class', 'section-buttons-panel');
@@ -712,11 +702,7 @@ function relabelAll(){
 
 
 function createDefenderNode(){
-	var defenderNode = document.createElement("div");
-	defenderNode.id = 'ui-pokemon_d';
-	defenderNode.appendChild(document.createElement("div")); // head, contain the label of this Player
-	defenderNode.appendChild(document.createElement("div")); // body, contain Party Nodes
-	defenderNode.appendChild(document.createElement("div")); // tail, contain controls
+	var defenderNode = createElement('div', '<div></div><div></div><div></div>', {id: 'ui-pokemon_d'});
 	
 	// 1. Head
 	
@@ -725,7 +711,7 @@ function createDefenderNode(){
 	tb1.appendChild(createRow(['']));
 	var speciesInput = createElement('input','',{
 		type: 'text', placeholder: 'Species', class: 'input-with-icon species-input-with-icon', id: 'ui-species_d',
-		style: 'background-image: url('+pokemon_icon_url_by_index(-1)+')'
+		style: 'background-image: url('+pokemon_icon_url_by_index(-1)+')', index: -1, box_index: -1
 	});
 	autocompletePokemonNodeSpecies(speciesInput);
 	tb1.children[1].children[0].appendChild(speciesInput);
@@ -744,12 +730,14 @@ function createDefenderNode(){
 	tb3.appendChild(createRow(['','']));
 	
 	var fmoveInput = createElement('input','',{
-		type: 'text', placeholder: 'Fast Move', class: 'input-with-icon move-input-with-icon', id: 'fmove_d', style: 'background-image: url()'
+		type: 'text', placeholder: 'Fast Move', index: -1,
+		class: 'input-with-icon move-input-with-icon', id: 'fmove_d', style: 'background-image: url()'
 	});
 	autocompletePokemonNodeMoves(fmoveInput);
 	tb3.children[1].children[0].appendChild(fmoveInput);
 	var cmoveInput = createElement('input','',{
-		type: 'text', placeholder: 'Charged Move', class: 'input-with-icon move-input-with-icon', id: 'cmove_d', style: 'background-image: url()'
+		type: 'text', placeholder: 'Charged Move', index: -1,
+		class: 'input-with-icon move-input-with-icon', id: 'cmove_d', style: 'background-image: url()'
 	});
 	autocompletePokemonNodeMoves(cmoveInput);
 	tb3.children[1].children[1].appendChild(cmoveInput);
@@ -792,11 +780,13 @@ function autocompletePokemonNodeSpecies(speciesInput){
 				else
 					writeDefenderNode(thisPokemonNode, USERS_INFO[user_idx].box[pkmInfo.box_index]);
 			}
+			this.setAttribute('box_index', pkmInfo.box_index);
 			this.setAttribute('style', 'background-image: url('+pokemon_icon_url_by_index(pkmInfo.index)+')');
 		},
 		change : function (event, ui){
 			var idx = ui.item ? ui.item.index : get_species_index_by_name(this.value);
 			this.setAttribute('index', idx);
+			this.setAttribute('box_index', ui.item ? ui.item.box_index : -1);
 			this.setAttribute('style', 'background-image: url('+pokemon_icon_url_by_index(idx)+')');
 		}
 	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_pokemon_item;
@@ -834,6 +824,7 @@ function autocompletePokemonNodeMoves(moveInput){
 		change : function(event, ui) {
 			var moveType = this.id[0];
 			var idx = ui.item ? ui.item.index : (moveType == 'f' ? get_fmove_index_by_name(this.value) : get_cmove_index_by_name(this.value));
+			this.setAttribute('index', idx);
 			this.setAttribute('style', 'background-image: url(' + move_icon_url_by_index(moveType, idx) + ')');
 		}
 	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_move_item;
@@ -855,23 +846,15 @@ function parseAttackerNode(node){
 	var row2 = node.children[1].children[1].children[1];
 	var row3 = node.children[1].children[2].children[1];
 	
-	var box = [], userIndex = parseInt(node.id.split('-')[2]);
-	if (userIndex < USERS_INFO.length)
-		box = USERS_INFO[userIndex].box;
-	
-	var box_idx = -1, nameInputValue = row1.children[0].children[0].value.trim();
-	if (nameInputValue[0] == '$'){
-		box_idx = parseInt(nameInputValue.slice(1).split(' ')[0]);
-		if (isNaN(box_idx) || box_idx < 0 || box_idx >= box.length)
-			box_idx = -1;
-	}
+	var idx = parseInt(row1.children[0].children[0].getAttribute('index')), box_idx = parseInt(row1.children[0].children[0].getAttribute('box_index'));
+	var nameInputValue = row1.children[0].children[0].value.trim();
 	
 	var pkm_cfg = {
 		box_index : box_idx,
-		index : box_idx >= 0 ? box[box_idx].index : get_species_index_by_name(nameInputValue),
-		fmove_index : get_fmove_index_by_name(row3.children[0].children[0].value),
-		cmove_index : get_cmove_index_by_name(row3.children[1].children[0].value),
-		species: box_idx >= 0 ? box[box_idx].species : nameInputValue,
+		index : idx >= 0 ? idx : get_species_index_by_name(nameInputValue),
+		fmove_index : parseInt(row3.children[0].children[0].getAttribute('index')),
+		cmove_index : parseInt(row3.children[1].children[0].getAttribute('index')),
+		species: idx >= 0 ? POKEMON_SPECIES_DATA[idx].name : nameInputValue,
 		copies: parseInt(row1.children[1].children[0].value) || 1,
 		level: row2.children[0].children[0].value.trim(),
 		stmiv: row2.children[1].children[0].value.trim(),
@@ -888,6 +871,7 @@ function parseAttackerNode(node){
 
 function parsePartyNode(node){
 	var party_cfg = {
+		name: node.children[0].children[1].value,
 		revive_strategy: node.children[2].children[0].children[2].checked,
 		pokemon_list: []
 	};
@@ -906,28 +890,19 @@ function parsePlayerNode(node){
 }
 
 function parseDefenderNode(node){
-	node = node.children[1];
-	var row1 = node.children[0].children[1];
-	var row2 = node.children[1].children[1];
-	var row3 = node.children[2].children[1];
+	var row1 = node.children[1].children[0].children[1];
+	var row2 = node.children[1].children[1].children[1];
+	var row3 = node.children[1].children[2].children[1];
 	
-	var box = [];
-	if (USERS_INFO.length > 0)
-		box = USERS_INFO[0].box; // Defender is always user 1 for now
-	var box_idx = -1, nameInputValue = row1.children[0].children[0].value.trim();
-	if (nameInputValue[0] == '$'){
-		box_idx = parseInt(nameInputValue.slice(1).split(' ')[0]);
-		if (isNaN(box_idx) || box_idx < 0 || box_idx >= box.length)
-			box_idx = -1;
-	}
+	var idx = parseInt(row1.children[0].children[0].getAttribute('index')), box_idx = parseInt(row1.children[0].children[0].getAttribute('box_index'));
+	var nameInputValue = row1.children[0].children[0].value.trim();
 	
 	var pkm_cfg = {
 		box_index : box_idx,
-		index : box_idx >= 0 ? box[box_idx].index : get_species_index_by_name(nameInputValue),
-		fmove_index : get_fmove_index_by_name(row3.children[0].children[0].value),
-		cmove_index : get_cmove_index_by_name(row3.children[1].children[0].value),
-		team_idx : -1,
-		species: box_idx >= 0 ? box[box_idx].species : nameInputValue,
+		index : idx >= 0 ? idx : get_species_index_by_name(nameInputValue),
+		fmove_index : parseInt(row3.children[0].children[0].getAttribute('index')),
+		cmove_index : parseInt(row3.children[1].children[0].getAttribute('index')),
+		species: idx >= 0 ? POKEMON_SPECIES_DATA[idx].name : nameInputValue,
 		level : 1,
 		atkiv : 0,
 		defiv : 0,
@@ -1001,6 +976,7 @@ function writeAttackerNode(node, pkmConfig){
 	var species_idx = (pkmConfig.hasOwnProperty('index')) ? pkmConfig.index : get_species_index_by_name(pkmConfig.species);
 	row1.children[0].children[0].value = pkmConfig.label || toTitleCase(pkmConfig.species);
 	row1.children[0].children[0].setAttribute('index', species_idx);
+	row1.children[0].children[0].setAttribute('box_index', pkmConfig.hasOwnProperty('box_index') ? pkmConfig.box_index : -1);
 	row1.children[0].children[0].setAttribute('style', 'background-image: url('+pokemon_icon_url_by_index(species_idx)+')');
 	if (pkmConfig.hasOwnProperty('copies'))
 		row1.children[1].children[0].value = pkmConfig.copies;
@@ -1009,18 +985,21 @@ function writeAttackerNode(node, pkmConfig){
 	row2.children[2].children[0].value = pkmConfig.atkiv;
 	row2.children[3].children[0].value = pkmConfig.defiv;
 	
+	var fmove_idx = get_fmove_index_by_name(pkmConfig.fmove);
 	row3.children[0].children[0].value = toTitleCase(pkmConfig.fmove);
-	row3.children[0].children[0].setAttribute('style', 
-		"background-image: url(" + move_icon_url_by_index('f', get_fmove_index_by_name(pkmConfig.fmove)) + ')');
+	row3.children[0].children[0].setAttribute('index', fmove_idx);
+	row3.children[0].children[0].setAttribute('style', "background-image: url(" + move_icon_url_by_index('f', fmove_idx) + ')');
+	var cmove_idx = get_cmove_index_by_name(pkmConfig.cmove);
 	row3.children[1].children[0].value = toTitleCase(pkmConfig.cmove);
-	row3.children[1].children[0].setAttribute('style', 
-		"background-image: url(" + move_icon_url_by_index('c', get_cmove_index_by_name(pkmConfig.cmove)) + ')');
+	row3.children[1].children[0].setAttribute('index', cmove_idx);
+	row3.children[1].children[0].setAttribute('style', "background-image: url(" + move_icon_url_by_index('c', cmove_idx) + ')');
 	
 	if (pkmConfig.hasOwnProperty('dodge'))
 		row3.children[2].children[0].value = pkmConfig.dodge;
 }
 
 function writePartyNode(node, partyConfig){
+	node.children[0].children[1].value = partyConfig.name || node.children[0].children[1].value;
 	node.children[1].innerHTML = "";
 	for (var k = 0; k < partyConfig.pokemon_list.length; k++){
 		var pokemonNode = createAttackerNode();
@@ -1047,24 +1026,27 @@ function writeDefenderNode(node, pkmConfig){
 	var species_idx = ('index' in pkmConfig) ? pkmConfig.index : get_species_index_by_name(pkmConfig.species);
 	row1.children[0].children[0].value = pkmConfig.label || toTitleCase(pkmConfig.species);
 	row1.children[0].children[0].setAttribute('index', species_idx);
+	row1.children[0].children[0].setAttribute('box_index', pkmConfig.hasOwnProperty('box_index') ? pkmConfig.box_index : -1);
 	row1.children[0].children[0].setAttribute('style', 'background-image: url('+pokemon_icon_url_by_index(species_idx)+')');
-
+	
+	var fmove_idx = get_fmove_index_by_name(pkmConfig.fmove);
 	row3.children[0].children[0].value = toTitleCase(pkmConfig.fmove);
-	row3.children[0].children[0].setAttribute('style', 
-		"background-image: url(" + move_icon_url_by_index('f', get_fmove_index_by_name(pkmConfig.fmove)) + ')');
+	row3.children[0].children[0].setAttribute('index', fmove_idx);
+	row3.children[0].children[0].setAttribute('style', "background-image: url(" + move_icon_url_by_index('f', fmove_idx) + ')');
+	var cmove_idx = get_cmove_index_by_name(pkmConfig.cmove);
 	row3.children[1].children[0].value = toTitleCase(pkmConfig.cmove);
-	row3.children[1].children[0].setAttribute('style', 
-		"background-image: url(" + move_icon_url_by_index('c', get_cmove_index_by_name(pkmConfig.cmove)) + ')');
+	row3.children[1].children[0].setAttribute('index', cmove_idx);
+	row3.children[1].children[0].setAttribute('style', "background-image: url(" + move_icon_url_by_index('c', cmove_idx) + ')');
 	
 	var tb2 = node.children[1].children[1];
 	tb2.innerHTML = '';
 	if (!pkmConfig['raid_tier'] || pkmConfig['raid_tier'] == -1){ // gym
 		tb2.innerHTML = "<colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>";
 		tb2.appendChild(createRow(['','','','']));
-		tb2.children[1].children[0].appendChild(createElement('input','',{type: 'number', placeholder: 'Level', value: pkmConfig['level']}));
-		tb2.children[1].children[1].appendChild(createElement('input','',{type: 'number', placeholder: 'HP. IV', value: pkmConfig['stmiv']}));
-		tb2.children[1].children[2].appendChild(createElement('input','',{type: 'number', placeholder: 'Atk. IV', value: pkmConfig['atkiv']}));
-		tb2.children[1].children[3].appendChild(createElement('input','',{type: 'number', placeholder: 'Def. IV', value: pkmConfig['defiv']}));
+		tb2.children[1].children[0].appendChild(createElement('input','',{placeholder: 'Level', value: pkmConfig['level']}));
+		tb2.children[1].children[1].appendChild(createElement('input','',{placeholder: 'HP. IV', value: pkmConfig['stmiv']}));
+		tb2.children[1].children[2].appendChild(createElement('input','',{placeholder: 'Atk. IV', value: pkmConfig['atkiv']}));
+		tb2.children[1].children[3].appendChild(createElement('input','',{placeholder: 'Def. IV', value: pkmConfig['defiv']}));
 	}else if (pkmConfig['raid_tier'] > 0){ // raid
 		tb2.innerHTML = "<colgroup><col width=100%></colgroup>";
 		tb2.appendChild(createRow(['']));
@@ -1098,11 +1080,8 @@ function writeUserInput(cfg){
 		attackerFieldBody.appendChild(playerNode);
 	}
 	relabelAll();
-		
-	var defenderFieldBody = document.getElementById("DefenderInput").children[1];
-	if (defenderFieldBody.children.length == 0)
-		defenderFieldBody.appendChild(createDefenderNode());
-	writeDefenderNode(defenderFieldBody.children[0], cfg['dfdrSettings']);
+	
+	writeDefenderNode(document.getElementById('ui-pokemon_d'), cfg['dfdrSettings']);
 }
 
 
