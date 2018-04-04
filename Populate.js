@@ -1,4 +1,5 @@
-/* Helper functions */
+/* Populate.js */
+
 function getPokemonType1FromString(S){
 	var L = S.split(",");
 	return L[0].trim().toLowerCase();
@@ -72,13 +73,39 @@ function processUserPokeboxRawData(data){
 	return box;
 }
 
-
 /* End of Helper Functions */
 
 
 // TODO: Get CPM data: https://pokemongo.gamepress.gg/assets/data/cpm.json
 
 // TODO: Get Type Advantages data
+
+// Get raid boss list
+function loadRaidBossList(oncomplete){
+	oncomplete = oncomplete || function(){return;};
+	
+	$.ajax({ 
+		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/raid-boss-list.json?new', 
+		dataType: 'json', 
+		success: function(data){
+			data.forEach(function(bossInfo){
+				var parsedBossInfo = {
+					name: createElement('div', bossInfo.title).children[0].innerText,
+					tier: parseInt(createElement('div', bossInfo.tier).children[1].innerText),
+					future: (bossInfo.future.toLowerCase() == 'on'),
+					legacy: (bossInfo.legacy.toLowerCase() == 'on'),
+					special: (bossInfo.special.toLowerCase() == 'on')
+				};
+				RAID_BOSS_LIST[parsedBossInfo.tier].push(parsedBossInfo);
+			});
+		},
+		complete: function(jqXHR, textStatus){
+			oncomplete();
+		}
+	});
+}
+
+
 
 // Read Pokemon Data
 function loadLatestPokemonData(oncomplete){
@@ -118,7 +145,7 @@ function loadLatestPokemonData(oncomplete){
 			handleExclusiveMoves(POKEMON_SPECIES_DATA_LOCAL);
 			oncomplete();
 		}
-	});		
+	});
 }
 
 
@@ -160,7 +187,7 @@ function loadLatestMoveData(oncomplete){
 		}
 	});
 }
-	
+
 // Read User Pokebox
 function loadLatestPokeBox(userid, oncomplete){
 	oncomplete = oncomplete || function(){return;};
@@ -273,4 +300,9 @@ $(document).ready(function(){
 			}
 		});
 	}
+	
+	loadRaidBossList(function(){populateQuickStartWizardBossList('current');});
+	
+	if (localStorage && !localStorage.QUICK_START_WIZARD_NO_SHOW)
+		$( "#quickStartWizard" ).dialog( "open" );
 });

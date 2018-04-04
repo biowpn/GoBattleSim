@@ -1,9 +1,10 @@
-/* 
- * GLOBAL VARIABLES 
- */
+/* UI.js */
 
 var USERS_INFO = [];
 var PARTIES_LOCAL = {};
+var RAID_BOSS_LIST = {
+	1: [],	2: [],	3: [],	4: [],	5: []
+};
 
 var simQueue = [];
 var simResults = [];
@@ -336,7 +337,10 @@ function markMoveDatabase(moveType, species_idx){
 
 
 function createAttackerNode(){
-	var pokemonNode = createElement('div', '<div></div><div></div><div></div>', {class: 'section-body section-pokemon-node'});
+	var pokemonNode = createElement('div', '', {class: 'section-body section-pokemon-node'});
+	pokemonNode.appendChild(document.createElement('div'));
+	pokemonNode.appendChild(document.createElement('div'));
+	pokemonNode.appendChild(document.createElement('div'));
 	
 	// 1. Head
 	pokemonNode.children[0].setAttribute('class', 'section-node-head');
@@ -349,7 +353,7 @@ function createAttackerNode(){
 		class: 'button-icon', title: 'Minimize'
 	});
 	minimizePokemonButton.onclick = function(){
-		$('#ui-pokemonbody_' + this.id.split('_')[1]).slideToggle('fast');this.blur();
+		$('#ui-pokemonbody_' + this.id.split('_')[1]).slideToggle('fast');
 	}
 	controlButtonDiv.appendChild(minimizePokemonButton);
 	
@@ -358,7 +362,7 @@ function createAttackerNode(){
 	});
 	copyPokemonButton.onclick = function(){
 		var pokemonNodeToCopyFrom = document.getElementById('ui-pokemon_' + this.id.split('_')[1]);
-		atkrCopyPasteClipboard = parseAttackerNode(pokemonNodeToCopyFrom);this.blur();
+		atkrCopyPasteClipboard = parseAttackerNode(pokemonNodeToCopyFrom);
 	}
 	controlButtonDiv.appendChild(copyPokemonButton);
 	
@@ -367,7 +371,7 @@ function createAttackerNode(){
 	});
 	pastePokemonButton.onclick = function(){
 		var pokemonNodeToPasteTo = document.getElementById('ui-pokemon_' + this.id.split('_')[1]);
-		writeAttackerNode(pokemonNodeToPasteTo, atkrCopyPasteClipboard);this.blur();
+		writeAttackerNode(pokemonNodeToPasteTo, atkrCopyPasteClipboard);
 	}
 	controlButtonDiv.appendChild(pastePokemonButton);
 	
@@ -382,7 +386,6 @@ function createAttackerNode(){
 		}else{
 			send_feedback("Cannot remove the only Pokemon of the party.");
 		}
-		this.blur();
 	}
 	controlButtonDiv.appendChild(removePokemonButton);
 	
@@ -446,7 +449,10 @@ function createAttackerNode(){
 }
 
 function createPartyNode(){
-	var partyNode = createElement('div', '<div></div><div></div><div></div>', {class: 'section-body section-party-node'});
+	var partyNode = createElement('div', '', {class: 'section-body section-party-node'});
+	partyNode.appendChild(document.createElement('div'));
+	partyNode.appendChild(document.createElement('div'));
+	partyNode.appendChild(document.createElement('div'));
 	
 	// 1. Head
 	partyNode.children[0].setAttribute('class', 'section-node-head');
@@ -483,7 +489,7 @@ function createPartyNode(){
 		class: 'button-icon', title: 'Minimize'
 	});
 	minimizePartyButton.onclick = function(){
-		$('#ui-partybody_' + this.id.split('_')[1]).slideToggle('fast');this.blur();
+		$('#ui-partybody_' + this.id.split('_')[1]).slideToggle('fast');
 	}
 	controlButtonDiv.appendChild(minimizePartyButton);
 	
@@ -501,12 +507,10 @@ function createPartyNode(){
 				buttons: {
 					"OK": function() {
 						$("#savePartyDialog").dialog("close");
-						document.getElementById('save-party_' + partyAddress).blur();
 					}
 				}
 			}).dialog('open');
 		}
-		this.blur();
 	}
 	controlButtonDiv.appendChild(savePartyButton);
 	
@@ -533,16 +537,13 @@ function createPartyNode(){
 						delete PARTIES_LOCAL[partyName];
 						localStorage.setItem('PARTIES_LOCAL', JSON.stringify(PARTIES_LOCAL));
 						$("#removePartyDialog").dialog("close");
-						document.getElementById('remove-party_' + partyAddress).blur();
 					},
 					"No": function(){
 						$("#removePartyDialog").dialog("close");
-						document.getElementById('remove-party_' + partyAddress).blur();
 					}
 				}
 			}).dialog('open');
 		}
-		this.blur();
 	}
 	controlButtonDiv.appendChild(removePartyButton);
 	
@@ -566,7 +567,6 @@ function createPartyNode(){
 		}else{
 			send_feedback("Exceeding Maximum number of Pokemon per party.");
 		}
-		this.blur();
 	}
 	partyNode.children[2].appendChild(addPokemonButton);
 	$( partyNode.children[2] ).controlgroup();
@@ -575,7 +575,10 @@ function createPartyNode(){
 }
 
 function createPlayerNode(){
-	var playerNode = createElement('div', '<div></div><div></div><div></div>', {class: 'section-body section-player-node'});
+	var playerNode = createElement('div', '', {class: 'section-body section-player-node'});
+	playerNode.appendChild(document.createElement('div'));
+	playerNode.appendChild(document.createElement('div'));
+	playerNode.appendChild(document.createElement('div'));
 	
 	// 1. Head
 	playerNode.children[0].setAttribute('class', 'section-node-head');
@@ -588,7 +591,7 @@ function createPlayerNode(){
 		class: 'button-icon', title: 'Minimize'
 	});
 	minimizePlayerButton.onclick = function(){
-		$('#ui-playerbody_' + this.id.split('_')[1]).slideToggle('fast');this.blur();
+		$('#ui-playerbody_' + this.id.split('_')[1]).slideToggle('fast');
 	}
 	controlButtonDiv.appendChild(minimizePlayerButton);
 	
@@ -604,7 +607,6 @@ function createPlayerNode(){
 		}else{
 			send_feedback("Cannot remove the only player");
 		}
-		this.blur();
 	}
 	controlButtonDiv.appendChild(removePlayerButton);
 	
@@ -625,7 +627,6 @@ function createPlayerNode(){
 		}else{
 			send_feedback("Exceeding Maximum number of Parties per player.");
 		}
-		this.blur();
 	}
 	playerNode.children[2].appendChild(addPartyButton);
 	$( playerNode.children[2] ).controlgroup();
@@ -702,7 +703,10 @@ function relabelAll(){
 
 
 function createDefenderNode(){
-	var defenderNode = createElement('div', '<div></div><div></div><div></div>', {id: 'ui-pokemon_d'});
+	var defenderNode = createElement('div', '', {id: 'ui-pokemon_d'});
+	defenderNode.appendChild(document.createElement('div'));
+	defenderNode.appendChild(document.createElement('div'));
+	defenderNode.appendChild(document.createElement('div'));
 	
 	// 1. Head
 	
@@ -1370,7 +1374,7 @@ function createMasterSummaryTable(){
 			}else
 				row.push(sim.output.generalStat[m]);
 		}
-		row.push("<a onclick='displayDetail("+i+")'>Detail</a>");
+		row.push("<a onclick='displayDetail("+i+")' style='cursor: pointer'>Detail</a>");
 		table.children[2].appendChild(createRow(row, "td"));
 	}
 	return table;
@@ -1888,7 +1892,7 @@ function udpateUserTable(){
 
 function udpateBoxTable(userIndex){
 	document.getElementById('boxEditForm-title').innerHTML = 'User ' + USERS_INFO[userIndex].id;
-	var box = USERS_INFO[userIndex].box;
+	var boxEditFormTable = $('#boxEditForm-pokemonTable').DataTable(), box = USERS_INFO[userIndex].box;
 	
 	$( "#boxEditForm" ).dialog( "open" );
 	boxEditFormTable.clear();
@@ -1946,4 +1950,37 @@ function parameterEditFormReset(){
 		localStorage.removeItem('EDITABLE_PARAMETERS_LOCAL');
 	}
 	send_feedback("Local Parameters have been erased. Refresh the page to get the default parameters back", false, 'parameterEditForm-feedback');
+}
+
+function quickStartWizard_submit(){
+	var qsw_config = JSON.parse(JSON.stringify(QUICK_START_WIZARD_CONFIG_1));
+	var numPlayer = parseInt($('#quickStartWizard-numPlayer').val());
+	while (numPlayer > 1){
+		qsw_config.atkrSettings.push(JSON.parse(JSON.stringify(QUICK_START_WIZARD_CLONE_PLAYER)));
+		numPlayer--;
+	}
+	var pkmSource = document.getElementById('quickStartWizard-pokemonSource').value;
+	if (pkmSource == '$'){
+		qsw_config.atkrSettings[0].party_list[0].pokemon_list[0].species = '*$';
+	}else{
+		qsw_config.atkrSettings[0].party_list[0].pokemon_list[0].species = '*rating4~ & !$';
+		qsw_config.atkrSettings[0].party_list[0].pokemon_list[0].level = parseInt(pkmSource);
+	}
+	
+	qsw_config.dfdrSettings.species = document.getElementById('ui-species_QSW-boss').getAttribute('name');
+	qsw_config.dfdrSettings.index = parseInt(document.getElementById('ui-species_QSW-boss').getAttribute('index'));
+	qsw_config.dfdrSettings.raid_tier = parseInt(document.getElementById('ui-species_QSW-boss').getAttribute('raid_tier'));
+	qsw_config.dfdrSettings.fmove = document.getElementById('fmove_QSW-boss').value || '*current';
+	qsw_config.dfdrSettings.cmove = document.getElementById('cmove_QSW-boss').value || '*current';
+	
+	writeUserInput(qsw_config);
+	$( "#quickStartWizard" ).dialog( "close" );
+	main();
+	document.getElementById('ui-mastersummarytable').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+}
+
+
+function quickStartWizard_dontshowup(){
+	localStorage.setItem('QUICK_START_WIZARD_NO_SHOW', '1');
+	$( "#quickStartWizard" ).dialog( "close" );
 }
