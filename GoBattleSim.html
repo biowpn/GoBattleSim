@@ -189,22 +189,26 @@
 </style>
 
 <div id='menu'>
-	<table style="position: relative; height: 40px"><colgroup><col width=33.3%><col width=33.3%><col width=33.4%></colgroup>
+	<table style="position: relative; height: 40px"><colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>
 		<tr>
 			<td style='vertical-align: top'><button id='quickStartWizardOpener'>
 			<i class="fa fa-bolt" aria-hidden="true"></i> Quick Start</button></td>
 			
 			<td style='vertical-align: top'>
 				<button id='subMenuOpener' onmouseover="$('#subMenu').slideToggle('fast')" 
-				onclick="$('#subMenu').slideToggle('fast')"><i class="fa fa-pencil" aria-hidden="true"></i> Add/Edit</button>
-				<div id='subMenu' style='position: absolute; width: 28%'>
+				onclick="$('#subMenu').slideToggle('fast')"><i class="fa fa-pencil" aria-hidden="true"></i> Customize</button>
+				<div id='subMenu' style='position: absolute; width: 20%'>
 					<button class='player_button' id='moveEditFormOpener'>Move</button>
 					<button class='player_button' id='pokemonEditFormOpener'>Species</button>
 					<button class='player_button' id='parameterEditFormOpener'>Other Paramaters</button>
 				</div>
 
 			</td>
-			<td style='vertical-align: top'><button id='userEditFormOpener'><i class="fa fa-user" aria-hidden="true"></i> Manage User/Box</button></td>
+			
+			<td style='vertical-align: top'><button id='userEditFormOpener'><i class="fa fa-user" aria-hidden="true"></i> User/Box</button></td>
+			
+			<td style='vertical-align: top'><button onclick="window.open('https://pokemongo.gamepress.gg/comprehensive-guide-gobattlesim', '_blank')">
+				<i class="fa fa-book" aria-hidden="true"></i> Guide</button></td>
 		</tr>
 	</table>
 </div>
@@ -602,29 +606,34 @@ const HSL_COLORS = [
 ];
 
 // For quick start wizard configurations
+const DEFAULT_ATTACKER_INPUT_MIN = {
+	copies: 6,
+	species: "*rating3~",
+	level: 40,
+	atkiv: 15,
+	defiv: 15,
+	stmiv: 15,
+	fmove: "*",
+	cmove: "*",
+	dodge: 0
+};
+
+const DEFAULT_GENERAL_SETTING_INPUT_MIN = {
+	battleMode: "raid", 
+	weather: "EXTREME",
+	immortalDefender: 0,
+	dodgeBug: 0,
+	simPerConfig : 1,
+	reportType : "enum"
+};
+
+
 const QUICK_START_WIZARD_CONFIG_1 = {
-	generalSettings : {
-		battleMode: "raid", 
-		weather : "EXTREME",
-		immortalDefender: 0,
-		dodgeBug: 0,
-		simPerConfig : 10,
-		reportType : "avrg"
-	},
+	generalSettings : DEFAULT_GENERAL_SETTING_INPUT_MIN,
 	atkrSettings : [{
 		party_list : [{
-			revive_strategy : false,
-			pokemon_list: [{
-				copies: 6,
-				species: "*rating4~",
-				level: 40,
-				atkiv: 15,
-				defiv: 15,
-				stmiv: 15,
-				fmove: "*",
-				cmove: "*",
-				dodge: 0
-			}]
+			revive_strategy : true,
+			pokemon_list: [DEFAULT_ATTACKER_INPUT_MIN]
 		}]
 	}],
 	dfdrSettings : {
@@ -637,7 +646,7 @@ const QUICK_START_WIZARD_CONFIG_1 = {
 
 const QUICK_START_WIZARD_CLONE_PLAYER = {
 	party_list : [{
-		revive_strategy : false,
+		revive_strategy : true,
 		pokemon_list: [{
 			copies: 6,
 			species: "=1-1-1",
@@ -652,11 +661,9 @@ const QUICK_START_WIZARD_CLONE_PLAYER = {
 	}]
 };
 
-var POKEMON_SPECIES_DATA_FETCHED = Boolean(POKEMON_SPECIES_DATA.length);
-var FAST_MOVE_DATA_FETCHED = Boolean(FAST_MOVE_DATA.length);
-var CHARGED_MOVE_DATA_FETCHED = Boolean(CHARGED_MOVE_DATA.length);
-var CURRENT_USER_BOX_FECTHED = Boolean(USERS_INFO.length);
-var WRITTEN_USER_INPUT_FROM_INIT_URL = false;
+var POKEMON_SPECIES_DATA_FETCHED = false;
+var FAST_MOVE_DATA_FETCHED = false;
+var CHARGED_MOVE_DATA_FETCHED = false;
 
 /* user defined data*/
 var FAST_MOVE_DATA_LOCAL = [];

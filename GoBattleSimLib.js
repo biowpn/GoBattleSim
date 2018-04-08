@@ -29,6 +29,7 @@ var TIMELIMIT_RAID_MS = [180000, 180000, 180000, 180000, 300000];
 // These data are populated in "Populate.js"
 var FAST_MOVE_DATA = [];
 var CHARGED_MOVE_DATA = [];
+var MOVE_EFFECT_DATA = [];
 var POKEMON_SPECIES_DATA = [];
 var LEVEL_VALUES = [];
 var IV_VALUES = [];
@@ -166,7 +167,7 @@ Pokemon.prototype.calculate_current_stats = function(){
 	this.Stm = (this.baseStm + this.stmiv) * this.cpm;
 	if (this.raidTier < 0) { // gym defender
 		this.maxHP = 2 * Math.floor(this.Stm);
-		this.playerCode = -1;
+		this.playerCode = 'dfdr';
 	} else if (this.raidTier == 0){ // attacker
 		this.maxHP = Math.floor(this.Stm);
 	} else {// raid boss
@@ -174,7 +175,7 @@ Pokemon.prototype.calculate_current_stats = function(){
 		this.Atk = (this.baseAtk + 15) * this.cpm;
 		this.Def = (this.baseDef + 15) * this.cpm;
 		this.maxHP = RAID_BOSS_HP[this.raidTier - 1];
-		this.playerCode = -1;
+		this.playerCode = 'dfdr';
 	}
 }
 
@@ -452,36 +453,39 @@ World.prototype.init = function(){
 World.prototype.atkr_use_move = function(pkm, pkm_hurt, move, t){
 	t += move.moveType == 'f' ? FAST_MOVE_LAG_MS : CHARGED_MOVE_LAG_MS;
 	var dmg = damage(pkm, pkm_hurt, move, this.weather);
-	
-	this.tline.enqueue({
-		name: "Hurt", t: t+move.dws, subject: pkm_hurt, object: pkm, move: move, dmg: dmg
-	});
-	this.tline.enqueue({
-		name: "EnergyDelta", t: t+move.dws, subject: pkm, energyDelta: move.energyDelta
-	});
-	this.handle_move_effect(pkm, pkm_hurt, move, t);
+	var hurtEvent = {
+		name: "Hurt", t: t + move.dws, subject: pkm_hurt, object: pkm, move: move, dmg: dmg
+	}, energyDeltaEvent = {
+		name: "EnergyDelta", t: t + move.dws, subject: pkm, energyDelta: move.energyDelta
+	};
+	this.tline.enqueue(energyDeltaEvent);
+	this.tline.enqueue(hurtEvent);
+	this.handle_move_effect(pkm, pkm_hurt, move, t, {hurt: hurtEvent, energyDelta: energyDeltaEvent});
 }
 
 // Gym Defender/Raid Boss uses a move, hurting all active attackers
 World.prototype.dfdr_use_move = function(pkm, move, t){
+	var energyDeltaEvent = {
+		name: "EnergyDelta", t: t + move.dws, subject: pkm, energyDelta: move.energyDelta
+	};
+	this.tline.enqueue(energyDeltaEvent);
+	
 	for (var i = 0; i < this.playersArr.length; i++){
 		var pkm_hurt = this.playersArr[i].active_pkm;
 		if (pkm_hurt && pkm_hurt.active){
 			var dmg = damage(pkm, pkm_hurt, move, this.weather);
-			this.tline.enqueue({
+			var hurtEvent = {
 				name: "Hurt", t: t+move.dws, subject: pkm_hurt, object: pkm, move: move, dmg: dmg
-			});
-			this.handle_move_effect(pkm, pkm_hurt, move, t);
+			};
+			this.tline.enqueue(hurtEvent);
+			this.handle_move_effect(pkm, pkm_hurt, move, t, {hurt: hurtEvent, energyDelta: energyDeltaEvent});
 		}
 	}
-	this.projected_atkrHurtEvent = {name: "Hurt", t: t+move.dws, object: pkm, move: move};
-	this.tline.enqueue({
-		name: "EnergyDelta", t: t+move.dws, subject: pkm, energyDelta: move.energyDelta
-	});
-	this.tline.enqueue({name: "ResetProjectedAtkrHurt", t: t+move.dws});
+	this.projected_atkrHurtEvent = {name: "Hurt", t: t + move.dws, object: pkm, move: move};
+	this.tline.enqueue({name: "ResetProjectedAtkrHurt", t: t + move.dws});
 }
 
-World.prototype.handle_move_effect = function(pkm, pkm_hurt, move, t){
+World.prototype.handle_move_effect = function(pkm, pkm_hurt, move, t, preEvents){
 	if (!move.effect)
 		return;
 	if (move.effect.remaining == 0){
@@ -496,12 +500,10 @@ World.prototype.handle_move_effect = function(pkm, pkm_hurt, move, t){
 		pkm.fmove = JSON.parse(JSON.stringify(pkm_hurt.fmove));
 		pkm.cmove = JSON.parse(JSON.stringify(pkm_hurt.cmove));
 		pkm.calculate_current_stats();
-	}else if (move.effect.name == 'hp_draining' && !pkm.has_drained_HP){
+	}else if (move.effect.name == 'hp_draining'){
 		this.tline.enqueue({
-			name: "MoveEffect", subname: "HPRefund", t: t+move.dws+1, subject: pkm,
-			value: "Math.ceil((pkm.tdo - " + pkm.tdo + ") * " + move.effect.multipliers[0] + ")"
+			name: "MoveEffect", subname: "HPRefund", t: t + move.dws + 1, subject: pkm, linkedEvent: preEvents.hurt
 		});
-		pkm.has_drained_HP = true;
 	}	
 	move.effect.remaining--;
 }
@@ -756,9 +758,8 @@ World.prototype.battle = function (){
 		}else if (e.name == "MoveEffect"){
 			if (e.subname == "HPRefund"){
 				var pkm = e.subject;
-				e.value = eval(e.value);
+				e.value = Math.ceil(e.linkedEvent.dmg / 2);
 				pkm.HP = Math.min(pkm.maxHP, pkm.HP + e.value);
-				pkm.has_drained_HP = false;
 			}
 			elog.push(e);
 		}
@@ -838,10 +839,7 @@ World.prototype.add_to_log = function(events){
 		var e = events[i];
 		if (e.name == "Enter"){
 			nonEmpty[0] = true;
-			if (e.subject.playerCode == -1) // dfdr
-				rowData[0].dfdr = 'pokemon:' + e.subject.index;
-			else
-				rowData[0][e.subject.playerCode] = 'pokemon:' + e.subject.index;
+			rowData[0][e.subject.playerCode] = 'pokemon:' + e.subject.index;
 		}else if (e.name == "Hurt"){
 			if (e.subject.raidTier == 0){ // atkrHurt
 				nonEmpty[1] = true;
@@ -859,10 +857,7 @@ World.prototype.add_to_log = function(events){
 		}else if (e.name == "MoveEffect"){
 			nonEmpty[4] = true;
 			if (e.subname == "HPRefund"){
-				if (e.subject.raidTier == 0){ // atkrHurt
-					rowData[4][e.subject.playerCode] = e.subject.HP + '(+' + e.value + ')';
-				}else
-					rowData[4].dfdr = e.subject.HP + '(+' + e.value + ')';
+				rowData[4][e.subject.playerCode] = e.subject.HP + '(+' + e.value + ')';
 			}
 		}
 	}

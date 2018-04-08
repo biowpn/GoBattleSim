@@ -28,47 +28,44 @@ function getMovesFromString(S){
 function handleExclusiveMoves(pokemonDataBase){
 	for (var i = 0; i < pokemonDataBase.length; i++){
 		var pkm = pokemonDataBase[i];
-		if (pkm.exclusiveMoves){
-			pkm.fastMoves_exclusive = [];
-			pkm.chargedMoves_exclusive = [];
-			pkm.exclusiveMoves.forEach(function(move){
-				if (get_fmove_index_by_name(move) >= 0)
-					pkm.fastMoves_exclusive.push(move);
-				else if (get_cmove_index_by_name(move) >= 0)
-					pkm.chargedMoves_exclusive.push(move);
-			});
-			delete pkm.exclusiveMoves;
-		}
+		pkm.fastMoves_exclusive = [];
+		pkm.chargedMoves_exclusive = [];
+		pkm.exclusiveMoves.forEach(function(move){
+			if (get_fmove_index_by_name(move) >= 0)
+				pkm.fastMoves_exclusive.push(move);
+			else if (get_cmove_index_by_name(move) >= 0)
+				pkm.chargedMoves_exclusive.push(move);
+		});
+		delete pkm.exclusiveMoves;
 	}
 }
 
 function processUserPokeboxRawData(data){
 	var box = [];
 	for (var i = 0; i < data.length; i++){
-		var species_idx = get_species_index_by_name(data[i].species.toLowerCase());
-		if (species_idx >= 0){
-			var pkmRaw = {
-				index : species_idx,
-				box_index : i,
-				species : data[i].species.toLowerCase(),
-				cp: parseInt(data[i].cp),
-				level: 0,
-				stmiv: parseInt(data[i].sta),
-				atkiv: parseInt(data[i].atk),
-				defiv: parseInt(data[i].def),
-				fmove: data[i].fast_move.toLowerCase(),
-				fmove_index : get_fmove_index_by_name(data[i].fast_move.toLowerCase()),
-				cmove: data[i].charge_move.toLowerCase(),
-				cmove_index : get_cmove_index_by_name(data[i].charge_move.toLowerCase()),
-				nickname : data[i].nickname
-			};
-			for (var attr in POKEMON_SPECIES_DATA[species_idx])
-				pkmRaw[attr] = POKEMON_SPECIES_DATA[species_idx][attr];
-			
-			pkmRaw.label = "$" + i + " " + data[i].nickname;
-			pkmRaw.level = calculateLevelByCP(pkmRaw, pkmRaw.cp);
-			box.push(pkmRaw);
+		var pkmRaw = {
+			index : get_species_index_by_name(data[i].species.toLowerCase()),
+			box_index : i,
+			species : data[i].species.toLowerCase(),
+			cp: parseInt(data[i].cp),
+			level: 0,
+			stmiv: parseInt(data[i].sta),
+			atkiv: parseInt(data[i].atk),
+			defiv: parseInt(data[i].def),
+			fmove: data[i].fast_move.toLowerCase(),
+			fmove_index : get_fmove_index_by_name(data[i].fast_move.toLowerCase()),
+			cmove: data[i].charge_move.toLowerCase(),
+			cmove_index : get_cmove_index_by_name(data[i].charge_move.toLowerCase()),
+			nickname : data[i].nickname
+		};
+		if (pkmRaw.index < 0 || pkmRaw.fmove_index < 0 || pkmRaw.cmove_index < 0){
+			console.log("[Error in importing User Pokemon: species/moves not in database]");
+			console.log(data[i]);
+			continue;
 		}
+		copyAllInfo(pkmRaw, POKEMON_SPECIES_DATA[pkmRaw.index]);
+		pkmRaw.level = calculateLevelByCP(pkmRaw, pkmRaw.cp);
+		box.push(pkmRaw);
 	}
 	return box;
 }
@@ -194,9 +191,8 @@ function loadLatestPokeBox(userid, oncomplete){
 	if (!(POKEMON_SPECIES_DATA_FETCHED && FAST_MOVE_DATA_FETCHED && CHARGED_MOVE_DATA_FETCHED)){
 		return;
 	}
-	CURRENT_USER_BOX_FECTHED = true;
 	
-	$.ajax({ 
+	$.ajax({
 		url: '/user-pokemon-json-list?new&uid_raw=' + userid,
 		dataType: 'json',
 		success: function(data){
@@ -243,66 +239,65 @@ function manualModifyData(){
 
 
 
-
-
+// when all principal data have been fetched
+function handle_1(){
+	if (POKEMON_SPECIES_DATA_FETCHED && FAST_MOVE_DATA_FETCHED && CHARGED_MOVE_DATA_FETCHED){
+		manualModifyData();
+		
+		if (typeof userID2 != 'underfined' && userID2){
+			loadLatestPokeBox(userID2, function(){
+				udpateUserTable();
+			});
+		}
+		
+		if (window.location.href.includes('?')){
+			writeUserInput(parseConfigFromUrl(window.location.href.split('?')[1]));
+			main({maxJobSize: 10000});			
+			document.getElementById('ui-mastersummarytable').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+		}
+		
+		if (localStorage && !localStorage.QUICK_START_WIZARD_NO_SHOW && !window.location.href.includes('?'))
+			$( "#quickStartWizard" ).dialog( "open" );
+	}
+}
 
 
 $(document).ready(function(){
-	if (!POKEMON_SPECIES_DATA_FETCHED){
-		loadLatestPokemonData(function(){
-			POKEMON_SPECIES_DATA_FETCHED = true;
-			
-			for (var i = 0; i < POKEMON_SPECIES_DATA_LOCAL.length; i++){
-				POKEMON_SPECIES_DATA_LOCAL[i].index = POKEMON_SPECIES_DATA.length + i;
-				POKEMON_SPECIES_DATA.push(POKEMON_SPECIES_DATA_LOCAL[i]);
-			}
-			
-			if (typeof userID2 != 'underfined' && userID2 && !CURRENT_USER_BOX_FECTHED){
-				loadLatestPokeBox(userID2, function(){
-					udpateUserTable();
-				});
-			}
-			
-			if (!WRITTEN_USER_INPUT_FROM_INIT_URL){
-				if (window.location.href.includes('?'))
-					writeUserInput(uriToJSON(window.location.href.split('?')[1]));
-				WRITTEN_USER_INPUT_FROM_INIT_URL = true;
-				manualModifyData();
-			}
-		});
-	}
+	loadLatestPokemonData(function(){
+		POKEMON_SPECIES_DATA_FETCHED = true;
+		
+		for (var i = 0; i < POKEMON_SPECIES_DATA_LOCAL.length; i++){
+			POKEMON_SPECIES_DATA_LOCAL[i].index = POKEMON_SPECIES_DATA.length;
+			POKEMON_SPECIES_DATA.push(POKEMON_SPECIES_DATA_LOCAL[i]);
+		}
+		if (localStorage){
+			localStorage.POKEMON_SPECIES_DATA_LOCAL = JSON.stringify(POKEMON_SPECIES_DATA_LOCAL);
+		}
+		
+		handle_1();
+	});
 
-	if (!(FAST_MOVE_DATA_FETCHED && CHARGED_MOVE_DATA_FETCHED)){
-		loadLatestMoveData(function(){ 
-			FAST_MOVE_DATA_FETCHED = true; 
-			CHARGED_MOVE_DATA_FETCHED = true;
-			
-			for (var i = 0; i < FAST_MOVE_DATA_LOCAL.length; i++){
-				FAST_MOVE_DATA_LOCAL[i].index = FAST_MOVE_DATA.length + i;
-				FAST_MOVE_DATA.push(FAST_MOVE_DATA_LOCAL[i]);
-			}
-			for (var i = 0; i < CHARGED_MOVE_DATA_LOCAL.length; i++){
-				CHARGED_MOVE_DATA_LOCAL[i].index = CHARGED_MOVE_DATA.length + i;
-				CHARGED_MOVE_DATA.push(CHARGED_MOVE_DATA_LOCAL[i]);
-			}
-			
-			if (typeof userID2 != 'underfined' && userID2 && !CURRENT_USER_BOX_FECTHED){
-				loadLatestPokeBox(userID2, function(){
-					udpateUserTable();
-				});
-			}
-			
-			if (!WRITTEN_USER_INPUT_FROM_INIT_URL){
-				if (window.location.href.includes('?'))
-					writeUserInput(uriToJSON(window.location.href.split('?')[1]));
-				WRITTEN_USER_INPUT_FROM_INIT_URL = true;
-				manualModifyData();
-			}
-		});
-	}
+	loadLatestMoveData(function(){ 
+		FAST_MOVE_DATA_FETCHED = true; 
+		CHARGED_MOVE_DATA_FETCHED = true;
+		
+		for (var i = 0; i < FAST_MOVE_DATA_LOCAL.length; i++){
+			FAST_MOVE_DATA_LOCAL[i].index = FAST_MOVE_DATA.length;
+			FAST_MOVE_DATA.push(FAST_MOVE_DATA_LOCAL[i]);
+		}
+		for (var i = 0; i < CHARGED_MOVE_DATA_LOCAL.length; i++){
+			CHARGED_MOVE_DATA_LOCAL[i].index = CHARGED_MOVE_DATA.length;
+			CHARGED_MOVE_DATA.push(CHARGED_MOVE_DATA_LOCAL[i]);
+		}
+		if (localStorage){
+			localStorage.FAST_MOVE_DATA_LOCAL = JSON.stringify(FAST_MOVE_DATA_LOCAL);
+			localStorage.CHARGED_MOVE_DATA_LOCAL = JSON.stringify(CHARGED_MOVE_DATA_LOCAL);
+		}
+		
+		handle_1();
+	});
 	
-	loadRaidBossList(function(){populateQuickStartWizardBossList('current');});
-	
-	if (localStorage && !localStorage.QUICK_START_WIZARD_NO_SHOW)
-		$( "#quickStartWizard" ).dialog( "open" );
+	loadRaidBossList(function(){
+		populateQuickStartWizardBossList('current');
+	});
 });

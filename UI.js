@@ -14,6 +14,9 @@ var enumPlayerStart = 0;
 var enumPartyStart = 0;
 var enumPokemonStart = 0;
 var enumDefender = 0;
+var parsedSpeciesFieldMatches = {};
+var parsedFastMoveFieldMatches = {};
+var parsedChargeMoveFieldMatches = {};
 
 const DEFAULT_SUMMARY_TABLE_METRICS = {battle_result:'Outcome', duration:'Time', tdo_percent:'TDO%', dps:'DPS', total_deaths:'#Death'};
 var MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
@@ -118,31 +121,67 @@ function uriToJSON(urijson){ return JSON.parse(decodeURIComponent(urijson)); }
  */
 function exportConfigToUrl(cfg){
 	var cfg_min = {
-		atkrSettings: [],
-		dfdrSettings: {},
-		generalSettings: cfg.generalSettings
+		atkrSettings: [], dfdrSettings: {},
+		generalSettings: JSON.parse(JSON.stringify(cfg.generalSettings))
 	};
 	for (var i = 0; i < cfg.atkrSettings.length; i++){
-		cfg_min.atkrSettings.push({
-			party_list: []
-		});
+		cfg_min.atkrSettings.push({party_list: []});
 		for (var j = 0; j < cfg.atkrSettings[i].party_list.length; j++){
-			cfg_min.atkrSettings[i].party_list.push({
-				revive_strategy : cfg.atkrSettings[i].party_list[j].revive_strategy,
-				pokemon_list : []
-			});
+			cfg_min.atkrSettings[i].party_list.push({pokemon_list: []});
+			if (cfg.atkrSettings[i].party_list[j].revive_strategy)
+				cfg_min.atkrSettings[i].party_list[j].revive_strategy = cfg.atkrSettings[i].party_list[j].revive_strategy;
 			for (var k = 0; k < cfg.atkrSettings[i].party_list[j].pokemon_list.length; k++){
 				var pkm_min = {};
 				copyAllInfo(pkm_min, cfg.atkrSettings[i].party_list[j].pokemon_list[k], true);
+				for (var attr in pkm_min){
+					if (pkm_min[attr] == DEFAULT_ATTACKER_INPUT_MIN[attr])
+						delete pkm_min[attr];
+				}
 				cfg_min.atkrSettings[i].party_list[j].pokemon_list.push(pkm_min);
 			}
 		}
 	}
 	copyAllInfo(cfg_min.dfdrSettings, cfg.dfdrSettings, true);
 	cfg_min.dfdrSettings.raid_tier = cfg.dfdrSettings.raid_tier;
+	delete cfg_min.dfdrSettings.copies;
+	delete cfg_min.dfdrSettings.dodge;
+	if (cfg_min.dfdrSettings.raid_tier > 0){
+		delete cfg_min.dfdrSettings.level;
+		delete cfg_min.dfdrSettings.atkiv;
+		delete cfg_min.dfdrSettings.defiv;
+		delete cfg_min.dfdrSettings.stmiv;
+	}
+	
+	delete cfg_min.generalSettings.logStyle;
+	for (var attr in cfg_min.generalSettings){
+		if (cfg_min.generalSettings[attr] == DEFAULT_GENERAL_SETTING_INPUT_MIN[attr])
+			delete cfg_min.generalSettings[attr];
+	}
+	
 	return jsonToURI(cfg_min);
 }
- 
+
+function parseConfigFromUrl(url){
+	var cfg = uriToJSON(url);
+	for (var i = 0; i < cfg.atkrSettings.length; i++){
+		for (var j = 0; j < cfg.atkrSettings[i].party_list.length; j++){
+			cfg.atkrSettings[i].party_list[j].revive_strategy = cfg.atkrSettings[i].party_list[j].revive_strategy || false;
+			for (var k = 0; k < cfg.atkrSettings[i].party_list[j].pokemon_list.length; k++){
+				var pkm = cfg.atkrSettings[i].party_list[j].pokemon_list[k];
+				for (var attr in DEFAULT_ATTACKER_INPUT_MIN){
+					if (!pkm.hasOwnProperty(attr))
+						pkm[attr] = DEFAULT_ATTACKER_INPUT_MIN[attr];
+				}
+			}
+		}
+	}
+	for (var attr in DEFAULT_GENERAL_SETTING_INPUT_MIN){
+		if (!cfg.generalSettings.hasOwnProperty(attr))
+			cfg.generalSettings[attr] = DEFAULT_GENERAL_SETTING_INPUT_MIN[attr];
+	}
+	return cfg;
+}
+
 function parseNumericalRange(str){
 	for (var i = 0; i < acceptedNumericalAttributes.length; i++){
 		var attr = acceptedNumericalAttributes[i];
@@ -293,6 +332,9 @@ function initMasterSummaryTableMetrics(){
 	enumPartyStart = 0;
 	enumPokemonStart = 0;
 	enumDefender = 0;
+	parsedSpeciesFieldMatches = {};
+	parsedFastMoveFieldMatches = {};
+	parsedChargeMoveFieldMatches = {};
 	MetricsByWhichToAverage = new Set();
 }
 
@@ -363,6 +405,8 @@ function createAttackerNode(){
 	copyPokemonButton.onclick = function(){
 		var pokemonNodeToCopyFrom = document.getElementById('ui-pokemon_' + this.id.split('_')[1]);
 		atkrCopyPasteClipboard = parseAttackerNode(pokemonNodeToCopyFrom);
+		if (localStorage)
+			localStorage.CLIPBOARD_LOCAL = JSON.stringify(atkrCopyPasteClipboard);
 	}
 	controlButtonDiv.appendChild(copyPokemonButton);
 	
@@ -371,7 +415,10 @@ function createAttackerNode(){
 	});
 	pastePokemonButton.onclick = function(){
 		var pokemonNodeToPasteTo = document.getElementById('ui-pokemon_' + this.id.split('_')[1]);
-		writeAttackerNode(pokemonNodeToPasteTo, atkrCopyPasteClipboard);
+		if (localStorage && localStorage.CLIPBOARD_LOCAL)
+			atkrCopyPasteClipboard = JSON.parse(localStorage.CLIPBOARD_LOCAL);
+		if (atkrCopyPasteClipboard)
+			writeAttackerNode(pokemonNodeToPasteTo, atkrCopyPasteClipboard);
 	}
 	controlButtonDiv.appendChild(pastePokemonButton);
 	
@@ -785,7 +832,7 @@ function autocompletePokemonNodeSpecies(speciesInput){
 					writeDefenderNode(thisPokemonNode, USERS_INFO[user_idx].box[pkmInfo.box_index]);
 			}
 			this.setAttribute('box_index', pkmInfo.box_index);
-			this.setAttribute('style', 'background-image: url('+pokemon_icon_url_by_index(pkmInfo.index)+')');
+			this.setAttribute('style', 'background-image: url('+pkmInfo.icon+')');
 		},
 		change : function (event, ui){
 			var idx = ui.item ? ui.item.index : get_species_index_by_name(this.value);
@@ -823,7 +870,7 @@ function autocompletePokemonNodeMoves(moveInput){
 		},
 		select : function(event, ui) {
 			var moveType = this.id[0];
-			this.setAttribute('style', 'background-image: url(' + move_icon_url_by_index(moveType, ui.item.index) + ')');
+			this.setAttribute('style', 'background-image: url(' + ui.item.icon + ')');
 		},
 		change : function(event, ui) {
 			var moveType = this.id[0];
@@ -1141,12 +1188,32 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 		if (input_type == 1)
 			expressionStr = 'value' + expressionStr;
 		
-		var matches = universalGetter(expressionStr, universe);
+		var matches = [];
+		if (attr == 'species' && parsedSpeciesFieldMatches[address]){
+			matches = parsedSpeciesFieldMatches[address];
+		}else if (attr == 'fmove' && parsedFastMoveFieldMatches[address] && parsedFastMoveFieldMatches[address][pkmInfo.index]){
+			matches = parsedFastMoveFieldMatches[address][pkmInfo.index];
+		}else if (attr == 'cmove' && parsedChargeMoveFieldMatches[address] && parsedChargeMoveFieldMatches[address][pkmInfo.index]){
+			matches = parsedChargeMoveFieldMatches[address][pkmInfo.index];
+		}else{
+			matches = universalGetter(expressionStr, universe);
+			if (attr == 'species'){
+				parsedSpeciesFieldMatches[address] = matches;
+			}else if (attr == 'fmove'){
+				if (!parsedFastMoveFieldMatches[address])
+					parsedFastMoveFieldMatches[address] = {};
+				parsedFastMoveFieldMatches[address][pkmInfo.index] = matches;
+			}else if (attr == 'cmove'){
+				if (!parsedChargeMoveFieldMatches[address])
+					parsedChargeMoveFieldMatches[address] = {};
+				parsedChargeMoveFieldMatches[address][pkmInfo.index] = matches;
+			}
+		}
 		if (matches.length == 0){
 			send_feedback(address + '[' + pkmInfo.label + '].' + attr + ": No match", true);
 			return -1;
 		}
-		
+
 		if (selector == '*' || selector == ''){
 			createNewMetric('*' + address + '.' + attr);
 		}else if (selector == '?'){
@@ -1228,23 +1295,6 @@ function processQueue(cfg){
 	return 0;
 }
 
-function runSim(cfg, resCollector){
-	var app_world = new World(cfg);
-	var numSimRun = parseInt(cfg['generalSettings']['simPerConfig']);
-	var interResults = [];
-	for (var i = 0; i < numSimRun; i++){
-		app_world.init();
-		app_world.battle();
-		interResults.push(app_world.get_statistics());
-	}
-	if (cfg['generalSettings']['reportType'] == 'avrg')
-		resCollector.push({input: cfg, output: averageOutputs(interResults)});
-	else if (cfg['generalSettings']['reportType'] == 'enum'){
-		for (var i = 0; i < interResults.length; i++)
-			resCollector.push({input: cfg, output: interResults[i]});
-	}
-	return interResults.length;
-}
 
 function averageOutputs(results){
 	var avrgR = JSON.parse(JSON.stringify(results[0])), numResults = results.length, numPlayer = results[0].playerStats.length;
@@ -1564,46 +1614,99 @@ function send_feedback(msg, appending, feedbackDivId){
 }
 
 
-function main(){
-	send_feedback("======== GO ========", true);
-	initMasterSummaryTableMetrics();
-	var userInput = readUserInput(), tempResults = [], numSimPerform = 0;
-	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
-	
-	simQueue = [userInput];
+function unpackQueue(initJob){
+	simQueue = [initJob];
 	while (simQueue.length > 0){
 		var job = simQueue.shift();
 		var statusCode = processQueue(job);
-		if (statusCode == -2)
+		if (statusCode == 0){
+			simQueue.unshift(job);
 			break;
-		else if (statusCode == 0)
-			numSimPerform += runSim(job, tempResults);
+		}
 	}
-	send_feedback(numSimPerform + " sims have been performed", true);
+}
+
+function runSim(cfg, resCollector){
+	var app_world = new World(cfg);
+	var numSimRun = parseInt(cfg['generalSettings']['simPerConfig']);
+	var interResults = [];
+	for (var i = 0; i < numSimRun; i++){
+		app_world.init();
+		app_world.battle();
+		interResults.push(app_world.get_statistics());
+	}
+	if (cfg['generalSettings']['reportType'] == 'avrg')
+		resCollector.push({input: cfg, output: averageOutputs(interResults)});
+	else if (cfg['generalSettings']['reportType'] == 'enum'){
+		for (var i = 0; i < interResults.length; i++)
+			resCollector.push({input: cfg, output: interResults[i]});
+	}
+	return interResults.length;
+}
+
+function runSims(queue, resCollector){
+	var numSimPerform = 0;
+	while (queue.length > 0){
+		numSimPerform += runSim(queue.shift(), resCollector);
+	}
+	return numSimPerform;
+}
+
+function averageSims(sims){
 	MetricsByWhichToAverage.forEach(function(metric){
 		var address = metric.split('.')[0], attr_idx = metric.split('.')[1];
-		for (var i = 0; i < tempResults.length; i++)
-			getPokemonInfoFromAddress(tempResults[i].input, address)[attr_idx] = -1;
+		for (var i = 0; i < sims.length; i++)
+			getPokemonInfoFromAddress(sims[i].input, address)[attr_idx] = -1;
 		var postAvrgResults = [];
-		while(tempResults.length > 0){
-			var thisInput = tempResults[0].input, thisInputStr = JSON.stringify(thisInput);
-			var preAvrgOutputs = [tempResults[0].output], unfitResults = [];
-			for (var i = 1; i < tempResults.length; i++){
-				if (JSON.stringify(tempResults[i].input) == thisInputStr)
-					preAvrgOutputs.push(tempResults[i].output);
+		while(sims.length > 0){
+			var thisInput = sims[0].input, thisInputStr = JSON.stringify(thisInput);
+			var preAvrgOutputs = [sims[0].output], unfitResults = [];
+			for (var i = 1; i < sims.length; i++){
+				if (JSON.stringify(sims[i].input) == thisInputStr)
+					preAvrgOutputs.push(sims[i].output);
 				else
-					unfitResults.push(tempResults[i]);
+					unfitResults.push(sims[i]);
 			}
-			tempResults = unfitResults;
+			sims = unfitResults;
 			postAvrgResults.push({
 				input: thisInput,
 				output: averageOutputs(preAvrgOutputs)
 			});
 		}
-		tempResults = postAvrgResults;
+		sims = postAvrgResults;
 	});
+}
+
+
+function main(args){
+	var userInput = readUserInput(), tempResults = [];
+	if (!args || args && !args.noDisplay){
+		window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
+	}
+	initMasterSummaryTableMetrics();
+	
+	unpackQueue(userInput);
+	console.log(Date() + ": Input has been unpacked");
+	
+	if (args && args.maxJobSize){
+		var curJobSize = simQueue.length * userInput.generalSettings.simPerConfig;
+		if (curJobSize > args.maxJobSize){
+			console.log('Aborted due to job size(' + curJobSize + ') exceeding maxJobSize(' + args.maxJobSize + ')');
+			return;
+		}
+	}
+	
+	var numSimPerform = runSims(simQueue, tempResults);
+	console.log(Date() + ": Simulations have been calculated");
+	
+	averageSims(tempResults);
+	console.log(Date() + ": Simulations have been averaged");
 	simResults = simResults.concat(tempResults);
-	displayMasterSummaryTable();
+	
+	if (!args || args && !args.noDisplay){
+		send_feedback(numSimPerform + " sims have been performed", true);
+		displayMasterSummaryTable();
+	}
 }
 
 
@@ -1647,7 +1750,7 @@ function moveEditFormSubmit(){
 			moveDatabase_local.push(move);
 		}
 		if (moveType_input == 'f'){
-			localStorage.FAST_MOVE_DATA = JSON.stringify(FAST_MOVE_DATA_LOCAL);
+			localStorage.FAST_MOVE_DATA_LOCAL = JSON.stringify(FAST_MOVE_DATA_LOCAL);
 		}else{
 			localStorage.CHARGED_MOVE_DATA_LOCAL = JSON.stringify(CHARGED_MOVE_DATA_LOCAL);
 		}
@@ -1683,20 +1786,15 @@ function autocompleteMoveEditForm(){
 			response(matches);
 		},
 		select : function(event, ui) {
-			this.value = ui.item.value;
-			$(this).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item: ui.item});
+			this.setAttribute('style', 'background-image: url(' + ui.item.icon + ')');
+			document.getElementById('moveEditForm-name').value = toTitleCase(ui.item.name);
+			document.getElementById('moveEditForm-pokeType').value = ui.item.pokeType;
+			document.getElementById('moveEditForm-power').value = ui.item.power;
+			document.getElementById('moveEditForm-energyDelta').value = ui.item.energyDelta;
+			document.getElementById('moveEditForm-duration').value = ui.item.duration / 1000;
+			document.getElementById('moveEditForm-dws').value = ui.item.dws / 1000;
 		},
 		change : function(event, ui) {
-			var move_obj = ui.item;
-			if (move_obj){
-				this.setAttribute('style', 'background-image: url(' + move_obj.icon + ')');
-				document.getElementById('moveEditForm-name').value = toTitleCase(move_obj.name);
-				document.getElementById('moveEditForm-pokeType').value = move_obj.pokeType;
-				document.getElementById('moveEditForm-power').value = move_obj.power;
-				document.getElementById('moveEditForm-energyDelta').value = move_obj.energyDelta;
-				document.getElementById('moveEditForm-duration').value = move_obj.duration / 1000;
-				document.getElementById('moveEditForm-dws').value = move_obj.dws / 1000;
-			}
 		}
 	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_move_item;
 	
@@ -1963,7 +2061,7 @@ function quickStartWizard_submit(){
 	if (pkmSource == '$'){
 		qsw_config.atkrSettings[0].party_list[0].pokemon_list[0].species = '*$';
 	}else{
-		qsw_config.atkrSettings[0].party_list[0].pokemon_list[0].species = '*rating4~ & !$';
+		qsw_config.atkrSettings[0].party_list[0].pokemon_list[0].species = '*rating3~ & !$';
 		qsw_config.atkrSettings[0].party_list[0].pokemon_list[0].level = parseInt(pkmSource);
 	}
 	
@@ -1983,4 +2081,57 @@ function quickStartWizard_submit(){
 function quickStartWizard_dontshowup(){
 	localStorage.setItem('QUICK_START_WIZARD_NO_SHOW', '1');
 	$( "#quickStartWizard" ).dialog( "close" );
+}
+
+function MST_command(cmd, arg1, arg2){
+	if (cmd == 'copy'){
+		if (!arg1){
+			var tableStr = '', tableData = $('#ui-mastersummarytable').DataTable().data();
+			for (var i = 0; i < tableData.length; i++){
+				var rowStr = '', rowData = tableData[i];
+				for (var j = 0; j < rowData.length; j++)
+					rowStr += (jQuery.parseHTML(rowData[j])[0].innerText || rowData[j]) + '\t';
+				tableStr += rowStr.trim() + '\n'
+			}
+			copy(tableStr.trim());
+		}else{
+			var copyStr = '#';
+			for (var m in MasterSummaryTableMetrics){
+				copyStr += '\t' + MasterSummaryTableMetrics[m];
+			}
+			copyStr += '\n';
+			for (var i = 0; i < simResults.length; i++){
+				var sim = simResults[i];
+				copyStr += (i+1);
+				for (var m in MasterSummaryTableMetrics){
+					if (m[0] == '*'){
+						m = m.slice(1);
+						var pkmInfo = getPokemonInfoFromAddress(sim.input, m.split('.')[0]), attr = m.split('.')[1];
+						if (attr == 'species'){
+							copyStr += '\t' + pkmInfo.label;
+						}else if (attr == 'fmove'){
+							var moveData = FAST_MOVE_DATA[pkmInfo.fmove_index];
+							copyStr += '\t' + moveData.label;
+						}else if (attr == 'cmove'){
+							var moveData = CHARGED_MOVE_DATA[pkmInfo.cmove_index];
+							copyStr += '\t' + moveData.label;
+						}else{
+							copyStr += '\t' + pkmInfo[attr];
+						}
+					}else if (m == 'weather'){
+						copyStr += '\t' + sim.input.generalSettings.weather;
+					}else
+						copyStr += '\t' + sim.output.generalStat[m];
+				}
+				copyStr += '\n';
+			}
+			copy(copyStr.trim());
+		}
+	}else if (cmd == 'set'){
+		MasterSummaryTableMetrics[arg1] = arg2 || arg1;
+		displayMasterSummaryTable();
+	}else if (cmd == 'delete'){
+		delete MasterSummaryTableMetrics[arg1];
+		displayMasterSummaryTable();
+	}
 }
