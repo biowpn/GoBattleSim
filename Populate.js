@@ -30,13 +30,15 @@ function handleExclusiveMoves(pokemonDataBase){
 		var pkm = pokemonDataBase[i];
 		pkm.fastMoves_exclusive = [];
 		pkm.chargedMoves_exclusive = [];
-		pkm.exclusiveMoves.forEach(function(move){
-			if (get_fmove_index_by_name(move) >= 0)
-				pkm.fastMoves_exclusive.push(move);
-			else if (get_cmove_index_by_name(move) >= 0)
-				pkm.chargedMoves_exclusive.push(move);
-		});
-		delete pkm.exclusiveMoves;
+		if (pkm.exclusiveMoves){
+			pkm.exclusiveMoves.forEach(function(move){
+				if (get_fmove_index_by_name(move) >= 0)
+					pkm.fastMoves_exclusive.push(move);
+				else if (get_cmove_index_by_name(move) >= 0)
+					pkm.chargedMoves_exclusive.push(move);
+			});
+			delete pkm.exclusiveMoves;
+		}
 	}
 }
 
@@ -138,8 +140,6 @@ function loadLatestPokemonData(oncomplete){
 			
 		},
 		complete: function(jqXHR, textStatus){
-			handleExclusiveMoves(POKEMON_SPECIES_DATA);
-			handleExclusiveMoves(POKEMON_SPECIES_DATA_LOCAL);
 			oncomplete();
 		}
 	});
@@ -242,6 +242,8 @@ function manualModifyData(){
 // when all principal data have been fetched
 function handle_1(){
 	if (POKEMON_SPECIES_DATA_FETCHED && FAST_MOVE_DATA_FETCHED && CHARGED_MOVE_DATA_FETCHED){
+		handleExclusiveMoves(POKEMON_SPECIES_DATA);
+		handleExclusiveMoves(POKEMON_SPECIES_DATA_LOCAL);
 		manualModifyData();
 		
 		if (typeof userID2 != 'underfined' && userID2){

@@ -154,9 +154,10 @@ Pokemon.prototype.init = function(){
 	this.num_deaths = 0;
 	this.tdo = 0;
 	this.tdo_fmove = 0;
-	this.total_energy_gained = 0;
-	this.total_energy_gained_from_damage = 0;
 	this.total_energy_wasted = 0;
+	this.n_fmoves = 0;
+	this.n_cmoves = 0;
+	this.n_addtional_fmoves = 0;
 	
 	this.heal();
 }
@@ -186,21 +187,14 @@ Pokemon.prototype.heal = function(){
 }
 
 // A Pokemon gains/(loses) energy
-Pokemon.prototype.gain_energy = function(energyDelta, fromDamage){
-	if (energyDelta > 0){
-		var overChargedPart = Math.max(0, this.energy + energyDelta - POKEMON_MAX_ENERGY);
-		var realGain = energyDelta - overChargedPart;
-		this.energy += realGain;
-		this.total_energy_gained += realGain;
-		this.total_energy_wasted += overChargedPart;
-		if (fromDamage){
-			this.total_energy_gained_from_damage += realGain;
-			if (this.HP <= 0)
-				this.total_energy_wasted += this.energy;
-		}
-	}else{
-		this.energy += energyDelta;
+Pokemon.prototype.gain_energy = function(energyDelta){
+	this.energy += energyDelta;
+	if (this.energy > POKEMON_MAX_ENERGY){
+		this.total_energy_wasted = this.energy - POKEMON_MAX_ENERGY;
+		this.energy = POKEMON_MAX_ENERGY;
 	}
+	if (this.HP <= 0)
+		this.total_energy_wasted += this.energy;
 }
 
 // A Pokemon takes damage and gains energy = dmg/2
@@ -212,7 +206,7 @@ Pokemon.prototype.take_damage = function(dmg){
 		this.active = false;
 		overKilledPart = -this.HP;
 	}
-	this.gain_energy(Math.ceil((dmg - overKilledPart)/2), true);
+	this.gain_energy(Math.ceil((dmg - overKilledPart)/2));
 }
 
 // Keeping record of tdo for performance analysis
@@ -220,13 +214,18 @@ Pokemon.prototype.attribute_damage = function(dmg, mType){
 	this.tdo += dmg;
 	if (mType == 'f'){
 		this.tdo_fmove += dmg;
+		this.n_fmoves += 1;
+		this.n_addtional_fmoves += 1;
+	}else{
+		this.n_cmoves += 1;
+		this.n_addtional_fmoves = 0;
 	}
 }
 
 
 // Return the performance statistics of the Pokemon
 Pokemon.prototype.get_statistics = function(){
-	var stat = {
+	return {
 		player_code: this.playerCode,
 		index : this.index,
 		name : this.name,
@@ -236,9 +235,11 @@ Pokemon.prototype.get_statistics = function(){
 		tdo_fmove : this.tdo_fmove,
 		duration : Math.round(this.total_time_active_ms/100)/10,
 		dps : Math.round(this.tdo / (this.total_time_active_ms/1000)*100)/100,
-		tew : this.total_energy_wasted
+		tew : this.total_energy_wasted,
+		n_fmoves : this.n_fmoves,
+		n_cmoves : this.n_cmoves,
+		n_addtional_fmoves : this.n_addtional_fmoves
 	};
-	return stat;
 }
 /* End of Class <Pokemon> */
 
@@ -729,7 +730,7 @@ World.prototype.battle = function (){
 				elog.push(e);
 			}
 		}else if (e.name == "EnergyDelta"){
-			e.subject.gain_energy(e.energyDelta, false);
+			e.subject.gain_energy(e.energyDelta);
 		}else if (e.name == "Enter"){
 			e.subject.time_enter_ms = t;
 			e.subject.active = true;

@@ -183,7 +183,11 @@
 		overflow-y: auto;
 		overflow-x: hidden;
 		padding-right: 20px;
-	} 
+	}
+	
+	.ui-dialog-buttonset {
+		width: 100%;
+	}
 
 }
 </style>
@@ -502,13 +506,6 @@
 	</div>
 </div>
 
-<div id="savePartyDialog" title="Save Party">
-</div>
-
-<div id="removePartyDialog" title="Remove Party">
-Do you want to remove this party from the saved parties?
-</div>
-
 
 <div id="quickStartWizard" title="Welcome to GoBattleSim - Quick Start">
 	<div id='quickStartWizard-tabs'>
@@ -560,7 +557,7 @@ Do you want to remove this party from the saved parties?
 			
 		</div>
 		
-		<div id='tabs-3' style='height: 230px'>
+		<div id='tabs-3' style='width: 100%; height: 200px'>
 			<h4>3. Which Move set?</h4>
 			
 			<div id='quickStartWizard-moves'>
@@ -581,12 +578,7 @@ Do you want to remove this party from the saved parties?
 			</table>
 		</div>
 		
-	</div>
-	
-
-	<button onclick='quickStartWizard_submit()' style='width:45%; float: left'>GO</button>
-	<button onclick='quickStartWizard_dontshowup()' style='width:45%; float: right'>Don't Show Up Again</button>
-	
+	</div>	
 </div>
 
 
@@ -856,7 +848,17 @@ $('#cmove_QSW-boss').autocomplete( "option", "appendTo", "#quickStartWizard" );
 
 $("#quickStartWizard").dialog({ 
 	autoOpen: false,
-	width: 600
+	width: 600,
+	buttons: [{
+		text: 'GO',
+		style: 'width: 40%; float: left;',
+		click: quickStartWizard_submit
+		
+	},{
+		text: "Don't show Up Again",
+		style: 'width: 40%; float: right;',
+		click: quickStartWizard_dontshowup
+	}]
 });
 
 $ ('#quickStartWizardOpener').click(function() {

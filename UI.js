@@ -548,12 +548,11 @@ function createPartyNode(){
 		if (partyName.length > 0){
 			PARTIES_LOCAL[partyName] = parsePartyNode($('#ui-party_' + partyAddress)[0]);
 			localStorage.setItem('PARTIES_LOCAL', JSON.stringify(PARTIES_LOCAL));
-			var savePartyDialog = document.getElementById("savePartyDialog");
-			savePartyDialog.innerHTML = 'Party "' + partyName + '" has been saved!';
+			var savePartyDialog = createElement('div', 'Party "' + partyName + '" has been saved!');
 			$(savePartyDialog).dialog({
 				buttons: {
 					"OK": function() {
-						$("#savePartyDialog").dialog("close");
+						$(this).dialog("close");
 					}
 				}
 			}).dialog('open');
@@ -576,19 +575,23 @@ function createPartyNode(){
 			send_feedback("Cannot remove the only party of the player.");
 		}
 		if (askForConfirm){
-			var removePartyDialog = document.getElementById('removePartyDialog');
-			removePartyDialog.innerHTML = 'Do you want to remove party "' + partyName + '" from saved parties?';
+			var removePartyDialog = createElement('div', 'Do you want to remove party "' + partyName + '" from saved parties?');
 			$(removePartyDialog).dialog({
-				buttons: {
-					"Yes": function() {
+				buttons: [{
+					text: "Yes",
+					style: 'width: 40%; float: left;',
+					click: function() {
 						delete PARTIES_LOCAL[partyName];
 						localStorage.setItem('PARTIES_LOCAL', JSON.stringify(PARTIES_LOCAL));
-						$("#removePartyDialog").dialog("close");
-					},
-					"No": function(){
-						$("#removePartyDialog").dialog("close");
+						$(this).dialog("close");
 					}
-				}
+				},{
+					text: "No",
+					style: 'width: 40%; float: right;',
+					click: function(){
+						$(this).dialog("close");
+					}
+				}]
 			}).dialog('open');
 		}
 	}
@@ -1302,7 +1305,11 @@ function averageOutputs(results){
 	// These are the metrics to sum and average
 	var generalStat_attrs = ['duration', 'tdo_percent', 'tdo', 'total_deaths'];
 	var playerStats_attrs = ['tdo', 'tdo_percentage', 'num_rejoin'];
-	var pokemonStats_attrs = ['hp', 'energy', 'tdo', 'duration', 'tew'];
+	var pokemonStats_attrs = [], pokemonStats_attrs_excluded = ['player_code', 'index', 'name', 'dps'];
+	for (var attr in avrgR.pokemonStats[0][0][0]){
+		if (!pokemonStats_attrs_excluded.includes(attr))
+			pokemonStats_attrs.push(attr);
+	};
 	
 	// 1. Initialize everything to 0
 	avrgR['generalStat']['battle_result'] = 0;
@@ -1424,7 +1431,7 @@ function createMasterSummaryTable(){
 			}else
 				row.push(sim.output.generalStat[m]);
 		}
-		row.push("<a onclick='displayDetail("+i+")' style='cursor: pointer'>Detail</a>");
+		row.push("<a onclick='displayDetail("+i+")' style='cursor: pointer'><i class='fa fa-info-circle' aria-hidden='true'></i></a>");
 		table.children[2].appendChild(createRow(row, "td"));
 	}
 	return table;
@@ -1440,20 +1447,26 @@ function createPlayerStatisticsString(playerStat){
 function createPokemonStatisticsTable(pokemonStats){
 	var table = document.createElement("table");
 	table.appendChild(createRow(["<img src='" + pokemon_icon_url_by_index(-1) + "'></img>",
-								"HP",
-								"Energy",
-								"TDO",
-								"Duration",
-								"DPS",
-								"TEW"],"th"));
+								"HP", "Energy", "TDO", "Duration", "DPS", "Detail"], 'th'));
 	for (var i = 0; i < pokemonStats.length; i++){
 		var ps = pokemonStats[i];
-		table.appendChild(createRow(["<img src='" + pokemon_icon_url_by_index(ps.index) + "'></img>", 
-			ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, ps.tew],"td"));
+		var row = createRow(["<img src='" + pokemon_icon_url_by_index(ps.index) + "'></img>", 
+			ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, "<a style='cursor: pointer'><i class='fa fa-info-circle' aria-hidden='true'></i></a>"], 'td');
+		
+		const ps_const = JSON.parse(JSON.stringify(ps));
+		row.children[row.children.length - 1].children[0].onclick = function(){
+			var pokemonDialog = createElement('div', '', {title: 'Pokemon Detail'});
+			var pokemonTable = createElement('table', '');
+			for (var attr in ps_const){
+				pokemonTable.appendChild(createElement('tr',"<th>" + attr + "</th><td>" + ps_const[attr] + "</td>"));
+			}
+			pokemonDialog.appendChild(pokemonTable);
+			$(pokemonDialog).dialog().dialog('open');
+		};
+		table.appendChild(row);
 	}
 	return table;
 }
-
 
 function displayMasterSummaryTable(){
 	clearFeedbackTables();
@@ -1652,7 +1665,10 @@ function runSims(queue, resCollector){
 	return numSimPerform;
 }
 
-function averageSims(sims){
+function averageSims(inputSims){
+	var sims = [];
+	while (inputSims.length)
+		sims.push(inputSims.shift());
 	MetricsByWhichToAverage.forEach(function(metric){
 		var address = metric.split('.')[0], attr_idx = metric.split('.')[1];
 		for (var i = 0; i < sims.length; i++)
@@ -1675,6 +1691,8 @@ function averageSims(sims){
 		}
 		sims = postAvrgResults;
 	});
+	while (sims.length)
+		inputSims.push(sims.shift());
 }
 
 
@@ -1686,7 +1704,8 @@ function main(args){
 	initMasterSummaryTableMetrics();
 	
 	unpackQueue(userInput);
-	console.log(Date() + ": Input has been unpacked");
+	var date = new Date();
+	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Input parsed");
 	
 	if (args && args.maxJobSize){
 		var curJobSize = simQueue.length * userInput.generalSettings.simPerConfig;
@@ -1697,10 +1716,12 @@ function main(args){
 	}
 	
 	var numSimPerform = runSims(simQueue, tempResults);
-	console.log(Date() + ": Simulations have been calculated");
+	date = new Date();
+	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations completed");
 	
 	averageSims(tempResults);
-	console.log(Date() + ": Simulations have been averaged");
+	date = new Date();
+	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Results aggravated");
 	simResults = simResults.concat(tempResults);
 	
 	if (!args || args && !args.noDisplay){
