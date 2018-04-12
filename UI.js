@@ -34,7 +34,7 @@ const acceptedNumericalAttributes = [
 	'power', 'duration', 'dws', 'energyDelta', 'value'
 ];
 const editableParameters = [
-	'POKEMON_MAX_ENERGY','STAB_MULTIPLIER','WAB_MULTIPLIER','DODGE_COOLDOWN_MS','DODGEWINDOW_LENGTH_MS',
+	'POKEMON_MAX_ENERGY','STAB_MULTIPLIER','WAB_MULTIPLIER','DODGE_COOLDOWN_MS','DODGEWINDOW_LENGTH_MS','DODGE_REACTION_TIME_MS',
 	'DODGED_DAMAGE_REDUCTION_PERCENT','ARENA_ENTRY_LAG_MS','ARENA_EARLY_TERMINATION_MS','FAST_MOVE_LAG_MS',
 	'CHARGED_MOVE_LAG_MS','SWITCHING_DELAY_MS','REJOIN_TIME_MS','ITEM_MENU_TIME_MS','EACH_MAX_REVIVE_TIME_MS'
 ];
@@ -484,7 +484,13 @@ function createAttackerNode(){
 	autocompletePokemonNodeMoves(cmoveInput);
 	tb3.children[1].children[1].appendChild(cmoveInput);
 
-	tb3.children[1].children[2].innerHTML = "<select><option value='0'>No Dodge</option><option value='1'>Dodge Charged</option><option value='2'>Dodge All</option></select>";
+	stratSelect = createElement('select', '');
+	stratSelect.appendChild(createElement('option', 'No Dodge', {value: 0}));
+	stratSelect.appendChild(createElement('option', 'Dodge Charged', {value: 1}));
+	stratSelect.appendChild(createElement('option', 'Dodge All', {value: 2}));
+	stratSelect.appendChild(createElement('option', 'Dodge Charged (beta)', {value: 3}));
+	stratSelect.appendChild(createElement('option', 'Dodge All (beta)', {value: 4}));
+	tb3.children[1].children[2].appendChild(stratSelect);
 	
 	pokemonNode.children[1].appendChild(tb1);
 	pokemonNode.children[1].appendChild(tb2);

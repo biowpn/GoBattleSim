@@ -6,6 +6,7 @@ var WAB_MULTIPLIER = 1.2;
 
 var DODGE_COOLDOWN_MS = 500;
 var DODGEWINDOW_LENGTH_MS = 700;
+var DODGE_REACTION_TIME_MS = 200;
 var DODGED_DAMAGE_REDUCTION_PERCENT = 0.75;
 var ARENA_ENTRY_LAG_MS = 3000;
 var ARENA_EARLY_TERMINATION_MS = 3000;
@@ -129,6 +130,13 @@ function Pokemon(cfg){
 	this.cmove_index = cfg.cmove_index;
 	
 	this.dodgeStrat = parseInt(cfg.dodge) || 0;
+	if (this.dodgeStrat == 0)
+		this.atkr_choose = atkr_choose_0;
+	else if (this.dodgeStrat <= 2)
+		this.atkr_choose = atkr_choose_1;
+	else
+		this.atkr_choose = atkr_choose_2;
+	
 	this.immortal = false;
 	this.playerCode = cfg.player_code;
 	this.index_party = cfg.index_party;
@@ -207,6 +215,7 @@ Pokemon.prototype.take_damage = function(dmg){
 		overKilledPart = -this.HP;
 	}
 	this.gain_energy(Math.ceil((dmg - overKilledPart)/2));
+	this.has_dodged_next_attack = false;
 }
 
 // Keeping record of tdo for performance analysis
@@ -483,7 +492,6 @@ World.prototype.dfdr_use_move = function(pkm, move, t){
 		}
 	}
 	this.projected_atkrHurtEvent = {name: "Hurt", t: t + move.dws, object: pkm, move: move};
-	this.tline.enqueue({name: "ResetProjectedAtkrHurt", t: t + move.dws});
 }
 
 World.prototype.handle_move_effect = function(pkm, pkm_hurt, move, t, preEvents){
@@ -522,17 +530,24 @@ World.prototype.enqueueActions = function(pkm, pkm_hurt, t, actions){
 				name: "Announce", t: tFree, subject: pkm, object: pkm_hurt, move: pkm.fmove
 			});
 			tFree += pkm.fmove.duration + FAST_MOVE_LAG_MS;
-		} else if (actions[i] == 'c'){ // Use charge move
-			this.tline.enqueue({
-				name: "Announce", t: tFree, subject: pkm, object: pkm_hurt, move: pkm.cmove
-			});
-			tFree += pkm.cmove.duration + CHARGED_MOVE_LAG_MS;
-		} else if (actions[i] == 'd'){ // dodge
+		}else if (actions[i] == 'c'){ // Use charge move if energy is enough
+			if (pkm.energy + pkm.cmove.energyDelta >= 0){
+				this.tline.enqueue({
+					name: "Announce", t: tFree, subject: pkm, object: pkm_hurt, move: pkm.cmove
+				});
+				tFree += pkm.cmove.duration + CHARGED_MOVE_LAG_MS;
+			}else{ // insufficient energy, use fmove instead
+				this.tline.enqueue({
+					name: "Announce", t: tFree, subject: pkm, object: pkm_hurt, move: pkm.fmove
+				});
+				tFree += pkm.fmove.duration + FAST_MOVE_LAG_MS;
+			}
+		}else if (actions[i] == 'd'){ // dodge
 			this.tline.enqueue({
 				name: "Dodge", t: tFree, subject: pkm
 			});
 			tFree += DODGE_COOLDOWN_MS;
-		} else // wait
+		}else // wait
 			tFree += actions[i];
 	}
 	this.tline.enqueue({
@@ -549,96 +564,6 @@ World.prototype.nextHurtEventOf = function(pkm){
 	}
 }
 
-// Brutal force to find out how to maximize damage within a limited time (guaranteed to fit in at least one fmove/cmove)
-// and be free afterwards, at the same time satisfies energy rule
-// returns the damage, totaltime needd, and a list of 'f'/'c' like ['f','f','c','f'] representing the optimal action
-// Note it will returns [-1, -1, []] if there's no solution for negative initial energy
-function strategyMaxDmg(T, initE, fDmg, fE, fDur, cDmg, cE, cDur){
-	var maxC = Math.floor(T/cDur), maxF = 0, optimalC = 0, optimalF = 0, optimalDamage = -1, optimalTime = -1;
-
-	for (var c = maxC; c >= 0; c--){
-		maxF = Math.floor((T - c * cDur)/fDur);
-		for (var f = maxF; f >= 0; f--){
-			if (initE + f * fE + c * cE < 0)
-				break; // Failing the energy requirement
-			if (f * fDmg + c * cDmg > optimalDamage){ // Found a better solution
-				optimalDamage = f * fDmg + c * cDmg;
-				optimalTime = f * fDur + c * cDur;
-				optimalF = f;
-				optimalC = c;
-			}
-		}
-	}
-	// Now form and return a valid sequece of actions
-	var solution = [];
-	var projE = initE;
-	while (optimalC > 0 || optimalF > 0){
-		if (projE + cE >= 0 && optimalC > 0){
-			solution.push('c');
-			projE += cE;
-			optimalC--;
-		}else{
-			solution.push('f');
-			projE += fE;
-			optimalF--;
-		}
-	}
-	return [optimalDamage, optimalTime, solution];
-}
-
-// Player strategy
-// This function should return a list of planned actions
-// like ['f', 'c', 100, 'd'] <- means use a FMove, then a Cmove, then wait for 100s and finally dodge
-World.prototype.atkr_choose = function (pkm, t){
-	var dfdr = this.dfdr;
-	
-	if (pkm.dodgeStrat > 0){
-		// The optimal dodging should be: 
-		// - Minimize waiting (waiting should always be avoided)
-		// - Maximize time left before dodging (dodge as late as possible)
-		// - Maximize damage done before dodging
-		var hurtEvent = this.projected_atkrHurtEvent;
-		if (hurtEvent && (hurtEvent.move.moveType == 'c' || pkm.dodgeStrat >= 2) && !pkm.has_dodged_next_attack){
-			pkm.has_dodged_next_attack = true;
-			
-			var timeTillHurt = hurtEvent.t - t;
-			var undodgedDmg = damage(hurtEvent.object, pkm, hurtEvent.move, this.weather);
-			var dodgedDmg = Math.floor(undodgedDmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
-			if (this.dodge_bug == 1 && this.playersArr.length >= 2){
-				dodgedDmg = undodgedDmg;
-			}
-			var fDmg = damage(pkm, dfdr, pkm.fmove, this.weather);
-			var cDmg = damage(pkm, dfdr, pkm.cmove, this.weather);
-
-			// Goal: Maximize damage before time runs out
-			if (pkm.HP > dodgedDmg){
-				// (a) if this Pokemon can survive the dodged damage, then it's better to dodge
-				var res = strategyMaxDmg(timeTillHurt, pkm.energy, fDmg, pkm.fmove.energyDelta, 
-										pkm.fmove.duration + FAST_MOVE_LAG_MS, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration + CHARGED_MOVE_LAG_MS);
-				return res[2].concat([Math.max(timeTillHurt - DODGEWINDOW_LENGTH_MS - res[1], 0), 'd']);
-			} else{
-				// (b) otherwise, just don't bother to dodge, and YOLO!
-				// Compare two strategies: a FMove at the end (resF) or a CMove at the end (resC) by exploiting DWS
-				var resF = strategyMaxDmg(timeTillHurt - pkm.fmove.dws - FAST_MOVE_LAG_MS, pkm.energy, fDmg, pkm.fmove.energyDelta, 
-										pkm.fmove.duration + FAST_MOVE_LAG_MS, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration + CHARGED_MOVE_LAG_MS);
-				var resC = strategyMaxDmg(timeTillHurt - pkm.cmove.dws - CHARGED_MOVE_LAG_MS, pkm.energy + pkm.cmove.energyDelta, fDmg, pkm.fmove.energyDelta, 
-										pkm.fmove.duration + FAST_MOVE_LAG_MS, cDmg, pkm.cmove.energyDelta, pkm.cmove.duration + CHARGED_MOVE_LAG_MS);
-				if (resC[0] + cDmg > resF[0] + fDmg && resC[1] >= 0){ 
-					// Use a cmove at the end is better, on the condition that it obeys the energy rule
-					return resC[2].concat('c');
-				}else{
-					return resF[2].concat('f');
-				}
-			}
-		}
-	}
-	// No dodging or no need to dodge
-	if (pkm.energy + pkm.cmove.energyDelta >= 0){
-		return ['c'];
-	}else{
-		return ['f'];
-	}
-}
 
 // Gym Defender/Raid Boss strategy
 World.prototype.dfdr_choose = function (pkm, t, current_move){
@@ -649,7 +574,7 @@ World.prototype.dfdr_choose = function (pkm, t, current_move){
 	
 	// If the projected energy is enough to use cmove, then 0.5 probablity it will use
 	if (pkm.energy + current_move.energyDelta + pkm.cmove.energyDelta >= 0 && Math.random() <= 0.5){
-			next_move = pkm.cmove;
+		next_move = pkm.cmove;
 	}
 	// Add the defender delay
 	next_t += 1500 + Math.round(1000 * Math.random());
@@ -660,19 +585,13 @@ World.prototype.dfdr_choose = function (pkm, t, current_move){
 	this.tline.enqueue({
 		name: "Announce", t: next_t, subject: pkm, move: next_move
 	});
-	this.tline.enqueue({
-		name: "DodgeCue", t: next_t + next_move.dws - DODGEWINDOW_LENGTH_MS, subject: pkm, move: next_move
-	});
 }
 
 
 // Gym Defender or Raid Boss moves at the start of a battle
 World.prototype.initial_dfdr_choose = function (dfdr, t){
-	this.dfdr_use_move(dfdr, dfdr.fmove, t + 1000);
-	this.dfdr_use_move(dfdr, dfdr.fmove, t + 2000);
-	this.tline.enqueue({
-		name: "DfdrFree", t: t + 2000, subject: dfdr, move: dfdr.fmove
-	});
+	this.dfdr_use_move(dfdr, dfdr.fmove, t);
+	this.dfdr_choose(dfdr, t - dfdr.fmove.duration, dfdr.fmove);
 }
 
 // Check if any of the player is still in game
@@ -716,7 +635,13 @@ World.prototype.battle = function (){
 		
 		// 1. First process the event
 		if (e.name == "AtkrFree"){
-			var actions = this.atkr_choose(e.subject, t);
+			var actions = e.subject.atkr_choose({
+				t: t,
+				dfdr: dfdr,
+				weather: this.weather,
+				dodge_bug: this.dodgebug,
+				projected_atkrHurtEvent: this.projected_atkrHurtEvent
+			});
 			this.enqueueActions(e.subject, dfdr, t, actions);
 		}else if (e.name == "DfdrFree"){
 			this.dfdr_choose(e.subject, t, e.move);
@@ -749,13 +674,8 @@ World.prototype.battle = function (){
 		}else if (e.name == "Announce"){
 			if (e.subject.raidTier == 0) // Atkr
 				this.atkr_use_move(e.subject, e.object, e.move, t);
-			else if (!this.projected_atkrHurtEvent)
+			else
 				this.dfdr_use_move(e.subject, e.move, t);
-		}else if (e.name == "DodgeCue") {
-			if (!this.projected_atkrHurtEvent)
-				this.dfdr_use_move(e.subject, e.move, t - e.move.dws + DODGEWINDOW_LENGTH_MS);
-		}else if (e.name == "ResetProjectedAtkrHurt"){
-			this.projected_atkrHurtEvent = null;
 		}else if (e.name == "MoveEffect"){
 			if (e.subname == "HPRefund"){
 				var pkm = e.subject;
