@@ -6,22 +6,17 @@ var RAID_BOSS_LIST = {
 	1: [],	2: [],	3: [],	4: [],	5: []
 };
 
-var simQueue = [];
+var currentJobSize = 0;
+var maxJobSize = 0;
 var simResults = [];
 var atkrCopyPasteClipboard = null;
 
-var enumPlayerStart = 0;
-var enumPartyStart = 0;
-var enumPokemonStart = 0;
-var enumDefender = 0;
 var parsedSpeciesFieldMatches = {};
 var parsedFastMoveFieldMatches = {};
 var parsedChargeMoveFieldMatches = {};
 
 const DEFAULT_SUMMARY_TABLE_METRICS = {battle_result:'Outcome', duration:'Time', tdo_percent:'TDO%', dps:'DPS', total_deaths:'#Death'};
 var MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
-var MetricsByWhichToAverage = new Set();
-
 const LOGICAL_OPERATORS = {
 	',': 0,
 	'&': 1,
@@ -39,10 +34,11 @@ const editableParameters = [
 	'CHARGED_MOVE_LAG_MS','SWITCHING_DELAY_MS','REJOIN_TIME_MS','ITEM_MENU_TIME_MS','EACH_MAX_REVIVE_TIME_MS'
 ];
 
+
 /* 
- * UI CORE FUNCTIONS 
+ * PART I: Helper Functions and General Utilities
  */
- 
+
 function createElement(type, innerHTML, attrsAndValues){
 	var e = document.createElement(type);
 	e.innerHTML = innerHTML;
@@ -86,7 +82,6 @@ function move_icon_url_by_index(type, index){
 		return '';
 }
 
-
 function createIconLabelDiv(iconURL, label, iconClass){
 	return "<div><span class='" + iconClass + "'>" + "<img src='"+iconURL+"'></img></span><span class='apitem-label'>" + label + "</span></div>";
 }
@@ -115,10 +110,6 @@ function jsonToURI(json){ return encodeURIComponent(JSON.stringify(json)); }
 
 function uriToJSON(urijson){ return JSON.parse(decodeURIComponent(urijson)); }
 
-
-/* 
- * APPLICATION FUNCTIONS 
- */
 function exportConfigToUrl(cfg){
 	var cfg_min = {
 		atkrSettings: [], dfdrSettings: {},
@@ -328,14 +319,10 @@ function universalGetter(expression, Space){
 }
 
 function initMasterSummaryTableMetrics(){
-	enumPlayerStart = 0;
-	enumPartyStart = 0;
-	enumPokemonStart = 0;
-	enumDefender = 0;
+	currentJobSize = 0;
 	parsedSpeciesFieldMatches = {};
 	parsedFastMoveFieldMatches = {};
 	parsedChargeMoveFieldMatches = {};
-	MetricsByWhichToAverage = new Set();
 }
 
 function createNewMetric(metric, nameDisplayed){
@@ -377,6 +364,10 @@ function markMoveDatabase(moveType, species_idx){
 	});
 }
 
+
+/*
+ * PART II: DOM Manipulation
+ */
 
 function createAttackerNode(){
 	var pokemonNode = createElement('div', '', {class: 'section-body section-pokemon-node'});
@@ -757,7 +748,6 @@ function relabelAll(){
 	$( '#ui-attackerinputbody' ).sortable({axis: 'y'});
 }
 
-
 function createDefenderNode(){
 	var defenderNode = createElement('div', '', {id: 'ui-pokemon_d'});
 	defenderNode.appendChild(document.createElement('div'));
@@ -1125,7 +1115,6 @@ function updateDefenderNode(mode){
 	writeDefenderNode(defenderNode, curDefenderConfig);
 }
 
-
 function writeUserInput(cfg){
 	for (var attr in cfg['generalSettings']){
 		var dom = document.getElementById(attr);
@@ -1145,6 +1134,10 @@ function writeUserInput(cfg){
 }
 
 
+/*
+ * PART III: Enumeration Handling Logic
+ */
+
 function getPokemonInfoFromAddress(cfg, address){
 	if (address == 'd')
 		return cfg['dfdrSettings'];
@@ -1159,11 +1152,10 @@ function getPokemonInfoFromAddress(cfg, address){
 function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, universe){
 	var pkmInfo = getPokemonInfoFromAddress(cfg, address);
 	if (pkmInfo.stamp.includes(attr))
-		return 0;
+		return [];
 	pkmInfo.stamp += ' ' + attr;
 	if ((typeof pkmInfo[attr_idx] == typeof 0) && pkmInfo[attr_idx] >= 0){
-		simQueue.push(cfg);
-		return -1;
+		return [];
 	}
 	
 	var expressionStr = pkmInfo[attr], expressionStr_default = '', input_type = 0;
@@ -1180,16 +1172,17 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 	var exact_match_idx = pred(expressionStr);
 	if (!isNaN(exact_match_idx) && exact_match_idx >= 0){ // Exact Match
 		pkmInfo[attr_idx] = exact_match_idx;
-		simQueue.push(cfg);
+		return [];
 	}else if (expressionStr[0] == '='){// Dynamic Assignment Operator
 		try{
 			pkmInfo[attr_idx] = getPokemonInfoFromAddress(cfg, expressionStr.slice(1))[attr_idx];
-			simQueue.push(cfg);
+			return [];
 		}catch(err){
 			send_feedback(address + '.' + attr + ": Invalid address for Dynamic Assignment", true);
-			return -2;
+			return [0];
 		}
 	}else{ // Logical Expression
+		var branches = [];
 		var selector = expressionStr[0];
 		if (SELECTORS.includes(selector))
 			expressionStr = expressionStr.slice(1).trim();
@@ -1220,15 +1213,12 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 		}
 		if (matches.length == 0){
 			send_feedback(address + '[' + pkmInfo.label + '].' + attr + ": No match", true);
-			return -1;
-		}
-
-		if (selector == '*' || selector == ''){
-			createNewMetric('*' + address + '.' + attr);
-		}else if (selector == '?'){
-			MetricsByWhichToAverage.add(address + '.' + attr_idx);
+			return [0];
 		}
 		
+		if (selector == '*')
+			createNewMetric('*' + address + '.' + attr);
+
 		for (var i = 0; i < matches.length; i++){
 			var cfg_copy = JSON.parse(JSON.stringify(cfg));
 			if (input_type == 0)
@@ -1237,73 +1227,115 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 				getPokemonInfoFromAddress(cfg_copy, address)[attr_idx] = matches[i].value;
 			else if (input_type == 2)
 				getPokemonInfoFromAddress(cfg_copy, address)[attr_idx] = matches[i].index;
-			simQueue.push(cfg_copy);
+			
+			var tempResults = iterBranchHandler(cfg_copy);
+			tempResults.forEach(function(sim){
+				branches.push(sim);
+			});
 		}
+		
+		if (selector == '?'){
+			if (branches.length % matches.length == 0){
+				var numSimsPerBranch = Math.round(branches.length / matches.length);
+				var branches_post_avrg = [];
+				for (var i = 0; i < numSimsPerBranch; i++){
+					var simsToAverage = [];
+					for (var j = 0; j < matches.length; j++)
+						simsToAverage.push(branches[i + j * numSimsPerBranch]);
+					branches_post_avrg.push(averageSims(simsToAverage));
+				}
+				branches = branches_post_avrg;
+			}else{			
+				branches = [averageSims(branches)];
+			}
+		}
+		
+		return branches;
 	}
-	return -1;
 }
 
 function parsePokemonInput(cfg, address){
-	statusCode = parsePokemonAttributeExpression(cfg, address, 'species', 'index', 
-		get_species_index_by_name, getPokemonSpeciesOptions(parseInt(address.split('-')[0]) - 1));
-	if (statusCode) return statusCode;
-	statusCode = parsePokemonAttributeExpression(cfg, address, 'level', 'level', parseFloat, LEVEL_VALUES);
-	if (statusCode) return statusCode;
-	statusCode = parsePokemonAttributeExpression(cfg, address, 'atkiv', 'atkiv', parseInt, IV_VALUES);
-	if (statusCode) return statusCode;
-	statusCode = parsePokemonAttributeExpression(cfg, address, 'defiv', 'defiv', parseInt, IV_VALUES);
-	if (statusCode) return statusCode;
-	statusCode = parsePokemonAttributeExpression(cfg, address, 'stmiv', 'stmiv', parseInt, IV_VALUES);
-	if (statusCode) return statusCode;
-	statusCode = parsePokemonAttributeExpression(cfg, address, 'fmove', 'fmove_index', get_fmove_index_by_name, FAST_MOVE_DATA);
-	if (statusCode) return statusCode;
-	statusCode = parsePokemonAttributeExpression(cfg, address, 'cmove', 'cmove_index', get_cmove_index_by_name, CHARGED_MOVE_DATA);
-	if (statusCode) return statusCode;
+	var branches = [];
 	
-	return 0;
+	branches = parsePokemonAttributeExpression(cfg, address, 'species', 'index', 
+		get_species_index_by_name, getPokemonSpeciesOptions(parseInt(address.split('-')[0]) - 1));
+	if (branches.length) return branches;
+	branches = parsePokemonAttributeExpression(cfg, address, 'level', 'level', parseFloat, LEVEL_VALUES);
+	if (branches.length) return branches;
+	branches = parsePokemonAttributeExpression(cfg, address, 'atkiv', 'atkiv', parseInt, IV_VALUES);
+	if (branches.length) return branches;
+	branches = parsePokemonAttributeExpression(cfg, address, 'defiv', 'defiv', parseInt, IV_VALUES);
+	if (branches.length) return branches;
+	branches = parsePokemonAttributeExpression(cfg, address, 'stmiv', 'stmiv', parseInt, IV_VALUES);
+	if (branches.length) return branches;
+	branches = parsePokemonAttributeExpression(cfg, address, 'fmove', 'fmove_index', get_fmove_index_by_name, FAST_MOVE_DATA);
+	if (branches.length) return branches;
+	branches = parsePokemonAttributeExpression(cfg, address, 'cmove', 'cmove_index', get_cmove_index_by_name, CHARGED_MOVE_DATA);
+	if (branches.length) return branches;
+	
+	return branches;
 }
 
 function parseWeatherInput(cfg){
+	var branches = [];
 	if (cfg.generalSettings.weather == '*'){
 		createNewMetric('weather');
 		for (var i = 0; i < WEATHER_LIST.length; i++){
 			cfg.generalSettings.weather = WEATHER_LIST[i];
-			simQueue.push(JSON.parse(JSON.stringify(cfg)));
+			runSim(JSON.parse(JSON.stringify(cfg)), branches);
 		}
-		return -1;
-	}else{
-		return 0;
 	}
+	
+	return branches;
 }
 
-
-function processQueue(cfg){
-	var statusCode = 0;
-	for (var i = enumPlayerStart; i < cfg['atkrSettings'].length; i++){
-		for (var j = enumPartyStart; j < cfg['atkrSettings'][i].party_list.length; j++){
-			for (var k = enumPokemonStart; k < cfg['atkrSettings'][i].party_list[j].pokemon_list.length; k++){
-				statusCode = parsePokemonInput(cfg, (i+1)+'-'+(j+1)+'-'+(k+1));
-				if (statusCode != 0)
-					return statusCode;
-				enumPokemonStart++;
+function iterBranchHandler(cfg){
+	if (!cfg)
+		return [];
+	if (maxJobSize && currentJobSize > maxJobSize){
+		console.log('Aborted due to current job size(' + currentJobSize + ') exceeding maxJobSize(' + maxJobSize + ')');
+		return [];
+	}
+	
+	var branches = [];
+	for (var i = 0; i < cfg['atkrSettings'].length; i++){
+		for (var j = 0; j < cfg['atkrSettings'][i].party_list.length; j++){
+			for (var k = 0; k < cfg['atkrSettings'][i].party_list[j].pokemon_list.length; k++){
+				branches = parsePokemonInput(cfg, (i+1)+'-'+(j+1)+'-'+(k+1));
+				if (branches.length)
+					return branches;
 			}
-			enumPartyStart++;
-			enumPokemonStart = 0;
 		}
-		enumPlayerStart++;
-		enumPartyStart = 0;
 	}
-	statusCode = parsePokemonInput(cfg, 'd');
-	if (statusCode != 0)
-		return statusCode;
+	branches = parsePokemonInput(cfg, 'd');
+	if (branches.length)
+		return branches;
 	
-	statusCode = parseWeatherInput(cfg);
-	if (statusCode != 0)
-		return statusCode;
+	branches = parseWeatherInput(cfg);
+	if (branches.length)
+		return branches;
 	
-	return 0;
+	runSim(cfg, branches);
+	return branches;
 }
 
+function runSim(cfg, resCollector){	
+	var app_world = new World(cfg);
+	var numSimRun = parseInt(cfg['generalSettings']['simPerConfig']);
+	var interResults = [];
+	for (var i = 0; i < numSimRun; i++){
+		app_world.init();
+		app_world.battle();
+		interResults.push(app_world.get_statistics());
+	}
+	if (cfg['generalSettings']['reportType'] == 'avrg')
+		resCollector.push({input: cfg, output: averageOutputs(interResults)});
+	else if (cfg['generalSettings']['reportType'] == 'enum'){
+		for (var i = 0; i < interResults.length; i++)
+			resCollector.push({input: cfg, output: interResults[i]});
+	}
+	currentJobSize += interResults.length;
+}
 
 function averageOutputs(results){
 	var avrgR = JSON.parse(JSON.stringify(results[0])), numResults = results.length, numPlayer = results[0].playerStats.length;
@@ -1385,7 +1417,51 @@ function averageOutputs(results){
 	return avrgR;
 }
 
+function averageSims(sims){
+	var outputsToAverage = [];
+	for (var i = 0; i < sims.length; i++)
+		outputsToAverage.push(sims[i].output);
+	return {
+		input: sims[0].input,
+		output: averageOutputs(outputsToAverage)
+	};
+}
 
+
+function main(args){
+	var userInput = readUserInput();
+	if (!args || args && !args.noDisplay){
+		window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
+	}
+	initMasterSummaryTableMetrics();
+
+	if (args && args.maxJobSize){
+		maxJobSize = args.maxJobSize;
+	}
+	
+	date = new Date();
+	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations started");
+	
+	var tempResults = iterBranchHandler(userInput);
+	tempResults.forEach(function(sim){
+		if (sim)
+			simResults.push(sim);
+	});
+	
+	date = new Date();
+	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations completed");
+	
+	if (!args || args && !args.noDisplay){
+		send_feedback(currentJobSize + " sims have been performed", true);
+		displayMasterSummaryTable();
+	}
+}
+
+
+/*
+ * PART IV: Post-Battle UI functionalities
+ */
+ 
 function clearFeedbackTables(){
 	document.getElementById("feedback_buttons").innerHTML = "";
 	document.getElementById("feedback_table1").innerHTML = "";
@@ -1577,7 +1653,6 @@ function displayDetail(i){
 	});
 }
 
-
 function createBattleLogTable(log, playerCount){
 	var table = createElement('table','<thead></thead><tbody></tbody>',{
 		width:'100%', class:'display nowrap'
@@ -1599,7 +1674,7 @@ function createBattleLogTable(log, playerCount){
 			var fragments = rawEntry[attr].toString().split(':');
 			if (fragments[0] == 'pokemon'){
 				var pkmInfo = POKEMON_SPECIES_DATA[parseInt(fragments[1])];
-				rawEntry[attr] = "<img src='" + pkmInfo.icon + "'></img>";
+				rawEntry[attr] = "<img src='" + pkmInfo.icon + "' class='apitem-pokemon-icon'></img>";
 			}else if (fragments[0] == 'fmove'){
 				var moveInfo = FAST_MOVE_DATA[parseInt(fragments[1])];
 				rawEntry[attr] = createIconLabelDiv(moveInfo.icon, toTitleCase(moveInfo.name), 'apitem-move-icon');
@@ -1621,7 +1696,6 @@ function createBattleLogTable(log, playerCount){
 	return table;
 }
 
-
 function send_feedback(msg, appending, feedbackDivId){
 	var feedbackSection = document.getElementById(feedbackDivId || "feedback_message");
 	if (appending){
@@ -1633,109 +1707,9 @@ function send_feedback(msg, appending, feedbackDivId){
 }
 
 
-function unpackQueue(initJob){
-	simQueue = [initJob];
-	while (simQueue.length > 0){
-		var job = simQueue.shift();
-		var statusCode = processQueue(job);
-		if (statusCode == 0){
-			simQueue.unshift(job);
-			break;
-		}
-	}
-}
-
-function runSim(cfg, resCollector){
-	var app_world = new World(cfg);
-	var numSimRun = parseInt(cfg['generalSettings']['simPerConfig']);
-	var interResults = [];
-	for (var i = 0; i < numSimRun; i++){
-		app_world.init();
-		app_world.battle();
-		interResults.push(app_world.get_statistics());
-	}
-	if (cfg['generalSettings']['reportType'] == 'avrg')
-		resCollector.push({input: cfg, output: averageOutputs(interResults)});
-	else if (cfg['generalSettings']['reportType'] == 'enum'){
-		for (var i = 0; i < interResults.length; i++)
-			resCollector.push({input: cfg, output: interResults[i]});
-	}
-	return interResults.length;
-}
-
-function runSims(queue, resCollector){
-	var numSimPerform = 0;
-	while (queue.length > 0){
-		numSimPerform += runSim(queue.shift(), resCollector);
-	}
-	return numSimPerform;
-}
-
-function averageSims(inputSims){
-	var sims = [];
-	while (inputSims.length)
-		sims.push(inputSims.shift());
-	MetricsByWhichToAverage.forEach(function(metric){
-		var address = metric.split('.')[0], attr_idx = metric.split('.')[1];
-		for (var i = 0; i < sims.length; i++)
-			getPokemonInfoFromAddress(sims[i].input, address)[attr_idx] = -1;
-		var postAvrgResults = [];
-		while(sims.length > 0){
-			var thisInput = sims[0].input, thisInputStr = JSON.stringify(thisInput);
-			var preAvrgOutputs = [sims[0].output], unfitResults = [];
-			for (var i = 1; i < sims.length; i++){
-				if (JSON.stringify(sims[i].input) == thisInputStr)
-					preAvrgOutputs.push(sims[i].output);
-				else
-					unfitResults.push(sims[i]);
-			}
-			sims = unfitResults;
-			postAvrgResults.push({
-				input: thisInput,
-				output: averageOutputs(preAvrgOutputs)
-			});
-		}
-		sims = postAvrgResults;
-	});
-	while (sims.length)
-		inputSims.push(sims.shift());
-}
-
-
-function main(args){
-	var userInput = readUserInput(), tempResults = [];
-	if (!args || args && !args.noDisplay){
-		window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
-	}
-	initMasterSummaryTableMetrics();
-	
-	unpackQueue(userInput);
-	var date = new Date();
-	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Input parsed");
-	
-	if (args && args.maxJobSize){
-		var curJobSize = simQueue.length * userInput.generalSettings.simPerConfig;
-		if (curJobSize > args.maxJobSize){
-			console.log('Aborted due to job size(' + curJobSize + ') exceeding maxJobSize(' + args.maxJobSize + ')');
-			return;
-		}
-	}
-	
-	var numSimPerform = runSims(simQueue, tempResults);
-	date = new Date();
-	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations completed");
-	
-	averageSims(tempResults);
-	date = new Date();
-	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Results aggravated");
-	simResults = simResults.concat(tempResults);
-	
-	if (!args || args && !args.noDisplay){
-		send_feedback(numSimPerform + " sims have been performed", true);
-		displayMasterSummaryTable();
-	}
-}
-
+/*
+ * PART V: Supporting Functions for other widgets
+ */
 
 function moveEditFormSubmit(){
 	var moveType_input = document.getElementById('moveEditForm-moveType').value;
