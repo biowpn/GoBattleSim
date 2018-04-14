@@ -80,32 +80,6 @@ function calculateLevelByCP(pkm, CP){
 	return (CPM_TABLE.length - 1)/2 + 1;
 }
 
-function get_species_index_by_name(name) {
-	name = name.toLowerCase();
-	for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++){
-		if (name == POKEMON_SPECIES_DATA[i].name)
-			return i;
-	}
-	return -1;
-}
- 
-function get_fmove_index_by_name(name){
-	name = name.toLowerCase();
-	for (var i = 0; i < FAST_MOVE_DATA.length; i++){
-		if (name == FAST_MOVE_DATA[i].name)
-			return i;
-	}
-	return -1;
-}
- 
-function get_cmove_index_by_name(name){
-	name = name.toLowerCase();
-	for (var i = 0; i < CHARGED_MOVE_DATA.length; i++){
-		if (name == CHARGED_MOVE_DATA[i].name)
-			return i;
-	}
-	return -1;
-}
  
 
 

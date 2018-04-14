@@ -24,7 +24,34 @@ function getMovesFromString(S){
 	return res;
 }
 
-// Handle Exclusive moves
+
+function get_species_index_by_name(name) {
+	name = name.toLowerCase();
+	for (var i = 0; i < POKEMON_SPECIES_DATA.length; i++){
+		if (name == POKEMON_SPECIES_DATA[i].name)
+			return i;
+	}
+	return -1;
+}
+ 
+function get_fmove_index_by_name(name){
+	name = name.toLowerCase();
+	for (var i = 0; i < FAST_MOVE_DATA.length; i++){
+		if (name == FAST_MOVE_DATA[i].name)
+			return i;
+	}
+	return -1;
+}
+ 
+function get_cmove_index_by_name(name){
+	name = name.toLowerCase();
+	for (var i = 0; i < CHARGED_MOVE_DATA.length; i++){
+		if (name == CHARGED_MOVE_DATA[i].name)
+			return i;
+	}
+	return -1;
+}
+
 function handleExclusiveMoves(pokemonDataBase){
 	for (var i = 0; i < pokemonDataBase.length; i++){
 		var pkm = pokemonDataBase[i];
@@ -38,6 +65,24 @@ function handleExclusiveMoves(pokemonDataBase){
 					pkm.chargedMoves_exclusive.push(move);
 			});
 			delete pkm.exclusiveMoves;
+		}
+	}
+}
+
+function handleRaidBossMarker(pokemonDataBase){
+	for (var i = 0; i < pokemonDataBase.length; i++){
+		var pkm = pokemonDataBase[i];
+		pkm.marker_1 = '';
+		for (var j = 0; j < RAID_BOSS_LIST.length; j++){
+			var boss = RAID_BOSS_LIST[j];
+			if (boss.name == pkm.name){
+				pkm.marker_1 += boss.tier;
+				pkm.marker_1 += (boss.future || boss.legacy || boss.special) ? '' : ' current';
+				pkm.marker_1 += boss.future ? ' future' : '';
+				pkm.marker_1 += boss.legacy ? ' legacy' : '';
+				pkm.marker_1 += boss.special ? ' special' : '';
+				break;
+			}
 		}
 	}
 }
@@ -89,13 +134,13 @@ function loadRaidBossList(oncomplete){
 		success: function(data){
 			data.forEach(function(bossInfo){
 				var parsedBossInfo = {
-					name: createElement('div', bossInfo.title).children[0].innerText,
+					name: createElement('div', bossInfo.title).children[0].innerText.toLowerCase(),
 					tier: parseInt(createElement('div', bossInfo.tier).children[1].innerText),
 					future: (bossInfo.future.toLowerCase() == 'on'),
 					legacy: (bossInfo.legacy.toLowerCase() == 'on'),
 					special: (bossInfo.special.toLowerCase() == 'on')
 				};
-				RAID_BOSS_LIST[parsedBossInfo.tier].push(parsedBossInfo);
+				RAID_BOSS_LIST.push(parsedBossInfo);
 			});
 		},
 		complete: function(jqXHR, textStatus){
@@ -131,6 +176,7 @@ function loadLatestPokemonData(oncomplete){
 					chargedMoves_legacy : getMovesFromString(data[i].field_legacy_charge_moves),
 					exclusiveMoves : getMovesFromString(data[i].exclusive_moves),
 					rating : parseFloat(data[i].rating) || 0,
+					marker_1: '',
 					image: data[i].uri,
 					icon: pokemon_icon_url_by_dex(data[i].number),
 					label: toTitleCase(data[i].title_1)
@@ -208,6 +254,7 @@ function loadLatestPokeBox(userid, oncomplete){
 	});
 }
 
+
 // Manually Modify Data
 function manualModifyData(){
 	var fmove_transform = FAST_MOVE_DATA[get_fmove_index_by_name('transform')];
@@ -241,8 +288,9 @@ function manualModifyData(){
 
 // when all principal data have been fetched
 function handle_1(){
-	if (POKEMON_SPECIES_DATA_FETCHED && FAST_MOVE_DATA_FETCHED && CHARGED_MOVE_DATA_FETCHED){
+	if (POKEMON_SPECIES_DATA_FETCHED && RAID_BOSS_LIST_FETCHED && FAST_MOVE_DATA_FETCHED && CHARGED_MOVE_DATA_FETCHED){
 		handleExclusiveMoves(POKEMON_SPECIES_DATA);
+		handleRaidBossMarker(POKEMON_SPECIES_DATA);
 		handleExclusiveMoves(POKEMON_SPECIES_DATA_LOCAL);
 		manualModifyData();
 		
@@ -254,9 +302,10 @@ function handle_1(){
 		
 		if (window.location.href.includes('?')){
 			writeUserInput(parseConfigFromUrl(window.location.href.split('?')[1]));
-			main({maxJobSize: 10000});			
-			document.getElementById('ui-mastersummarytable').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+			main({maxJobSize: 10000});
 		}
+		
+		populateQuickStartWizardBossList('current');
 		
 		if (localStorage && !localStorage.QUICK_START_WIZARD_NO_SHOW && !window.location.href.includes('?'))
 			$( "#quickStartWizard" ).dialog( "open" );
@@ -300,6 +349,7 @@ $(document).ready(function(){
 	});
 	
 	loadRaidBossList(function(){
-		populateQuickStartWizardBossList('current');
+		RAID_BOSS_LIST_FETCHED = true;
+		handle_1();
 	});
 });

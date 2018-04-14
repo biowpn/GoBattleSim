@@ -2,9 +2,7 @@
 
 var USERS_INFO = [];
 var PARTIES_LOCAL = {};
-var RAID_BOSS_LIST = {
-	1: [],	2: [],	3: [],	4: [],	5: []
-};
+var RAID_BOSS_LIST = [];
 
 var currentJobSize = 0;
 var maxJobSize = 0;
@@ -202,12 +200,20 @@ function createSimplePredicate(str){
 		if (str.substring(0,3) == '<f>'){
 			const str_const = str.slice(3);
 			return function(obj){
-				return (obj.fmove && obj.fmove.includes(str_const)) || (typeof obj.fmove_index == typeof 0 && FAST_MOVE_DATA[obj.fmove_index].pokeType == str_const);
+				if (typeof obj.fmove_index == typeof 0 && obj.fmove_index >= 0){
+					var fmove = FAST_MOVE_DATA[obj.fmove_index];
+					return fmove.name.includes(str_const) || fmove.pokeType == str_const;
+				}
+				return false;
 			};
 		}else if (str.substring(0,3) == '<c>'){
 			const str_const = str.slice(3);
 			return function(obj){
-				return (obj.cmove && obj.cmove.includes(str_const)) || (typeof obj.cmove_index == typeof 0 && CHARGED_MOVE_DATA[obj.cmove_index].pokeType == str_const);
+				if (typeof obj.cmove_index == typeof 0 && obj.cmove_index >= 0){
+					var cmove = CHARGED_MOVE_DATA[obj.cmove_index];
+					return cmove.name.includes(str_const) || cmove.pokeType == str_const;
+				}
+				return false;
 			};
 		}else{
 			const pred_f = createSimplePredicate('@<f>' + str), pred_c = createSimplePredicate('@<c>' + str);
@@ -218,6 +224,11 @@ function createSimplePredicate(str){
 	}else if (str[0] == '$'){ // Box
 		return function(obj){
 			return obj.box_index >= 0;
+		};
+	}else if (str[0] == '%'){ // Raid Boss
+		const str_const = str.slice(1);
+		return function(obj){
+			return obj.marker_1.includes(str_const);
 		};
 	}else if (str[0] == '?'){ // Cutomized expression
 		const str_const = str.slice(1);
@@ -1430,8 +1441,16 @@ function averageSims(sims){
 
 function main(args){
 	var userInput = readUserInput();
-	if (!args || args && !args.noDisplay){
-		window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
+	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
+	
+	if (!(args && args.noDisplay)){
+		$( '#tempDialog' ).dialog( 'open' );
+		args = args || {};
+		if (!args.noWait){
+			args.noWait = true;
+			setTimeout(function(){main(args);}, 100);
+			return;
+		}
 	}
 	initMasterSummaryTableMetrics();
 
@@ -1451,9 +1470,19 @@ function main(args){
 	date = new Date();
 	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations completed");
 	
-	if (!args || args && !args.noDisplay){
+	if (args && args.sortBy){
+		simResults.sort(function (a,b){
+			return b.output.generalStat[args.sortBy] - a.output.generalStat[args.sortBy];
+		});
+	}
+	
+	$( '#tempDialog' ).dialog('close');
+	if (!(args && args.noDisplay)){
 		send_feedback(currentJobSize + " sims have been performed", true);
 		displayMasterSummaryTable();
+		setTimeout(function(){
+			document.getElementById('ui-mastersummarytable').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+		}, 100);
 	}
 }
 
@@ -2051,7 +2080,44 @@ function parameterEditFormReset(){
 	send_feedback("Local Parameters have been erased. Refresh the page to get the default parameters back", false, 'parameterEditForm-feedback');
 }
 
+
+function populateQuickStartWizardBossList(tag){
+	var bosses = universalGetter('%' + tag, POKEMON_SPECIES_DATA);
+	var bosses_by_tier = {
+		1: [], 2: [], 3:[], 4:[], 5:[]
+	};
+	bosses.forEach(function(boss){
+		bosses_by_tier[parseInt(boss.marker_1.split()[0])].push(boss);
+	});
+
+	var listObj = document.getElementById('quickStartWizard-raidbosslist');
+	listObj.innerHTML = '';
+	for (var t = 1; t <= 5; t++){
+		if (bosses_by_tier[t].length){
+			var listElement = createElement('li', '<div>Tier ' + t + '</div>');
+			var subList = document.createElement('ul');
+			bosses_by_tier[t].forEach(function(boss){
+				var e = createElement('li', '<div>' + boss.label + '</div>', {index: boss.index});
+				const tier = t;
+				e.onclick = function(){
+					var imgObj = document.getElementById('ui-species_QSW-boss'), idx = this.getAttribute('index');
+					imgObj.setAttribute('name', POKEMON_SPECIES_DATA[idx].name);
+					imgObj.setAttribute('index', idx);
+					imgObj.setAttribute('raid_tier', tier);
+					imgObj.setAttribute('src', POKEMON_SPECIES_DATA[idx].image);
+					$( '#quickStartWizard-raidbosslist' ).menu( "collapseAll", null, true );
+				};
+				subList.appendChild(e);
+			});
+			listElement.appendChild(subList);
+			listObj.appendChild(listElement);
+		}
+	}
+	$( listObj ).menu('refresh');
+}
+
 function quickStartWizard_submit(){
+	simResults = [];
 	var qsw_config = JSON.parse(JSON.stringify(QUICK_START_WIZARD_CONFIG_1));
 	var numPlayer = parseInt($('#quickStartWizard-numPlayer').val());
 	while (numPlayer > 1){
@@ -2074,10 +2140,8 @@ function quickStartWizard_submit(){
 	
 	writeUserInput(qsw_config);
 	$( "#quickStartWizard" ).dialog( "close" );
-	main();
-	document.getElementById('ui-mastersummarytable').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+	main({sortBy: qsW_sort});
 }
-
 
 function quickStartWizard_dontshowup(){
 	localStorage.setItem('QUICK_START_WIZARD_NO_SHOW', '1');

@@ -511,7 +511,7 @@
 <div id="quickStartWizard" title="Welcome to GoBattleSim - Quick Start">
 	<div id='quickStartWizard-tabs'>
 
-		<div id='tabs-1' style='height: 120px'>
+		<div id='tabs-1' style='height: 100px'>
 			<h4>1. Solo or Group fight?</h4>
 			<table>
 				<colgroup><col width='50%'><col width='50%'></colgroup>
@@ -525,7 +525,7 @@
 				</tr>
 			</table>
 			
-			<i>You can add more players <b><a onclick='udpateUserTable();$("#userEditForm").dialog("open");' style="cursor: pointer;">here</a></b></i>
+			<i>You can add other GamePressers' PokeBox <b><a onclick='udpateUserTable();$("#userEditForm").dialog("open");' style="cursor: pointer;">here</a></b></i>
 		</div>
 		
 		
@@ -558,7 +558,7 @@
 			
 		</div>
 		
-		<div id='tabs-3' style='width: 100%; height: 200px'>
+		<div id='tabs-3' style='width: 100%; height: 100px'>
 			<h4>3. Which Move set?</h4>
 			
 			<div id='quickStartWizard-moves'>
@@ -579,12 +579,25 @@
 			</table>
 		</div>
 		
-	</div>	
+		<div id='tabs-4' style='width: 100%; height: 100px'>
+			<h4>4. Sort the result by?</h4>
+			
+			<div id='quickStartWizard-sortBy'>
+				<input type="radio" id="quickStartWizard-sortBy-dps" name='qsW_sort' value="dps" onclick='qsW_sort="dps";' checked >
+				<label for="quickStartWizard-sortBy-dps">DPS</label>
+				<input type="radio" id="quickStartWizard-sortBy-tdo" name='qsW_sort' value="tdo" onclick='qsW_sort="tdo";'>
+				<label for="quickStartWizard-sortBy-tdo">TDO</label>
+			</div>
+		</div>
+		
+	</div>
 </div>
 
 
 
-
+<div id='tempDialog' title='GoBattleSim'>
+Simulating...
+</div>
 
 
 
@@ -655,6 +668,7 @@ const QUICK_START_WIZARD_CLONE_PLAYER = {
 };
 
 var POKEMON_SPECIES_DATA_FETCHED = false;
+var RAID_BOSS_LIST_FETCHED = false;
 var FAST_MOVE_DATA_FETCHED = false;
 var CHARGED_MOVE_DATA_FETCHED = false;
 
@@ -662,6 +676,8 @@ var CHARGED_MOVE_DATA_FETCHED = false;
 var FAST_MOVE_DATA_LOCAL = [];
 var CHARGED_MOVE_DATA_LOCAL = [];
 var POKEMON_SPECIES_DATA_LOCAL = [];
+
+var qsW_sort = 'dps';
 
 
 /* Initialize Modules*/
@@ -791,11 +807,15 @@ $( '#quickStartWizard-raidbosstags' ).controlgroup();
 
 $( '#quickStartWizard-moves' ).controlgroup();
 
+$( '#quickStartWizard-sortBy' ).controlgroup();
+
 $('#quickStartWizard-movesTable').hide();
 function quickStartWizard_moves(value){
 	if (value == 'spec'){
+		document.getElementById('tabs-3').setAttribute('style', 'width: 100%; height: 200px');
 		$('#quickStartWizard-movesTable').show();
 	}else{
+		document.getElementById('tabs-3').setAttribute('style', 'width: 100%; height: 100px');
 		$('#quickStartWizard-movesTable').hide();
 		if (value == 'avrg'){
 			document.getElementById('fmove_QSW-boss').value = '?current';
@@ -809,39 +829,6 @@ function quickStartWizard_moves(value){
 
 $ ('#quickStartWizard-raidbosslist').menu();
 
-function populateQuickStartWizardBossList(tag){
-	var listObj = document.getElementById('quickStartWizard-raidbosslist');
-	listObj.innerHTML = '';
-
-	for (var t = 1; t <= 5; t++){
-		var listElement = createElement('li', '<div>Tier ' + t + '</div>');
-		var subList = document.createElement('ul');
-		RAID_BOSS_LIST[t.toString()].forEach(function(boss){
-			if (tag == 'current'){
-				if (boss.legacy || boss.future || boss.special)
-					return;
-			}else if (!boss[tag])
-				return;
-			var e = createElement('li', '<div>' + toTitleCase(boss.name) + '</div>');
-			const tier = t;
-			e.onclick = function(){
-				var idx = get_species_index_by_name(boss.name), imgObj = document.getElementById('ui-species_QSW-boss');
-				imgObj.setAttribute('name', boss.name);
-				imgObj.setAttribute('index', idx);
-				imgObj.setAttribute('raid_tier', tier);
-				imgObj.setAttribute('src', POKEMON_SPECIES_DATA[idx].image);
-				$( '#quickStartWizard-raidbosslist' ).menu( "collapseAll", null, true );
-			};
-			subList.appendChild(e);
-		});
-		if (subList.children.length == 0)
-			continue;
-		listElement.appendChild(subList);
-		listObj.appendChild(listElement);
-	}
-	$( listObj ).menu('refresh');
-}
-
 autocompletePokemonNodeMoves(document.getElementById('fmove_QSW-boss'));
 autocompletePokemonNodeMoves(document.getElementById('cmove_QSW-boss'));
 $('#fmove_QSW-boss').autocomplete( "option", "appendTo", "#quickStartWizard" );
@@ -850,6 +837,7 @@ $('#cmove_QSW-boss').autocomplete( "option", "appendTo", "#quickStartWizard" );
 $("#quickStartWizard").dialog({ 
 	autoOpen: false,
 	width: 600,
+	height: 700,
 	buttons: [{
 		text: 'GO',
 		style: 'width: 40%; float: left;',
@@ -883,18 +871,17 @@ if (localStorage){
 		for (var param in EDITABLE_PARAMETERS)
 			window[param] = EDITABLE_PARAMETERS[param];
 	}
-	if (localStorage.PARTIES_LOCAL){
+	if (localStorage.PARTIES_LOCAL){	
 		PARTIES_LOCAL = JSON.parse(localStorage.PARTIES_LOCAL);
 	}
 }
 
 
-
-// Final prepartion		
+// Final preparation
+$('#tempDialog').dialog({autoOpen: false});
 addPlayerNode();
 document.getElementById("ui-defenderinputbody").innerHTML = "";
 document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
 document.getElementById("simPerConfig").value = 1;
-
 
 </script>
