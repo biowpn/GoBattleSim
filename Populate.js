@@ -1,5 +1,21 @@
 /* Populate.js */
 
+var USERS_INFO = [];
+var PARTIES_LOCAL = {};
+
+var POKEMON_SPECIES_DATA_FETCHED = false;
+var RAID_BOSS_LIST_FETCHED = false;
+var FAST_MOVE_DATA_FETCHED = false;
+var CHARGED_MOVE_DATA_FETCHED = false;
+
+/* user defined data*/
+var FAST_MOVE_DATA_LOCAL = [];
+var CHARGED_MOVE_DATA_LOCAL = [];
+var POKEMON_SPECIES_DATA_LOCAL = [];
+var RAID_BOSS_LIST = [];
+
+
+
 function getPokemonType1FromString(S){
 	var L = S.split(",");
 	return L[0].trim().toLowerCase();
@@ -234,9 +250,6 @@ function loadLatestMoveData(oncomplete){
 // Read User Pokebox
 function loadLatestPokeBox(userid, oncomplete){
 	oncomplete = oncomplete || function(){return;};
-	if (!(POKEMON_SPECIES_DATA_FETCHED && FAST_MOVE_DATA_FETCHED && CHARGED_MOVE_DATA_FETCHED)){
-		return;
-	}
 	
 	$.ajax({
 		url: '/user-pokemon-json-list?new&uid_raw=' + userid,
@@ -244,12 +257,9 @@ function loadLatestPokeBox(userid, oncomplete){
 		success: function(data){
 			var importedBox = processUserPokeboxRawData(data);
 			USERS_INFO.push({id: userid, box: importedBox});
-			udpateUserTable();
-			send_feedback("Successfully imported user " + userid + " with " + importedBox.length + " Pokemon", false, 'userEditForm-feedback');
-			oncomplete();
 		},
-		error: function(){
-			send_feedback("Failed to import user " + userid, false, 'userEditForm-feedback');
+		complete: function(){
+			oncomplete();
 		}
 	});
 }
@@ -282,11 +292,36 @@ function manualModifyData(){
 			remaining: -1
 		};
 	}
+	
+	var mega_ampharos = {
+	  "index": POKEMON_SPECIES_DATA.length,
+	  "box_index": -1,
+	  "name": "mega ampharos",
+	  "pokeType1": "electric",
+	  "pokeType2": "dragon",
+	  "baseAtk": 294,
+	  "baseDef": 206,
+	  "baseStm": 180,
+	  "fastMoves": [
+		"charge beam"
+	  ],
+	  "chargedMoves": [
+		"dragon pulse"
+	  ],
+	  "fastMoves_legacy": [],
+	  "chargedMoves_legacy": [],
+	  "rating": 3.5,
+	  "marker_1": "",
+	  "image": "https://cdn.discordapp.com/attachments/434219048902066205/434219156095762432/181-mega.png",
+	  "icon": "https://cdn.discordapp.com/attachments/434219048902066205/434219156095762432/181-mega.png",
+	  "label": "Mega Ampharos",
+	  "fastMoves_exclusive": [],
+	  "chargedMoves_exclusive": []
+	};
+	POKEMON_SPECIES_DATA.push(mega_ampharos);
 }
 
 
-
-// when all principal data have been fetched
 function handle_1(){
 	if (POKEMON_SPECIES_DATA_FETCHED && RAID_BOSS_LIST_FETCHED && FAST_MOVE_DATA_FETCHED && CHARGED_MOVE_DATA_FETCHED){
 		handleExclusiveMoves(POKEMON_SPECIES_DATA);
@@ -294,29 +329,36 @@ function handle_1(){
 		handleExclusiveMoves(POKEMON_SPECIES_DATA_LOCAL);
 		manualModifyData();
 		
-		if (typeof userID2 != 'underfined' && userID2){
-			loadLatestPokeBox(userID2, function(){
-				udpateUserTable();
-			});
-		}
-		
-		if (window.location.href.includes('?')){
-			writeUserInput(parseConfigFromUrl(window.location.href.split('?')[1]));
-			main({maxJobSize: 10000});
-		}
-		
-		populateQuickStartWizardBossList('current');
-		
-		if (localStorage && !localStorage.QUICK_START_WIZARD_NO_SHOW && !window.location.href.includes('?'))
-			$( "#quickStartWizard" ).dialog( "open" );
+		handle_2();
 	}
 }
 
 
 $(document).ready(function(){
+	if (localStorage){
+		if (localStorage.POKEMON_SPECIES_DATA_LOCAL){
+			POKEMON_SPECIES_DATA_LOCAL = JSON.parse(localStorage.POKEMON_SPECIES_DATA_LOCAL);
+		}
+		if (localStorage.FAST_MOVE_DATA_LOCAL){
+			FAST_MOVE_DATA_LOCAL = JSON.parse(localStorage.FAST_MOVE_DATA_LOCAL);
+		}
+		if (localStorage.CHARGED_MOVE_DATA_LOCAL){
+			CHARGED_MOVE_DATA_LOCAL = JSON.parse(localStorage.CHARGED_MOVE_DATA_LOCAL);
+		}
+		
+		if (localStorage.EDITABLE_PARAMETERS_LOCAL){
+			var EDITABLE_PARAMETERS = JSON.parse(localStorage.EDITABLE_PARAMETERS_LOCAL);
+			for (var param in EDITABLE_PARAMETERS)
+				window[param] = EDITABLE_PARAMETERS[param];
+		}
+		if (localStorage.PARTIES_LOCAL){	
+			PARTIES_LOCAL = JSON.parse(localStorage.PARTIES_LOCAL);
+		}
+	}
+	
 	loadLatestPokemonData(function(){
 		POKEMON_SPECIES_DATA_FETCHED = true;
-		
+
 		for (var i = 0; i < POKEMON_SPECIES_DATA_LOCAL.length; i++){
 			POKEMON_SPECIES_DATA_LOCAL[i].index = POKEMON_SPECIES_DATA.length;
 			POKEMON_SPECIES_DATA.push(POKEMON_SPECIES_DATA_LOCAL[i]);
@@ -331,7 +373,7 @@ $(document).ready(function(){
 	loadLatestMoveData(function(){ 
 		FAST_MOVE_DATA_FETCHED = true; 
 		CHARGED_MOVE_DATA_FETCHED = true;
-		
+
 		for (var i = 0; i < FAST_MOVE_DATA_LOCAL.length; i++){
 			FAST_MOVE_DATA_LOCAL[i].index = FAST_MOVE_DATA.length;
 			FAST_MOVE_DATA.push(FAST_MOVE_DATA_LOCAL[i]);
