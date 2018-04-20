@@ -1,3 +1,11 @@
+<script type="text/javascript" src="GoBattleSimLib.js"></script>
+<script type="text/javascript" src="UI_1_general.js"></script>
+<script type="text/javascript" src="UI_2_dom.js"></script>
+<script type="text/javascript" src="UI_3_parser.js"></script>
+<script type="text/javascript" src="UI_4_dom2.js"></script>
+<script type="text/javascript" src="Populate_local.js"></script>
+
+
 <script src="https://code.jquery.com/jquery-2.2.4.js"  integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/v/ju/dt-1.10.16/r-2.2.1/sc-1.4.4/datatables.min.js"></script>
@@ -6,11 +14,6 @@
 <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/scroller/1.4.4/css/scroller.dataTables.min.css" rel="stylesheet">
 <link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
-
-
-<script type="text/javascript" src="GoBattleSimLib.js"></script>
-<script type="text/javascript" src="UI.js"></script>
-<script type="text/javascript" src="Populate_local.js"></script>
 
 <style>
 	table {
@@ -150,13 +153,13 @@
 		display:inline-block;
 		align: center;
 		vertical-align: middle;
-		height: 30px;	
+		height: 30px !important;	
 	}
 	.apitem-move-icon {
 		display:inline-block;
 		align: center;
 		vertical-align: middle !important;
-		height: 20px;
+		height: 20px !important;
 	}
 	.apitem-label{
 		padding-left: 5px;
@@ -189,8 +192,10 @@
 		width: 100%;
 	}
 
-}
+
 </style>
+
+
 
 <div id='menu'>
 	<table style="position: relative; height: 40px"><colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>
@@ -198,10 +203,10 @@
 			<td style='vertical-align: top'><button id='quickStartWizardOpener'>
 			<i class="fa fa-bolt" aria-hidden="true"></i> Quick Start</button></td>
 			
-			<td style='vertical-align: top'>
-				<button id='subMenuOpener' onmouseover="$('#subMenu').slideToggle('fast')" 
+			<td style='vertical-align: top; position: relative;'>
+				<button id='subMenuOpener' onmouseover="//$('#subMenu').slideToggle('fast')" 
 				onclick="$('#subMenu').slideToggle('fast')"><i class="fa fa-pencil" aria-hidden="true"></i> Customize</button>
-				<div id='subMenu' style='position: absolute; width: 20%'>
+				<div id='subMenu' style='position: absolute; width: 90%'>
 					<button class='player_button' id='moveEditFormOpener'>Move</button>
 					<button class='player_button' id='pokemonEditFormOpener'>Species</button>
 					<button class='player_button' id='parameterEditFormOpener'>Other Paramaters</button>
@@ -510,7 +515,7 @@
 <div id="quickStartWizard" title="Welcome to GoBattleSim - Quick Start">
 	<div id='quickStartWizard-tabs'>
 
-		<div id='tabs-1' style='height: 120px'>
+		<div id='tabs-1' style='height: 100px'>
 			<h4>1. Solo or Group fight?</h4>
 			<table>
 				<colgroup><col width='50%'><col width='50%'></colgroup>
@@ -524,7 +529,7 @@
 				</tr>
 			</table>
 			
-			<i>You can add more players <b><a onclick='udpateUserTable();$("#userEditForm").dialog("open");' style="cursor: pointer;">here</a></b></i>
+			<i>You can add other GamePressers' PokeBox <b><a onclick='udpateUserTable();$("#userEditForm").dialog("open");' style="cursor: pointer;">here</a></b></i>
 		</div>
 		
 		
@@ -557,7 +562,7 @@
 			
 		</div>
 		
-		<div id='tabs-3' style='width: 100%; height: 200px'>
+		<div id='tabs-3' style='width: 100%; height: 100px'>
 			<h4>3. Which Move set?</h4>
 			
 			<div id='quickStartWizard-moves'>
@@ -578,12 +583,25 @@
 			</table>
 		</div>
 		
-	</div>	
+		<div id='tabs-4' style='width: 100%; height: 100px'>
+			<h4>4. Sort the result by?</h4>
+			
+			<div id='quickStartWizard-sortBy'>
+				<input type="radio" id="quickStartWizard-sortBy-dps" name='qsW_sort' value="dps" onclick='qsW_sort="dps";' checked >
+				<label for="quickStartWizard-sortBy-dps">DPS</label>
+				<input type="radio" id="quickStartWizard-sortBy-tdo" name='qsW_sort' value="tdo" onclick='qsW_sort="tdo";'>
+				<label for="quickStartWizard-sortBy-tdo">TDO</label>
+			</div>
+		</div>
+		
+	</div>
 </div>
 
 
 
-
+<div id='tempDialog' title='GoBattleSim'>
+Simulating...
+</div>
 
 
 
@@ -596,6 +614,8 @@ const HSL_COLORS = [
 	['hsl(48, 100%, 90%)','hsl(48, 100%, 70%)','hsl(48, 100%, 50%)'],
 	['hsl(120, 60%, 90%)','hsl(120, 60%, 70%)','hsl(120, 60%, 50%)']
 ];
+
+const DEFAULT_SUMMARY_TABLE_METRICS = {battle_result:'Outcome', duration:'Time', tdo_percent:'TDO%', dps:'DPS', total_deaths:'#Death'};
 
 // For quick start wizard configurations
 const DEFAULT_ATTACKER_INPUT_MIN = {
@@ -653,14 +673,13 @@ const QUICK_START_WIZARD_CLONE_PLAYER = {
 	}]
 };
 
-var POKEMON_SPECIES_DATA_FETCHED = false;
-var FAST_MOVE_DATA_FETCHED = false;
-var CHARGED_MOVE_DATA_FETCHED = false;
+var currentJobSize = 0;
+var maxJobSize = 0;
+var simResults = [];
+var atkrCopyPasteClipboard = null;
+var MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
+var qsW_sort = 'dps';
 
-/* user defined data*/
-var FAST_MOVE_DATA_LOCAL = [];
-var CHARGED_MOVE_DATA_LOCAL = [];
-var POKEMON_SPECIES_DATA_LOCAL = [];
 
 
 /* Initialize Modules*/
@@ -674,10 +693,10 @@ $("#removePartyDialog").dialog({
 	modal: true
 });
 
+
 // Sub Menu for Add/Edit functions
 $( '#subMenu' ).hide();
 $( '#subMenu' ).menu();
-
 
 
 // Move Edit Form
@@ -790,11 +809,15 @@ $( '#quickStartWizard-raidbosstags' ).controlgroup();
 
 $( '#quickStartWizard-moves' ).controlgroup();
 
+$( '#quickStartWizard-sortBy' ).controlgroup();
+
 $('#quickStartWizard-movesTable').hide();
 function quickStartWizard_moves(value){
 	if (value == 'spec'){
+		document.getElementById('tabs-3').setAttribute('style', 'width: 100%; height: 200px');
 		$('#quickStartWizard-movesTable').show();
 	}else{
+		document.getElementById('tabs-3').setAttribute('style', 'width: 100%; height: 100px');
 		$('#quickStartWizard-movesTable').hide();
 		if (value == 'avrg'){
 			document.getElementById('fmove_QSW-boss').value = '?current';
@@ -808,39 +831,6 @@ function quickStartWizard_moves(value){
 
 $ ('#quickStartWizard-raidbosslist').menu();
 
-function populateQuickStartWizardBossList(tag){
-	var listObj = document.getElementById('quickStartWizard-raidbosslist');
-	listObj.innerHTML = '';
-
-	for (var t = 1; t <= 5; t++){
-		var listElement = createElement('li', '<div>Tier ' + t + '</div>');
-		var subList = document.createElement('ul');
-		RAID_BOSS_LIST[t.toString()].forEach(function(boss){
-			if (tag == 'current'){
-				if (boss.legacy || boss.future || boss.special)
-					return;
-			}else if (!boss[tag])
-				return;
-			var e = createElement('li', '<div>' + toTitleCase(boss.name) + '</div>');
-			const tier = t;
-			e.onclick = function(){
-				var idx = get_species_index_by_name(boss.name), imgObj = document.getElementById('ui-species_QSW-boss');
-				imgObj.setAttribute('name', boss.name);
-				imgObj.setAttribute('index', idx);
-				imgObj.setAttribute('raid_tier', tier);
-				imgObj.setAttribute('src', POKEMON_SPECIES_DATA[idx].image);
-				$( '#quickStartWizard-raidbosslist' ).menu( "collapseAll", null, true );
-			};
-			subList.appendChild(e);
-		});
-		if (subList.children.length == 0)
-			continue;
-		listElement.appendChild(subList);
-		listObj.appendChild(listElement);
-	}
-	$( listObj ).menu('refresh');
-}
-
 autocompletePokemonNodeMoves(document.getElementById('fmove_QSW-boss'));
 autocompletePokemonNodeMoves(document.getElementById('cmove_QSW-boss'));
 $('#fmove_QSW-boss').autocomplete( "option", "appendTo", "#quickStartWizard" );
@@ -849,6 +839,7 @@ $('#cmove_QSW-boss').autocomplete( "option", "appendTo", "#quickStartWizard" );
 $("#quickStartWizard").dialog({ 
 	autoOpen: false,
 	width: 600,
+	height: 700,
 	buttons: [{
 		text: 'GO',
 		style: 'width: 40%; float: left;',
@@ -866,34 +857,79 @@ $ ('#quickStartWizardOpener').click(function() {
 });
 
 
-// Principal Data
-if (localStorage){
-	if (localStorage.POKEMON_SPECIES_DATA_LOCAL){
-		POKEMON_SPECIES_DATA_LOCAL = JSON.parse(localStorage.POKEMON_SPECIES_DATA_LOCAL);
+// Final preparation
+function handle_2(){
+	if (typeof userID2 != 'underfined' && userID2){
+		loadLatestPokeBox(userID2, function(){
+			send_feedback("Imported user " + userID2, false, 'userEditForm-feedback');
+			udpateUserTable();
+		});
 	}
-	if (localStorage.FAST_MOVE_DATA_LOCAL){
-		FAST_MOVE_DATA_LOCAL = JSON.parse(localStorage.FAST_MOVE_DATA_LOCAL);
+	
+	if (window.location.href.includes('?')){
+		writeUserInput(parseConfigFromUrl(window.location.href.split('?')[1]));
+		main({maxJobSize: 10000});
 	}
-	if (localStorage.CHARGED_MOVE_DATA_LOCAL){
-		CHARGED_MOVE_DATA_LOCAL = JSON.parse(localStorage.CHARGED_MOVE_DATA_LOCAL);
+	
+	populateQuickStartWizardBossList('current');
+	
+	if (localStorage && !localStorage.QUICK_START_WIZARD_NO_SHOW && !window.location.href.includes('?'))
+		$( "#quickStartWizard" ).dialog( "open" );
+}
+
+
+function main(args){
+	var userInput = readUserInput();
+	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
+	
+	if (!(args && args.noDisplay)){
+		$( '#tempDialog' ).dialog( 'open' );
+		args = args || {};
+		if (!args.noWait){
+			args.noWait = true;
+			setTimeout(function(){main(args);}, 100);
+			return;
+		}
 	}
-	if (localStorage.EDITABLE_PARAMETERS_LOCAL){
-		var EDITABLE_PARAMETERS = JSON.parse(localStorage.EDITABLE_PARAMETERS_LOCAL);
-		for (var param in EDITABLE_PARAMETERS)
-			window[param] = EDITABLE_PARAMETERS[param];
+	initMasterSummaryTableMetrics();
+
+	if (args && args.maxJobSize){
+		maxJobSize = args.maxJobSize;
 	}
-	if (localStorage.PARTIES_LOCAL){
-		PARTIES_LOCAL = JSON.parse(localStorage.PARTIES_LOCAL);
+	
+	date = new Date();
+	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations started");
+	
+	var tempResults = iterBranchHandler(userInput);
+	tempResults.forEach(function(sim){
+		if (sim)
+			simResults.push(sim);
+	});
+	
+	date = new Date();
+	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations completed");
+	
+	if (args && args.sortBy){
+		simResults.sort(function (a,b){
+			return b.output.generalStat[args.sortBy] - a.output.generalStat[args.sortBy];
+		});
+	}
+	
+	$( '#tempDialog' ).dialog('close');
+	if (!(args && args.noDisplay)){
+		send_feedback(currentJobSize + " sims have been performed", true);
+		displayMasterSummaryTable();
+		setTimeout(function(){
+			document.getElementById('ui-mastersummarytable').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+		}, 100);
 	}
 }
 
 
-
-// Final prepartion		
+$('#tempDialog').dialog({autoOpen: false});
 addPlayerNode();
 document.getElementById("ui-defenderinputbody").innerHTML = "";
 document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
 document.getElementById("simPerConfig").value = 1;
-
 
 </script>
