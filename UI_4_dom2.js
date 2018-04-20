@@ -68,6 +68,20 @@ function moveEditFormReset(){
 	send_feedback("Connecting to server...", true, 'moveEditForm-feedback');
 	loadLatestMoveData(function(){
 		send_feedback("Latest Move Data have been fetched", true, 'moveEditForm-feedback');
+		POKEMON_SPECIES_DATA.forEach(function(pkm){
+			[pkm.fastMoves, pkm.fastMoves_legacy, pkm.fastMoves_exclusive].forEach(function(pool){
+				for (var i = 0; i < pool.length; i++){
+					if (get_fmove_index_by_name(pool[i]) < 0)
+						pool.splice(i, 1);
+				}
+			});
+			[pkm.chargedMoves, pkm.chargedMoves_legacy, pkm.chargedMoves_exclusive].forEach(function(pool){
+				for (var i = 0; i < pool.length; i++){
+					if (get_cmove_index_by_name(pool[i]) < 0)
+						pool.splice(i, 1);
+				}
+			});
+		});
 	});
 }
 
@@ -189,6 +203,7 @@ function pokemonEditFormReset(){
 	send_feedback("Local Pokemon Species have been erased.", false, 'pokemonEditForm-feedback');
 	send_feedback("Connecting to server...", true, 'pokemonEditForm-feedback');
 	loadLatestPokemonData(function(){
+		handleExclusiveMoves(POKEMON_SPECIES_DATA);
 		send_feedback("Latest Pokemon Data have been fetched", true, 'pokemonEditForm-feedback');
 	});
 }

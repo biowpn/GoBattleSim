@@ -1,0 +1,238 @@
+<style>
+td {
+ font-size: 12px;
+}
+div#ranking_table_wrapper th {
+    font-size: 11px;
+}
+div#subMenu {
+    z-index: 10;
+}
+div#ranking_table_wrapper {
+    margin-top: 10px;
+}
+</style>
+
+<div id='moveEditForm' title="Add/Edit Move">
+	<table>
+		<tr>
+			<th>Move Category</th> 
+			<td><select id='moveEditForm-moveType'>
+				<option value='f'>Fast</option>
+				<option value='c'>Charged</option>
+			</select></td>
+		</tr>
+		<tr>
+			<th>Move Name</th> 
+			<td><input type='text' id='moveEditForm-name' class='input-with-icon move-input-with-icon'></td>
+		</tr>
+		<tr>
+			<th>Move Typing</th> 
+			<td><select id='moveEditForm-pokeType'></select></td>
+		</tr>
+		<tr>
+			<th>Power</th> 
+			<td><input type='number' id='moveEditForm-power'></td>
+		</tr>
+		<tr>
+			<th>EnergyDelta</th> 
+			<td><input type='number' id='moveEditForm-energyDelta'></td>
+		</tr>
+		<tr>
+			<th>Duration (in seconds)</th> 
+			<td><input type='number' id='moveEditForm-duration'></td>
+		</tr>
+		<tr>
+			<th>Damage Window (in seconds)</th> 
+			<td><input type='number' id='moveEditForm-dws'></td>
+		</tr>
+	</table>
+	<br>
+	
+	<table> 
+		<colgroup><col width='50%'><col width='50%'></colgroup>
+		<tr>
+			<td><button onclick='moveEditFormSubmit();calculate();' id='moveEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+			<td><button onclick='moveEditFormReset();calculate();' id='moveEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
+		</tr>
+	</table>
+	
+	<div id='moveEditForm-feedback'>
+	</div>
+</div>
+
+
+<div id='pokemonEditForm' title="Add/Edit Pokemon">
+	<table>
+		<tr>
+			<th>Pokemon Name</th> 
+			<td><input type='text' id='pokemonEditForm-name' class='input-with-icon species-input-with-icon'></td>
+		</tr>
+		<tr>
+			<th>Pokemon Typing 1</th> 
+			<td><select id='pokemonEditForm-pokeType1'></select></td>
+		</tr>
+		<tr>
+			<th>Pokemon Typing 2</th> 
+			<td><select id='pokemonEditForm-pokeType2'></select></td>
+		</tr>
+		<tr>
+			<th>Base Attack</th> 
+			<td><input type='number' id='pokemonEditForm-baseAtk'></td>
+		</tr>
+		<tr>
+			<th>Base Defense</th> 
+			<td><input type='number' id='pokemonEditForm-baseDef'></td>
+		</tr>
+		<tr>
+			<th>Base Stamina</th> 
+			<td><input type='number' id='pokemonEditForm-baseStm'></td>
+		</tr>
+		<tr>
+			<th>Fast Move Pool</th> 
+			<td><input type='text' id='pokemonEditForm-fmoves'></td>
+		</tr>
+		<tr>
+			<th>Charged Move Pool</th> 
+			<td><input type='text' id='pokemonEditForm-cmoves'></td>
+		</tr>
+
+	</table>
+	<br>
+	
+	
+	<table> 
+		<colgroup><col width='50%'><col width='50%'></colgroup>
+		<tr>
+			<td><button onclick='pokemonEditFormSubmit();calculate();' id='pokemonEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+			<td><button onclick='pokemonEditFormReset();calculate();' id='pokemonEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
+		</tr>
+	</table>
+	
+	
+	
+	<div id='pokemonEditForm-feedback'>
+	</div>
+</div>
+
+
+
+<table>
+	<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
+	<tr>
+		<th>Enemy Species</th>
+		<th>PokeType 1</th>
+		<th>PokeType 2</th>
+	</tr>
+	<tr>
+		<td><input type='text' id='ui-species_d' index='-1' class='input-with-icon species-input-with-icon'></input></td>
+		<td><select id='context-enemy-pokeType1' onchange='recalculate()'></select></td>
+		<td><select id='context-enemy-pokeType2' onchange='recalculate()'></select></td>
+	</tr>
+</table>
+
+<table>
+	<colgroup><col width='50%'><col width='50%'></colgroup>
+	<tr>
+		<th>Enemy Fast Move</th>
+		<th>Enemy Charged Move</th>
+	</tr>
+	<tr>
+		<td><input type='text' id='fmove_d' index='-1' class='input-with-icon move-input-with-icon'></td>
+		<td><input type='text' id='cmove_d' index='-1' class='input-with-icon move-input-with-icon'></td>
+	</tr>
+</table>
+	
+<table>
+	<colgroup><col width='50%'><col width='50%'></colgroup>
+	<tr>
+		<th>Weather</th>
+		<th>Customization</th>
+	</tr>
+	<tr>
+		<td><select id='context-weather' onchange='recalculate()'></select></td>
+		<td style='vertical-align:top; position:relative;'>
+			<button id='subMenuOpener'
+			onclick="$('#subMenu').slideToggle('fast')"><i class="fa fa-pencil" aria-hidden="true"></i> Customize</button>
+			<div id='subMenu' style='position: absolute; width: 95%'>
+				<button class='player_button' id='moveEditFormOpener'>Move</button>
+				<button class='player_button' id='pokemonEditFormOpener'>Species</button>
+			</div>
+		</td>
+	</tr>
+</table>
+
+<input type='text' id='searchInput' onkeyup='search_trigger()'></input></td>
+
+
+<table id='ranking_table' style='width:100%;'>
+
+<thead></thead>
+
+<tfoot></tfoot>
+
+<tbody></tbody>
+
+</table>
+
+
+<script>
+
+/* user defined data*/
+if (localStorage){
+	if (localStorage.POKEMON_SPECIES_DATA_LOCAL){
+		POKEMON_SPECIES_DATA_LOCAL = JSON.parse(localStorage.POKEMON_SPECIES_DATA_LOCAL);
+	}
+	if (localStorage.FAST_MOVE_DATA_LOCAL){
+		FAST_MOVE_DATA_LOCAL = JSON.parse(localStorage.FAST_MOVE_DATA_LOCAL);
+	}
+	if (localStorage.CHARGED_MOVE_DATA_LOCAL){
+		CHARGED_MOVE_DATA_LOCAL = JSON.parse(localStorage.CHARGED_MOVE_DATA_LOCAL);
+	}
+}
+
+// Sub Menu for Add/Edit functions
+$( '#subMenu' ).hide();
+$( '#subMenu' ).menu();
+
+
+// Move Edit Form
+$( "#moveEditForm" ).dialog({ 
+	autoOpen: false,
+	width: 600
+});
+$( "#moveEditFormOpener" ).click(function() {
+	$('#subMenu').hide();
+	$( "#moveEditForm" ).dialog( "open" );
+});
+autocompleteMoveEditForm();
+$( "#moveEditFormOpener" ).on('dialogclose', function(event) {
+	send_feedback('', false, 'moveEditForm-feedback');
+});
+
+// Species Edit Form
+$( "#pokemonEditForm" ).dialog({ 
+	autoOpen: false,
+	width: 600
+});
+$( "#pokemonEditFormOpener" ).click(function() {
+	$('#subMenu').hide();
+	$( "#pokemonEditForm" ).dialog( "open" );
+});
+autocompletePokemonEditForm();
+$( "#pokemonEditForm" ).on('dialogclose', function(event) {
+	send_feedback('', false, 'pokemonEditForm-feedback');
+});
+
+var moveEditFormPokeTypeSelect = document.getElementById('moveEditForm-pokeType');
+var pokemonEditFormPokeType1Select = document.getElementById('pokemonEditForm-pokeType1');
+var pokemonEditFormPokeType2Select = document.getElementById('pokemonEditForm-pokeType2');
+for (var type in POKEMON_TYPE_ADVANTAGES){
+	moveEditFormPokeTypeSelect.appendChild(createElement('option', toTitleCase(type), {value : type}));
+	pokemonEditFormPokeType1Select.appendChild(createElement('option', toTitleCase(type), {value : type}));
+	pokemonEditFormPokeType2Select.appendChild(createElement('option', toTitleCase(type), {value : type}));
+}
+pokemonEditFormPokeType1Select.appendChild(createElement('option', 'None', {value : 'none'}));
+pokemonEditFormPokeType2Select.appendChild(createElement('option', 'None', {value : 'none'}));
+
+</script>

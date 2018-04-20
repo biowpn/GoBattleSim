@@ -203,10 +203,10 @@
 			<td style='vertical-align: top'><button id='quickStartWizardOpener'>
 			<i class="fa fa-bolt" aria-hidden="true"></i> Quick Start</button></td>
 			
-			<td style='vertical-align: top'>
-				<button id='subMenuOpener' onmouseover="$('#subMenu').slideToggle('fast')" 
+			<td style='vertical-align: top; position: relative;'>
+				<button id='subMenuOpener' onmouseover="//$('#subMenu').slideToggle('fast')" 
 				onclick="$('#subMenu').slideToggle('fast')"><i class="fa fa-pencil" aria-hidden="true"></i> Customize</button>
-				<div id='subMenu' style='position: absolute; width: 20%'>
+				<div id='subMenu' style='position: absolute; width: 90%'>
 					<button class='player_button' id='moveEditFormOpener'>Move</button>
 					<button class='player_button' id='pokemonEditFormOpener'>Species</button>
 					<button class='player_button' id='parameterEditFormOpener'>Other Paramaters</button>

@@ -4,3 +4,4 @@ test/*
 tools/*
 feedback/*
 Populate_local.js
+*.xlsx

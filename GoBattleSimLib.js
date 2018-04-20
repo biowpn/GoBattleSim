@@ -6,7 +6,7 @@ var WAB_MULTIPLIER = 1.2;
 
 var DODGE_COOLDOWN_MS = 500;
 var DODGEWINDOW_LENGTH_MS = 700;
-var DODGE_REACTION_TIME_MS = 200;
+var DODGE_SWIPE_TIME_MS = 300;
 var DODGED_DAMAGE_REDUCTION_PERCENT = 0.75;
 var ARENA_ENTRY_LAG_MS = 3000;
 var ARENA_EARLY_TERMINATION_MS = 3000;
@@ -34,8 +34,7 @@ var MOVE_EFFECT_DATA = [];
 var POKEMON_SPECIES_DATA = [];
 var LEVEL_VALUES = [];
 var IV_VALUES = [];
-
-var CPM_TABLE = [0.094, 0.13513743215803847, 0.16639787, 0.19265091454861796, 0.21573247, 0.23657265541932715, 0.25572005, 0.27353037931097973, 0.29024988, 0.30605738000722543, 0.3210876, 0.3354450348019347, 0.34921268, 0.36245775711118555, 0.3752356, 0.3875924191428145, 0.39956728, 0.4111935439951595, 0.4225, 0.4329264087965774, 0.44310755, 0.4530599628689135, 0.4627984, 0.4723360827308573, 0.48168495, 0.49085580932476297, 0.49985844, 0.5087017591555174, 0.51739395, 0.5259424956328841, 0.5343543, 0.5426357508963908, 0.5507927, 0.5588305922386229, 0.5667545, 0.574569134506658, 0.5822789, 0.5898879034974399, 0.5974, 0.6048236602280411, 0.6121573, 0.6194041050661919, 0.6265671, 0.6336491667895227, 0.64065295, 0.6475809587060136, 0.65443563, 0.6612192609753201, 0.667934, 0.6745818887829742, 0.6811649, 0.6876848943474521, 0.69414365, 0.7005428891384746, 0.7068842, 0.713169102419072, 0.7193991, 0.7255756180718899, 0.7317, 0.7347410173422504, 0.7377695, 0.7407855800803546, 0.74378943, 0.7467812039953893, 0.74976104, 0.7527290986842915, 0.7556855, 0.7586303636507689, 0.76156384, 0.7644860688461087, 0.76739717, 0.7702972738840048, 0.7731865, 0.7760649434180147, 0.77893275, 0.7817900775756758, 0.784637, 0.7874735905949481, 0.7903];
+var CPM_TABLE = [];
 
 var POKEMON_TYPE_ADVANTAGES = {"normal": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 0.714, "bug": 1.0, "ghost": 0.51, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "fighting": {"normal": 1.4, "fighting": 1.0, "flying": 0.714, "poison": 0.714, "ground": 1.0, "rock": 1.4, "bug": 0.714, "ghost": 0.51, "steel": 1.4, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 0.714, "ice": 1.4, "dragon": 1.0, "dark": 1.4, "fairy": 0.714}, "flying": {"normal": 1.0, "fighting": 1.4, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 0.714, "bug": 1.4, "ghost": 1.0, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.4, "electric": 0.714, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "poison": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 0.714, "ground": 0.714, "rock": 0.714, "bug": 1.0, "ghost": 0.714, "steel": 0.51, "fire": 1.0, "water": 1.0, "grass": 1.4, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.4}, "ground": {"normal": 1.0, "fighting": 1.0, "flying": 0.51, "poison": 1.4, "ground": 1.0, "rock": 1.4, "bug": 0.714, "ghost": 1.0, "steel": 1.4, "fire": 1.4, "water": 1.0, "grass": 0.714, "electric": 1.4, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "rock": {"normal": 1.0, "fighting": 0.714, "flying": 1.4, "poison": 1.0, "ground": 0.714, "rock": 1.0, "bug": 1.4, "ghost": 1.0, "steel": 0.714, "fire": 1.4, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.4, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "bug": {"normal": 1.0, "fighting": 0.714, "flying": 0.714, "poison": 0.714, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 0.714, "steel": 0.714, "fire": 0.714, "water": 1.0, "grass": 1.4, "electric": 1.0, "psychic": 1.4, "ice": 1.0, "dragon": 1.0, "dark": 1.4, "fairy": 0.714}, "ghost": {"normal": 0.51, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.4, "steel": 1.0, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.4, "ice": 1.0, "dragon": 1.0, "dark": 0.714, "fairy": 1.0}, "steel": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.4, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 0.714, "grass": 1.0, "electric": 0.714, "psychic": 1.0, "ice": 1.4, "dragon": 1.0, "dark": 1.0, "fairy": 1.4}, "fire": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 0.714, "bug": 1.4, "ghost": 1.0, "steel": 1.4, "fire": 0.714, "water": 0.714, "grass": 1.4, "electric": 1.0, "psychic": 1.0, "ice": 1.4, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "water": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.4, "rock": 1.4, "bug": 1.0, "ghost": 1.0, "steel": 1.0, "fire": 1.4, "water": 0.714, "grass": 0.714, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "grass": {"normal": 1.0, "fighting": 1.0, "flying": 0.714, "poison": 0.714, "ground": 1.4, "rock": 1.4, "bug": 0.714, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 1.4, "grass": 0.714, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "electric": {"normal": 1.0, "fighting": 1.0, "flying": 1.4, "poison": 1.0, "ground": 0.51, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 1.0, "fire": 1.0, "water": 1.4, "grass": 0.714, "electric": 0.714, "psychic": 1.0, "ice": 1.0, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "psychic": {"normal": 1.0, "fighting": 1.4, "flying": 1.0, "poison": 1.4, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 0.714, "ice": 1.0, "dragon": 1.0, "dark": 0.51, "fairy": 1.0}, "ice": {"normal": 1.0, "fighting": 1.0, "flying": 1.4, "poison": 1.0, "ground": 1.4, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 0.714, "grass": 1.4, "electric": 1.0, "psychic": 1.0, "ice": 0.714, "dragon": 1.4, "dark": 1.0, "fairy": 1.0}, "dragon": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.4, "dark": 1.0, "fairy": 0.51}, "dark": {"normal": 1.0, "fighting": 0.714, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.4, "steel": 1.0, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.4, "ice": 1.0, "dragon": 1.0, "dark": 0.714, "fairy": 0.714}, "fairy": {"normal": 1.0, "fighting": 1.4, "flying": 1.0, "poison": 0.714, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.4, "dark": 1.4, "fairy": 1.0}};
 
@@ -92,24 +91,16 @@ function calculateLevelByCP(pkm, CP){
 // constructor
 function Pokemon(cfg){
 	this.index = cfg.index;
+	this.fmove_index = cfg.fmove_index;
+	this.cmove_index = cfg.cmove_index;
 
 	this.raidTier = cfg.raid_tier;
 	this.atkiv = parseInt(cfg.atkiv);
 	this.defiv = parseInt(cfg.defiv);
 	this.stmiv = parseInt(cfg.stmiv);
 	this.level = parseFloat(cfg.level);
-	this.cpm = CPM_TABLE[Math.round(2*this.level - 2)];
 	
-	this.fmove_index = cfg.fmove_index;
-	this.cmove_index = cfg.cmove_index;
-	
-	this.dodgeStrat = parseInt(cfg.dodge) || 0;
-	if (this.dodgeStrat == 0)
-		this.atkr_choose = atkr_choose_0;
-	else if (this.dodgeStrat <= 2)
-		this.atkr_choose = atkr_choose_1;
-	else
-		this.atkr_choose = atkr_choose_2;
+	this.atkr_choose = window['atkr_choose_' + cfg.dodge] || atkr_choose_0;
 	
 	this.immortal = false;
 	this.playerCode = cfg.player_code;
@@ -136,7 +127,7 @@ Pokemon.prototype.init = function(){
 	this.num_deaths = 0;
 	this.tdo = 0;
 	this.tdo_fmove = 0;
-	this.total_energy_wasted = 0;
+	this.total_energy_overcharged = 0;
 	this.n_fmoves = 0;
 	this.n_cmoves = 0;
 	this.n_addtional_fmoves = 0;
@@ -145,6 +136,7 @@ Pokemon.prototype.init = function(){
 }
 
 Pokemon.prototype.calculate_current_stats = function(){
+	this.cpm = CPM_TABLE[Math.round(2*this.level - 2)];
 	this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
 	this.Def = (this.baseDef + this.defiv) * this.cpm;
 	this.Stm = (this.baseStm + this.stmiv) * this.cpm;
@@ -172,11 +164,9 @@ Pokemon.prototype.heal = function(){
 Pokemon.prototype.gain_energy = function(energyDelta){
 	this.energy += energyDelta;
 	if (this.energy > POKEMON_MAX_ENERGY){
-		this.total_energy_wasted = this.energy - POKEMON_MAX_ENERGY;
+		this.total_energy_overcharged += this.energy - POKEMON_MAX_ENERGY;
 		this.energy = POKEMON_MAX_ENERGY;
 	}
-	if (this.HP <= 0)
-		this.total_energy_wasted += this.energy;
 }
 
 // A Pokemon takes damage and gains energy = dmg/2
@@ -218,7 +208,7 @@ Pokemon.prototype.get_statistics = function(){
 		tdo_fmove : this.tdo_fmove,
 		duration : Math.round(this.total_time_active_ms/100)/10,
 		dps : Math.round(this.tdo / (this.total_time_active_ms/1000)*100)/100,
-		tew : this.total_energy_wasted,
+		teo : this.total_energy_overcharged,
 		n_fmoves : this.n_fmoves,
 		n_cmoves : this.n_cmoves,
 		n_addtional_fmoves : this.n_addtional_fmoves
@@ -863,7 +853,7 @@ function atkr_choose_0(state){
 	}
 }
 
-// 1. Agressive dodging
+// 1. Agressive dodge charged
 function atkr_choose_1(state){
 	var t = state.t;
 	var dfdr = state.dfdr;
@@ -871,15 +861,12 @@ function atkr_choose_1(state){
 	var weather = state.weather;
 	var dodge_bug = state.dodge_bug;
 	
-	if (t < hurtEvent.t && (hurtEvent.move.moveType == 'c' || [2,4].includes(this.dodgeStrat)) && !this.has_dodged_next_attack){
+	if (t < hurtEvent.t && hurtEvent.move.moveType == 'c' && !this.has_dodged_next_attack){
 		this.has_dodged_next_attack = true;
 		
 		var timeTillHurt = hurtEvent.t - t;
 		var undodgedDmg = damage(hurtEvent.object, this, hurtEvent.move, weather);
-		var dodgedDmg = Math.floor(undodgedDmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
-		if (dodge_bug == 1){
-			dodgedDmg = undodgedDmg;
-		}
+		var dodgedDmg = dodge_bug ? undodgedDmg : Math.floor(undodgedDmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
 		var fDmg = damage(this, dfdr, this.fmove, weather);
 		var cDmg = damage(this, dfdr, this.cmove, weather);
 
@@ -912,7 +899,7 @@ function atkr_choose_1(state){
 	}
 }
 
-// 2. Conservative dodging
+// 2. Conservative dodge all
 function atkr_choose_2(state){
 	var t = state.t;
 	var dfdr = state.dfdr;
@@ -925,23 +912,20 @@ function atkr_choose_2(state){
 	
 	if (t < hurtEvent.t && !this.has_dodged_next_attack){ // Case 1: A new attack has been announced and has not been dodged
 		this.has_dodged_next_attack = true; // prevent double dodging
-		var timeTillHurt = hurtEvent.t - t - DODGE_REACTION_TIME_MS;
+		var timeTillHurt = hurtEvent.t - t - DODGE_SWIPE_TIME_MS;
 		var undodgedDmg = damage(hurtEvent.object, this, hurtEvent.move, weather);
-		var dodgedDmg = Math.floor(undodgedDmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
-		if (dodge_bug == 1){
-			dodgedDmg = undodgedDmg;
-		}
+		var dodgedDmg = dodge_bug ? undodgedDmg : Math.floor(undodgedDmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
 		var opt_strat = strategyMaxDmg(timeTillHurt, this.energy, fDmg, this.fmove.energyDelta, 
 					this.fmove.duration + FAST_MOVE_LAG_MS, cDmg, this.cmove.energyDelta, this.cmove.duration + CHARGED_MOVE_LAG_MS);
 		var res = opt_strat[2];
 		if (hurtEvent.move.moveType == 'f') { // Case 1a: A fast move has been announced
-			if ([2,4].includes(this.dodgeStrat) && this.HP > dodgedDmg){ // Only dodge when necessary
-				res.push(Math.max(0, timeTillHurt - opt_strat[1] - DODGEWINDOW_LENGTH_MS + DODGE_REACTION_TIME_MS)); // wait until dodge window open
+			if (this.HP > dodgedDmg){ // Only dodge when necessary
+				res.push(Math.max(0, timeTillHurt - opt_strat[1] - DODGEWINDOW_LENGTH_MS + DODGE_SWIPE_TIME_MS)); // wait until dodge window open
 				res.push('d');
 			}
 		}else{ // Case 1b: A charge move has been announced
 			if (this.HP > dodgedDmg){
-				res.push(Math.max(0, timeTillHurt - opt_strat[1] - DODGEWINDOW_LENGTH_MS + DODGE_REACTION_TIME_MS)); // wait until dodge window open
+				res.push(Math.max(0, timeTillHurt - opt_strat[1] - DODGEWINDOW_LENGTH_MS + DODGE_SWIPE_TIME_MS)); // wait until dodge window open
 				res.push('d');
 				res.push('c'); // attempt to use cmove
 			}
@@ -950,8 +934,7 @@ function atkr_choose_2(state){
 	}else{ // Case 2: No new attack has been announced or has dodged the incoming attack
 		var res = [];
 		if (t > hurtEvent.t){ // just after dodging the current attack
-			var move_proj = [2,4].includes(this.dodgeStrat) ? dfdr.fmove : dfdr.cmove;
-			var timeTillHurt = hurtEvent.t - t - DODGE_REACTION_TIME_MS + (hurtEvent.move.duration - hurtEvent.move.dws) + 1500 + move_proj.dws;
+			var timeTillHurt = hurtEvent.t - t - DODGE_SWIPE_TIME_MS + (hurtEvent.move.duration - hurtEvent.move.dws) + 1500 + dfdr.fmove.dws;
 			if (this.energy + this.cmove.energyDelta >= 0 && this.cmove.duration < timeTillHurt)
 				res.push('c');
 			else

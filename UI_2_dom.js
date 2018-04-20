@@ -110,8 +110,6 @@ function createAttackerNode(){
 	stratSelect.appendChild(createElement('option', 'No Dodge', {value: 0}));
 	stratSelect.appendChild(createElement('option', 'Dodge Charged', {value: 1}));
 	stratSelect.appendChild(createElement('option', 'Dodge All', {value: 2}));
-	stratSelect.appendChild(createElement('option', 'Dodge Charged (beta)', {value: 3}));
-	stratSelect.appendChild(createElement('option', 'Dodge All (beta)', {value: 4}));
 	tb3.children[1].children[2].appendChild(stratSelect);
 	
 	pokemonNode.children[1].appendChild(tb1);
@@ -432,87 +430,6 @@ function createDefenderNode(){
 	return defenderNode;
 }
 
-
-function autocompletePokemonNodeSpecies(speciesInput){
-	$( speciesInput ).autocomplete({
-		minLength : 0,
-		delay : 500,
-		source : function(request, response){
-			var playerIdx = 0;
-			for (var i = 0; i < this.bindings.length; i++){
-				if (this.bindings[i].id && this.bindings[i].id.includes('species_')){
-					playerIdx = parseInt(this.bindings[i].id.split('_')[1].split('-')[0]);
-					break;
-				}
-			}
-			var searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term), matches = [];
-			try{
-				matches = universalGetter(searchStr, getPokemonSpeciesOptions(playerIdx));
-			}catch(err){matches = [];}
-			response(matches);
-		},
-		select : function(event, ui) {
-			var pkmInfo = ui.item, thisAddress = this.id.split('_')[1];
-			if (pkmInfo.box_index >= 0){
-				var thisPokemonNode = document.getElementById('ui-pokemon_' + thisAddress);
-				var user_idx = (thisAddress == 'd' ? 0 : parseInt(thisAddress.split('-')[0]));
-				if (thisAddress != 'd')
-					writeAttackerNode(thisPokemonNode, USERS_INFO[user_idx].box[pkmInfo.box_index]);
-				else
-					writeDefenderNode(thisPokemonNode, USERS_INFO[user_idx].box[pkmInfo.box_index]);
-			}
-			this.setAttribute('box_index', pkmInfo.box_index);
-			this.setAttribute('style', 'background-image: url('+pkmInfo.icon+')');
-		},
-		change : function (event, ui){
-			var idx = ui.item ? ui.item.index : get_species_index_by_name(this.value);
-			this.setAttribute('index', idx);
-			this.setAttribute('box_index', ui.item ? ui.item.box_index : -1);
-			this.setAttribute('style', 'background-image: url('+pokemon_icon_url_by_index(idx)+')');
-		}
-	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_pokemon_item;
-	
-	speciesInput.onfocus = function(){$(this).autocomplete("search", "");}
-}
-
-function autocompletePokemonNodeMoves(moveInput){
-	$( moveInput ).autocomplete({
-		minLength : 0,
-		delay : 0,
-		source: function(request, response){
-			var moveType = '', address = '';
-			for (var i = 0; i < this.bindings.length; i++){
-				if (this.bindings[i].id && this.bindings[i].id.includes('move_')){
-					moveType = this.bindings[i].id[0];
-					address = this.bindings[i].id.split('_')[1];
-					break;
-				}
-			}
-			var idx = parseInt($('#ui-species_' + address)[0].getAttribute('index'));
-			var searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term), matches = [];
-			markMoveDatabase(moveType, idx);
-			if (searchStr == '' && idx >= 0) //special case
-				searchStr = 'current,legacy,exclusive';
-			try{
-				matches = universalGetter(searchStr, (moveType == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA));
-			}catch(err){matches = [];}
-			response(matches);
-		},
-		select : function(event, ui) {
-			var moveType = this.id[0];
-			this.setAttribute('style', 'background-image: url(' + ui.item.icon + ')');
-		},
-		change : function(event, ui) {
-			var moveType = this.id[0];
-			var idx = ui.item ? ui.item.index : (moveType == 'f' ? get_fmove_index_by_name(this.value) : get_cmove_index_by_name(this.value));
-			this.setAttribute('index', idx);
-			this.setAttribute('style', 'background-image: url(' + move_icon_url_by_index(moveType, idx) + ')');
-		}
-	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_move_item;
-	
-	moveInput.onfocus = function(){$(this).autocomplete("search", "");};
-}
-
 function countPokemonFromParty(partyAddress){
 	var partyNodeBody = document.getElementById('ui-partybody_' + partyAddress);
 	var count = 0;
@@ -823,7 +740,7 @@ function createPokemonStatisticsTable(pokemonStats){
 								"HP", "Energy", "TDO", "Duration", "DPS", "Detail"], 'th'));
 	for (var i = 0; i < pokemonStats.length; i++){
 		var ps = pokemonStats[i];
-		var row = createRow(["<img src='" + pokemon_icon_url_by_index(ps.index) + " class='apitem-pokemon-icon'></img>", 
+		var row = createRow(["<img src='" + pokemon_icon_url_by_index(ps.index) + "' class='apitem-pokemon-icon'></img>", 
 			ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, "<a style='cursor: pointer'><i class='fa fa-info-circle' aria-hidden='true'></i></a>"], 'td');
 		
 		const ps_const = JSON.parse(JSON.stringify(ps));
