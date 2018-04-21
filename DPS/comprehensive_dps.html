@@ -13,6 +13,7 @@ div#ranking_table_wrapper {
 }
 </style>
 
+
 <div id='moveEditForm' title="Add/Edit Move">
 	<table>
 		<tr>
@@ -50,9 +51,10 @@ div#ranking_table_wrapper {
 	<br>
 	
 	<table> 
-		<colgroup><col width='50%'><col width='50%'></colgroup>
+		<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
 		<tr>
 			<td><button onclick='moveEditFormSubmit();calculate();' id='moveEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+			<td><button onclick='moveEditFormDelete();calculate();' id='moveEditForm-delete'><i class="fa fa-times" aria-hidden="true"></i> Delete</button></td>
 			<td><button onclick='moveEditFormReset();calculate();' id='moveEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
 		</tr>
 	</table>
@@ -102,14 +104,13 @@ div#ranking_table_wrapper {
 	
 	
 	<table> 
-		<colgroup><col width='50%'><col width='50%'></colgroup>
+		<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
 		<tr>
 			<td><button onclick='pokemonEditFormSubmit();calculate();' id='pokemonEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+			<td><button onclick='pokemonEditFormDelete();calculate();' id='pokemonEditForm-delete'><i class="fa fa-times" aria-hidden="true"></i> Delete</button></td>
 			<td><button onclick='pokemonEditFormReset();calculate();' id='pokemonEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
 		</tr>
 	</table>
-	
-	
 	
 	<div id='pokemonEditForm-feedback'>
 	</div>
@@ -126,8 +127,8 @@ div#ranking_table_wrapper {
 	</tr>
 	<tr>
 		<td><input type='text' id='ui-species_d' index='-1' class='input-with-icon species-input-with-icon'></input></td>
-		<td><select id='context-enemy-pokeType1' onchange='recalculate()'></select></td>
-		<td><select id='context-enemy-pokeType2' onchange='recalculate()'></select></td>
+		<td><select id='d-pokeType1' onchange='recalculate()'></select></td>
+		<td><select id='d-pokeType2' onchange='recalculate()'></select></td>
 	</tr>
 </table>
 
@@ -150,7 +151,7 @@ div#ranking_table_wrapper {
 		<th>Customization</th>
 	</tr>
 	<tr>
-		<td><select id='context-weather' onchange='recalculate()'></select></td>
+		<td><select id='weather' onchange='recalculate()'></select></td>
 		<td style='vertical-align:top; position:relative;'>
 			<button id='subMenuOpener'
 			onclick="$('#subMenu').slideToggle('fast')"><i class="fa fa-pencil" aria-hidden="true"></i> Customize</button>

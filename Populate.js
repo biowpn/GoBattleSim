@@ -108,7 +108,6 @@ function processUserPokeboxRawData(data){
 	for (var i = 0; i < data.length; i++){
 		var pkmRaw = {
 			index : get_species_index_by_name(data[i].species.toLowerCase()),
-			box_index : i,
 			species : data[i].species.toLowerCase(),
 			cp: parseInt(data[i].cp),
 			level: 0,
@@ -119,7 +118,8 @@ function processUserPokeboxRawData(data){
 			fmove_index : get_fmove_index_by_name(data[i].fast_move.toLowerCase()),
 			cmove: data[i].charge_move.toLowerCase(),
 			cmove_index : get_cmove_index_by_name(data[i].charge_move.toLowerCase()),
-			nickname : data[i].nickname
+			nickname : data[i].nickname,
+			nid: data[i].nid
 		};
 		if (pkmRaw.index < 0 || pkmRaw.fmove_index < 0 || pkmRaw.cmove_index < 0){
 			console.log("[Error in importing User Pokemon: species/moves not in database]");
@@ -127,6 +127,7 @@ function processUserPokeboxRawData(data){
 			continue;
 		}
 		copyAllInfo(pkmRaw, POKEMON_SPECIES_DATA[pkmRaw.index]);
+		pkmRaw.box_index = i;
 		pkmRaw.level = calculateLevelByCP(pkmRaw, pkmRaw.cp);
 		box.push(pkmRaw);
 	}
@@ -265,8 +266,8 @@ function loadLatestMoveData(oncomplete){
 	});
 }
 
-// Read User Pokebox
-function loadLatestPokeBox(userid, oncomplete){
+// Import User
+function loadUser(userid, oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({
@@ -275,12 +276,54 @@ function loadLatestPokeBox(userid, oncomplete){
 		success: function(data){
 			var importedBox = processUserPokeboxRawData(data);
 			USERS_INFO.push({id: userid, box: importedBox});
+			loadLatestTeams(userid);
 		},
 		complete: function(){
 			oncomplete();
 		}
 	});
 }
+
+// Import User Teams
+function loadLatestTeams(userid, oncomplete){
+	oncomplete = oncomplete || function(){return;};
+	
+	$.ajax({
+		url: '/user-pokemon-team?uid=' + userid,
+		dataType: 'json',
+		success: function(data){
+			var user = null;
+			for (var i = 0; i < USERS_INFO.length; i++){
+				if (USERS_INFO[i].id == userid)
+					user = USERS_INFO[i];
+			}
+			if(user){
+				user.parties = [];
+				for (var i = 0; i < data.length; i++){
+					var party_raw = data[i];
+					var party = {
+						name: party_raw.title,
+						pokemon_list: []
+					};
+					var team_nids = party_raw.team_nids.split(',');
+					for (var j = 0; j < team_nids.length; j++){
+						for (var k = 0; k < user.box.length; k++){
+							if (user.box[k].nid == team_nids[j].trim()){
+								party.pokemon_list.push(user.box[k]);
+								break;
+							}
+						}
+					}
+					user.parties.push(party);
+				}
+			}
+		},
+		complete: function(){
+			oncomplete();
+		}
+	});
+}
+
 
 
 // Manually Modify Data

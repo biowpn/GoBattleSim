@@ -94,7 +94,7 @@ function exportConfigToUrl(cfg){
 }
 
 function parseConfigFromUrl(url){
-	var cfg = uriToJSON(url);
+	var cfg = uriToJSON(url.split('?')[1]);
 	for (var i = 0; i < cfg.atkrSettings.length; i++){
 		for (var j = 0; j < cfg.atkrSettings[i].party_list.length; j++){
 			cfg.atkrSettings[i].party_list[j].revive_strategy = cfg.atkrSettings[i].party_list[j].revive_strategy || false;

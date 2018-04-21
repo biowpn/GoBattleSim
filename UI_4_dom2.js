@@ -1,7 +1,7 @@
 /* UI_4_dom2.js */
 
 const editableParameters = [
-	'POKEMON_MAX_ENERGY','STAB_MULTIPLIER','WAB_MULTIPLIER','DODGE_COOLDOWN_MS','DODGEWINDOW_LENGTH_MS','DODGE_REACTION_TIME_MS',
+	'POKEMON_MAX_ENERGY','STAB_MULTIPLIER','WAB_MULTIPLIER','DODGE_COOLDOWN_MS','DODGEWINDOW_LENGTH_MS','DODGE_SWIPE_TIME_MS',
 	'DODGED_DAMAGE_REDUCTION_PERCENT','ARENA_ENTRY_LAG_MS','ARENA_EARLY_TERMINATION_MS','FAST_MOVE_LAG_MS',
 	'CHARGED_MOVE_LAG_MS','SWITCHING_DELAY_MS','REJOIN_TIME_MS','ITEM_MENU_TIME_MS','EACH_MAX_REVIVE_TIME_MS'
 ];
@@ -36,53 +36,66 @@ function moveEditFormSubmit(){
 		send_feedback('Move: ' + toTitleCase(moveName) + ' has been added.', false, 'moveEditForm-feedback');
 	}
 	
+	var i = 0, moveDatabase_local = (moveType_input == 'f' ? FAST_MOVE_DATA_LOCAL : CHARGED_MOVE_DATA_LOCAL);
+	for(; i < moveDatabase_local.length; i++){
+		if (moveDatabase_local[i].name == move.name){
+			copyAllInfo(moveDatabase_local[i], move);
+			break;
+		}
+	}
+	if (i >= moveDatabase_local.length && idx < 0){
+		moveDatabase_local.push(move);
+	}
 	if (localStorage){
-		var i = 0, moveDatabase_local = (moveType_input == 'f' ? FAST_MOVE_DATA_LOCAL : CHARGED_MOVE_DATA_LOCAL);
-		for(; i < moveDatabase_local.length; i++){
-			if (moveDatabase_local[i].name == move.name){
-				copyAllInfo(moveDatabase_local[i], move);
-				break;
-			}
-		}
-		if (i >= moveDatabase_local.length && idx < 0){
-			moveDatabase_local.push(move);
-		}
-		if (moveType_input == 'f'){
-			localStorage.FAST_MOVE_DATA_LOCAL = JSON.stringify(FAST_MOVE_DATA_LOCAL);
-		}else{
-			localStorage.CHARGED_MOVE_DATA_LOCAL = JSON.stringify(CHARGED_MOVE_DATA_LOCAL);
-		}
+		localStorage.FAST_MOVE_DATA_LOCAL = JSON.stringify(FAST_MOVE_DATA_LOCAL);
+		localStorage.CHARGED_MOVE_DATA_LOCAL = JSON.stringify(CHARGED_MOVE_DATA_LOCAL);
 	}
 }
 
 function moveEditFormReset(){
 	FAST_MOVE_DATA = [];
-	FAST_MOVE_DATA_LOCAL = [];
 	CHARGED_MOVE_DATA = [];
-	CHARGED_MOVE_DATA_LOCAL = [];
-	if (localStorage){
-		localStorage.removeItem('FAST_MOVE_DATA_LOCAL');
-		localStorage.removeItem('CHARGED_MOVE_DATA_LOCAL');
-	}
-	send_feedback("Local Moves have been erased.", false, 'moveEditForm-feedback');
 	send_feedback("Connecting to server...", true, 'moveEditForm-feedback');
 	loadLatestMoveData(function(){
 		send_feedback("Latest Move Data have been fetched", true, 'moveEditForm-feedback');
-		POKEMON_SPECIES_DATA.forEach(function(pkm){
-			[pkm.fastMoves, pkm.fastMoves_legacy, pkm.fastMoves_exclusive].forEach(function(pool){
-				for (var i = 0; i < pool.length; i++){
-					if (get_fmove_index_by_name(pool[i]) < 0)
-						pool.splice(i, 1);
-				}
-			});
-			[pkm.chargedMoves, pkm.chargedMoves_legacy, pkm.chargedMoves_exclusive].forEach(function(pool){
-				for (var i = 0; i < pool.length; i++){
-					if (get_cmove_index_by_name(pool[i]) < 0)
-						pool.splice(i, 1);
-				}
-			});
-		});
+		for (var i = 0; i < FAST_MOVE_DATA_LOCAL.length; i++){
+			FAST_MOVE_DATA_LOCAL[i].index = FAST_MOVE_DATA.length;
+			FAST_MOVE_DATA.push(FAST_MOVE_DATA_LOCAL[i]);
+		}
+		for (var i = 0; i < CHARGED_MOVE_DATA_LOCAL.length; i++){
+			CHARGED_MOVE_DATA_LOCAL[i].index = CHARGED_MOVE_DATA.length;
+			CHARGED_MOVE_DATA.push(CHARGED_MOVE_DATA_LOCAL[i]);
+		}
+		if (localStorage){
+			localStorage.FAST_MOVE_DATA_LOCAL = JSON.stringify(FAST_MOVE_DATA_LOCAL);
+			localStorage.CHARGED_MOVE_DATA_LOCAL = JSON.stringify(CHARGED_MOVE_DATA_LOCAL);
+		}
 	});
+}
+
+function moveEditFormDelete(){
+	var moveType_input = document.getElementById('moveEditForm-moveType').value;
+	var moveName = document.getElementById('moveEditForm-name').value.toLowerCase();
+	var moveDatabase = (moveType_input == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA);
+	var moveDatabaseLocal = (moveType_input == 'f' ? FAST_MOVE_DATA_LOCAL : CHARGED_MOVE_DATA_LOCAL);
+	pred = (moveType_input == 'f' ? get_fmove_index_by_name : get_cmove_index_by_name);
+	var idx = pred(moveName);
+	
+	if (idx >= 0){
+		moveDatabase.splice(idx, 1);
+		for (var i = idx; i < moveDatabase.length; i++){
+			moveDatabase[i].index = i;
+		}
+		for (var i = 0; i < moveDatabaseLocal.length; i++){
+			if (moveDatabaseLocal[i].name == moveName)
+				moveDatabaseLocal.splice(i--, 1);
+		}
+		if (localStorage){
+			localStorage.FAST_MOVE_DATA_LOCAL = JSON.stringify(FAST_MOVE_DATA_LOCAL);
+			localStorage.CHARGED_MOVE_DATA_LOCAL = JSON.stringify(CHARGED_MOVE_DATA_LOCAL);
+		}
+		send_feedback("Move: " + moveName + " has been removed", false, 'moveEditForm-feedback');
+	}
 }
 
 function autocompleteMoveEditForm(){
@@ -179,24 +192,23 @@ function pokemonEditFormSubmit(){
 		send_feedback('Pokemon: ' + toTitleCase(pokemonName) + ' has been added.', false, 'pokemonEditForm-feedback');
 	}
 	
+	var i = 0;
+	for(; i < POKEMON_SPECIES_DATA_LOCAL.length; i++){
+		if (POKEMON_SPECIES_DATA_LOCAL[i].name == pkm.name){
+			copyAllInfo(POKEMON_SPECIES_DATA_LOCAL[i], pkm);
+			break;
+		}
+	}
+	if (i >= POKEMON_SPECIES_DATA_LOCAL.length && idx < 0){
+		POKEMON_SPECIES_DATA_LOCAL.push(pkm);
+	}
 	if (localStorage){
-		var i = 0;
-		for(; i < POKEMON_SPECIES_DATA_LOCAL.length; i++){
-			if (POKEMON_SPECIES_DATA_LOCAL[i].name == pkm.name){
-				copyAllInfo(POKEMON_SPECIES_DATA_LOCAL[i], pkm);
-				break;
-			}
-		}
-		if (i >= POKEMON_SPECIES_DATA_LOCAL.length && idx < 0){
-			POKEMON_SPECIES_DATA_LOCAL.push(pkm);
-		}
 		localStorage.POKEMON_SPECIES_DATA_LOCAL = JSON.stringify(POKEMON_SPECIES_DATA_LOCAL);
 	}
 }
 
 function pokemonEditFormReset(){
 	POKEMON_SPECIES_DATA = [];
-	POKEMON_SPECIES_DATA_LOCAL = [];
 	if (localStorage){
 		localStorage.removeItem('POKEMON_SPECIES_DATA_LOCAL');
 	}
@@ -204,8 +216,37 @@ function pokemonEditFormReset(){
 	send_feedback("Connecting to server...", true, 'pokemonEditForm-feedback');
 	loadLatestPokemonData(function(){
 		handleExclusiveMoves(POKEMON_SPECIES_DATA);
+		handleRaidBossMarker(POKEMON_SPECIES_DATA);
+		manualModifyData();
+		for (var i = 0; i < POKEMON_SPECIES_DATA_LOCAL.length; i++){
+			POKEMON_SPECIES_DATA_LOCAL[i].index = POKEMON_SPECIES_DATA.length;
+			POKEMON_SPECIES_DATA.push(POKEMON_SPECIES_DATA_LOCAL[i]);
+		}
+		if (localStorage){
+			localStorage.POKEMON_SPECIES_DATA_LOCAL = JSON.stringify(POKEMON_SPECIES_DATA_LOCAL);
+		}
 		send_feedback("Latest Pokemon Data have been fetched", true, 'pokemonEditForm-feedback');
 	});
+}
+
+function pokemonEditFormDelete(){
+	var pokemonName = document.getElementById('pokemonEditForm-name').value.toLowerCase();
+	var idx = get_species_index_by_name(pokemonName);
+	
+	if (idx >= 0){
+		POKEMON_SPECIES_DATA.splice(idx, 1);
+		for (var i = idx; i < POKEMON_SPECIES_DATA.length; i++){
+			POKEMON_SPECIES_DATA[i].index = i;
+		}
+		for (var i = 0; i < POKEMON_SPECIES_DATA_LOCAL.length; i++){
+			if (POKEMON_SPECIES_DATA_LOCAL[i].name == pokemonName)
+				POKEMON_SPECIES_DATA_LOCAL.splice(i--, 1);
+		}
+		if (localStorage){
+			localStorage.POKEMON_SPECIES_DATA_LOCAL = JSON.stringify(POKEMON_SPECIES_DATA_LOCAL);
+		}
+		send_feedback("Pokemon: " + pokemonName + " has been removed", false, 'pokemonEditForm-feedback');
+	}
 }
 
 function autocompletePokemonEditForm(){	
@@ -267,7 +308,7 @@ function autocompletePokemonEditForm(){
 function userEditFormAddUser(){
 	var userID = document.getElementById('userEditForm-userID-1').value.trim();
 	send_feedback("Connecting to server...", false, 'userEditForm-feedback');
-	loadLatestPokeBox(userID, function(){
+	loadUser(userID, function(){
 		send_feedback("Imported user " + userID, false, 'userEditForm-feedback');
 		udpateUserTable();
 	});

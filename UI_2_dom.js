@@ -139,10 +139,27 @@ function createPartyNode(){
 		delay : 0,
 		source : function(request, response){
 			var matches = [];
+			var playerIdx = -1;
+			for (var i = 0; i < this.bindings.length; i++){
+				if (this.bindings[i].id && this.bindings[i].id.includes('party-name_')){
+					playerIdx = parseInt(this.bindings[i].id.split('_')[1].split('-')[0]);
+					break;
+				}
+			}
+			if (playerIdx >= 0 && playerIdx < USERS_INFO.length){
+				for (var i = 0; i < USERS_INFO[playerIdx].parties.length; i++){
+					var party = USERS_INFO[playerIdx].parties[i];
+					if (party.name.includes(request.term)){
+						matches.push({
+							label: party.name, partyConfig: party
+						});
+					}
+				}
+			}
 			for (var partyName in PARTIES_LOCAL){
 				if (partyName.includes(request.term))
 					matches.push({
-						label: partyName, partyConfig: PARTIES_LOCAL[partyName]
+						label: '[Local] ' + partyName, partyConfig: PARTIES_LOCAL[partyName]
 					});
 			}
 			response(matches);
@@ -171,6 +188,8 @@ function createPartyNode(){
 	});
 	savePartyButton.onclick = function(){
 		var partyAddress = this.id.split('_')[1], partyName = $('#party-name_' + partyAddress)[0].value;
+		if (partyName.substring(0,7) == '[Local]')
+			partyName = partyName.substring(8);
 		if (partyName.length > 0){
 			PARTIES_LOCAL[partyName] = parsePartyNode($('#ui-party_' + partyAddress)[0]);
 			localStorage.setItem('PARTIES_LOCAL', JSON.stringify(PARTIES_LOCAL));
@@ -193,6 +212,8 @@ function createPartyNode(){
 		var partyAddress = this.id.split('_')[1];
 		var partyNodeToRemove = document.getElementById('ui-party_' + partyAddress);
 		var partyName = document.getElementById('party-name_' + partyAddress).value;
+		if (partyName.substring(0,7) == '[Local]')
+			partyName = partyName.substring(8);
 		var askForConfirm = PARTIES_LOCAL.hasOwnProperty(partyName);
 		if (partyNodeToRemove.parentNode.children.length > 1){
 			partyNodeToRemove.parentNode.removeChild(partyNodeToRemove);

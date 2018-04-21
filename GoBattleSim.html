@@ -364,9 +364,10 @@
 	<br>
 	
 	<table> 
-		<colgroup><col width='50%'><col width='50%'></colgroup>
+		<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
 		<tr>
 			<td><button onclick='moveEditFormSubmit()' id='moveEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+			<td><button onclick='moveEditFormDelete()' id='moveEditForm-delete'><i class="fa fa-times" aria-hidden="true"></i> Delete</button></td>
 			<td><button onclick='moveEditFormReset()' id='moveEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
 		</tr>
 	</table>
@@ -416,14 +417,13 @@
 	
 	
 	<table> 
-		<colgroup><col width='50%'><col width='50%'></colgroup>
+		<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
 		<tr>
 			<td><button onclick='pokemonEditFormSubmit()' id='pokemonEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+			<td><button onclick='pokemonEditFormDelete()' id='pokemonEditForm-delete'><i class="fa fa-times" aria-hidden="true"></i> Delete</button></td>
 			<td><button onclick='pokemonEditFormReset()' id='pokemonEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
 		</tr>
 	</table>
-	
-	
 	
 	<div id='pokemonEditForm-feedback'>
 	</div>
@@ -709,7 +709,7 @@ $( "#moveEditFormOpener" ).click(function() {
 	$( "#moveEditForm" ).dialog( "open" );
 });
 autocompleteMoveEditForm();
-$( "#moveEditFormOpener" ).on('dialogclose', function(event) {
+$( "#moveEditForm" ).on('dialogclose', function(event) {
 	send_feedback('', false, 'moveEditForm-feedback');
 });
 
@@ -860,14 +860,14 @@ $ ('#quickStartWizardOpener').click(function() {
 // Final preparation
 function handle_2(){
 	if (typeof userID2 != 'underfined' && userID2){
-		loadLatestPokeBox(userID2, function(){
+		loadUser(userID2, function(){
 			send_feedback("Imported user " + userID2, false, 'userEditForm-feedback');
 			udpateUserTable();
 		});
 	}
 	
 	if (window.location.href.includes('?')){
-		writeUserInput(parseConfigFromUrl(window.location.href.split('?')[1]));
+		writeUserInput(parseConfigFromUrl(window.location.href));
 		main({maxJobSize: 10000});
 	}
 	
