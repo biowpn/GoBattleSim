@@ -1,4 +1,4 @@
-/* UI_3_parser.js */
+/* GBS_UI_3_parser.js */
 
 var parsedSpeciesFieldMatches = {};
 var parsedFastMoveFieldMatches = {};
@@ -46,7 +46,7 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 		markMoveDatabase(attr[0], pkmInfo.index);
 	}
 	
-	var exact_match_idx = pred(expressionStr);
+	var exact_match_idx = pred(expressionStr, universe);
 	if (!isNaN(exact_match_idx) && exact_match_idx >= 0){ // Exact Match
 		pkmInfo[attr_idx] = exact_match_idx;
 		return [];
@@ -134,8 +134,7 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 function parsePokemonInput(cfg, address){
 	var branches = [];
 	
-	branches = parsePokemonAttributeExpression(cfg, address, 'species', 'index', 
-		get_species_index_by_name, getPokemonSpeciesOptions(parseInt(address.split('-')[0]) - 1));
+	branches = parsePokemonAttributeExpression(cfg, address, 'species', 'index', index_by_name, getPokemonSpeciesOptions(parseInt(address.split('-')[0]) - 1));
 	if (branches.length) return branches;
 	branches = parsePokemonAttributeExpression(cfg, address, 'level', 'level', parseFloat, LEVEL_VALUES);
 	if (branches.length) return branches;
@@ -145,9 +144,9 @@ function parsePokemonInput(cfg, address){
 	if (branches.length) return branches;
 	branches = parsePokemonAttributeExpression(cfg, address, 'stmiv', 'stmiv', parseInt, IV_VALUES);
 	if (branches.length) return branches;
-	branches = parsePokemonAttributeExpression(cfg, address, 'fmove', 'fmove_index', get_fmove_index_by_name, FAST_MOVE_DATA);
+	branches = parsePokemonAttributeExpression(cfg, address, 'fmove', 'fmove_index', index_by_name, FAST_MOVE_DATA);
 	if (branches.length) return branches;
-	branches = parsePokemonAttributeExpression(cfg, address, 'cmove', 'cmove_index', get_cmove_index_by_name, CHARGED_MOVE_DATA);
+	branches = parsePokemonAttributeExpression(cfg, address, 'cmove', 'cmove_index', index_by_name, CHARGED_MOVE_DATA);
 	if (branches.length) return branches;
 	
 	return branches;

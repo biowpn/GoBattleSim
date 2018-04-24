@@ -599,12 +599,6 @@
 
 
 
-<div id='tempDialog' title='GoBattleSim'>
-Simulating...
-</div>
-
-
-
 
 <script>
 
@@ -883,7 +877,7 @@ function main(args){
 	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
 	
 	if (!(args && args.noDisplay)){
-		$( '#tempDialog' ).dialog( 'open' );
+		send_feedback_dialog("Simulating...");
 		args = args || {};
 		if (!args.noWait){
 			args.noWait = true;
@@ -915,7 +909,9 @@ function main(args){
 		});
 	}
 	
-	$( '#tempDialog' ).dialog('close');
+	while (DialogStack.length){
+		DialogStack.pop().dialog('close');
+	}
 	if (!(args && args.noDisplay)){
 		send_feedback(currentJobSize + " sims have been performed", true);
 		displayMasterSummaryTable();
@@ -926,7 +922,6 @@ function main(args){
 }
 
 
-$('#tempDialog').dialog({autoOpen: false});
 addPlayerNode();
 document.getElementById("ui-defenderinputbody").innerHTML = "";
 document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());

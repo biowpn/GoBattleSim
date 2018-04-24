@@ -1,4 +1,4 @@
-/* UI_1_general.js */
+/* GBS_UI_1_general.js.js */
 
 const LOGICAL_OPERATORS = {
 	',': 0,	'&': 1,	'!': 2
@@ -10,6 +10,7 @@ const acceptedNumericalAttributes = [
 	'power', 'duration', 'dws', 'energyDelta', 'value'
 ];
 
+var DialogStack = [];
 
 
 function createElement(type, innerHTML, attrsAndValues){
@@ -312,7 +313,7 @@ function markMoveDatabase(moveType, species_idx){
 function autocompletePokemonNodeSpecies(speciesInput){
 	$( speciesInput ).autocomplete({
 		minLength : 0,
-		delay : 500,
+		delay : 200,
 		source : function(request, response){
 			var playerIdx = 0;
 			for (var i = 0; i < this.bindings.length; i++){
@@ -342,14 +343,14 @@ function autocompletePokemonNodeSpecies(speciesInput){
 			this.setAttribute('style', 'background-image: url('+pkmInfo.icon+')');
 		},
 		change : function (event, ui){
-			var idx = ui.item ? ui.item.index : get_species_index_by_name(this.value);
+			var idx = ui.item ? ui.item.index : index_by_name(this.value, POKEMON_SPECIES_DATA);
 			this.setAttribute('index', idx);
 			this.setAttribute('box_index', ui.item ? ui.item.box_index : -1);
 			this.setAttribute('style', 'background-image: url('+pokemon_icon_url_by_index(idx)+')');
 		}
 	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_pokemon_item;
 	
-	speciesInput.onfocus = function(){$(this).autocomplete("search", "");}
+	// speciesInput.onfocus = function(){$(this).autocomplete("search", "");} // This line of cope is causing page to freeze
 }
 
 function autocompletePokemonNodeMoves(moveInput){
@@ -382,7 +383,7 @@ function autocompletePokemonNodeMoves(moveInput){
 		},
 		change : function(event, ui) {
 			var moveType = this.id[0];
-			var idx = ui.item ? ui.item.index : (moveType == 'f' ? get_fmove_index_by_name(this.value) : get_cmove_index_by_name(this.value));
+			var idx = ui.item ? ui.item.index : index_by_name(this.value, (moveType == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA));
 			this.setAttribute('index', idx);
 			this.setAttribute('style', 'background-image: url(' + move_icon_url_by_index(moveType, idx) + ')');
 		}
@@ -401,6 +402,21 @@ function send_feedback(msg, appending, feedbackDivId){
 			feedbackSection.innerHTML = '<p>' + msg + '</p>';
 	}
 }
+
+function send_feedback_dialog(msg, dialogTitle){
+	var d = $(createElement('div', msg, {
+		title: dialogTitle || 'GoBattleSim'
+	})).dialog({
+		buttons: {
+			"OK": function(){
+				$(this).dialog("close");
+			}
+		}
+	});
+	DialogStack.push(d);
+	return d;
+}
+
 
 function pokemon_icon_url_by_dex(dex){
 	var dex_string = dex.toString();

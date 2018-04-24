@@ -1,4 +1,4 @@
-/* UI_2_dom.js */
+/* GBS_UI_2_dom.js */
 
 function createAttackerNode(){
 	var pokemonNode = createElement('div', '', {class: 'section-body section-pokemon-node'});
@@ -53,7 +53,7 @@ function createAttackerNode(){
 			pokemonNodeToRemove.parentNode.removeChild(pokemonNodeToRemove);
 			relabelAll();
 		}else{
-			send_feedback("Cannot remove the only Pokemon of the party.");
+			send_feedback_dialog("Cannot remove the only Pokemon of the party.");
 		}
 	}
 	controlButtonDiv.appendChild(removePokemonButton);
@@ -219,7 +219,7 @@ function createPartyNode(){
 			partyNodeToRemove.parentNode.removeChild(partyNodeToRemove);
 			relabelAll();
 		}else if (!askForConfirm){
-			send_feedback("Cannot remove the only party of the player.");
+			send_feedback_dialog("Cannot remove the only party of the player.");
 		}
 		if (askForConfirm){
 			var removePartyDialog = createElement('div', 'Do you want to remove party "' + partyName + '" from saved parties?');
@@ -262,7 +262,7 @@ function createPartyNode(){
 			partyNodeToAddPokemon.children[1].appendChild(createAttackerNode());
 			relabelAll();
 		}else{
-			send_feedback("Exceeding Maximum number of Pokemon per party.");
+			send_feedback_dialog("Exceeding Maximum number of Pokemon per party.");
 		}
 	}
 	partyNode.children[2].appendChild(addPokemonButton);
@@ -302,7 +302,7 @@ function createPlayerNode(){
 			relabelAll();
 			document.getElementById('ui-addplayerbutton').disabled = false;
 		}else{
-			send_feedback("Cannot remove the only player");
+			send_feedback_dialog("Cannot remove the only player");
 		}
 	}
 	controlButtonDiv.appendChild(removePlayerButton);
@@ -322,7 +322,7 @@ function createPlayerNode(){
 				playerNodeToAddPartyTo.children[1].appendChild(createPartyNode());
 				relabelAll();
 		}else{
-			send_feedback("Exceeding Maximum number of Parties per player.");
+			send_feedback_dialog("Exceeding Maximum number of Parties per player.");
 		}
 	}
 	playerNode.children[2].appendChild(addPartyButton);
@@ -338,7 +338,7 @@ var attackerFieldBody = document.getElementById("AttackerInput").children[1];
 		relabelAll();
 	}else{
 		document.getElementById('ui-addplayerbutton').setAttribute('disabled', true);
-		send_feedback('Exceeding maximum number of players.');
+		send_feedback_dialog('Exceeding maximum number of players.');
 	}
 }
 

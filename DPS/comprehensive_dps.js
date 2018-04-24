@@ -286,10 +286,12 @@ function calculate(){
 			for (var k = 0; k < chargedMoves_all.length; k++){
 				var pkm2 = JSON.parse(JSON.stringify(pkm));
 				
-				pkm2.fmove_index = get_fmove_index_by_name(fastMoves_all[j]);
-				pkm2.cmove_index = get_cmove_index_by_name(chargedMoves_all[k]);
-				if (pkm2.fmove_index < 0 || pkm2.cmove_index < 0)
+				pkm2.fmove_index = index_by_name(fastMoves_all[j], FAST_MOVE_DATA);
+				pkm2.cmove_index = index_by_name(chargedMoves_all[k], CHARGED_MOVE_DATA);
+				if (pkm2.fmove_index < 0 || pkm2.cmove_index < 0){
+					console.log("Unrecognized move " + fastMoves_all[j] + ' or ' + chargedMoves_all[k]);
 					continue;
+				}
 				
 				pkm2.level = DEFAULT_LEVEL;
 				pkm2.atkiv = DEFAULT_IVs[0];

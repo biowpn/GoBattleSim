@@ -1,4 +1,4 @@
-/* GoBattleSimLib.js */
+/* GBS_Core.js */
 
 var POKEMON_MAX_ENERGY = 100;
 var STAB_MULTIPLIER = 1.2;

@@ -1,4 +1,4 @@
-/* UI_4_dom2.js */
+/* GBS_UI_4_dom2.js */
 
 const editableParameters = [
 	'POKEMON_MAX_ENERGY','STAB_MULTIPLIER','WAB_MULTIPLIER','DODGE_COOLDOWN_MS','DODGEWINDOW_LENGTH_MS','DODGE_SWIPE_TIME_MS',
@@ -10,7 +10,11 @@ const editableParameters = [
 
 function moveEditFormSubmit(){
 	var moveType_input = document.getElementById('moveEditForm-moveType').value;
-	var moveName = document.getElementById('moveEditForm-name').value.toLowerCase();
+	var moveName = document.getElementById('moveEditForm-name').value.trim().toLowerCase();
+	
+	if (moveName == '')
+		return;
+	
 	var move = {
 		name: moveName,
 		moveType: moveType_input,
@@ -22,28 +26,22 @@ function moveEditFormSubmit(){
 	};
 	
 	var moveDatabase = (moveType_input == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA);
-	pred = (moveType_input == 'f' ? get_fmove_index_by_name : get_cmove_index_by_name);
-	var idx = pred(moveName);
+	var moveDatabase_local = (moveType_input == 'f' ? FAST_MOVE_DATA_LOCAL : CHARGED_MOVE_DATA_LOCAL);
+	var idx = index_by_name(moveName, moveDatabase);
 	
 	if (idx >= 0){
 		copyAllInfo(moveDatabase[idx], move);
+		move = moveDatabase[idx];
 		send_feedback('Move: ' + toTitleCase(moveName) + ' has been updated.', false, 'moveEditForm-feedback');
 	}else{
-		move.index = moveDatabase.length;
 		move.label = toTitleCase(moveName);
 		move.icon = "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + move.pokeType + ".png";
+		move.index = moveDatabase.length;
 		moveDatabase.push(move);
 		send_feedback('Move: ' + toTitleCase(moveName) + ' has been added.', false, 'moveEditForm-feedback');
 	}
 	
-	var i = 0, moveDatabase_local = (moveType_input == 'f' ? FAST_MOVE_DATA_LOCAL : CHARGED_MOVE_DATA_LOCAL);
-	for(; i < moveDatabase_local.length; i++){
-		if (moveDatabase_local[i].name == move.name){
-			copyAllInfo(moveDatabase_local[i], move);
-			break;
-		}
-	}
-	if (i >= moveDatabase_local.length && idx < 0){
+	if (index_by_name(moveName, moveDatabase_local) < 0){
 		moveDatabase_local.push(move);
 	}
 	if (localStorage){
@@ -59,12 +57,20 @@ function moveEditFormReset(){
 	loadLatestMoveData(function(){
 		send_feedback("Latest Move Data have been fetched", true, 'moveEditForm-feedback');
 		for (var i = 0; i < FAST_MOVE_DATA_LOCAL.length; i++){
-			FAST_MOVE_DATA_LOCAL[i].index = FAST_MOVE_DATA.length;
-			FAST_MOVE_DATA.push(FAST_MOVE_DATA_LOCAL[i]);
+			if (index_by_name(FAST_MOVE_DATA_LOCAL[i].name, FAST_MOVE_DATA) >= 0){
+				FAST_MOVE_DATA_LOCAL.splice(i--, 1);
+			}else{
+				FAST_MOVE_DATA_LOCAL[i].index = FAST_MOVE_DATA.length;
+				FAST_MOVE_DATA.push(FAST_MOVE_DATA_LOCAL[i]);
+			}
 		}
 		for (var i = 0; i < CHARGED_MOVE_DATA_LOCAL.length; i++){
-			CHARGED_MOVE_DATA_LOCAL[i].index = CHARGED_MOVE_DATA.length;
-			CHARGED_MOVE_DATA.push(CHARGED_MOVE_DATA_LOCAL[i]);
+			if (index_by_name(CHARGED_MOVE_DATA_LOCAL[i].name, CHARGED_MOVE_DATA) >= 0){
+				CHARGED_MOVE_DATA_LOCAL.splice(i--, 1);
+			}else{
+				CHARGED_MOVE_DATA_LOCAL[i].index = CHARGED_MOVE_DATA.length;
+				CHARGED_MOVE_DATA.push(CHARGED_MOVE_DATA_LOCAL[i]);
+			}
 		}
 		if (localStorage){
 			localStorage.FAST_MOVE_DATA_LOCAL = JSON.stringify(FAST_MOVE_DATA_LOCAL);
@@ -75,11 +81,10 @@ function moveEditFormReset(){
 
 function moveEditFormDelete(){
 	var moveType_input = document.getElementById('moveEditForm-moveType').value;
-	var moveName = document.getElementById('moveEditForm-name').value.toLowerCase();
+	var moveName = document.getElementById('moveEditForm-name').value.trim().toLowerCase();
 	var moveDatabase = (moveType_input == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA);
 	var moveDatabaseLocal = (moveType_input == 'f' ? FAST_MOVE_DATA_LOCAL : CHARGED_MOVE_DATA_LOCAL);
-	pred = (moveType_input == 'f' ? get_fmove_index_by_name : get_cmove_index_by_name);
-	var idx = pred(moveName);
+	var idx = index_by_name(moveName, moveDatabase);
 	
 	if (idx >= 0){
 		moveDatabase.splice(idx, 1);
@@ -123,7 +128,7 @@ function autocompleteMoveEditForm(){
 		}
 	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_move_item;
 	
-	document.getElementById('moveEditForm-name' ).onfocus = function(){$(this).autocomplete("search", "");}
+	// document.getElementById('moveEditForm-name' ).onfocus = function(){$(this).autocomplete("search", "");}
 	
 	document.getElementById('moveEditForm-pokeType').onchange = function(){
 		document.getElementById('moveEditForm-name').setAttribute(
@@ -133,32 +138,35 @@ function autocompleteMoveEditForm(){
 
 
 function pokemonEditFormSubmit(){
-	var pokemonName = document.getElementById('pokemonEditForm-name').value.toLowerCase();
+	var pokemonName = document.getElementById('pokemonEditForm-name').value.trim().toLowerCase();
+	
+	if (pokemonName == '')
+		return;
 	
 	var fmoves = [], fmoves_legacy = [], fmoves_exclusive = [], cmoves = [], cmoves_legacy = [], cmoves_exclusive = [];
 	document.getElementById('pokemonEditForm-fmoves').value.split(',').forEach(function(moveName){
 		moveName = moveName.trim().toLowerCase();
 		if (moveName.substring(moveName.length - 2, moveName.length) == '**'){
-			if (get_fmove_index_by_name(moveName.substring(0,moveName.length - 2)) >= 0)
+			if (index_by_name(moveName.substring(0, moveName.length - 2), FAST_MOVE_DATA) >= 0)
 				fmoves_exclusive.push(moveName.substring(0,moveName.length - 2));
 		}else if (moveName.substring(moveName.length - 1, moveName.length) == '*'){
-			if (get_fmove_index_by_name(moveName.substring(0,moveName.length - 1)) >= 0)
+			if (index_by_name(moveName.substring(0, moveName.length - 1), FAST_MOVE_DATA) >= 0)
 				fmoves_legacy.push(moveName.substring(0,moveName.length - 1));
 		}else{
-			if (get_fmove_index_by_name(moveName) >= 0)
+			if (index_by_name(moveName, FAST_MOVE_DATA) >= 0)
 				fmoves.push(moveName);
 		}
 	});
 	document.getElementById('pokemonEditForm-cmoves').value.split(',').forEach(function(moveName){
 		moveName = moveName.trim().toLowerCase();
 		if (moveName.substring(moveName.length - 2, moveName.length) == '**'){
-			if (get_cmove_index_by_name(moveName.substring(0,moveName.length - 2)) >= 0)
+			if (index_by_name(moveName.substring(0, moveName.length - 2), CHARGED_MOVE_DATA) >= 0)
 				cmoves_exclusive.push(moveName.substring(0,moveName.length - 2));
 		}else if (moveName.substring(moveName.length - 1, moveName.length) == '*'){
-			if (get_cmove_index_by_name(moveName.substring(0,moveName.length - 1)) >= 0)
+			if (index_by_name(moveName.substring(0, moveName.length - 1), CHARGED_MOVE_DATA) >= 0)
 				cmoves_legacy.push(moveName.substring(0,moveName.length - 1));
 		}else{
-			if (get_cmove_index_by_name(moveName) >= 0)
+			if (index_by_name(moveName, CHARGED_MOVE_DATA) >= 0)
 				cmoves.push(moveName);
 		}
 	});
@@ -178,9 +186,10 @@ function pokemonEditFormSubmit(){
 		chargedMoves_exclusive : cmoves_exclusive
 	};
 	
-	var idx = get_species_index_by_name(pokemonName);
+	var idx = index_by_name(pokemonName, POKEMON_SPECIES_DATA);
 	if (idx >= 0){
 		copyAllInfo(POKEMON_SPECIES_DATA[idx], pkm);
+		pkm = POKEMON_SPECIES_DATA[idx];
 		send_feedback('Pokemon: ' + toTitleCase(pokemonName) + ' has been updated.', false, 'pokemonEditForm-feedback');
 	}else{
 		pkm.dex = 0;
@@ -192,14 +201,7 @@ function pokemonEditFormSubmit(){
 		send_feedback('Pokemon: ' + toTitleCase(pokemonName) + ' has been added.', false, 'pokemonEditForm-feedback');
 	}
 	
-	var i = 0;
-	for(; i < POKEMON_SPECIES_DATA_LOCAL.length; i++){
-		if (POKEMON_SPECIES_DATA_LOCAL[i].name == pkm.name){
-			copyAllInfo(POKEMON_SPECIES_DATA_LOCAL[i], pkm);
-			break;
-		}
-	}
-	if (i >= POKEMON_SPECIES_DATA_LOCAL.length && idx < 0){
+	if (index_by_name(pokemonName, POKEMON_SPECIES_DATA_LOCAL) < 0){
 		POKEMON_SPECIES_DATA_LOCAL.push(pkm);
 	}
 	if (localStorage){
@@ -219,8 +221,12 @@ function pokemonEditFormReset(){
 		handleRaidBossMarker(POKEMON_SPECIES_DATA);
 		manualModifyData();
 		for (var i = 0; i < POKEMON_SPECIES_DATA_LOCAL.length; i++){
-			POKEMON_SPECIES_DATA_LOCAL[i].index = POKEMON_SPECIES_DATA.length;
-			POKEMON_SPECIES_DATA.push(POKEMON_SPECIES_DATA_LOCAL[i]);
+			if (index_by_name(POKEMON_SPECIES_DATA_LOCAL[i].name, POKEMON_SPECIES_DATA) >= 0){
+				POKEMON_SPECIES_DATA_LOCAL.splice(i--, 1);
+			}else{
+				POKEMON_SPECIES_DATA_LOCAL[i].index = POKEMON_SPECIES_DATA.length;
+				POKEMON_SPECIES_DATA.push(POKEMON_SPECIES_DATA_LOCAL[i]);
+			}
 		}
 		if (localStorage){
 			localStorage.POKEMON_SPECIES_DATA_LOCAL = JSON.stringify(POKEMON_SPECIES_DATA_LOCAL);
@@ -230,8 +236,8 @@ function pokemonEditFormReset(){
 }
 
 function pokemonEditFormDelete(){
-	var pokemonName = document.getElementById('pokemonEditForm-name').value.toLowerCase();
-	var idx = get_species_index_by_name(pokemonName);
+	var pokemonName = document.getElementById('pokemonEditForm-name').value.trim().toLowerCase();
+	var idx = index_by_name(pokemonName, POKEMON_SPECIES_DATA);
 	
 	if (idx >= 0){
 		POKEMON_SPECIES_DATA.splice(idx, 1);
@@ -301,7 +307,7 @@ function autocompletePokemonEditForm(){
 		}
 	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_pokemon_item;
 	
-	document.getElementById('pokemonEditForm-name' ).onfocus = function(){$(this).autocomplete("search", "");}
+	// document.getElementById('pokemonEditForm-name' ).onfocus = function(){$(this).autocomplete("search", "");}
 }
 
 
