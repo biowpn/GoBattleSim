@@ -20,6 +20,7 @@ var Context = {
 
 var ALL_COMBINATIONS = [];
 
+
 Pokemon.prototype.calc_DPS = function(x, y){
 	// x is the energy left; y is the enemy DPS
 	var FDmg = damage2(this, Context.enemy, this.fmove, Context.weather);
@@ -44,6 +45,11 @@ Pokemon.prototype.calc_DPS = function(x, y){
 	this.st = ST;
 	this.tdo = (n * FDmg + m * CDmg);
 	this.dps = this.tdo / this.st;
+	
+	if (y == 0){ // Alternative Formula for DPS when y = 0
+		var FDPS = FDmg/FDur, FEPS = FE/FDurm, CDPS = CDmg/CDur, CEPS = CE/CDur;
+		this.dps = (FDPS * CEPS + CDPS * FEPS)/(CEPS + FEPS) + (CDPS - FDPS)/(CEPS + FEPS) * (1/2 - x/this.Stm) * y;
+	}
 	
 	return this.dps;
 }
@@ -233,7 +239,6 @@ function handle_2(){
 				select.append(op);
 			});
 	});
-
 }
 
 
@@ -270,6 +275,22 @@ function applyContext(){
 }
 
 
+// Generate a spectrum of DPS
+function generate_DPS_spectrum(pkm, settings){
+	settings = settings || {};
+	var X_min = settings.X_min || 0, X_max = settings.X_max || 100, X_num = settings.X_num || 100, X_step = (X_max - X_min) / X_num;
+	var Y_min = settings.Y_min || 0, Y_max = settings.Y_max || 1500/pkm.Def, Y_num = settings.Y_step || 100, Y_step = (Y_max - Y_min) / Y_num;
+	var DPS_spectrum = [];
+	for (var x = X_min; x < X_max; x += X_step){
+		var row = [];
+		for (var y = Y_min; y < Y_max; y += Y_step){
+			row.push(pkm.calc_DPS(x, y));
+		}
+		DPS_spectrum.push(row);
+	}
+	return DPS_spectrum;
+}
+
 
 // Calculate DPS and TDO
 function calculate(){
@@ -299,9 +320,11 @@ function calculate(){
 				pkm2.stmiv = DEFAULT_IVs[0];
 				pkm2.raid_tier = 0;
 				
+				
 				var pkm2 = new Pokemon(pkm2);
 				var dfdrDmg = Context.enemy.calc_defender(pkm2);
 				pkm2.calc_DPS( -pkm2.cmove.energyDelta * 0.5 + pkm2.fmove.energyDelta * 0.5 + dfdrDmg.extra_energy_wasted, dfdrDmg.dps );
+				pkm2.cp = calculateCP(pkm2);
 				
 				Table.row.add([
 					createIconLabelDiv2(pkm2.icon, pkm2.label, 'species-input-with-icon'), 
@@ -310,7 +333,7 @@ function calculate(){
 					Math.round(pkm2.dps * 1000) / 1000, 
 					Math.round(pkm2.tdo * 10) / 10,
 					Math.round(pkm2.dps * pkm2.tdo * 10) / 10,
-					calculateCP(pkm2)
+					pkm2.cp
 				]);
 
 				ALL_COMBINATIONS.push(pkm2);
@@ -344,16 +367,19 @@ function recalculate(){
 }
 
 
-
-function get_combination_index(species_name, fmove_name, cmove_name){
+function get_combination(species_query, fmove_query, cmove_query){
+	pred_s = createComplexPredicate(species_query || '');
+	pred_f = createComplexPredicate(fmove_query || '');
+	pred_c = createComplexPredicate(cmove_query || '');
+	
+	var result = [];
 	for (var i = 0; i < ALL_COMBINATIONS.length; i++){
 		var pkm = ALL_COMBINATIONS[i];
-		if (pkm.name == species_name && pkm.fmove.name == fmove_name && pkm.cmove.name == cmove_name)
-			return i;
+		if (pred_s(pkm) && pred_f(pkm.fmove) && pred_c(pkm.cmove))
+			result.push(pkm);
 	}
-	return -1;
+	return result;
 }
-
 
 
 

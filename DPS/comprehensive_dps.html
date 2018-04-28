@@ -53,9 +53,9 @@ div#ranking_table_wrapper {
 	<table> 
 		<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
 		<tr>
-			<td><button onclick='moveEditFormSubmit();calculate();' id='moveEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
-			<td><button onclick='moveEditFormDelete();calculate();' id='moveEditForm-delete'><i class="fa fa-times" aria-hidden="true"></i> Delete</button></td>
-			<td><button onclick='moveEditFormReset();calculate();' id='moveEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
+			<td><button onclick='moveEditFormSubmit()' id='moveEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+			<td><button onclick='moveEditFormDelete()' id='moveEditForm-delete'><i class="fa fa-times" aria-hidden="true"></i> Delete</button></td>
+			<td><button onclick='moveEditFormReset()' id='moveEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
 		</tr>
 	</table>
 	
@@ -106,9 +106,9 @@ div#ranking_table_wrapper {
 	<table> 
 		<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
 		<tr>
-			<td><button onclick='pokemonEditFormSubmit();calculate();' id='pokemonEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
-			<td><button onclick='pokemonEditFormDelete();calculate();' id='pokemonEditForm-delete'><i class="fa fa-times" aria-hidden="true"></i> Delete</button></td>
-			<td><button onclick='pokemonEditFormReset();calculate();' id='pokemonEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
+			<td><button onclick='pokemonEditFormSubmit()' id='pokemonEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+			<td><button onclick='pokemonEditFormDelete()' id='pokemonEditForm-delete'><i class="fa fa-times" aria-hidden="true"></i> Delete</button></td>
+			<td><button onclick='pokemonEditFormReset()' id='pokemonEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
 		</tr>
 	</table>
 	
@@ -158,6 +158,7 @@ div#ranking_table_wrapper {
 			<div id='subMenu' style='position: absolute; width: 95%'>
 				<button class='player_button' id='moveEditFormOpener'>Move</button>
 				<button class='player_button' id='pokemonEditFormOpener'>Species</button>
+				<button class='player_button' onclick="calculate(); $('#subMenu').slideToggle('fast')">Refresh</button>
 			</div>
 		</td>
 	</tr>

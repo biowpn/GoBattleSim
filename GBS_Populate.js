@@ -47,23 +47,47 @@ function index_by_name(name, database){
 	return -1;
 }
 
-function merge_local_database(grandDatabase, localDatabase){
-	for (var i = 0; i < localDatabase.length; i++){
-		if (localDatabase[i].name == ''){
-			localDatabase.splice(i--, 1);
+function merge_database(srcDatabase, targetDatabase, conflictSolver){
+	conflictSolver = conflictSolver || function(srcObj, targetObj){ return srcObj; } // simple overwriting
+	
+	for (var i = 0; i < srcDatabase.length; i++){
+		if (srcDatabase[i].name == ''){
+			srcDatabase.splice(i--, 1);
 			continue;
 		}
-		var idx = index_by_name(localDatabase[i].name, grandDatabase);
-		if (idx >= 0){ // simply overide existing entry
-			console.log('Overriding existing entry with local entry ' + localDatabase[i].name);
-			grandDatabase[idx] = localDatabase[i];
-		}else{ // customization
-			grandDatabase.push(localDatabase[i]);
+		var idx = index_by_name(srcDatabase[i].name, targetDatabase);
+		if (idx >= 0){
+			console.log('Solving Conflict of entry [' + srcDatabase[i].name + ']');
+			targetDatabase[idx] = conflictSolver(srcDatabase[i], targetDatabase[idx]);
+		}else{
+			console.log('Adding entry [' + srcDatabase[i].name + ']');
+			targetDatabase.push(srcDatabase[i]);
 		}
 	}
 	// Re-indexing
-	for (var i = 0; i < grandDatabase.length; i++)
-		grandDatabase[i].index = i;
+	for (var i = 0; i < targetDatabase.length; i++)
+		targetDatabase[i].index = i;
+}
+
+function pkm_move_pool_merger(srcPkm, targetPkm){
+	var MovePoolNames = ['fastMoves', 'fastMoves_legacy', 'fastMoves_legacy', 'chargedMoves', 'chargedMoves_legacy', 'chargedMoves_exclusive'];
+	var unique_move_names = {'f': [], 'c': []};
+	
+	MovePoolNames.forEach(function(attr){
+		targetPkm[attr].forEach(function(moveName){
+			unique_move_names[attr[0]].push(moveName);
+		});
+	});
+	
+	MovePoolNames.forEach(function(attr){
+		srcPkm[attr].forEach(function(moveName){
+			if (!unique_move_names[attr[0]].includes(moveName)){
+				targetPkm[attr].push(moveName);
+			}
+		});
+	});
+	
+	return targetPkm;
 }
 
 
@@ -370,32 +394,26 @@ function manualModifyData(){
 		pokemon_kyogre.fastMoves_legacy = [];
 	}
 	
-	var mega_ampharos = {
-	  "index": POKEMON_SPECIES_DATA.length,
-	  "box_index": -1,
-	  "name": "mega ampharos",
-	  "pokeType1": "electric",
-	  "pokeType2": "dragon",
-	  "baseAtk": 294,
-	  "baseDef": 206,
-	  "baseStm": 180,
-	  "fastMoves": [
-		"charge beam"
-	  ],
-	  "chargedMoves": [
-		"dragon pulse"
-	  ],
-	  "fastMoves_legacy": [],
-	  "chargedMoves_legacy": [],
-	  "rating": 3.5,
-	  "marker_1": "",
-	  "image": "https://cdn.discordapp.com/attachments/434219048902066205/434219156095762432/181-mega.png",
-	  "icon": "https://cdn.discordapp.com/attachments/434219048902066205/434219156095762432/181-mega.png",
-	  "label": "Mega Ampharos",
-	  "fastMoves_exclusive": [],
-	  "chargedMoves_exclusive": []
-	};
-	POKEMON_SPECIES_DATA.push(mega_ampharos);
+	try{
+		if (drupalSettings.ajaxPageState.libraries.includes('admin_toolbar')){
+			console.log('[GamePress Staff Recognized]');
+			$(createElement('div', "Hi! There's a set of addtional Pokemon/Move/Move Pool data available. Do you want to include it?",
+			{
+				title: 'GamePress Staff Recognized'
+			})).dialog({
+				buttons: {
+					"Yes": function(){
+						merge_database(POKEMON_SPECIES_DATA_DEV, POKEMON_SPECIES_DATA, pkm_move_pool_merger);
+						send_feedback_dialog('Additional data have been successfully imported', 'GBS_Populate.js');
+						$(this).dialog("close");
+					},
+					"No": function(){
+						$(this).dialog("close");
+					}
+				}
+			});
+		}
+	}catch(err){}
 }
 
 
@@ -405,9 +423,9 @@ function handle_1(){
 		handleRaidBossMarker(POKEMON_SPECIES_DATA);
 		manualModifyData();
 		
-		merge_local_database(POKEMON_SPECIES_DATA, POKEMON_SPECIES_DATA_LOCAL);
-		merge_local_database(FAST_MOVE_DATA, FAST_MOVE_DATA_LOCAL);
-		merge_local_database(CHARGED_MOVE_DATA, CHARGED_MOVE_DATA_LOCAL);
+		merge_database(POKEMON_SPECIES_DATA_LOCAL, POKEMON_SPECIES_DATA);
+		merge_database(FAST_MOVE_DATA_LOCAL, FAST_MOVE_DATA);
+		merge_database(CHARGED_MOVE_DATA_LOCAL, CHARGED_MOVE_DATA);
 		if (localStorage){
 			localStorage.POKEMON_SPECIES_DATA_LOCAL = JSON.stringify(POKEMON_SPECIES_DATA_LOCAL);
 			localStorage.FAST_MOVE_DATA_LOCAL = JSON.stringify(FAST_MOVE_DATA_LOCAL);
