@@ -1,10 +1,10 @@
 /* GBS_UI_1_general.js.js */
 
-const LOGICAL_OPERATORS = {
+var LOGICAL_OPERATORS = {
 	',': 0,	'&': 1,	'!': 2
 };
-const SELECTORS = ['*', '?'];
-const acceptedNumericalAttributes = [
+var SELECTORS = ['*', '?'];
+var acceptedNumericalAttributes = [
 	'cp','atkiv','defiv','stmiv','level', 'maxhp','dex',
 	'baseAtk','baseDef','baseStm', 'rating',
 	'power', 'duration', 'dws', 'energyDelta', 'value'

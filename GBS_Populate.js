@@ -3,15 +3,14 @@
 var USERS_INFO = [];
 var PARTIES_LOCAL = {};
 
-var POKEMON_SPECIES_DATA_FETCHED = false;
-var RAID_BOSS_LIST_FETCHED = false;
-var FAST_MOVE_DATA_FETCHED = false;
-var CHARGED_MOVE_DATA_FETCHED = false;
+var FETCHED_STATUS = 0;
+var FETCHED_STATUS_PASS = 4;
 
 var FAST_MOVE_DATA_LOCAL = [];
 var CHARGED_MOVE_DATA_LOCAL = [];
 var POKEMON_SPECIES_DATA_LOCAL = [];
 var RAID_BOSS_LIST = [];
+var POKEMON_SPECIES_EVOLUTION_DATA = [];
 
 
 function getPokemonType1FromString(S){
@@ -57,10 +56,8 @@ function merge_database(srcDatabase, targetDatabase, conflictSolver){
 		}
 		var idx = index_by_name(srcDatabase[i].name, targetDatabase);
 		if (idx >= 0){
-			console.log('Solving Conflict of entry [' + srcDatabase[i].name + ']');
 			targetDatabase[idx] = conflictSolver(srcDatabase[i], targetDatabase[idx]);
 		}else{
-			console.log('Adding entry [' + srcDatabase[i].name + ']');
 			targetDatabase.push(srcDatabase[i]);
 		}
 	}
@@ -91,9 +88,11 @@ function pkm_move_pool_merger(srcPkm, targetPkm){
 }
 
 
-function handleExclusiveMoves(pokemonDataBase){
+function handleSpeciesDatabase(pokemonDataBase){
 	for (var i = 0; i < pokemonDataBase.length; i++){
 		var pkm = pokemonDataBase[i];
+		
+		// Handle exclusive moves
 		pkm.fastMoves_exclusive = [];
 		pkm.chargedMoves_exclusive = [];
 		if (pkm.exclusiveMoves){
@@ -105,12 +104,8 @@ function handleExclusiveMoves(pokemonDataBase){
 			});
 			delete pkm.exclusiveMoves;
 		}
-	}
-}
-
-function handleRaidBossMarker(pokemonDataBase){
-	for (var i = 0; i < pokemonDataBase.length; i++){
-		var pkm = pokemonDataBase[i];
+		
+		// Handle boss markers
 		pkm.marker_1 = '';
 		for (var j = 0; j < RAID_BOSS_LIST.length; j++){
 			var boss = RAID_BOSS_LIST[j];
@@ -123,8 +118,22 @@ function handleRaidBossMarker(pokemonDataBase){
 				break;
 			}
 		}
+		
+		// Handle Evolution data
+		pkm.evolution = [];
+		var evolution_indices = POKEMON_SPECIES_EVOLUTION_DATA[i];
+		if (evolution_indices){
+			for (var j = 0; j < evolution_indices.length; j++){
+				var pkm_evolution = POKEMON_SPECIES_DATA[evolution_indices[j]];
+				if (pkm_evolution){
+					pkm_evolution.pre_evolution = [pkm.name];
+					pkm.evolution.push(pkm_evolution.name);
+				}
+			}
+		}
 	}
 }
+
 
 function processUserPokeboxRawData(data){
 	var box = [];
@@ -168,6 +177,7 @@ function loadCPMData(oncomplete){
 		url: 'https://pokemongo.gamepress.gg/assets/data/cpm.json?v2', 
 		dataType: 'json', 
 		success: function(data){
+			CPM_TABLE = [];
 			for (var i = 0; i < data.length; i++){
 				CPM_TABLE.push(parseFloat(data[i].field_cp_multiplier));
 			}
@@ -179,6 +189,25 @@ function loadCPMData(oncomplete){
 }
 
 
+// Get evolution data
+function loadEvolutionData(oncomplete){
+	oncomplete = oncomplete || function(){return;};
+	
+	$.ajax({ 
+		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/data.json?v2', 
+		dataType: 'json', 
+		success: function(data){
+			POKEMON_SPECIES_EVOLUTION_DATA = [];
+			for (var i = 0; i < data.pokemonData.length; i++){
+				POKEMON_SPECIES_EVOLUTION_DATA.push(data.pokemonData[i].EVO || []);
+			}
+		},
+		complete: function(jqXHR, textStatus){
+			oncomplete();
+		}
+	});
+}
+
 
 // Get raid boss list
 function loadRaidBossList(oncomplete){
@@ -188,6 +217,7 @@ function loadRaidBossList(oncomplete){
 		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/raid-boss-list.json?v2', 
 		dataType: 'json', 
 		success: function(data){
+			RAID_BOSS_LIST = [];
 			data.forEach(function(bossInfo){
 				var parsedBossInfo = {
 					name: createElement('div', bossInfo.title).children[0].innerText.toLowerCase(),
@@ -215,6 +245,7 @@ function loadLatestPokemonData(oncomplete){
 		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pokemon-data-full.json?v2',
 		dataType: 'json', 
 		success: function(data){
+			POKEMON_SPECIES_DATA = [];
 			for(var i = 0; i < data.length; i++){
 				var pkmData = {
 					index: i,
@@ -257,6 +288,8 @@ function loadLatestMoveData(oncomplete){
 		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/move-data-full.json?v2',
 		dataType: 'json', 
 		success: function(data){
+			FAST_MOVE_DATA = [];
+			CHARGED_MOVE_DATA = [];
 			var fmoveCount = 0, cmoveCount = 0;
 			for(var i = 0; i < data.length; i++){
 				var move = {
@@ -292,7 +325,7 @@ function loadUser(userid, oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({
-		url: '/user-pokemon-json-list?new&uid_raw=' + userid,
+		url: '/user-pokemon-json-list?_format=json&new&uid_raw=' + userid,
 		dataType: 'json',
 		success: function(data){
 			var importedBox = processUserPokeboxRawData(data);
@@ -310,7 +343,7 @@ function loadLatestTeams(userid, oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({
-		url: '/user-pokemon-team?uid=' + userid,
+		url: '/user-pokemon-team?_format=json&uid=' + userid,
 		dataType: 'json',
 		success: function(data){
 			var user = null;
@@ -349,7 +382,6 @@ function loadLatestTeams(userid, oncomplete){
 
 // Manually Modify Data
 function manualModifyData(){
-	
 	var fmove_transform = FAST_MOVE_DATA[index_by_name('transform', FAST_MOVE_DATA)];
 	if (fmove_transform){
 		fmove_transform.effect = {
@@ -357,25 +389,6 @@ function manualModifyData(){
 			remaining : 1
 		};
 	}
-	
-	var cmove_mega_drain = CHARGED_MOVE_DATA[index_by_name('mega drain', CHARGED_MOVE_DATA)];
-	if (cmove_mega_drain){
-		cmove_mega_drain.effect = {
-			name : 'hp_draining',
-			multipliers: [0.5],
-			remaining: -1
-		};
-	}
-	
-	var cmove_giga_drain = CHARGED_MOVE_DATA[index_by_name('giga drain', CHARGED_MOVE_DATA)];
-	if (cmove_giga_drain){
-		cmove_giga_drain.effect = {
-			name : 'hp_draining',
-			multipliers: [0.5],
-			remaining: -1
-		};
-	}
-
 	
 	var pokemon_moltres = POKEMON_SPECIES_DATA[index_by_name('moltres', POKEMON_SPECIES_DATA)];
 	if (pokemon_moltres){
@@ -394,33 +407,48 @@ function manualModifyData(){
 		pokemon_kyogre.fastMoves_legacy = [];
 	}
 	
-	try{
-		if (drupalSettings.ajaxPageState.libraries.includes('admin_toolbar')){
-			console.log('[GamePress Staff Recognized]');
-			$(createElement('div', "Hi! There's a set of addtional Pokemon/Move/Move Pool data available. Do you want to include it?",
-			{
-				title: 'GamePress Staff Recognized'
-			})).dialog({
-				buttons: {
-					"Yes": function(){
-						merge_database(POKEMON_SPECIES_DATA_DEV, POKEMON_SPECIES_DATA, pkm_move_pool_merger);
-						send_feedback_dialog('Additional data have been successfully imported', 'GBS_Populate.js');
-						$(this).dialog("close");
-					},
-					"No": function(){
-						$(this).dialog("close");
-					}
-				}
-			});
-		}
-	}catch(err){}
 }
 
 
-function handle_1(){
-	if (POKEMON_SPECIES_DATA_FETCHED && RAID_BOSS_LIST_FETCHED && FAST_MOVE_DATA_FETCHED && CHARGED_MOVE_DATA_FETCHED){
-		handleExclusiveMoves(POKEMON_SPECIES_DATA);
-		handleRaidBossMarker(POKEMON_SPECIES_DATA);
+// Get all the data
+function handle_0(oncomplete){
+	FETCHED_STATUS = 0;
+	
+	loadCPMData();
+	
+	loadEvolutionData(function(){
+		FETCHED_STATUS++;
+		handle_1(function(){
+			oncomplete();
+		});
+	});
+	
+	loadLatestPokemonData(function(){
+		FETCHED_STATUS++;
+		handle_1(function(){
+			oncomplete();
+		});
+	});
+
+	loadLatestMoveData(function(){ 
+		FETCHED_STATUS++;
+		handle_1(function(){
+			oncomplete();
+		});
+	});
+	
+	loadRaidBossList(function(){
+		FETCHED_STATUS++;
+		handle_1(function(){
+			oncomplete();
+		});
+	});
+}
+
+
+function handle_1(onfinish){
+	if (FETCHED_STATUS == FETCHED_STATUS_PASS){
+		handleSpeciesDatabase(POKEMON_SPECIES_DATA);
 		manualModifyData();
 		
 		merge_database(POKEMON_SPECIES_DATA_LOCAL, POKEMON_SPECIES_DATA);
@@ -432,7 +460,8 @@ function handle_1(){
 			localStorage.CHARGED_MOVE_DATA_LOCAL = JSON.stringify(CHARGED_MOVE_DATA_LOCAL);
 		}
 		
-		handle_2();
+		if (onfinish)
+			onfinish();
 	}
 }
 
@@ -459,21 +488,24 @@ $(document).ready(function(){
 		}
 	}
 	
-	loadCPMData();
+	var mod_tbody = document.getElementById('mod_tbody');
+	if (mod_tbody){
+		mod_tbody.innerHTML = '';
+		for (var i = 0; i < MOD_LIST.length; i++){
+			mod_tbody.appendChild(createRow([
+				MOD_LIST[i].name,
+				"<input type='checkbox' id='mod_checkbox_" + i + "'>"
+			]));
+		}
+	}
 	
-	loadLatestPokemonData(function(){
-		POKEMON_SPECIES_DATA_FETCHED = true;
-		handle_1();
-	});
-
-	loadLatestMoveData(function(){ 
-		FAST_MOVE_DATA_FETCHED = true; 
-		CHARGED_MOVE_DATA_FETCHED = true;
-		handle_1();
+	handle_0(function(){
+		handle_2();
 	});
 	
-	loadRaidBossList(function(){
-		RAID_BOSS_LIST_FETCHED = true;
-		handle_1();
-	});
+	try{
+		if (drupalSettings.ajaxPageState.libraries.includes('admin_toolbar')){
+			console.log('[GamePress Staff Recognized]');
+		}
+	}catch(err){}
 });

@@ -117,6 +117,31 @@ div#ranking_table_wrapper {
 </div>
 
 
+<div id='modEditForm' title='Edit Mods'>
+	<table id='modEditForm-Table'>
+		<thead>
+			<tr>
+				<th>Mod Name</th>
+				<th>Applied</th>
+			</tr>
+		</thead>
+		<tbody id='mod_tbody'>
+
+		</tbody>
+	</table>
+	<br>
+	<table> 
+		<colgroup><col width='100%'></colgroup>
+		<tr>
+			<td><button onclick='modEditFormSubmit()' id='modForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+		</tr>
+	</table>
+	
+	<div id='modEditForm-feedback'>
+	</div>
+</div>
+
+
 
 <table>
 	<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
@@ -158,6 +183,7 @@ div#ranking_table_wrapper {
 			<div id='subMenu' style='position: absolute; width: 95%'>
 				<button class='player_button' id='moveEditFormOpener'>Move</button>
 				<button class='player_button' id='pokemonEditFormOpener'>Species</button>
+				<button class='player_button' id='modEditFormOpener'>Mods</button>
 				<button class='player_button' onclick="calculate(); $('#subMenu').slideToggle('fast')">Refresh</button>
 			</div>
 		</td>
@@ -236,5 +262,16 @@ for (var type in POKEMON_TYPE_ADVANTAGES){
 }
 pokemonEditFormPokeType1Select.appendChild(createElement('option', 'None', {value : 'none'}));
 pokemonEditFormPokeType2Select.appendChild(createElement('option', 'None', {value : 'none'}));
+
+
+// Mod Edit Form
+$( "#modEditForm" ).dialog({ 
+	autoOpen: false,
+	width: 600
+});
+$( "#modEditFormOpener" ).click(function() {
+	$( '#subMenu' ).hide();
+	$( "#modEditForm" ).dialog( "open" );
+});
 
 </script>

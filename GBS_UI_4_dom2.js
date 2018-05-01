@@ -414,6 +414,19 @@ function parameterEditFormReset(){
 }
 
 
+function modEditFormSubmit(){
+	handle_0(function(){
+		for (var i = 0; i < MOD_LIST.length; i++){
+			var mod_checkbox = document.getElementById('mod_checkbox_' + i);
+			if (mod_checkbox && mod_checkbox.checked){
+				MOD_LIST[i].effect();
+			}
+		}
+		send_feedback_dialog("Mods have been applied", 'Feedback');
+	});
+}
+
+
 function populateQuickStartWizardBossList(tag){
 	var bosses = universalGetter('%' + tag, POKEMON_SPECIES_DATA);
 	var bosses_by_tier = {

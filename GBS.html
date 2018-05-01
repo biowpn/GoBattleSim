@@ -210,6 +210,7 @@
 					<button class='player_button' id='moveEditFormOpener'>Move</button>
 					<button class='player_button' id='pokemonEditFormOpener'>Species</button>
 					<button class='player_button' id='parameterEditFormOpener'>Other Paramaters</button>
+					<button class='player_button' id='modEditFormOpener'>Mods</button>
 				</div>
 
 			</td>
@@ -512,6 +513,31 @@
 </div>
 
 
+<div id='modEditForm' title='Edit Mods'>
+	<table id='modEditForm-Table'>
+		<thead>
+			<tr>
+				<th>Mod Name</th>
+				<th>Applied</th>
+			</tr>
+		</thead>
+		<tbody id='mod_tbody'>
+
+		</tbody>
+	</table>
+	<br>
+	<table> 
+		<colgroup><col width='100%'></colgroup>
+		<tr>
+			<td><button onclick='modEditFormSubmit()' id='modForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+		</tr>
+	</table>
+	
+	<div id='modEditForm-feedback'>
+	</div>
+</div>
+
+
 <div id="quickStartWizard" title="Welcome to GoBattleSim - Quick Start">
 	<div id='quickStartWizard-tabs'>
 
@@ -783,8 +809,15 @@ $( '#boxEditForm-pokemonTable' ).DataTable({
 	searching: false
 });
 
-
-
+// Mod Edit Form
+$( "#modEditForm" ).dialog({ 
+	autoOpen: false,
+	width: 600
+});
+$( "#modEditFormOpener" ).click(function() {
+	$( '#subMenu' ).hide();
+	$( "#modEditForm" ).dialog( "open" );
+});
 
 
 // Populate valid IV and Level values
@@ -877,13 +910,13 @@ function main(args){
 	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
 	
 	if (!(args && args.noDisplay)){
-		send_feedback_dialog("Simulating...");
 		args = args || {};
 		if (!args.noWait){
 			args.noWait = true;
 			setTimeout(function(){main(args);}, 100);
 			return;
 		}
+		send_feedback_dialog("Simulating...");
 	}
 	initMasterSummaryTableMetrics();
 

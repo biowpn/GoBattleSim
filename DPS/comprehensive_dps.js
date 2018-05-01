@@ -135,6 +135,8 @@ function setUrlFromConfig(){
 
 
 function handle_2(){
+	acceptedNumericalAttributes = acceptedNumericalAttributes.concat(['dps', 'tdo', 'st']);
+	
 	var weatherSelect = document.getElementById('weather');
 	WEATHER_LIST.forEach(function(weather){
 		weatherSelect.appendChild(createElement('option', weather, {value: weather}));
@@ -319,7 +321,6 @@ function calculate(){
 				pkm2.defiv = DEFAULT_IVs[0];
 				pkm2.stmiv = DEFAULT_IVs[0];
 				pkm2.raid_tier = 0;
-				
 				
 				var pkm2 = new Pokemon(pkm2);
 				var dfdrDmg = Context.enemy.calc_defender(pkm2);
