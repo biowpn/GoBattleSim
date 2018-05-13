@@ -250,6 +250,7 @@ function loadLatestPokemonData(oncomplete){
 				var pkmData = {
 					index: i,
 					dex : parseInt(data[i].number),
+					value : parseInt(data[i].number),
 					box_index : -1,
 					name : data[i].title_1.toLowerCase(),
 					pokeType1 : getPokemonType1FromString(data[i].field_pokemon_type),

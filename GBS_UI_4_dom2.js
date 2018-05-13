@@ -217,8 +217,7 @@ function pokemonEditFormReset(){
 	send_feedback("Local Pokemon Species have been erased.", false, 'pokemonEditForm-feedback');
 	send_feedback("Connecting to server...", true, 'pokemonEditForm-feedback');
 	loadLatestPokemonData(function(){
-		handleExclusiveMoves(POKEMON_SPECIES_DATA);
-		handleRaidBossMarker(POKEMON_SPECIES_DATA);
+		handleSpeciesDatabase(POKEMON_SPECIES_DATA);
 		manualModifyData();
 		for (var i = 0; i < POKEMON_SPECIES_DATA_LOCAL.length; i++){
 			if (index_by_name(POKEMON_SPECIES_DATA_LOCAL[i].name, POKEMON_SPECIES_DATA) >= 0){

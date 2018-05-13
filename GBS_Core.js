@@ -27,7 +27,7 @@ var TIMELIMIT_RAID_MS = [180000, 180000, 180000, 180000, 300000];
  *	PART I(b): GAME DATA
  */
  
-// These data are populated in "Populate.js"
+// These data are populated else where
 var FAST_MOVE_DATA = [];
 var CHARGED_MOVE_DATA = [];
 var MOVE_EFFECT_DATA = [];

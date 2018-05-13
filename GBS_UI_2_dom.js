@@ -470,7 +470,7 @@ function parseAttackerNode(node){
 	
 	var pkm_cfg = {
 		box_index : box_idx,
-		index : idx >= 0 ? idx : get_species_index_by_name(nameInputValue),
+		index : idx >= 0 ? idx : index_by_name(nameInputValue, POKEMON_SPECIES_DATA),
 		fmove_index : parseInt(row3.children[0].children[0].getAttribute('index')),
 		cmove_index : parseInt(row3.children[1].children[0].getAttribute('index')),
 		species: idx >= 0 ? POKEMON_SPECIES_DATA[idx].name : nameInputValue,
@@ -518,7 +518,7 @@ function parseDefenderNode(node){
 	
 	var pkm_cfg = {
 		box_index : box_idx,
-		index : idx >= 0 ? idx : get_species_index_by_name(nameInputValue),
+		index : idx >= 0 ? idx : index_by_name(nameInputValue, POKEMON_SPECIES_DATA),
 		fmove_index : parseInt(row3.children[0].children[0].getAttribute('index')),
 		cmove_index : parseInt(row3.children[1].children[0].getAttribute('index')),
 		species: idx >= 0 ? POKEMON_SPECIES_DATA[idx].name : nameInputValue,
@@ -580,7 +580,7 @@ function writeAttackerNode(node, pkmConfig){
 	var row2 = node.children[1].children[1].children[1];
 	var row3 = node.children[1].children[2].children[1];
 
-	var species_idx = (pkmConfig.hasOwnProperty('index')) ? pkmConfig.index : get_species_index_by_name(pkmConfig.species);
+	var species_idx = (pkmConfig.hasOwnProperty('index')) ? pkmConfig.index : index_by_name(pkmConfig.species, POKEMON_SPECIES_DATA);
 	row1.children[0].children[0].value = pkmConfig.label || toTitleCase(pkmConfig.species);
 	row1.children[0].children[0].setAttribute('index', species_idx);
 	row1.children[0].children[0].setAttribute('box_index', pkmConfig.hasOwnProperty('box_index') ? pkmConfig.box_index : -1);
@@ -592,11 +592,11 @@ function writeAttackerNode(node, pkmConfig){
 	row2.children[2].children[0].value = pkmConfig.atkiv;
 	row2.children[3].children[0].value = pkmConfig.defiv;
 	
-	var fmove_idx = get_fmove_index_by_name(pkmConfig.fmove);
+	var fmove_idx = index_by_name(pkmConfig.fmove, FAST_MOVE_DATA);
 	row3.children[0].children[0].value = toTitleCase(pkmConfig.fmove);
 	row3.children[0].children[0].setAttribute('index', fmove_idx);
 	row3.children[0].children[0].setAttribute('style', "background-image: url(" + move_icon_url_by_index('f', fmove_idx) + ')');
-	var cmove_idx = get_cmove_index_by_name(pkmConfig.cmove);
+	var cmove_idx = index_by_name(pkmConfig.cmove, CHARGED_MOVE_DATA);
 	row3.children[1].children[0].value = toTitleCase(pkmConfig.cmove);
 	row3.children[1].children[0].setAttribute('index', cmove_idx);
 	row3.children[1].children[0].setAttribute('style', "background-image: url(" + move_icon_url_by_index('c', cmove_idx) + ')');
@@ -630,17 +630,17 @@ function writeDefenderNode(node, pkmConfig){
 	var row1 = node.children[1].children[0].children[1];
 	var row3 = node.children[1].children[2].children[1];
 
-	var species_idx = ('index' in pkmConfig) ? pkmConfig.index : get_species_index_by_name(pkmConfig.species);
+	var species_idx = ('index' in pkmConfig) ? pkmConfig.index : index_by_name(pkmConfig.species, POKEMON_SPECIES_DATA);
 	row1.children[0].children[0].value = pkmConfig.label || toTitleCase(pkmConfig.species);
 	row1.children[0].children[0].setAttribute('index', species_idx);
 	row1.children[0].children[0].setAttribute('box_index', pkmConfig.hasOwnProperty('box_index') ? pkmConfig.box_index : -1);
 	row1.children[0].children[0].setAttribute('style', 'background-image: url('+pokemon_icon_url_by_index(species_idx)+')');
 	
-	var fmove_idx = get_fmove_index_by_name(pkmConfig.fmove);
+	var fmove_idx = index_by_name(pkmConfig.fmove, FAST_MOVE_DATA);
 	row3.children[0].children[0].value = toTitleCase(pkmConfig.fmove);
 	row3.children[0].children[0].setAttribute('index', fmove_idx);
 	row3.children[0].children[0].setAttribute('style', "background-image: url(" + move_icon_url_by_index('f', fmove_idx) + ')');
-	var cmove_idx = get_cmove_index_by_name(pkmConfig.cmove);
+	var cmove_idx = index_by_name(pkmConfig.cmove, CHARGED_MOVE_DATA);
 	row3.children[1].children[0].value = toTitleCase(pkmConfig.cmove);
 	row3.children[1].children[0].setAttribute('index', cmove_idx);
 	row3.children[1].children[0].setAttribute('style', "background-image: url(" + move_icon_url_by_index('c', cmove_idx) + ')');

@@ -1,4 +1,4 @@
-/* GBS_UI_1_general.js.js */
+/* GBS_UI_1_general.js */
 
 var LOGICAL_OPERATORS = {
 	',': 0,	'&': 1,	'!': 2
@@ -117,6 +117,9 @@ function parseConfigFromUrl(url){
 
 
 function parseNumericalRange(str){
+	if (!isNaN(parseFloat(str))){
+		return ['value', str];
+	}
 	for (var i = 0; i < acceptedNumericalAttributes.length; i++){
 		var attr = acceptedNumericalAttributes[i];
 		if (str.substring(0, attr.length) == attr.toLowerCase())
@@ -143,7 +146,7 @@ function createSimplePredicate(str){
 	}else if (str[0] == '@'){ // Match moves
 		str = str.slice(1).toLowerCase();
 		if (str.substring(0,3) == '<f>'){
-			const str_const = str.slice(3);
+			const str_const = str.slice(3).trim();
 			return function(obj){
 				if (typeof obj.fmove_index == typeof 0 && obj.fmove_index >= 0){
 					var fmove = FAST_MOVE_DATA[obj.fmove_index];
@@ -152,13 +155,18 @@ function createSimplePredicate(str){
 				return false;
 			};
 		}else if (str.substring(0,3) == '<c>'){
-			const str_const = str.slice(3);
+			const str_const = str.slice(3).trim();
 			return function(obj){
 				if (typeof obj.cmove_index == typeof 0 && obj.cmove_index >= 0){
 					var cmove = CHARGED_MOVE_DATA[obj.cmove_index];
 					return cmove.name.includes(str_const) || cmove.pokeType == str_const;
 				}
 				return false;
+			};
+		}else if (str.substring(0,3) == '<*>'){
+			const pred_f = createSimplePredicate('@<f>' + str.slice(3)), pred_c = createSimplePredicate('@<c>' + str.slice(3));
+			return function(obj){
+				return pred_f(obj) && pred_c(obj);
 			};
 		}else{
 			const pred_f = createSimplePredicate('@<f>' + str), pred_c = createSimplePredicate('@<c>' + str);
@@ -173,7 +181,7 @@ function createSimplePredicate(str){
 	}else if (str[0] == '%'){ // Raid Boss
 		const str_const = str.slice(1);
 		return function(obj){
-			return obj.marker_1.includes(str_const);
+			return obj.marker_1 && obj.marker_1.includes(str_const);
 		};
 	}else if (str[0] == '?'){ // Cutomized expression
 		const str_const = str.slice(1);

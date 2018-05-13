@@ -1,14 +1,16 @@
-<script type="text/javascript" src="GoBattleSimLib.js"></script>
-<script type="text/javascript" src="UI_1_general.js"></script>
-<script type="text/javascript" src="UI_2_dom.js"></script>
-<script type="text/javascript" src="UI_3_parser.js"></script>
-<script type="text/javascript" src="UI_4_dom2.js"></script>
-<script type="text/javascript" src="Populate_local.js"></script>
-
 
 <script src="https://code.jquery.com/jquery-2.2.4.js"  integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/v/ju/dt-1.10.16/r-2.2.1/sc-1.4.4/datatables.min.js"></script>
+
+<script type="text/javascript" src="GBS_Core.js"></script>
+<script type="text/javascript" src="GBS_UI_1_general.js"></script>
+<script type="text/javascript" src="GBS_UI_2_dom.js"></script>
+<script type="text/javascript" src="GBS_UI_3_parser.js"></script>
+<script type="text/javascript" src="GBS_UI_4_dom2.js"></script>
+<script type="text/javascript" src="GBS_Populate.js"></script>
+<script type="text/javascript" src="GBS_Populate_extras.js"></script>
+<script type="text/javascript" src="GBS_Populate_local.js"></script>
 
 <link href="https://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
@@ -919,7 +921,8 @@ function main(args){
 		send_feedback_dialog("Simulating...");
 	}
 	initMasterSummaryTableMetrics();
-
+	
+	maxJobSize = 0;
 	if (args && args.maxJobSize){
 		maxJobSize = args.maxJobSize;
 	}

@@ -2,15 +2,15 @@
 
 var Table = null;
 
-const ConfigurableAttributes = ['ui-species_d', 'd-pokeType1', 'd-pokeType2', 'fmove_d', 'cmove_d', 'weather', 'searchInput'];
-const colHeaders = ["Pokemon", "Fast Move", "Charged Move", "DPS", "TDO", "DPS*TDO", "CP"];
+var ConfigurableAttributes = ['ui-species_d', 'd-pokeType1', 'd-pokeType2', 'fmove_d', 'cmove_d', 'weather', 'searchInput'];
+var colHeaders = ["Pokemon", "Fast Move", "Charged Move", "DPS", "TDO", "DPS*TDO", "CP"];
 
-const DEFAULT_LEVEL = 40;
-const DEFAULT_IVs = [15, 15, 15];
-const DEFAULT_ENEMY_CURRENT_DEFENSE = 160;
-const DEFAULT_ENEMY_POKETYPE1 = 'none';
-const DEFAULT_ENEMY_POKETYPE2 = 'none';
-const DEFAULT_WEATHER = 'EXTREME';
+var DEFAULT_LEVEL = 40;
+var DEFAULT_IVs = [15, 15, 15];
+var DEFAULT_ENEMY_CURRENT_DEFENSE = 160;
+var DEFAULT_ENEMY_POKETYPE1 = 'none';
+var DEFAULT_ENEMY_POKETYPE2 = 'none';
+var DEFAULT_WEATHER = 'EXTREME';
 
 var Context = {
 	weather: DEFAULT_WEATHER,
@@ -35,20 +35,23 @@ Pokemon.prototype.calc_DPS = function(x, y){
 		CE = CE + 0.5 * FE + 0.5 * y * CDWS;
 	}
 	
-	var ST = this.Stm / y;
+	var FDPS = FDmg/FDur;
+	var FEPS = FE/FDur;
+	var CDPS = CDmg/CDur;
+	var CEPS = CE/CDur;
 	
-	var EP = x - 0.5 * this.Stm;
+	this.st = this.Stm / y;
+	this.dps = (FDPS * CEPS + CDPS * FEPS)/(CEPS + FEPS) + (CDPS - FDPS)/(CEPS + FEPS) * (1/2 - x/this.Stm) * y;
+	this.tdo = this.dps * this.st;
 	
-	var n = (CE * ST + EP * CDur) / (CE * FDur + FE * CDur);
-	var m = (FE * ST - EP * FDur) / (CE * FDur + FE * CDur);
-	
-	this.st = ST;
-	this.tdo = (n * FDmg + m * CDmg);
-	this.dps = this.tdo / this.st;
-	
-	if (y == 0){ // Alternative Formula for DPS when y = 0
-		var FDPS = FDmg/FDur, FEPS = FE/FDurm, CDPS = CDmg/CDur, CEPS = CE/CDur;
-		this.dps = (FDPS * CEPS + CDPS * FEPS)/(CEPS + FEPS) + (CDPS - FDPS)/(CEPS + FEPS) * (1/2 - x/this.Stm) * y;
+	if (this.dps > CDPS){
+		//console.log("Violation of Comp DPS Axiom: OVERflow: " + this.name + "," + this.fmove.name + "," + this.cmove.name);
+		this.dps = CDPS;
+		this.tdo = this.dps * this.st;
+	}else if (this.dps < FDPS){
+		//console.log("Violation of Comp DPS Axiom: UNDERflow: " + this.name + "," + this.fmove.name + "," + this.cmove.name);
+		this.dps = FDPS;
+		this.tdo = this.dps * this.st;
 	}
 	
 	return this.dps;

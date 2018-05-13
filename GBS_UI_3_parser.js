@@ -64,8 +64,6 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 		if (SELECTORS.includes(selector))
 			expressionStr = expressionStr.slice(1).trim();
 		expressionStr = expressionStr || expressionStr_default;
-		if (input_type == 1)
-			expressionStr = 'value' + expressionStr;
 		
 		var matches = [];
 		if (attr == 'species' && parsedSpeciesFieldMatches[address]){
@@ -168,10 +166,12 @@ function parseWeatherInput(cfg){
 function iterBranchHandler(cfg){
 	if (!cfg)
 		return [];
+	/*
 	if (maxJobSize && currentJobSize > maxJobSize){
 		console.log('Aborted due to current job size(' + currentJobSize + ') exceeding maxJobSize(' + maxJobSize + ')');
 		return [];
 	}
+	*/
 	
 	var branches = [];
 	for (var i = 0; i < cfg['atkrSettings'].length; i++){
