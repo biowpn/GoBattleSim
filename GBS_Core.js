@@ -86,8 +86,22 @@ function calculateLevelByCP(pkm, CP){
  *	PART III: CLASSES
  */
 
+/* Class <Move> */
+// constructor
+function Move(cfg){
+	for (var attr in cfg){
+		this[attr] = cfg[attr];
+	}
+	if (this.effect_name){
+		this.effect = JSON.parse(JSON.stringify(MOVE_EFFECT_DATA[index_by_name(this.effect_name, MOVE_EFFECT_DATA)]));
+		this.effect.sub = MOVE_EFFECT_SUBROUTINE_DICTIONARY[this.effect.sub_name];
+	}
+}
 
-/* Class <Pokemon> and <PokemonSpecies> */
+
+
+
+/* Class <Pokemon> */
 // constructor
 function Pokemon(cfg){
 	this.index = cfg.index;
@@ -113,9 +127,8 @@ Pokemon.prototype.init = function(){
 	for (var attr in POKEMON_SPECIES_DATA[this.index]){
 		this[attr] = POKEMON_SPECIES_DATA[this.index][attr];
 	}
-	
-	this.fmove = JSON.parse(JSON.stringify(FAST_MOVE_DATA[this.fmove_index]));
-	this.cmove = JSON.parse(JSON.stringify(CHARGED_MOVE_DATA[this.cmove_index]));
+	this.fmove = new Move(FAST_MOVE_DATA[this.fmove_index]);
+	this.cmove = new Move(CHARGED_MOVE_DATA[this.cmove_index]);
 	
 	this.calculate_current_stats();
 	
@@ -434,7 +447,18 @@ World.prototype.atkr_use_move = function(pkm, pkm_hurt, move, t){
 	};
 	this.tline.enqueue(energyDeltaEvent);
 	this.tline.enqueue(hurtEvent);
-	this.handle_move_effect(pkm, pkm_hurt, move, t, {hurt: hurtEvent, energyDelta: energyDeltaEvent});
+	if (move.effect){
+		move.effect.sub({
+			"world": this,
+			"parameters": move.effect.parameters,
+			"pkm": pkm,
+			"pkm_hurt": pkm_hurt,
+			"move": move,
+			"t": t,
+			"hurtEvent": hurtEvent,
+			"energyDeltaEvent": energyDeltaEvent
+		});
+	}
 }
 
 // Gym Defender/Raid Boss uses a move, hurting all active attackers
@@ -449,36 +473,24 @@ World.prototype.dfdr_use_move = function(pkm, move, t){
 		if (pkm_hurt && pkm_hurt.active){
 			var dmg = damage(pkm, pkm_hurt, move, this.weather);
 			var hurtEvent = {
-				name: "Hurt", t: t+move.dws, subject: pkm_hurt, object: pkm, move: move, dmg: dmg
+				name: "Hurt", t: t + move.dws, subject: pkm_hurt, object: pkm, move: move, dmg: dmg
 			};
 			this.tline.enqueue(hurtEvent);
-			this.handle_move_effect(pkm, pkm_hurt, move, t, {hurt: hurtEvent, energyDelta: energyDeltaEvent});
+			if (move.effect){
+				move.effect.sub({
+					"world": this,
+					"parameters": move.effect.parameters,
+					"pkm": pkm,
+					"pkm_hurt": pkm_hurt,
+					"move": move,
+					"t": t,
+					"hurtEvent": hurtEvent,
+					"energyDeltaEvent": energyDeltaEvent
+				});
+			}
 		}
 	}
 	this.projected_atkrHurtEvent = {name: "Hurt", t: t + move.dws, object: pkm, move: move};
-}
-
-World.prototype.handle_move_effect = function(pkm, pkm_hurt, move, t, preEvents){
-	if (!move.effect)
-		return;
-	if (move.effect.remaining == 0){
-		delete move.effect;
-		return;
-	}
-	if (move.effect.name == 'transform'){
-		pkm.baseAtk = pkm_hurt.baseAtk;
-		pkm.baseDef = pkm_hurt.baseDef;
-		pkm.pokeType1 = pkm_hurt.pokeType1;
-		pkm.pokeType2 = pkm_hurt.pokeType2;
-		pkm.fmove = JSON.parse(JSON.stringify(pkm_hurt.fmove));
-		pkm.cmove = JSON.parse(JSON.stringify(pkm_hurt.cmove));
-		pkm.calculate_current_stats();
-	}else if (move.effect.name == 'hp_draining'){
-		this.tline.enqueue({
-			name: "MoveEffect", subname: "HPRefund", t: t + move.dws + 1, subject: pkm, linkedEvent: preEvents.hurt
-		});
-	}	
-	move.effect.remaining--;
 }
 
 
@@ -641,11 +653,7 @@ World.prototype.battle = function (){
 			else
 				this.dfdr_use_move(e.subject, e.move, t);
 		}else if (e.name == "MoveEffect"){
-			if (e.subname == "HPRefund"){
-				var pkm = e.subject;
-				e.value = Math.ceil(e.linkedEvent.dmg / 2);
-				pkm.HP = Math.min(pkm.maxHP, pkm.HP + e.value);
-			}
+			e.action(e);
 			elog.push(e);
 		}
 		
@@ -741,9 +749,7 @@ World.prototype.add_to_log = function(events){
 			rowData[3][e.subject.playerCode] = "dodge";
 		}else if (e.name == "MoveEffect"){
 			nonEmpty[4] = true;
-			if (e.subname == "HPRefund"){
-				rowData[4][e.subject.playerCode] = e.subject.HP + '(+' + e.value + ')';
-			}
+			rowData[4][e.subject.playerCode] = e.text;
 		}
 	}
 	if (nonEmpty[2]){

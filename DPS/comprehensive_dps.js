@@ -370,6 +370,19 @@ function recalculate(){
 	$("#ranking_table").DataTable().draw();
 }
 
+// Calculate PVP Outcome
+function calc_pvp_outcome(pkm1, pkm2){
+	var FDmg1 = damage2(pkm1, pkm2, pkm1.fmove, Context.weather), FDmg2 = damage2(pkm2, pkm1, pkm2.fmove, Context.weather);
+	var CDmg1 = damage2(pkm1, pkm2, pkm1.cmove, Context.weather), CDmg2 = damage2(pkm2, pkm1, pkm2.cmove, Context.weather);
+	var FDur1 = pkm1.fmove.duration/1000, FDur2 = pkm2.fmove.duration/1000;
+	var CDur1 = pkm1.cmove.duration/1000, CDur2 = pkm2.cmove.duration/1000;
+	var FE1 = pkm1.fmove.energyDelta, FE2 = pkm2.fmove.energyDelta;
+	var CE1 = -pkm1.cmove.energyDelta, CE2 = -pkm2.cmove.energyDelta;
+	var HP1 = pkm1.Stm, HP2 = pkm2.Stm;
+	
+	
+}
+
 
 function get_combination(species_query, fmove_query, cmove_query){
 	pred_s = createComplexPredicate(species_query || '');

@@ -242,7 +242,7 @@ function loadLatestPokemonData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({ 
-		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pokemon-data-full.json?v2',
+		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pokemon-data-full.json?v30',
 		dataType: 'json', 
 		success: function(data){
 			POKEMON_SPECIES_DATA = [];
@@ -250,7 +250,6 @@ function loadLatestPokemonData(oncomplete){
 				var pkmData = {
 					index: i,
 					dex : parseInt(data[i].number),
-					value : parseInt(data[i].number),
 					box_index : -1,
 					name : data[i].title_1.toLowerCase(),
 					pokeType1 : getPokemonType1FromString(data[i].field_pokemon_type),
@@ -286,7 +285,7 @@ function loadLatestMoveData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({
-		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/move-data-full.json?v2',
+		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/move-data-full.json?v30',
 		dataType: 'json', 
 		success: function(data){
 			FAST_MOVE_DATA = [];
@@ -385,10 +384,7 @@ function loadLatestTeams(userid, oncomplete){
 function manualModifyData(){
 	var fmove_transform = FAST_MOVE_DATA[index_by_name('transform', FAST_MOVE_DATA)];
 	if (fmove_transform){
-		fmove_transform.effect = {
-			name : 'transform',
-			remaining : 1
-		};
+		fmove_transform.effect_name = "transform";
 	}
 	
 	var pokemon_moltres = POKEMON_SPECIES_DATA[index_by_name('moltres', POKEMON_SPECIES_DATA)];
@@ -408,6 +404,11 @@ function manualModifyData(){
 		pokemon_kyogre.fastMoves_legacy = [];
 	}
 	
+	var pokemon_charizard = POKEMON_SPECIES_DATA[index_by_name('charizard', POKEMON_SPECIES_DATA)];
+	if (pokemon_charizard){
+		if (!pokemon_charizard.chargedMoves_exclusive.includes('blast burn'))
+			pokemon_charizard.chargedMoves_exclusive.push('blast burn');
+	}
 }
 
 
