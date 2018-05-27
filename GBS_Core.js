@@ -1,27 +1,36 @@
 /* GBS_Core.js */
 
-var POKEMON_MAX_ENERGY = 100;
-var STAB_MULTIPLIER = 1.2;
-var WAB_MULTIPLIER = 1.2;
-
-var DODGE_COOLDOWN_MS = 500;
-var DODGEWINDOW_LENGTH_MS = 700;
-var DODGE_SWIPE_TIME_MS = 300;
-var DODGED_DAMAGE_REDUCTION_PERCENT = 0.75;
-var ARENA_ENTRY_LAG_MS = 3000;
-var ARENA_EARLY_TERMINATION_MS = 3000;
-var FAST_MOVE_LAG_MS = 25;
-var CHARGED_MOVE_LAG_MS = 100;
-var SWITCHING_DELAY_MS = 750;
-var TIMELIMIT_GYM_MS = 100000;
-var REJOIN_TIME_MS = 10000;
-var ITEM_MENU_TIME_MS = 2000;
-var EACH_MAX_REVIVE_TIME_MS = 800;
-
 const MAX_NUM_POKEMON_PER_PARTY = 6;
 const MAX_NUM_PARTIES_PER_PLAYER = 5;
 const MAX_NUM_OF_PLAYERS = 20;
-var TIMELIMIT_RAID_MS = [180000, 180000, 180000, 180000, 300000];
+
+var BATTLE_SETTINGS = {
+	'sameTypeAttackBonusMultiplier': 1.2, 
+	'maximumEnergy': 100, 
+	'energyDeltaPerHealthLost': 0.5, 
+	'dodgeDurationMs': 500, 
+	'swapDurationMs': 1000, 
+	'dodgeDamageReductionPercent': 0.75, 
+	'weatherAttackBonusMultiplier': 1.2
+};
+
+var BATTLE_SETTINGS_EXTRA = {
+	'dodgeWindowMs': 700,
+	'dodgeSwipeMs': 300,
+	'arenaEntryLagMs': 3000,
+	'arenaEarlyTerminationMs': 3000,
+	'fastMoveLagMs': 25,
+	'chargedMoveLagMs': 100,
+	'timelimitGymMs': 100000,
+	'timelimitRaidMs': 180000,
+	'timelimitLegendaryRaidMs': 300000,
+	'rejoinDurationMs': 10000,
+	'itemMenuAnimationTimeMs': 200,
+	'maxReviveTimePerPokemonMs': 800
+};
+
+for (var attr in BATTLE_SETTINGS_EXTRA)
+	BATTLE_SETTINGS[attr] = BATTLE_SETTINGS_EXTRA[attr];
 
 /* 
  *	PART I(b): GAME DATA
@@ -36,7 +45,7 @@ var LEVEL_VALUES = [];
 var IV_VALUES = [];
 var CPM_TABLE = [];
 
-var POKEMON_TYPE_ADVANTAGES = {"normal": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 0.714, "bug": 1.0, "ghost": 0.51, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "fighting": {"normal": 1.4, "fighting": 1.0, "flying": 0.714, "poison": 0.714, "ground": 1.0, "rock": 1.4, "bug": 0.714, "ghost": 0.51, "steel": 1.4, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 0.714, "ice": 1.4, "dragon": 1.0, "dark": 1.4, "fairy": 0.714}, "flying": {"normal": 1.0, "fighting": 1.4, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 0.714, "bug": 1.4, "ghost": 1.0, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.4, "electric": 0.714, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "poison": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 0.714, "ground": 0.714, "rock": 0.714, "bug": 1.0, "ghost": 0.714, "steel": 0.51, "fire": 1.0, "water": 1.0, "grass": 1.4, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.4}, "ground": {"normal": 1.0, "fighting": 1.0, "flying": 0.51, "poison": 1.4, "ground": 1.0, "rock": 1.4, "bug": 0.714, "ghost": 1.0, "steel": 1.4, "fire": 1.4, "water": 1.0, "grass": 0.714, "electric": 1.4, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "rock": {"normal": 1.0, "fighting": 0.714, "flying": 1.4, "poison": 1.0, "ground": 0.714, "rock": 1.0, "bug": 1.4, "ghost": 1.0, "steel": 0.714, "fire": 1.4, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.4, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "bug": {"normal": 1.0, "fighting": 0.714, "flying": 0.714, "poison": 0.714, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 0.714, "steel": 0.714, "fire": 0.714, "water": 1.0, "grass": 1.4, "electric": 1.0, "psychic": 1.4, "ice": 1.0, "dragon": 1.0, "dark": 1.4, "fairy": 0.714}, "ghost": {"normal": 0.51, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.4, "steel": 1.0, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.4, "ice": 1.0, "dragon": 1.0, "dark": 0.714, "fairy": 1.0}, "steel": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.4, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 0.714, "grass": 1.0, "electric": 0.714, "psychic": 1.0, "ice": 1.4, "dragon": 1.0, "dark": 1.0, "fairy": 1.4}, "fire": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 0.714, "bug": 1.4, "ghost": 1.0, "steel": 1.4, "fire": 0.714, "water": 0.714, "grass": 1.4, "electric": 1.0, "psychic": 1.0, "ice": 1.4, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "water": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.4, "rock": 1.4, "bug": 1.0, "ghost": 1.0, "steel": 1.0, "fire": 1.4, "water": 0.714, "grass": 0.714, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "grass": {"normal": 1.0, "fighting": 1.0, "flying": 0.714, "poison": 0.714, "ground": 1.4, "rock": 1.4, "bug": 0.714, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 1.4, "grass": 0.714, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "electric": {"normal": 1.0, "fighting": 1.0, "flying": 1.4, "poison": 1.0, "ground": 0.51, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 1.0, "fire": 1.0, "water": 1.4, "grass": 0.714, "electric": 0.714, "psychic": 1.0, "ice": 1.0, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "psychic": {"normal": 1.0, "fighting": 1.4, "flying": 1.0, "poison": 1.4, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 0.714, "ice": 1.0, "dragon": 1.0, "dark": 0.51, "fairy": 1.0}, "ice": {"normal": 1.0, "fighting": 1.0, "flying": 1.4, "poison": 1.0, "ground": 1.4, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 0.714, "grass": 1.4, "electric": 1.0, "psychic": 1.0, "ice": 0.714, "dragon": 1.4, "dark": 1.0, "fairy": 1.0}, "dragon": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.4, "dark": 1.0, "fairy": 0.51}, "dark": {"normal": 1.0, "fighting": 0.714, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.4, "steel": 1.0, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.4, "ice": 1.0, "dragon": 1.0, "dark": 0.714, "fairy": 0.714}, "fairy": {"normal": 1.0, "fighting": 1.4, "flying": 1.0, "poison": 0.714, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.4, "dark": 1.4, "fairy": 1.0}};
+var TYPE_ADVANTAGES = {"normal": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 0.714, "bug": 1.0, "ghost": 0.51, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "fighting": {"normal": 1.4, "fighting": 1.0, "flying": 0.714, "poison": 0.714, "ground": 1.0, "rock": 1.4, "bug": 0.714, "ghost": 0.51, "steel": 1.4, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 0.714, "ice": 1.4, "dragon": 1.0, "dark": 1.4, "fairy": 0.714}, "flying": {"normal": 1.0, "fighting": 1.4, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 0.714, "bug": 1.4, "ghost": 1.0, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.4, "electric": 0.714, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "poison": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 0.714, "ground": 0.714, "rock": 0.714, "bug": 1.0, "ghost": 0.714, "steel": 0.51, "fire": 1.0, "water": 1.0, "grass": 1.4, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.4}, "ground": {"normal": 1.0, "fighting": 1.0, "flying": 0.51, "poison": 1.4, "ground": 1.0, "rock": 1.4, "bug": 0.714, "ghost": 1.0, "steel": 1.4, "fire": 1.4, "water": 1.0, "grass": 0.714, "electric": 1.4, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "rock": {"normal": 1.0, "fighting": 0.714, "flying": 1.4, "poison": 1.0, "ground": 0.714, "rock": 1.0, "bug": 1.4, "ghost": 1.0, "steel": 0.714, "fire": 1.4, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.4, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "bug": {"normal": 1.0, "fighting": 0.714, "flying": 0.714, "poison": 0.714, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 0.714, "steel": 0.714, "fire": 0.714, "water": 1.0, "grass": 1.4, "electric": 1.0, "psychic": 1.4, "ice": 1.0, "dragon": 1.0, "dark": 1.4, "fairy": 0.714}, "ghost": {"normal": 0.51, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.4, "steel": 1.0, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.4, "ice": 1.0, "dragon": 1.0, "dark": 0.714, "fairy": 1.0}, "steel": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.4, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 0.714, "grass": 1.0, "electric": 0.714, "psychic": 1.0, "ice": 1.4, "dragon": 1.0, "dark": 1.0, "fairy": 1.4}, "fire": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 0.714, "bug": 1.4, "ghost": 1.0, "steel": 1.4, "fire": 0.714, "water": 0.714, "grass": 1.4, "electric": 1.0, "psychic": 1.0, "ice": 1.4, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "water": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.4, "rock": 1.4, "bug": 1.0, "ghost": 1.0, "steel": 1.0, "fire": 1.4, "water": 0.714, "grass": 0.714, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "grass": {"normal": 1.0, "fighting": 1.0, "flying": 0.714, "poison": 0.714, "ground": 1.4, "rock": 1.4, "bug": 0.714, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 1.4, "grass": 0.714, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "electric": {"normal": 1.0, "fighting": 1.0, "flying": 1.4, "poison": 1.0, "ground": 0.51, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 1.0, "fire": 1.0, "water": 1.4, "grass": 0.714, "electric": 0.714, "psychic": 1.0, "ice": 1.0, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "psychic": {"normal": 1.0, "fighting": 1.4, "flying": 1.0, "poison": 1.4, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 0.714, "ice": 1.0, "dragon": 1.0, "dark": 0.51, "fairy": 1.0}, "ice": {"normal": 1.0, "fighting": 1.0, "flying": 1.4, "poison": 1.0, "ground": 1.4, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 0.714, "grass": 1.4, "electric": 1.0, "psychic": 1.0, "ice": 0.714, "dragon": 1.4, "dark": 1.0, "fairy": 1.0}, "dragon": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.4, "dark": 1.0, "fairy": 0.51}, "dark": {"normal": 1.0, "fighting": 0.714, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.4, "steel": 1.0, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.4, "ice": 1.0, "dragon": 1.0, "dark": 0.714, "fairy": 0.714}, "fairy": {"normal": 1.0, "fighting": 1.4, "flying": 1.0, "poison": 0.714, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.4, "dark": 1.4, "fairy": 1.0}};
 
 var WEATHER_BOOSTED_TYPES = {"SUNNY_CLEAR": ["grass", "ground", "fire"], "RAIN": ["water", "electric", "bug"], "PARTLY_CLOUDY": ["normal", "rock"], "CLOUDY": ["fairy", "fighting", "poison"], "WINDY": ["dragon", "flying", "psychic"], "SNOW": ["ice", "steel"], "FOG": ["dark", "ghost"], "EXTREME": []};
 
@@ -54,14 +63,14 @@ var RAID_BOSS_HP = [600, 1800, 3000, 7500, 12500];
 function damage(dmg_giver, dmg_taker, move, weather){
 	var stab = 1;
 	if (move.pokeType == dmg_giver.pokeType1 || move.pokeType == dmg_giver.pokeType2){
-		stab = STAB_MULTIPLIER;
+		stab = BATTLE_SETTINGS.sameTypeAttackBonusMultiplier;
 	}
 	var wab = 1;
 	if (WEATHER_BOOSTED_TYPES[weather].includes(move.pokeType)){
-		wab = WAB_MULTIPLIER;
+		wab = BATTLE_SETTINGS.weatherAttackBonusMultiplier;
 	}
-	var effe1 = POKEMON_TYPE_ADVANTAGES[move.pokeType][dmg_taker.pokeType1] || 1;
-	var effe2 = POKEMON_TYPE_ADVANTAGES[move.pokeType][dmg_taker.pokeType2] || 1;
+	var effe1 = TYPE_ADVANTAGES[move.pokeType][dmg_taker.pokeType1] || 1;
+	var effe2 = TYPE_ADVANTAGES[move.pokeType][dmg_taker.pokeType2] || 1;
 	return Math.ceil(0.5*dmg_giver.Atk/dmg_taker.Def*move.power*effe1*effe2*stab*wab);
 }
 
@@ -153,12 +162,12 @@ Pokemon.prototype.calculate_current_stats = function(){
 	this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
 	this.Def = (this.baseDef + this.defiv) * this.cpm;
 	this.Stm = (this.baseStm + this.stmiv) * this.cpm;
-	if (this.raidTier < 0) { // gym defender
+	if (!this.raidTier){ // attacker
+		this.maxHP = Math.floor(this.Stm);
+	}else if (this.raidTier < 0){ // gym defender
 		this.maxHP = 2 * Math.floor(this.Stm);
 		this.playerCode = 'dfdr';
-	} else if (this.raidTier == 0){ // attacker
-		this.maxHP = Math.floor(this.Stm);
-	} else {// raid boss
+	}else {// raid boss
 		this.cpm = RAID_BOSS_CPM[this.raidTier - 1];
 		this.Atk = (this.baseAtk + 15) * this.cpm;
 		this.Def = (this.baseDef + 15) * this.cpm;
@@ -176,9 +185,9 @@ Pokemon.prototype.heal = function(){
 // A Pokemon gains/(loses) energy
 Pokemon.prototype.gain_energy = function(energyDelta){
 	this.energy += energyDelta;
-	if (this.energy > POKEMON_MAX_ENERGY){
-		this.total_energy_overcharged += this.energy - POKEMON_MAX_ENERGY;
-		this.energy = POKEMON_MAX_ENERGY;
+	if (this.energy > BATTLE_SETTINGS.maximumEnergy){
+		this.total_energy_overcharged += this.energy - BATTLE_SETTINGS.maximumEnergy;
+		this.energy = BATTLE_SETTINGS.maximumEnergy;
 	}
 }
 
@@ -189,9 +198,8 @@ Pokemon.prototype.take_damage = function(dmg){
 	if (this.HP <= 0 && !this.immortal){
 		this.num_deaths++;
 		this.active = false;
-		overKilledPart = -this.HP;
 	}
-	this.gain_energy(Math.ceil((dmg - overKilledPart)/2));
+	this.gain_energy(Math.ceil(dmg * BATTLE_SETTINGS.energyDeltaPerHealthLost));
 	this.has_dodged_next_attack = false;
 }
 
@@ -326,13 +334,13 @@ Player.prototype.next_pokemon_up = function(){
 	var current_party = this.partiesArr[this.active_idx];
 	if (current_party.next_pokemon_up()){ // Current party has next active Pokemon up
 		this.active_pkm = current_party.active_pkm;
-		timeBeforeActive = SWITCHING_DELAY_MS;
+		timeBeforeActive = BATTLE_SETTINGS.swapDurationMs;
 	}else{ // Current party all faint. Need to rejoin
-		timeBeforeActive = REJOIN_TIME_MS;
+		timeBeforeActive = BATTLE_SETTINGS.rejoinDurationMs;
 		if (current_party.revive_strategy == true){ // Revive currently party
 			current_party.heal();
 			this.active_pkm = current_party.active_pkm;
-			timeBeforeActive += ITEM_MENU_TIME_MS +  current_party.pokemonArr.length * EACH_MAX_REVIVE_TIME_MS;
+			timeBeforeActive += BATTLE_SETTINGS.itemMenuAnimationTimeMs +  current_party.pokemonArr.length * BATTLE_SETTINGS.maxReviveTimePerPokemonMs;
 			this.num_rejoin++;
 		}else{ // Try to switch to the next line-up, no need to revive
 			if (++this.active_idx < this.partiesArr.length){
@@ -395,9 +403,11 @@ function World(cfg){
 	// Set up general
 	this.raid_tier = cfg['dfdrSettings']['raid_tier'];
 	if (this.raid_tier == -1)
-		this.timelimit_ms = TIMELIMIT_GYM_MS;
+		this.timelimit_ms = BATTLE_SETTINGS.timelimitGymMs;
+	else if (this.raid_tier < 5)
+		this.timelimit_ms = BATTLE_SETTINGS.timelimitRaidMs;
 	else
-		this.timelimit_ms = TIMELIMIT_RAID_MS[this.raid_tier - 1];
+		this.timelimit_ms = BATTLE_SETTINGS.timelimitLegendaryRaidMs;
 	this.weather = cfg['generalSettings']['weather'] || "EXTREME";
 	this.log_style = cfg['generalSettings']['logStyle'] || 0;
 	this.dodge_bug = cfg['generalSettings']['dodgeBug'] || 0;
@@ -438,7 +448,7 @@ World.prototype.init = function(){
 
 // Player's Pokemon uses a move
 World.prototype.atkr_use_move = function(pkm, pkm_hurt, move, t){
-	t += move.moveType == 'f' ? FAST_MOVE_LAG_MS : CHARGED_MOVE_LAG_MS;
+	t += move.moveType == 'f' ? BATTLE_SETTINGS.fastMoveLagMs : BATTLE_SETTINGS.chargedMoveLagMs;
 	var dmg = damage(pkm, pkm_hurt, move, this.weather);
 	var hurtEvent = {
 		name: "Hurt", t: t + move.dws, subject: pkm_hurt, object: pkm, move: move, dmg: dmg
@@ -505,24 +515,24 @@ World.prototype.enqueueActions = function(pkm, pkm_hurt, t, actions){
 			this.tline.enqueue({
 				name: "Announce", t: tFree, subject: pkm, object: pkm_hurt, move: pkm.fmove
 			});
-			tFree += pkm.fmove.duration + FAST_MOVE_LAG_MS;
+			tFree += pkm.fmove.duration + BATTLE_SETTINGS.fastMoveLagMs;
 		}else if (actions[i] == 'c'){ // Use charge move if energy is enough
 			if (pkm.energy + pkm.cmove.energyDelta >= 0){
 				this.tline.enqueue({
 					name: "Announce", t: tFree, subject: pkm, object: pkm_hurt, move: pkm.cmove
 				});
-				tFree += pkm.cmove.duration + CHARGED_MOVE_LAG_MS;
+				tFree += pkm.cmove.duration + BATTLE_SETTINGS.chargedMoveLagMs;
 			}else{ // insufficient energy, use fmove instead
 				this.tline.enqueue({
 					name: "Announce", t: tFree, subject: pkm, object: pkm_hurt, move: pkm.fmove
 				});
-				tFree += pkm.fmove.duration + FAST_MOVE_LAG_MS;
+				tFree += pkm.fmove.duration + BATTLE_SETTINGS.fastMoveLagMs;
 			}
 		}else if (actions[i] == 'd'){ // dodge
 			this.tline.enqueue({
 				name: "Dodge", t: tFree, subject: pkm
 			});
-			tFree += DODGE_COOLDOWN_MS;
+			tFree += BATTLE_SETTINGS.dodgeDurationMs;
 		}else // wait
 			tFree += actions[i];
 	}
@@ -584,7 +594,7 @@ World.prototype.any_player_active = function (){
 
 // TODO: Main function for simulating a battle
 World.prototype.battle = function (){
-	var t = ARENA_ENTRY_LAG_MS;
+	var t = BATTLE_SETTINGS.arenaEntryLagMs;
 	var elog = [];
 	var dfdr = this.dfdr;
 	
@@ -606,7 +616,7 @@ World.prototype.battle = function (){
 	while (dfdr.active && this.any_player_active_bool){
 		var e = this.tline.list.shift();
 		t = e.t;
-		if (t >= this.timelimit_ms - ARENA_EARLY_TERMINATION_MS && !this.immortal_defender)
+		if (t >= this.timelimit_ms - BATTLE_SETTINGS.arenaEarlyTerminationMs && !this.immortal_defender)
 			break;
 		
 		// 1. First process the event
@@ -642,8 +652,8 @@ World.prototype.battle = function (){
 			elog.push(e);
 		}else if (e.name == "Dodge"){
 			var eHurt = this.nextHurtEventOf(e.subject);
-			if (eHurt && !e.dodged && (eHurt.t - DODGEWINDOW_LENGTH_MS) <= t && t <= eHurt.t){
-				eHurt.dmg = Math.max(1, Math.floor(eHurt.dmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT)));
+			if (eHurt && !e.dodged && (eHurt.t - BATTLE_SETTINGS.dodgeWindowMs) <= t && t <= eHurt.t){
+				eHurt.dmg = Math.max(1, Math.floor(eHurt.dmg * (1 - BATTLE_SETTINGS.dodgeDamageReductionPercent)));
 				e.dodged = true;
 			}
 			elog.push(e);
@@ -872,7 +882,7 @@ function atkr_choose_1(state){
 		
 		var timeTillHurt = hurtEvent.t - t;
 		var undodgedDmg = damage(hurtEvent.object, this, hurtEvent.move, weather);
-		var dodgedDmg = dodge_bug ? undodgedDmg : Math.floor(undodgedDmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
+		var dodgedDmg = dodge_bug ? undodgedDmg : Math.floor(undodgedDmg * (1 - BATTLE_SETTINGS.dodgeDamageReductionPercent));
 		var fDmg = damage(this, dfdr, this.fmove, weather);
 		var cDmg = damage(this, dfdr, this.cmove, weather);
 
@@ -880,15 +890,15 @@ function atkr_choose_1(state){
 		if (this.HP > dodgedDmg){
 			// (a) if this Pokemon can survive the dodged damage, then it's better to dodge
 			var res = strategyMaxDmg(timeTillHurt, this.energy, fDmg, this.fmove.energyDelta, 
-									this.fmove.duration + FAST_MOVE_LAG_MS, cDmg, this.cmove.energyDelta, this.cmove.duration + CHARGED_MOVE_LAG_MS);
-			return res[2].concat([Math.max(timeTillHurt - DODGEWINDOW_LENGTH_MS - res[1], 0), 'd']);
+									this.fmove.duration + BATTLE_SETTINGS.fastMoveLagMs, cDmg, this.cmove.energyDelta, this.cmove.duration + BATTLE_SETTINGS.chargedMoveLagMs);
+			return res[2].concat([Math.max(timeTillHurt - BATTLE_SETTINGS.dodgeWindowMs - res[1], 0), 'd']);
 		} else{
 			// (b) otherwise, just don't bother to dodge, and YOLO!
 			// Compare two strategies: a FMove at the end (resF) or a CMove at the end (resC) by exploiting DWS
-			var resF = strategyMaxDmg(timeTillHurt - this.fmove.dws - FAST_MOVE_LAG_MS, this.energy, fDmg, this.fmove.energyDelta, 
-									this.fmove.duration + FAST_MOVE_LAG_MS, cDmg, this.cmove.energyDelta, this.cmove.duration + CHARGED_MOVE_LAG_MS);
-			var resC = strategyMaxDmg(timeTillHurt - this.cmove.dws - CHARGED_MOVE_LAG_MS, this.energy + this.cmove.energyDelta, fDmg, this.fmove.energyDelta, 
-									this.fmove.duration + FAST_MOVE_LAG_MS, cDmg, this.cmove.energyDelta, this.cmove.duration + CHARGED_MOVE_LAG_MS);
+			var resF = strategyMaxDmg(timeTillHurt - this.fmove.dws - BATTLE_SETTINGS.fastMoveLagMs, this.energy, fDmg, this.fmove.energyDelta, 
+									this.fmove.duration + BATTLE_SETTINGS.fastMoveLagMs, cDmg, this.cmove.energyDelta, this.cmove.duration + BATTLE_SETTINGS.chargedMoveLagMs);
+			var resC = strategyMaxDmg(timeTillHurt - this.cmove.dws - BATTLE_SETTINGS.chargedMoveLagMs, this.energy + this.cmove.energyDelta, fDmg, this.fmove.energyDelta, 
+									this.fmove.duration + BATTLE_SETTINGS.fastMoveLagMs, cDmg, this.cmove.energyDelta, this.cmove.duration + BATTLE_SETTINGS.chargedMoveLagMs);
 			if (resC[0] + cDmg > resF[0] + fDmg && resC[1] >= 0){ 
 				// Use a cmove at the end is better, on the condition that it obeys the energy rule
 				return resC[2].concat('c');
@@ -918,20 +928,20 @@ function atkr_choose_2(state){
 	
 	if (t < hurtEvent.t && !this.has_dodged_next_attack){ // Case 1: A new attack has been announced and has not been dodged
 		this.has_dodged_next_attack = true; // prevent double dodging
-		var timeTillHurt = hurtEvent.t - t - DODGE_SWIPE_TIME_MS;
+		var timeTillHurt = hurtEvent.t - t - BATTLE_SETTINGS.dodgeSwipeMs;
 		var undodgedDmg = damage(hurtEvent.object, this, hurtEvent.move, weather);
-		var dodgedDmg = dodge_bug ? undodgedDmg : Math.floor(undodgedDmg * (1 - DODGED_DAMAGE_REDUCTION_PERCENT));
+		var dodgedDmg = dodge_bug ? undodgedDmg : Math.floor(undodgedDmg * (1 - BATTLE_SETTINGS.dodgeDamageReductionPercent));
 		var opt_strat = strategyMaxDmg(timeTillHurt, this.energy, fDmg, this.fmove.energyDelta, 
-					this.fmove.duration + FAST_MOVE_LAG_MS, cDmg, this.cmove.energyDelta, this.cmove.duration + CHARGED_MOVE_LAG_MS);
+					this.fmove.duration + BATTLE_SETTINGS.fastMoveLagMs, cDmg, this.cmove.energyDelta, this.cmove.duration + BATTLE_SETTINGS.chargedMoveLagMs);
 		var res = opt_strat[2];
 		if (hurtEvent.move.moveType == 'f') { // Case 1a: A fast move has been announced
 			if (this.HP > dodgedDmg){ // Only dodge when necessary
-				res.push(Math.max(0, timeTillHurt - opt_strat[1] - DODGEWINDOW_LENGTH_MS + DODGE_SWIPE_TIME_MS)); // wait until dodge window open
+				res.push(Math.max(0, timeTillHurt - opt_strat[1] - BATTLE_SETTINGS.dodgeWindowMs + BATTLE_SETTINGS.dodgeSwipeMs)); // wait until dodge window open
 				res.push('d');
 			}
 		}else{ // Case 1b: A charge move has been announced
 			if (this.HP > dodgedDmg){
-				res.push(Math.max(0, timeTillHurt - opt_strat[1] - DODGEWINDOW_LENGTH_MS + DODGE_SWIPE_TIME_MS)); // wait until dodge window open
+				res.push(Math.max(0, timeTillHurt - opt_strat[1] - BATTLE_SETTINGS.dodgeWindowMs + BATTLE_SETTINGS.dodgeSwipeMs)); // wait until dodge window open
 				res.push('d');
 				res.push('c'); // attempt to use cmove
 			}
@@ -940,7 +950,7 @@ function atkr_choose_2(state){
 	}else{ // Case 2: No new attack has been announced or has dodged the incoming attack
 		var res = [];
 		if (t > hurtEvent.t){ // just after dodging the current attack
-			var timeTillHurt = hurtEvent.t - t - DODGE_SWIPE_TIME_MS + (hurtEvent.move.duration - hurtEvent.move.dws) + 1500 + dfdr.fmove.dws;
+			var timeTillHurt = hurtEvent.t - t - BATTLE_SETTINGS.dodgeSwipeMs + (hurtEvent.move.duration - hurtEvent.move.dws) + 1500 + dfdr.fmove.dws;
 			if (this.energy + this.cmove.energyDelta >= 0 && this.cmove.duration < timeTillHurt)
 				res.push('c');
 			else

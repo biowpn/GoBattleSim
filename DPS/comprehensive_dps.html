@@ -268,7 +268,7 @@ $( "#pokemonEditForm" ).on('dialogclose', function(event) {
 var moveEditFormPokeTypeSelect = document.getElementById('moveEditForm-pokeType');
 var pokemonEditFormPokeType1Select = document.getElementById('pokemonEditForm-pokeType1');
 var pokemonEditFormPokeType2Select = document.getElementById('pokemonEditForm-pokeType2');
-for (var type in POKEMON_TYPE_ADVANTAGES){
+for (var type in TYPE_ADVANTAGES){
 	moveEditFormPokeTypeSelect.appendChild(createElement('option', toTitleCase(type), {value : type}));
 	pokemonEditFormPokeType1Select.appendChild(createElement('option', toTitleCase(type), {value : type}));
 	pokemonEditFormPokeType2Select.appendChild(createElement('option', toTitleCase(type), {value : type}));

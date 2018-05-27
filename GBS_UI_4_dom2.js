@@ -1,9 +1,9 @@
 /* GBS_UI_4_dom2.js */
 
 const editableParameters = [
-	'POKEMON_MAX_ENERGY','STAB_MULTIPLIER','WAB_MULTIPLIER','DODGE_COOLDOWN_MS','DODGEWINDOW_LENGTH_MS','DODGE_SWIPE_TIME_MS',
-	'DODGED_DAMAGE_REDUCTION_PERCENT','ARENA_ENTRY_LAG_MS','ARENA_EARLY_TERMINATION_MS','FAST_MOVE_LAG_MS',
-	'CHARGED_MOVE_LAG_MS','SWITCHING_DELAY_MS','REJOIN_TIME_MS','ITEM_MENU_TIME_MS','EACH_MAX_REVIVE_TIME_MS'
+	'BATTLE_SETTINGS.maximumEnergy','BATTLE_SETTINGS.sameTypeAttackBonusMultiplier','BATTLE_SETTINGS.weatherAttackBonusMultiplier','BATTLE_SETTINGS.dodgeDurationMs','BATTLE_SETTINGS.dodgeWindowMs','BATTLE_SETTINGS.dodgeSwipeMs',
+	'BATTLE_SETTINGS.dodgeDamageReductionPercent','BATTLE_SETTINGS.arenaEntryLagMs','BATTLE_SETTINGS.arenaEarlyTerminationMs','BATTLE_SETTINGS.fastMoveLagMs',
+	'BATTLE_SETTINGS.chargedMoveLagMs','BATTLE_SETTINGS.swapDurationMs','BATTLE_SETTINGS.rejoinDurationMs','BATTLE_SETTINGS.itemMenuAnimationTimeMs','BATTLE_SETTINGS.maxReviveTimePerPokemonMs'
 ];
 
 
@@ -393,23 +393,20 @@ function boxEditFormSubmit(userIndex){
 
 function parameterEditFormSubmit(){
 	var EDITABLE_PARAMETERS = {};
-	editableParameters.forEach(function(attr){
-		var value = parseFloat(document.getElementById('parameterEditForm-'+attr).value);
-		if (value){
-			window[attr] = value;
-			EDITABLE_PARAMETERS[attr] = value;
-		}
-	});
-	send_feedback("Parameters have been updated", false, 'parameterEditForm-feedback');
-	if (localStorage)
-		localStorage.EDITABLE_PARAMETERS_LOCAL = JSON.stringify(EDITABLE_PARAMETERS);
+	for (var attr in BATTLE_SETTINGS){
+		BATTLE_SETTINGS[attr] = parseFloat(document.getElementById('parameterEditForm-'+attr).value) || 0;
+	};
+	send_feedback("Battle settings have been updated", false, 'parameterEditForm-feedback');
+	if (localStorage){
+		localStorage.BATTLE_SETTINGS_LOCAL = JSON.stringify(BATTLE_SETTINGS);
+	}
 }
 
 function parameterEditFormReset(){
 	if (localStorage){
-		localStorage.removeItem('EDITABLE_PARAMETERS_LOCAL');
+		localStorage.removeItem('BATTLE_SETTINGS_LOCAL');
 	}
-	send_feedback("Local Parameters have been erased. Refresh the page to get the default parameters back", false, 'parameterEditForm-feedback');
+	send_feedback("Local battle settings have been erased. Refresh the page to get the default back", false, 'parameterEditForm-feedback');
 }
 
 

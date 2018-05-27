@@ -211,7 +211,7 @@
 				<div id='subMenu' style='position: absolute; width: 90%'>
 					<button class='player_button' id='moveEditFormOpener'>Move</button>
 					<button class='player_button' id='pokemonEditFormOpener'>Species</button>
-					<button class='player_button' id='parameterEditFormOpener'>Other Paramaters</button>
+					<button class='player_button' id='parameterEditFormOpener'>Battle Settings</button>
 					<button class='player_button' id='modEditFormOpener'>Mods</button>
 				</div>
 
@@ -489,7 +489,7 @@
 </div>
 
 
-<div id='parameterEditForm' title='Edit Paramaters'>
+<div id='parameterEditForm' title='Edit Battle Settings'>
 	<table id='parameterEditForm-Table'>
 		<thead>
 			<tr>
@@ -752,7 +752,7 @@ $( "#pokemonEditForm" ).on('dialogclose', function(event) {
 var moveEditFormPokeTypeSelect = document.getElementById('moveEditForm-pokeType');
 var pokemonEditFormPokeType1Select = document.getElementById('pokemonEditForm-pokeType1');
 var pokemonEditFormPokeType2Select = document.getElementById('pokemonEditForm-pokeType2');
-for (var type in POKEMON_TYPE_ADVANTAGES){
+for (var type in TYPE_ADVANTAGES){
 	moveEditFormPokeTypeSelect.appendChild(createElement('option', toTitleCase(type), {value : type}));
 	pokemonEditFormPokeType1Select.appendChild(createElement('option', toTitleCase(type), {value : type}));
 	pokemonEditFormPokeType2Select.appendChild(createElement('option', toTitleCase(type), {value : type}));
@@ -776,14 +776,11 @@ $( "#parameterEditForm" ).on('dialogclose', function(event) {
 });
 
 var parameterTable = document.getElementById('parameterEditForm-Table');
-editableParameters.forEach(function(attr){
-	var row = createRow([
-		attr,
-		"<input type='number' id='parameterEditForm-" + attr + "'></input>"
-	],'td');
-	row.children[1].children[0].value = window[attr];
+for (var attr in BATTLE_SETTINGS){
+	var row = createRow([attr, "<input type='number' id='parameterEditForm-" + attr + "'></input>"],'td');
+	row.children[1].children[0].value = BATTLE_SETTINGS[attr];
 	parameterTable.children[1].appendChild(row);
-});
+};
 
 
 // User Edit Form

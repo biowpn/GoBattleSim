@@ -480,10 +480,8 @@ $(document).ready(function(){
 			CHARGED_MOVE_DATA_LOCAL = JSON.parse(localStorage.CHARGED_MOVE_DATA_LOCAL);
 		}
 		
-		if (localStorage.EDITABLE_PARAMETERS_LOCAL){
-			var EDITABLE_PARAMETERS = JSON.parse(localStorage.EDITABLE_PARAMETERS_LOCAL);
-			for (var param in EDITABLE_PARAMETERS)
-				window[param] = EDITABLE_PARAMETERS[param];
+		if (localStorage.BATTLE_SETTINGS_LOCAL){
+			BATTLE_SETTINGS = JSON.parse(localStorage.BATTLE_SETTINGS_LOCAL);
 		}
 		if (localStorage.PARTIES_LOCAL){	
 			PARTIES_LOCAL = JSON.parse(localStorage.PARTIES_LOCAL);

@@ -86,14 +86,14 @@ Pokemon.prototype.calc_defender = function(atkr){
 function damage2(dmg_giver, dmg_taker, move, weather){
 	var stab = 1;
 	if (move.pokeType == dmg_giver.pokeType1 || move.pokeType == dmg_giver.pokeType2){
-		stab = STAB_MULTIPLIER;
+		stab = BATTLE_SETTINGS.sameTypeAttackBonusMultiplier;
 	}
 	var wab = 1;
 	if (WEATHER_BOOSTED_TYPES[weather].includes(move.pokeType)){
-		wab = WAB_MULTIPLIER;
+		wab = BATTLE_SETTINGS.weatherAttackBonusMultiplier;
 	}
-	var effe1 = POKEMON_TYPE_ADVANTAGES[move.pokeType][dmg_taker.pokeType1] || 1;
-	var effe2 = POKEMON_TYPE_ADVANTAGES[move.pokeType][dmg_taker.pokeType2] || 1;
+	var effe1 = TYPE_ADVANTAGES[move.pokeType][dmg_taker.pokeType1] || 1;
+	var effe2 = TYPE_ADVANTAGES[move.pokeType][dmg_taker.pokeType2] || 1;
 	return 0.5*dmg_giver.Atk/dmg_taker.Def*move.power*effe1*effe2*stab*wab + 0.5;
 }
 
@@ -138,7 +138,7 @@ function setUrlFromConfig(){
 
 
 function handle_2(){
-	acceptedNumericalAttributes = acceptedNumericalAttributes.concat(['dps', 'tdo', 'st']);
+	acceptedNumericalAttributes = acceptedNumericalAttributes.concat(['dps', 'tdo']);
 	
 	var weatherSelect = document.getElementById('weather');
 	WEATHER_LIST.forEach(function(weather){
@@ -184,7 +184,7 @@ function handle_2(){
 	var enemyPokeType2Select = document.getElementById('d-pokeType2');
 	enemyPokeType1Select.appendChild(createElement('option', toTitleCase(DEFAULT_ENEMY_POKETYPE1), {value: DEFAULT_ENEMY_POKETYPE1}));
 	enemyPokeType2Select.appendChild(createElement('option', toTitleCase(DEFAULT_ENEMY_POKETYPE2), {value: DEFAULT_ENEMY_POKETYPE2}));
-	for (var pokeType in POKEMON_TYPE_ADVANTAGES){
+	for (var pokeType in TYPE_ADVANTAGES){
 		enemyPokeType1Select.appendChild(createElement('option', toTitleCase(pokeType), {value: pokeType}));
 		enemyPokeType2Select.appendChild(createElement('option', toTitleCase(pokeType), {value: pokeType}));
 	}
@@ -372,8 +372,8 @@ function recalculate(){
 
 // Calculate PVP Outcome
 function calc_pvp_outcome(pkm1, pkm2){
-	var FDmg1 = damage2(pkm1, pkm2, pkm1.fmove, Context.weather), FDmg2 = damage2(pkm2, pkm1, pkm2.fmove, Context.weather);
-	var CDmg1 = damage2(pkm1, pkm2, pkm1.cmove, Context.weather), CDmg2 = damage2(pkm2, pkm1, pkm2.cmove, Context.weather);
+	var FDmg1 = damage(pkm1, pkm2, pkm1.fmove, Context.weather), FDmg2 = damage(pkm2, pkm1, pkm2.fmove, Context.weather);
+	var CDmg1 = damage(pkm1, pkm2, pkm1.cmove, Context.weather), CDmg2 = damage(pkm2, pkm1, pkm2.cmove, Context.weather);
 	var FDur1 = pkm1.fmove.duration/1000, FDur2 = pkm2.fmove.duration/1000;
 	var CDur1 = pkm1.cmove.duration/1000, CDur2 = pkm2.cmove.duration/1000;
 	var FE1 = pkm1.fmove.energyDelta, FE2 = pkm2.fmove.energyDelta;

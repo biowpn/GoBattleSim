@@ -5,7 +5,7 @@ var LOGICAL_OPERATORS = {
 };
 var SELECTORS = ['*', '?'];
 var acceptedNumericalAttributes = [
-	'cp','atkiv','defiv','stmiv','level', 'maxhp','dex',
+	'cp','atkiv','defiv','stmiv','level','dex',
 	'baseAtk','baseDef','baseStm', 'rating',
 	'power', 'duration', 'dws', 'energyDelta', 'value'
 ];
@@ -138,7 +138,7 @@ function createSimplePredicate(str){
 		return function(obj){
 			return LBound <= obj[attr] && obj[attr] <= UBound;
 		};
-	}else if (POKEMON_TYPE_ADVANTAGES.hasOwnProperty(str.toLowerCase()) || str.toLowerCase() == 'none'){ // Match types
+	}else if (TYPE_ADVANTAGES.hasOwnProperty(str.toLowerCase()) || str.toLowerCase() == 'none'){ // Match types
 		const str_const = str.toLowerCase();
 		return function(obj){
 			return ([obj.pokeType, obj.pokeType1, obj.pokeType2].includes(str_const));
