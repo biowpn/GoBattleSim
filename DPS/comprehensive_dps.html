@@ -278,7 +278,7 @@ pokemonEditFormPokeType2Select.appendChild(createElement('option', 'None', {valu
 
 
 // Mod Edit Form
-$( "#modEditForm" ).dialog({ 
+$( "#modEditForm" ).dialog({
 	autoOpen: false,
 	width: 600
 });
@@ -286,5 +286,7 @@ $( "#modEditFormOpener" ).click(function() {
 	$( '#subMenu' ).hide();
 	$( "#modEditForm" ).dialog( "open" );
 });
+
+populateAll(applicationInit);
 
 </script>

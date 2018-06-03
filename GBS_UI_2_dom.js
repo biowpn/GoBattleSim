@@ -66,7 +66,7 @@ function createAttackerNode(){
 	
 	var speciesInput = createElement('input','',{
 		type: 'text', placeholder: 'Species', class: 'input-with-icon species-input-with-icon', 
-		style: 'background-image: url('+pokemon_icon_url_by_index(-1)+')', index: -1, box_index: -1
+		style: 'background-image: url(' + getPokemonIcon({dex: 0}) + ')', index: -1, box_index: -1
 	});
 	autocompletePokemonNodeSpecies(speciesInput);
 	tb1.children[1].children[0].appendChild(speciesInput);
@@ -411,7 +411,7 @@ function createDefenderNode(){
 	tb1.appendChild(createRow(['']));
 	var speciesInput = createElement('input','',{
 		type: 'text', placeholder: 'Species', class: 'input-with-icon species-input-with-icon', id: 'ui-species_d',
-		style: 'background-image: url('+pokemon_icon_url_by_index(-1)+')', index: -1, box_index: -1
+		style: 'background-image: url(' + getPokemonIcon({dex: 0}) + ')', index: -1, box_index: -1
 	});
 	autocompletePokemonNodeSpecies(speciesInput);
 	tb1.children[1].children[0].appendChild(speciesInput);
@@ -470,7 +470,7 @@ function parseAttackerNode(node){
 	
 	var pkm_cfg = {
 		box_index : box_idx,
-		index : idx >= 0 ? idx : index_by_name(nameInputValue, POKEMON_SPECIES_DATA),
+		index : idx >= 0 ? idx : getIndexByName(nameInputValue, POKEMON_SPECIES_DATA),
 		fmove_index : parseInt(row3.children[0].children[0].getAttribute('index')),
 		cmove_index : parseInt(row3.children[1].children[0].getAttribute('index')),
 		species: idx >= 0 ? POKEMON_SPECIES_DATA[idx].name : nameInputValue,
@@ -518,7 +518,7 @@ function parseDefenderNode(node){
 	
 	var pkm_cfg = {
 		box_index : box_idx,
-		index : idx >= 0 ? idx : index_by_name(nameInputValue, POKEMON_SPECIES_DATA),
+		index : idx >= 0 ? idx : getIndexByName(nameInputValue, POKEMON_SPECIES_DATA),
 		fmove_index : parseInt(row3.children[0].children[0].getAttribute('index')),
 		cmove_index : parseInt(row3.children[1].children[0].getAttribute('index')),
 		species: idx >= 0 ? POKEMON_SPECIES_DATA[idx].name : nameInputValue,
@@ -580,11 +580,11 @@ function writeAttackerNode(node, pkmConfig){
 	var row2 = node.children[1].children[1].children[1];
 	var row3 = node.children[1].children[2].children[1];
 
-	var species_idx = (pkmConfig.hasOwnProperty('index')) ? pkmConfig.index : index_by_name(pkmConfig.species, POKEMON_SPECIES_DATA);
+	var species_idx = (pkmConfig.hasOwnProperty('index')) ? pkmConfig.index : getIndexByName(pkmConfig.species, POKEMON_SPECIES_DATA);
 	row1.children[0].children[0].value = pkmConfig.label || toTitleCase(pkmConfig.species);
 	row1.children[0].children[0].setAttribute('index', species_idx);
 	row1.children[0].children[0].setAttribute('box_index', pkmConfig.hasOwnProperty('box_index') ? pkmConfig.box_index : -1);
-	row1.children[0].children[0].setAttribute('style', 'background-image: url('+pokemon_icon_url_by_index(species_idx)+')');
+	row1.children[0].children[0].setAttribute('style', 'background-image: url(' + getPokemonIcon({index: species_idx}) + ')');
 	if (pkmConfig.hasOwnProperty('copies'))
 		row1.children[1].children[0].value = pkmConfig.copies;
 	row2.children[0].children[0].value = pkmConfig.level;
@@ -592,14 +592,14 @@ function writeAttackerNode(node, pkmConfig){
 	row2.children[2].children[0].value = pkmConfig.atkiv;
 	row2.children[3].children[0].value = pkmConfig.defiv;
 	
-	var fmove_idx = index_by_name(pkmConfig.fmove, FAST_MOVE_DATA);
+	var fmove_idx = getIndexByName(pkmConfig.fmove, FAST_MOVE_DATA);
 	row3.children[0].children[0].value = toTitleCase(pkmConfig.fmove);
 	row3.children[0].children[0].setAttribute('index', fmove_idx);
-	row3.children[0].children[0].setAttribute('style', "background-image: url(" + move_icon_url_by_index('f', fmove_idx) + ')');
-	var cmove_idx = index_by_name(pkmConfig.cmove, CHARGED_MOVE_DATA);
+	row3.children[0].children[0].setAttribute('style', "background-image: url(" + getTypeIcon({mtype: 'f', index: fmove_idx}) + ')');
+	var cmove_idx = getIndexByName(pkmConfig.cmove, CHARGED_MOVE_DATA);
 	row3.children[1].children[0].value = toTitleCase(pkmConfig.cmove);
 	row3.children[1].children[0].setAttribute('index', cmove_idx);
-	row3.children[1].children[0].setAttribute('style', "background-image: url(" + move_icon_url_by_index('c', cmove_idx) + ')');
+	row3.children[1].children[0].setAttribute('style', "background-image: url(" + getTypeIcon({mtype: 'c', index: cmove_idx}) + ')');
 	
 	if (pkmConfig.hasOwnProperty('dodge'))
 		row3.children[2].children[0].value = pkmConfig.dodge;
@@ -630,20 +630,20 @@ function writeDefenderNode(node, pkmConfig){
 	var row1 = node.children[1].children[0].children[1];
 	var row3 = node.children[1].children[2].children[1];
 
-	var species_idx = ('index' in pkmConfig) ? pkmConfig.index : index_by_name(pkmConfig.species, POKEMON_SPECIES_DATA);
+	var species_idx = ('index' in pkmConfig) ? pkmConfig.index : getIndexByName(pkmConfig.species, POKEMON_SPECIES_DATA);
 	row1.children[0].children[0].value = pkmConfig.label || toTitleCase(pkmConfig.species);
 	row1.children[0].children[0].setAttribute('index', species_idx);
 	row1.children[0].children[0].setAttribute('box_index', pkmConfig.hasOwnProperty('box_index') ? pkmConfig.box_index : -1);
-	row1.children[0].children[0].setAttribute('style', 'background-image: url('+pokemon_icon_url_by_index(species_idx)+')');
+	row1.children[0].children[0].setAttribute('style', 'background-image: url(' + getPokemonIcon({index: species_idx}) + ')');
 	
-	var fmove_idx = index_by_name(pkmConfig.fmove, FAST_MOVE_DATA);
+	var fmove_idx = getIndexByName(pkmConfig.fmove, FAST_MOVE_DATA);
 	row3.children[0].children[0].value = toTitleCase(pkmConfig.fmove);
 	row3.children[0].children[0].setAttribute('index', fmove_idx);
-	row3.children[0].children[0].setAttribute('style', "background-image: url(" + move_icon_url_by_index('f', fmove_idx) + ')');
-	var cmove_idx = index_by_name(pkmConfig.cmove, CHARGED_MOVE_DATA);
+	row3.children[0].children[0].setAttribute('style', "background-image: url(" + getTypeIcon({mtype: 'f', index: fmove_idx}) + ')');
+	var cmove_idx = getIndexByName(pkmConfig.cmove, CHARGED_MOVE_DATA);
 	row3.children[1].children[0].value = toTitleCase(pkmConfig.cmove);
 	row3.children[1].children[0].setAttribute('index', cmove_idx);
-	row3.children[1].children[0].setAttribute('style', "background-image: url(" + move_icon_url_by_index('c', cmove_idx) + ')');
+	row3.children[1].children[0].setAttribute('style', "background-image: url(" + getTypeIcon({mtype: 'c', index: cmove_idx}) + ')');
 	
 	var tb2 = node.children[1].children[1];
 	tb2.innerHTML = '';
@@ -757,11 +757,11 @@ function createPlayerStatisticsString(playerStat){
 
 function createPokemonStatisticsTable(pokemonStats){
 	var table = document.createElement("table");
-	table.appendChild(createRow(["<img src='" + pokemon_icon_url_by_index(-1) + "'></img>",
+	table.appendChild(createRow(["<img src='" + getPokemonIcon({dex: 0}) + "'></img>",
 								"HP", "Energy", "TDO", "Duration", "DPS", "Detail"], 'th'));
 	for (var i = 0; i < pokemonStats.length; i++){
 		var ps = pokemonStats[i];
-		var row = createRow(["<img src='" + pokemon_icon_url_by_index(ps.index) + "' class='apitem-pokemon-icon'></img>", 
+		var row = createRow(["<img src='" + getPokemonIcon({index: ps.index}) + "' class='apitem-pokemon-icon'></img>", 
 			ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, "<a style='cursor: pointer'><i class='fa fa-info-circle' aria-hidden='true'></i></a>"], 'td');
 		
 		const ps_const = JSON.parse(JSON.stringify(ps));

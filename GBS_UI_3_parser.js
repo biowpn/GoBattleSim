@@ -132,7 +132,7 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 function parsePokemonInput(cfg, address){
 	var branches = [];
 	
-	branches = parsePokemonAttributeExpression(cfg, address, 'species', 'index', index_by_name, getPokemonSpeciesOptions(parseInt(address.split('-')[0]) - 1));
+	branches = parsePokemonAttributeExpression(cfg, address, 'species', 'index', getIndexByName, getPokemonSpeciesOptions(parseInt(address.split('-')[0]) - 1));
 	if (branches.length) return branches;
 	branches = parsePokemonAttributeExpression(cfg, address, 'level', 'level', parseFloat, LEVEL_VALUES);
 	if (branches.length) return branches;
@@ -142,9 +142,9 @@ function parsePokemonInput(cfg, address){
 	if (branches.length) return branches;
 	branches = parsePokemonAttributeExpression(cfg, address, 'stmiv', 'stmiv', parseInt, IV_VALUES);
 	if (branches.length) return branches;
-	branches = parsePokemonAttributeExpression(cfg, address, 'fmove', 'fmove_index', index_by_name, FAST_MOVE_DATA);
+	branches = parsePokemonAttributeExpression(cfg, address, 'fmove', 'fmove_index', getIndexByName, FAST_MOVE_DATA);
 	if (branches.length) return branches;
-	branches = parsePokemonAttributeExpression(cfg, address, 'cmove', 'cmove_index', index_by_name, CHARGED_MOVE_DATA);
+	branches = parsePokemonAttributeExpression(cfg, address, 'cmove', 'cmove_index', getIndexByName, CHARGED_MOVE_DATA);
 	if (branches.length) return branches;
 	
 	return branches;

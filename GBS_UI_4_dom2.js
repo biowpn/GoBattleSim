@@ -27,7 +27,7 @@ function moveEditFormSubmit(){
 	
 	var moveDatabase = (moveType_input == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA);
 	var moveDatabase_local = (moveType_input == 'f' ? FAST_MOVE_DATA_LOCAL : CHARGED_MOVE_DATA_LOCAL);
-	var idx = index_by_name(moveName, moveDatabase);
+	var idx = getIndexByName(moveName, moveDatabase);
 	
 	if (idx >= 0){
 		copyAllInfo(moveDatabase[idx], move);
@@ -41,7 +41,7 @@ function moveEditFormSubmit(){
 		send_feedback('Move: ' + toTitleCase(moveName) + ' has been added.', false, 'moveEditForm-feedback');
 	}
 	
-	if (index_by_name(moveName, moveDatabase_local) < 0){
+	if (getIndexByName(moveName, moveDatabase_local) < 0){
 		moveDatabase_local.push(move);
 	}
 	if (localStorage){
@@ -54,10 +54,10 @@ function moveEditFormReset(){
 	FAST_MOVE_DATA = [];
 	CHARGED_MOVE_DATA = [];
 	send_feedback("Connecting to server...", true, 'moveEditForm-feedback');
-	loadLatestMoveData(function(){
+	fetchMoveData(function(){
 		send_feedback("Latest Move Data have been fetched", true, 'moveEditForm-feedback');
 		for (var i = 0; i < FAST_MOVE_DATA_LOCAL.length; i++){
-			if (index_by_name(FAST_MOVE_DATA_LOCAL[i].name, FAST_MOVE_DATA) >= 0){
+			if (getIndexByName(FAST_MOVE_DATA_LOCAL[i].name, FAST_MOVE_DATA) >= 0){
 				FAST_MOVE_DATA_LOCAL.splice(i--, 1);
 			}else{
 				FAST_MOVE_DATA_LOCAL[i].index = FAST_MOVE_DATA.length;
@@ -65,7 +65,7 @@ function moveEditFormReset(){
 			}
 		}
 		for (var i = 0; i < CHARGED_MOVE_DATA_LOCAL.length; i++){
-			if (index_by_name(CHARGED_MOVE_DATA_LOCAL[i].name, CHARGED_MOVE_DATA) >= 0){
+			if (getIndexByName(CHARGED_MOVE_DATA_LOCAL[i].name, CHARGED_MOVE_DATA) >= 0){
 				CHARGED_MOVE_DATA_LOCAL.splice(i--, 1);
 			}else{
 				CHARGED_MOVE_DATA_LOCAL[i].index = CHARGED_MOVE_DATA.length;
@@ -84,7 +84,7 @@ function moveEditFormDelete(){
 	var moveName = document.getElementById('moveEditForm-name').value.trim().toLowerCase();
 	var moveDatabase = (moveType_input == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA);
 	var moveDatabaseLocal = (moveType_input == 'f' ? FAST_MOVE_DATA_LOCAL : CHARGED_MOVE_DATA_LOCAL);
-	var idx = index_by_name(moveName, moveDatabase);
+	var idx = getIndexByName(moveName, moveDatabase);
 	
 	if (idx >= 0){
 		moveDatabase.splice(idx, 1);
@@ -147,26 +147,26 @@ function pokemonEditFormSubmit(){
 	document.getElementById('pokemonEditForm-fmoves').value.split(',').forEach(function(moveName){
 		moveName = moveName.trim().toLowerCase();
 		if (moveName.substring(moveName.length - 2, moveName.length) == '**'){
-			if (index_by_name(moveName.substring(0, moveName.length - 2), FAST_MOVE_DATA) >= 0)
+			if (getIndexByName(moveName.substring(0, moveName.length - 2), FAST_MOVE_DATA) >= 0)
 				fmoves_exclusive.push(moveName.substring(0,moveName.length - 2));
 		}else if (moveName.substring(moveName.length - 1, moveName.length) == '*'){
-			if (index_by_name(moveName.substring(0, moveName.length - 1), FAST_MOVE_DATA) >= 0)
+			if (getIndexByName(moveName.substring(0, moveName.length - 1), FAST_MOVE_DATA) >= 0)
 				fmoves_legacy.push(moveName.substring(0,moveName.length - 1));
 		}else{
-			if (index_by_name(moveName, FAST_MOVE_DATA) >= 0)
+			if (getIndexByName(moveName, FAST_MOVE_DATA) >= 0)
 				fmoves.push(moveName);
 		}
 	});
 	document.getElementById('pokemonEditForm-cmoves').value.split(',').forEach(function(moveName){
 		moveName = moveName.trim().toLowerCase();
 		if (moveName.substring(moveName.length - 2, moveName.length) == '**'){
-			if (index_by_name(moveName.substring(0, moveName.length - 2), CHARGED_MOVE_DATA) >= 0)
+			if (getIndexByName(moveName.substring(0, moveName.length - 2), CHARGED_MOVE_DATA) >= 0)
 				cmoves_exclusive.push(moveName.substring(0,moveName.length - 2));
 		}else if (moveName.substring(moveName.length - 1, moveName.length) == '*'){
-			if (index_by_name(moveName.substring(0, moveName.length - 1), CHARGED_MOVE_DATA) >= 0)
+			if (getIndexByName(moveName.substring(0, moveName.length - 1), CHARGED_MOVE_DATA) >= 0)
 				cmoves_legacy.push(moveName.substring(0,moveName.length - 1));
 		}else{
-			if (index_by_name(moveName, CHARGED_MOVE_DATA) >= 0)
+			if (getIndexByName(moveName, CHARGED_MOVE_DATA) >= 0)
 				cmoves.push(moveName);
 		}
 	});
@@ -186,7 +186,7 @@ function pokemonEditFormSubmit(){
 		chargedMoves_exclusive : cmoves_exclusive
 	};
 	
-	var idx = index_by_name(pokemonName, POKEMON_SPECIES_DATA);
+	var idx = getIndexByName(pokemonName, POKEMON_SPECIES_DATA);
 	if (idx >= 0){
 		copyAllInfo(POKEMON_SPECIES_DATA[idx], pkm);
 		pkm = POKEMON_SPECIES_DATA[idx];
@@ -201,7 +201,7 @@ function pokemonEditFormSubmit(){
 		send_feedback('Pokemon: ' + toTitleCase(pokemonName) + ' has been added.', false, 'pokemonEditForm-feedback');
 	}
 	
-	if (index_by_name(pokemonName, POKEMON_SPECIES_DATA_LOCAL) < 0){
+	if (getIndexByName(pokemonName, POKEMON_SPECIES_DATA_LOCAL) < 0){
 		POKEMON_SPECIES_DATA_LOCAL.push(pkm);
 	}
 	if (localStorage){
@@ -216,11 +216,11 @@ function pokemonEditFormReset(){
 	}
 	send_feedback("Local Pokemon Species have been erased.", false, 'pokemonEditForm-feedback');
 	send_feedback("Connecting to server...", true, 'pokemonEditForm-feedback');
-	loadLatestPokemonData(function(){
+	fetchSpeciesData(function(){
 		handleSpeciesDatabase(POKEMON_SPECIES_DATA);
-		manualModifyData();
+		manuallyModifyData();
 		for (var i = 0; i < POKEMON_SPECIES_DATA_LOCAL.length; i++){
-			if (index_by_name(POKEMON_SPECIES_DATA_LOCAL[i].name, POKEMON_SPECIES_DATA) >= 0){
+			if (getIndexByName(POKEMON_SPECIES_DATA_LOCAL[i].name, POKEMON_SPECIES_DATA) >= 0){
 				POKEMON_SPECIES_DATA_LOCAL.splice(i--, 1);
 			}else{
 				POKEMON_SPECIES_DATA_LOCAL[i].index = POKEMON_SPECIES_DATA.length;
@@ -236,7 +236,7 @@ function pokemonEditFormReset(){
 
 function pokemonEditFormDelete(){
 	var pokemonName = document.getElementById('pokemonEditForm-name').value.trim().toLowerCase();
-	var idx = index_by_name(pokemonName, POKEMON_SPECIES_DATA);
+	var idx = getIndexByName(pokemonName, POKEMON_SPECIES_DATA);
 	
 	if (idx >= 0){
 		POKEMON_SPECIES_DATA.splice(idx, 1);
@@ -313,7 +313,7 @@ function autocompletePokemonEditForm(){
 function userEditFormAddUser(){
 	var userID = document.getElementById('userEditForm-userID-1').value.trim();
 	send_feedback("Connecting to server...", false, 'userEditForm-feedback');
-	loadUser(userID, function(){
+	fetchUserData(userID, function(){
 		send_feedback("Imported user " + userID, false, 'userEditForm-feedback');
 		udpateUserTable();
 	});
@@ -360,8 +360,8 @@ function udpateBoxTable(userIndex){
 		boxEditFormTable.row.add([
 			i+1,
 			createIconLabelDiv2(box[i].icon, toTitleCase(box[i].species), 'species-input-with-icon'),
-			createIconLabelDiv2(poketype_icon_url_by_name(box[i].pokeType1), toTitleCase(box[i].pokeType1), 'move-input-with-icon'),
-			box[i].pokeType2 == 'none' ? '' : createIconLabelDiv2(poketype_icon_url_by_name(box[i].pokeType2), toTitleCase(box[i].pokeType2), 'move-input-with-icon'),
+			createIconLabelDiv2(getTypeIcon({pokeType: box[i].pokeType1}), toTitleCase(box[i].pokeType1), 'move-input-with-icon'),
+			createIconLabelDiv2(getTypeIcon({pokeType: box[i].pokeType2}), toTitleCase(box[i].pokeType2), 'move-input-with-icon'),
 			box[i].nickname,
 			box[i].cp,
 			box[i].level,
@@ -411,7 +411,7 @@ function parameterEditFormReset(){
 
 
 function modEditFormSubmit(){
-	handle_0(function(){
+	fetchAll(function(){
 		for (var i = 0; i < MOD_LIST.length; i++){
 			var mod_checkbox = document.getElementById('mod_checkbox_' + i);
 			if (mod_checkbox && mod_checkbox.checked){
@@ -429,7 +429,7 @@ function populateQuickStartWizardBossList(tag){
 		1: [], 2: [], 3:[], 4:[], 5:[]
 	};
 	bosses.forEach(function(boss){
-		bosses_by_tier[parseInt(boss.marker_1.split()[0])].push(boss);
+		bosses_by_tier[parseInt(boss.marker_1.split(' ')[0])].push(boss);
 	});
 
 	var listObj = document.getElementById('quickStartWizard-raidbosslist');

@@ -137,7 +137,7 @@ function setUrlFromConfig(){
 
 
 
-function handle_2(){
+function applicationInit(){
 	acceptedNumericalAttributes = acceptedNumericalAttributes.concat(['dps', 'tdo']);
 	
 	var weatherSelect = document.getElementById('weather');
@@ -312,8 +312,8 @@ function calculate(){
 			for (var k = 0; k < chargedMoves_all.length; k++){
 				var pkm2 = JSON.parse(JSON.stringify(pkm));
 				
-				pkm2.fmove_index = index_by_name(fastMoves_all[j], FAST_MOVE_DATA);
-				pkm2.cmove_index = index_by_name(chargedMoves_all[k], CHARGED_MOVE_DATA);
+				pkm2.fmove_index = getIndexByName(fastMoves_all[j], FAST_MOVE_DATA);
+				pkm2.cmove_index = getIndexByName(chargedMoves_all[k], CHARGED_MOVE_DATA);
 				if (pkm2.fmove_index < 0 || pkm2.cmove_index < 0){
 					console.log("Unrecognized move " + fastMoves_all[j] + ' or ' + chargedMoves_all[k]);
 					continue;
@@ -369,6 +369,58 @@ function recalculate(){
 	pred = createComplexPredicate($('#searchInput').val());
 	$("#ranking_table").DataTable().draw();
 }
+
+function calculate_defender(){
+	DPS_dict = {};
+	
+	var type_list = ['none'];
+	for (var type in TYPE_ADVANTAGES){
+		type_list.push(type);
+	}
+	
+	Context.enemy.Def = DEFAULT_ENEMY_CURRENT_DEFENSE;
+	for (var i = 0; i < type_list.length - 1; i++){
+		type1 = type_list[i];
+		for (var j = i + 1; j < type_list.length; j++){
+			type2 = type_list[j];
+			Context.enemy.pokeType1 = type1;
+			Context.enemy.pokeType2 = type2;
+			DPS_dict[type1 + ',' + type2] = 0;
+			DPS_dict[type2 + ',' + type1] = 0;
+			for (var k = 0; k < ALL_COMBINATIONS.length; k++){
+				var pkm2 = ALL_COMBINATIONS[k];
+				pkm2.calc_DPS( -pkm2.cmove.energyDelta * 0.5 + pkm2.fmove.energyDelta * 0.5, 400 / pkm2.Def );
+				if (pkm2.dps > DPS_dict[type1 + ',' + type2]){
+					DPS_dict[type1 + ',' + type2] = pkm2.dps;
+					DPS_dict[type2 + ',' + type1] = pkm2.dps;
+				}
+			}
+		}
+	}
+	
+	for (var i = 0; i < ALL_COMBINATIONS.length; i++){
+		var pkm2 = ALL_COMBINATIONS[i];
+		var dps_in = DPS_dict[pkm2.pokeType1 + ',' + pkm2.pokeType2];
+		pkm2.defender_time = 2 * pkm2.Stm * pkm2.Def / (dps_in * DEFAULT_ENEMY_CURRENT_DEFENSE);
+	}
+	
+	ALL_COMBINATIONS.sort(function(a,b){return b.defender_time - a.defender_time;});
+	
+	names = [];
+	str = '';
+	for (var i = 0; i < ALL_COMBINATIONS.length && names.length < 100; i++){
+		name = ALL_COMBINATIONS[i].label;
+		if (!names.includes(name)){
+			str += name + '\t' + ALL_COMBINATIONS[i].defender_time + '\n';
+			names.push(name);
+		}
+	}
+	copy(str.trim());
+}
+
+
+
+
 
 // Calculate PVP Outcome
 function calc_pvp_outcome(pkm1, pkm2){

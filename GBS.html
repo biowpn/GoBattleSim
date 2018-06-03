@@ -884,9 +884,9 @@ $ ('#quickStartWizardOpener').click(function() {
 
 
 // Final preparation
-function handle_2(){
+function applicationInit(){
 	if (typeof userID2 != 'underfined' && userID2){
-		loadUser(userID2, function(){
+		fetchUserData(userID2, function(){
 			send_feedback("Imported user " + userID2, false, 'userEditForm-feedback');
 			udpateUserTable();
 		});
@@ -959,5 +959,7 @@ addPlayerNode();
 document.getElementById("ui-defenderinputbody").innerHTML = "";
 document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
 document.getElementById("simPerConfig").value = 1;
+
+populateAll(applicationInit);
 
 </script>
