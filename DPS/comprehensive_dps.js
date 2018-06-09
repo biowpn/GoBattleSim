@@ -1,8 +1,6 @@
 /* Comprehensive_DPS.js */
 
 var Table = null;
-
-var ConfigurableAttributes = ['ui-species_d', 'd-pokeType1', 'd-pokeType2', 'fmove_d', 'cmove_d', 'weather', 'searchInput'];
 var colHeaders = ["Pokemon", "Fast Move", "Charged Move", "DPS", "TDO", "DPS*TDO", "CP"];
 
 var DEFAULT_LEVEL = 40;
@@ -11,6 +9,18 @@ var DEFAULT_ENEMY_CURRENT_DEFENSE = 160;
 var DEFAULT_ENEMY_POKETYPE1 = 'none';
 var DEFAULT_ENEMY_POKETYPE2 = 'none';
 var DEFAULT_WEATHER = 'EXTREME';
+
+var ConfigurableAttributes = [
+	{'elementId': "ui-species_d", 'qsField': "pkm", 'defaultValue': '', 'iconGetter': getPokemonIcon, 'database': "POKEMON_SPECIES_DATA"}, 
+	{'elementId': "d-pokeType1", 'qsField': "type1", 'defaultValue': DEFAULT_ENEMY_POKETYPE1}, 
+	{'elementId': "d-pokeType2", 'qsField': "type2", 'defaultValue': DEFAULT_ENEMY_POKETYPE2}, 
+	{'elementId': "fmove_d", 'qsField': "fm", 'defaultValue': '', 'iconGetter': getTypeIcon, 'database': "FAST_MOVE_DATA"}, 
+	{'elementId': "cmove_d", 'qsField': "cm", 'defaultValue': '', 'iconGetter': getTypeIcon, 'database': "CHARGED_MOVE_DATA"}, 
+	{'elementId': "weather", 'qsField': "wt", 'defaultValue': DEFAULT_WEATHER}, 
+	{'elementId': "searchInput", 'qsField': "qs", 'defaultValue': ''},
+	{'qsField': "by", defaultValue: "DPS"},
+	{'qsField': "order", defaultValue: "desc"},
+];
 
 var Context = {
 	weather: DEFAULT_WEATHER,
@@ -97,17 +107,40 @@ function damage2(dmg_giver, dmg_taker, move, weather){
 	return 0.5*dmg_giver.Atk/dmg_taker.Def*move.power*effe1*effe2*stab*wab + 0.5;
 }
 
+// https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript/901144#901144
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
 function setConfigFromUrl(url){
 	if (url.includes('?')){
-		var cfg = uriToJSON(url.split('?')[1]);
-		for (attr in cfg){
-			if (ConfigurableAttributes.includes(attr)){
-				document.getElementById(attr).value = cfg[attr];
-			}else if (attr == 'sortBy'){
-				var col_idx = colHeaders.indexOf(cfg[attr][0]);
-				if (col_idx >= 0){
-					Table.order([col_idx, cfg[attr][1]]);
-				}
+		var cfg = {};
+		try{
+			cfg = uriToJSON(url.split('?')[1]);
+		}catch(err){
+			ConfigurableAttributes.forEach(function(info){
+				cfg[info.elementId || info.qsField] = getParameterByName(info.qsField, url) || info.defaultValue;
+			});
+		}
+		ConfigurableAttributes.forEach(function(info){
+			$('#' + info.elementId).val(cfg[info.elementId] || info.defaultValue);
+			if (info.iconGetter){
+				$('#' + info.elementId).attr('style', "background-image: url(" + info.iconGetter({name: cfg[info.elementId], mtype: info.elementId[0]}) + ")");
+			}
+			if (info.database){
+				$('#' + info.elementId).attr('index', getIndexByName(cfg[info.elementId], window[info.database]));
+			}
+		});		
+		if (cfg['by'] || cfg['order']){
+			var col_idx = colHeaders.indexOf(cfg['by'] || 'DPS');
+			if (col_idx >= 0){
+				Table.order([col_idx, cfg['order'] || 'desc']);
 			}
 		}
 	}
@@ -115,23 +148,25 @@ function setConfigFromUrl(url){
 
 function setUrlFromConfig(){
 	var cfg = {}, non_default_flag = false;
-	ConfigurableAttributes.forEach(function(attr){
-		var val = document.getElementById(attr).value;
-		if (val == '' || val == DEFAULT_ENEMY_POKETYPE1 || val == DEFAULT_WEATHER)
-			return;
-		cfg[attr] = val;
-		non_default_flag = true;
-	});
+	
 	var sortingSetting = Table.settings().context[0].aaSorting[0];
 	if (sortingSetting){
 		var sortBy = [colHeaders[sortingSetting[0]], sortingSetting[1]];
-		if (sortBy[0] != 'DPS' || sortBy[1] != 'desc'){
-			cfg.sortBy = sortBy;
+		cfg['by'] = sortBy[0];
+		cfg['order'] = sortBy[1];
+	}
+	ConfigurableAttributes.forEach(function(info){
+		var val = info.elementId ? $('#' + info.elementId).val() : cfg[info.qsField];
+		if (val == info.defaultValue){
+			delete cfg[info.qsField];
+		}else{
+			cfg[info.qsField] = val;
 			non_default_flag = true;
 		}
-	}
+	});
+	
 	if (non_default_flag)
-		window.history.pushState('', '', window.location.href.split('?')[0] + '?' + jsonToURI(cfg));
+		window.history.pushState('', '', window.location.href.split('?')[0] + '?' + $.param(cfg));
 }
 
 
@@ -151,31 +186,27 @@ function applicationInit(){
 		document.getElementById('d-pokeType1').value = ui.item.pokeType1;
 		document.getElementById('d-pokeType2').value = ui.item.pokeType2;
 		copyAllInfo(Context.enemy, ui.item);
-		
+		$(this).val(ui.item.label);
 		this.setAttribute('index', ui.item.index);
-		var d_fmove_index = parseInt(document.getElementById('fmove_d').getAttribute('index'));
-		var d_cmove_index = parseInt(document.getElementById('cmove_d').getAttribute('index'));
-		if (d_fmove_index >= 0 && d_cmove_index >= 0){
+		if ($('#fmove_d').attr('index') >= 0 && $('#cmove_d').attr('index') >= 0){
 			recalculate();
 		}
 	});
 	
 	autocompletePokemonNodeMoves(document.getElementById('fmove_d'));
 	$( "#fmove_d" ).on( "autocompleteselect", function(event, ui){
+		$(this).val(ui.item.label);
 		this.setAttribute('index', ui.item.index);
-		var d_index = parseInt(document.getElementById('ui-species_d').getAttribute('index'));
-		var d_cmove_index = parseInt(document.getElementById('cmove_d').getAttribute('index'));
-		if (d_index >= 0 && d_cmove_index >= 0){
+		if ($('#ui-species_d').attr('index') >= 0 && $('#cmove_d').attr('index') >= 0){
 			recalculate();
 		}
 	});
 	
 	autocompletePokemonNodeMoves(document.getElementById('cmove_d'));
 	$( "#cmove_d" ).on( "autocompleteselect", function(event, ui){
+		$(this).val(ui.item.label);
 		this.setAttribute('index', ui.item.index);
-		var d_index = parseInt(document.getElementById('ui-species_d').getAttribute('index'));
-		var d_fmove_index = parseInt(document.getElementById('fmove_d').getAttribute('index'));
-		if (d_index >= 0 && d_fmove_index >= 0){
+		if ($('#ui-species_d').attr('index') >= 0 && $('#fmove_d').attr('index') >= 0){
 			recalculate();
 		}
 	});

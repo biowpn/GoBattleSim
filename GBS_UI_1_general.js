@@ -1,7 +1,9 @@
 /* GBS_UI_1_general.js */
 
 var LOGICAL_OPERATORS = {
-	',': 0,	'&': 1,	'!': 2
+	',': 0,	':': 0, ';': 0, // OR
+	'&': 1, '|': 1, // AND
+	'!': 2 // NOT
 };
 var SELECTORS = ['*', '?'];
 var acceptedNumericalAttributes = [
@@ -183,7 +185,7 @@ function createSimplePredicate(str){
 		return function(obj){
 			return obj.marker_1 && obj.marker_1.includes(str_const);
 		};
-	}else if (str[0] == '?'){ // Cutomized expression
+	}else if (str[0] == '>'){ // Cutomized expression
 		const str_const = str.slice(1);
 		return function(obj){
 			return eval(str_const);
@@ -200,69 +202,86 @@ function createSimplePredicate(str){
 	}
 }
 
-function createComplexPredicate(str){
-	var tokensArr = [], stack = [], tempStr = '';
+function parseNextToken(expression){
+	var position = 0, token = '', hasEscaped = false, startsWithWhiteSpace = true;
+	while(position < expression.length){
+		var c = expression[position];
+		if (c == '^'){
+			if (hasEscaped){
+				c += '^';
+				hasEscaped = false;
+			}else{
+				hasEscaped = true;
+			}
+		}else if (c == '(' || c == ')' || LOGICAL_OPERATORS.hasOwnProperty(c)){
+			if (startsWithWhiteSpace || hasEscaped)
+				token += c;
+			if (!hasEscaped)
+				break;
+			hasEscaped = false;
+		}else{
+			token += c;
+			hasEscaped = false;
+			if (c != ' ')
+				startsWithWhiteSpace = false;
+		}
+		position++;
+	}
+	return {
+		'token': token,
+		'expression': expression.slice(Math.max(position, token.length))
+	};
+}
+
+function createComplexPredicate(expression){
+	var tokensArr = [], stack = [];
+	expression = expression.trim();
 	
-	// 1.Infix to Postfix
-	for (var i = 0; i < str.length; i++){
-		if (str[i] == '('){
-			if (tempStr = tempStr.trim()){
-				tokensArr.push(tempStr);
-				tempStr = '';
-			}
-			stack.push(str[i]);
-		}else if (str[i] == ')'){
-			if (tempStr = tempStr.trim()){
-				tokensArr.push(tempStr);
-				tempStr = '';
-			}
+	// 1. Convert infix to postfix
+	while (expression.length > 0){
+		var parsedResult = parseNextToken(expression);
+		var token = parsedResult.token.trim();
+		expression = parsedResult.expression;
+
+		if (token == '('){
+			stack.push(token);
+		}else if (token == ')'){
 			while (stack[stack.length-1] != '(')
 				tokensArr.push(stack.pop());
 			stack.pop();
-		}else if (str[i] in LOGICAL_OPERATORS){
-			if (tempStr = tempStr.trim()){
-				tokensArr.push(tempStr);
-				tempStr = '';
-			}
-			while(stack.length && stack[stack.length-1] != '(' && LOGICAL_OPERATORS[str[i]] <= LOGICAL_OPERATORS[stack[stack.length-1]])
+		}else if (LOGICAL_OPERATORS.hasOwnProperty(token)){
+			while(stack.length && stack[stack.length-1] != '(' && LOGICAL_OPERATORS[token] <= LOGICAL_OPERATORS[stack[stack.length-1]])
 				tokensArr.push(stack.pop());
-			stack.push(str[i]);
+			stack.push(token);
 		}else
-			tempStr += str[i];
-	}
-	if (tempStr = tempStr.trim()){
-		tokensArr.push(tempStr);
+			tokensArr.push(token);
 	}
 	while (stack.length > 0){
 		tokensArr.push(stack.pop());
 	}
 
-	// 2. Evaluate the stack
-	stack = [];
+	// 2. Evaluate the postfix expression using a stack
 	for (var i = 0; i < tokensArr.length; i++){
-		if (!(tokensArr[i] in LOGICAL_OPERATORS))
-			tokensArr[i] = createSimplePredicate(tokensArr[i]);
-	}
-	for (var i = 0; i < tokensArr.length; i++){
-		if (tokensArr[i] in LOGICAL_OPERATORS){
+		var token = tokensArr[i];
+		if (LOGICAL_OPERATORS.hasOwnProperty(token)){
 			const pred1 = stack.pop();
-			if (tokensArr[i] == ','){
+			if (token == ',' || token == ':' || token == ';'){
 				const pred2 = stack.pop();
 				stack.push(function(obj){
 					return pred1(obj) || pred2(obj);
 				});
-			}else if (tokensArr[i] == '&'){
+			}else if (token == '&' || token == '|'){
 				const pred2 = stack.pop();
 				stack.push(function(obj){
 					return pred1(obj) && pred2(obj);
 				});
-			}else if (tokensArr[i] == '!'){
+			}else if (token == '!'){
 				stack.push(function(obj){
 					return !pred1(obj);
 				});
 			}
 		}else{
-			stack.push(tokensArr[i]);
+			stack.push(createSimplePredicate(token));
 		}
 	}
 	
@@ -273,13 +292,13 @@ function createComplexPredicate(str){
 }
 
 function universalGetter(expression, Space){
-	var result = [];
+	var filteredElements = [];
 	pred = createComplexPredicate(expression);
 	Space.forEach(function(obj){
 		if (pred(obj))
-			result.push(obj);
+			filteredElements.push(obj);
 	});
-	return result;
+	return filteredElements;
 }
 
 function getPokemonSpeciesOptions(userIndex){
@@ -351,10 +370,10 @@ function autocompletePokemonNodeSpecies(speciesInput){
 			this.setAttribute('style', 'background-image: url('+pkmInfo.icon+')');
 		},
 		change : function (event, ui){
-			var idx = ui.item ? ui.item.index : index_by_name(this.value, POKEMON_SPECIES_DATA);
+			var idx = ui.item ? ui.item.index : getIndexByName(this.value, POKEMON_SPECIES_DATA);
 			this.setAttribute('index', idx);
 			this.setAttribute('box_index', ui.item ? ui.item.box_index : -1);
-			this.setAttribute('style', 'background-image: url('+pokemon_icon_url_by_index(idx)+')');
+			this.setAttribute('style', 'background-image: url(' + getPokemonIcon({index: idx}) + ')');
 		}
 	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_pokemon_item;
 	
@@ -391,9 +410,9 @@ function autocompletePokemonNodeMoves(moveInput){
 		},
 		change : function(event, ui) {
 			var moveType = this.id[0];
-			var idx = ui.item ? ui.item.index : index_by_name(this.value, (moveType == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA));
+			var idx = ui.item ? ui.item.index : getIndexByName(this.value, (moveType == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA));
 			this.setAttribute('index', idx);
-			this.setAttribute('style', 'background-image: url(' + move_icon_url_by_index(moveType, idx) + ')');
+			this.setAttribute('style', 'background-image: url(' + getTypeIcon({mtype: moveType, index: idx}) + ')');
 		}
 	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_move_item;
 	
@@ -425,32 +444,6 @@ function send_feedback_dialog(msg, dialogTitle){
 	return d;
 }
 
-
-function pokemon_icon_url_by_dex(dex){
-	var dex_string = dex.toString();
-	while (dex_string.length < 3)
-		dex_string = "0" + dex_string;
-	return "https://pokemongo.gamepress.gg/assets/img/sprites/" + dex_string + "MS.png";
-}
-
-function pokemon_icon_url_by_index(index){
-	if (index >= 0)
-		return POKEMON_SPECIES_DATA[index].icon;
-	else
-		return pokemon_icon_url_by_dex(0);
-}
-
-function poketype_icon_url_by_name(type){
-	return "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + type.toLowerCase() + ".png";
-}
-
-function move_icon_url_by_index(type, index){
-	var moveDatabase = (type == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA);
-	if (index >= 0)
-		return moveDatabase[index].icon;
-	else
-		return '';
-}
 
 function createIconLabelDiv(iconURL, label, iconClass){
 	return "<div><span class='" + iconClass + "'>" + "<img src='"+iconURL+"'></img></span><span class='apitem-label'>" + label + "</span></div>";

@@ -1,7 +1,7 @@
 /* GBS_Core.js */
 
 /* 
- *	PART I: GAME DATA
+ *	PART I(a): GAME DATA
  */
  
 const MAX_NUM_POKEMON_PER_PARTY = 6;
@@ -49,9 +49,17 @@ var WEATHER_BOOSTED_TYPES = {"SUNNY_CLEAR": ["grass", "ground", "fire"], "RAIN":
 
 var WEATHER_LIST = ["EXTREME", "SUNNY_CLEAR", "RAIN", "PARTLY_CLOUDY", "CLOUDY", "WINDY", "SNOW", "FOG"];
 
+var WeatherSettings = [{'name': 'CLEAR', 'boostedTypes': ['grass', 'ground', 'fire']}, {'name': 'FOG', 'boostedTypes': ['dark', 'ghost']}, {'name': 'CLOUDY', 'boostedTypes': ['fairy', 'fighting', 'poison']}, {'name': 'PARTLY_CLOUDY', 'boostedTypes': ['normal', 'rock']}, {'name': 'RAINY', 'boostedTypes': ['water', 'electric', 'bug']}, {'name': 'SNOW', 'boostedTypes': ['ice', 'steel']}, {'name': 'WINDY', 'boostedTypes': ['dragon', 'flying', 'psychic']}];
+
 var RAID_BOSS_CPM = [0.6, 0.67, 0.7300000190734863, 0.7900000214576721, 0.7900000214576721];
 
 var RAID_BOSS_HP = [600, 1800, 3000, 7500, 12500];
+
+
+
+/* 
+ *	PART I(b): SIMULATOR SETTINGS
+ */
 
 const EVENT_TYPE = {
 	AtkrFree: 0,
@@ -63,6 +71,8 @@ const EVENT_TYPE = {
 	Announce: 6,
 	MoveEffect: 7
 };
+
+
 
 
 /*
@@ -520,14 +530,17 @@ World.prototype.init = function(){
 // Player's Pokemon uses a move
 World.prototype.atkr_use_move = function(pkm, pkm_hurt, move, t){
 	t += move.moveType == 'f' ? BATTLE_SETTINGS.fastMoveLagMs : BATTLE_SETTINGS.chargedMoveLagMs;
-	var dmg = damage(pkm, pkm_hurt, move, this.weather);
-	var hurtEvent = {
-		name: EVENT_TYPE.Hurt, t: t + move.dws, subject: pkm_hurt, object: pkm, move: move, dmg: dmg
-	}, energyDeltaEvent = {
+	var energyDeltaEvent = {
 		name: EVENT_TYPE.EnergyDelta, t: t + move.dws, subject: pkm, energyDelta: move.energyDelta
 	};
 	this.tline.enqueue(energyDeltaEvent);
+	
+	var dmg = damage(pkm, pkm_hurt, move, this.weather);
+	var hurtEvent = {
+		name: EVENT_TYPE.Hurt, t: t + move.dws, subject: pkm_hurt, object: pkm, move: move, dmg: dmg
+	};
 	this.tline.enqueue(hurtEvent);
+	
 	if (move.effect){
 		move.effect.sub({
 			"world": this,

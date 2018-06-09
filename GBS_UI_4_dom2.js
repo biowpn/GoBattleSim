@@ -1,12 +1,5 @@
 /* GBS_UI_4_dom2.js */
 
-const editableParameters = [
-	'BATTLE_SETTINGS.maximumEnergy','BATTLE_SETTINGS.sameTypeAttackBonusMultiplier','BATTLE_SETTINGS.weatherAttackBonusMultiplier','BATTLE_SETTINGS.dodgeDurationMs','BATTLE_SETTINGS.dodgeWindowMs','BATTLE_SETTINGS.dodgeSwipeMs',
-	'BATTLE_SETTINGS.dodgeDamageReductionPercent','BATTLE_SETTINGS.arenaEntryLagMs','BATTLE_SETTINGS.arenaEarlyTerminationMs','BATTLE_SETTINGS.fastMoveLagMs',
-	'BATTLE_SETTINGS.chargedMoveLagMs','BATTLE_SETTINGS.swapDurationMs','BATTLE_SETTINGS.rejoinDurationMs','BATTLE_SETTINGS.itemMenuAnimationTimeMs','BATTLE_SETTINGS.maxReviveTimePerPokemonMs'
-];
-
-
 
 function moveEditFormSubmit(){
 	var moveType_input = document.getElementById('moveEditForm-moveType').value;
@@ -139,36 +132,34 @@ function autocompleteMoveEditForm(){
 
 function pokemonEditFormSubmit(){
 	var pokemonName = document.getElementById('pokemonEditForm-name').value.trim().toLowerCase();
-	
 	if (pokemonName == '')
 		return;
 	
-	var fmoves = [], fmoves_legacy = [], fmoves_exclusive = [], cmoves = [], cmoves_legacy = [], cmoves_exclusive = [];
-	document.getElementById('pokemonEditForm-fmoves').value.split(',').forEach(function(moveName){
-		moveName = moveName.trim().toLowerCase();
-		if (moveName.substring(moveName.length - 2, moveName.length) == '**'){
-			if (getIndexByName(moveName.substring(0, moveName.length - 2), FAST_MOVE_DATA) >= 0)
-				fmoves_exclusive.push(moveName.substring(0,moveName.length - 2));
-		}else if (moveName.substring(moveName.length - 1, moveName.length) == '*'){
-			if (getIndexByName(moveName.substring(0, moveName.length - 1), FAST_MOVE_DATA) >= 0)
-				fmoves_legacy.push(moveName.substring(0,moveName.length - 1));
-		}else{
-			if (getIndexByName(moveName, FAST_MOVE_DATA) >= 0)
-				fmoves.push(moveName);
-		}
-	});
-	document.getElementById('pokemonEditForm-cmoves').value.split(',').forEach(function(moveName){
-		moveName = moveName.trim().toLowerCase();
-		if (moveName.substring(moveName.length - 2, moveName.length) == '**'){
-			if (getIndexByName(moveName.substring(0, moveName.length - 2), CHARGED_MOVE_DATA) >= 0)
-				cmoves_exclusive.push(moveName.substring(0,moveName.length - 2));
-		}else if (moveName.substring(moveName.length - 1, moveName.length) == '*'){
-			if (getIndexByName(moveName.substring(0, moveName.length - 1), CHARGED_MOVE_DATA) >= 0)
-				cmoves_legacy.push(moveName.substring(0,moveName.length - 1));
-		}else{
-			if (getIndexByName(moveName, CHARGED_MOVE_DATA) >= 0)
-				cmoves.push(moveName);
-		}
+	var movepools = {
+		'fmoves': [], 'fmoves_legacy': [], 'fmoves_exclusive': [], 
+		'cmoves': [], 'cmoves_legacy': [], 'cmoves_exclusive': []
+	};
+	
+	['fmoves', 'cmoves'].forEach(function(mtype){
+		var Database = (mtype == 'fmoves' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA);
+		document.getElementById('pokemonEditForm-' + mtype).value.split(',').forEach(function(moveName){
+			moveName = moveName.trim().toLowerCase();
+			var poolPostFix = '';
+			if (moveName.substring(moveName.length - 2, moveName.length) == '**'){
+				moveName = moveName.substring(0, moveName.length - 2);
+				poolPostFix = '_exclusive';
+			}else if (moveName.substring(moveName.length - 1, moveName.length) == '*'){
+				moveName = moveName.substring(0, moveName.length - 1);
+				poolPostFix = '_legacy';
+			}
+			if (moveName[0] == '$'){
+				universalGetter(moveName.substring(1, moveName.length), Database).forEach(function(move){
+					movepools[mtype + poolPostFix].push(move.name);
+				});
+			}else if (getIndexByName(moveName, Database) >= 0){
+				movepools[mtype + poolPostFix].push(moveName);
+			}
+		});
 	});
 	
 	var pkm = {
@@ -178,12 +169,12 @@ function pokemonEditFormSubmit(){
 		baseStm: Math.max(1, parseInt(document.getElementById('pokemonEditForm-baseStm').value)),
 		pokeType1: document.getElementById('pokemonEditForm-pokeType1').value.toLowerCase(),
 		pokeType2: document.getElementById('pokemonEditForm-pokeType2').value.toLowerCase(),
-		fastMoves : fmoves,
-		fastMoves_legacy : fmoves_legacy,
-		fastMoves_exclusive : fmoves_exclusive,
-		chargedMoves : cmoves,
-		chargedMoves_legacy : cmoves_legacy,
-		chargedMoves_exclusive : cmoves_exclusive
+		fastMoves : movepools.fmoves,
+		fastMoves_legacy : movepools.fmoves_legacy,
+		fastMoves_exclusive : movepools.fmoves_exclusive,
+		chargedMoves : movepools.cmoves,
+		chargedMoves_legacy : movepools.cmoves_legacy,
+		chargedMoves_exclusive : movepools.cmoves_exclusive
 	};
 	
 	var idx = getIndexByName(pokemonName, POKEMON_SPECIES_DATA);
