@@ -140,7 +140,7 @@ function createSimplePredicate(str){
 		return function(obj){
 			return LBound <= obj[attr] && obj[attr] <= UBound;
 		};
-	}else if (TYPE_ADVANTAGES.hasOwnProperty(str.toLowerCase()) || str.toLowerCase() == 'none'){ // Match types
+	}else if (Data.TypeEffectiveness.hasOwnProperty(str.toLowerCase()) || str.toLowerCase() == 'none'){ // Match types
 		const str_const = str.toLowerCase();
 		return function(obj){
 			return ([obj.pokeType, obj.pokeType1, obj.pokeType2].includes(str_const));
@@ -151,7 +151,7 @@ function createSimplePredicate(str){
 			const str_const = str.slice(3).trim();
 			return function(obj){
 				if (typeof obj.fmove_index == typeof 0 && obj.fmove_index >= 0){
-					var fmove = FAST_MOVE_DATA[obj.fmove_index];
+					var fmove = Data.FastMoves[obj.fmove_index];
 					return fmove.name.includes(str_const) || fmove.pokeType == str_const;
 				}
 				return false;
@@ -160,7 +160,7 @@ function createSimplePredicate(str){
 			const str_const = str.slice(3).trim();
 			return function(obj){
 				if (typeof obj.cmove_index == typeof 0 && obj.cmove_index >= 0){
-					var cmove = CHARGED_MOVE_DATA[obj.cmove_index];
+					var cmove = Data.ChargedMoves[obj.cmove_index];
 					return cmove.name.includes(str_const) || cmove.pokeType == str_const;
 				}
 				return false;
@@ -177,8 +177,9 @@ function createSimplePredicate(str){
 			};
 		}
 	}else if (str[0] == '$'){ // Box
+		const str_const = str.slice(1).trim();
 		return function(obj){
-			return obj.box_index >= 0;
+			return obj.box_index >= 0 && (!str_const || obj.nickname == str_const);
 		};
 	}else if (str[0] == '%'){ // Raid Boss
 		const str_const = str.slice(1);
@@ -292,36 +293,34 @@ function createComplexPredicate(expression){
 }
 
 function universalGetter(expression, Space){
-	var filteredElements = [];
+	var entries = [];
 	pred = createComplexPredicate(expression);
-	Space.forEach(function(obj){
-		if (pred(obj))
-			filteredElements.push(obj);
-	});
-	return filteredElements;
+	for (var i = 0; i < Space.length; i++){
+		if (pred(Space[i])){
+			entries.push(Space[i]);
+		}
+	}
+	return entries;
 }
 
 function getPokemonSpeciesOptions(userIndex){
 	userIndex = userIndex || 0;
 	var speciesOptions = [];
-	if (0 <= userIndex && userIndex < USERS_INFO.length){
-		var userBox = USERS_INFO[userIndex].box;
+	if (0 <= userIndex && userIndex < Data.Users.length){
+		var userBox = Data.Users[userIndex].box;
 		for (var i = 0; i < userBox.length; i++){
 			userBox[i].box_index = i;
 			userBox[i].label = '$ ' + userBox[i].nickname;
 			speciesOptions.push(userBox[i]);
 		}
 	}
-	POKEMON_SPECIES_DATA.forEach(function(pkm){
-		speciesOptions.push(pkm);
-	});
-	return speciesOptions;
+	return speciesOptions.concat(Data.Pokemon);
 }
 
 function markMoveDatabase(moveType, species_idx){
-	var moveDatabase = (moveType == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA);
-	var prefix = (moveType == 'f' ? 'fast' : 'charged'), pkm = POKEMON_SPECIES_DATA[species_idx];
-	moveDatabase.forEach(function(move){
+	var prefix = (moveType == 'f' ? 'fast' : 'charged');
+	var pkm = Data.Pokemon[species_idx];
+	Data[toTitleCase(prefix) + 'Moves'].forEach(function(move){
 		move.marker = 'all';
 		if(pkm){
 			if (move.pokeType == pkm.pokeType1 || move.pokeType == pkm.pokeType2)
@@ -355,25 +354,27 @@ function autocompletePokemonNodeSpecies(speciesInput){
 			}catch(err){matches = [];}
 			response(matches);
 		},
-		select : function(event, ui) {
+		select : function(event, ui){
 			var pkmInfo = ui.item, thisAddress = this.id.split('_')[1];
 			if (pkmInfo.box_index >= 0){
 				var thisPokemonNode = document.getElementById('ui-pokemon_' + thisAddress);
 				var user_idx = (thisAddress == 'd' ? 0 : parseInt(thisAddress.split('-')[0]));
 				if (thisAddress != 'd')
-					writeAttackerNode(thisPokemonNode, USERS_INFO[user_idx].box[pkmInfo.box_index]);
+					writeAttackerNode(thisPokemonNode, Data.Users[user_idx].box[pkmInfo.box_index]);
 				else
-					writeDefenderNode(thisPokemonNode, USERS_INFO[user_idx].box[pkmInfo.box_index]);
+					writeDefenderNode(thisPokemonNode, Data.Users[user_idx].box[pkmInfo.box_index]);
 			}
-			this.setAttribute('index', pkmInfo.index);
+			this.setAttribute('index', getEntryIndex(pkmInfo.name, Data.Pokemon));
 			this.setAttribute('box_index', pkmInfo.box_index);
-			this.setAttribute('style', 'background-image: url('+pkmInfo.icon+')');
+			this.setAttribute('style', 'background-image: url(' + pkmInfo.icon + ')');
 		},
 		change : function (event, ui){
-			var idx = ui.item ? ui.item.index : getIndexByName(this.value, POKEMON_SPECIES_DATA);
-			this.setAttribute('index', idx);
-			this.setAttribute('box_index', ui.item ? ui.item.box_index : -1);
-			this.setAttribute('style', 'background-image: url(' + getPokemonIcon({index: idx}) + ')');
+			if (!ui.item){ // Change not due to selecting an item from menu
+				var idx = getEntryIndex(this.value.toLowerCase(), Data.Pokemon);
+				this.setAttribute('index', idx);
+				this.setAttribute('box_index', -1);
+				this.setAttribute('style', 'background-image: url(' + getPokemonIcon({index: idx}) + ')');
+			}
 		}
 	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_pokemon_item;
 	
@@ -399,20 +400,22 @@ function autocompletePokemonNodeMoves(moveInput){
 			if (searchStr == '' && idx >= 0) //special case
 				searchStr = 'current,legacy,exclusive';
 			try{
-				matches = universalGetter(searchStr, (moveType == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA));
+				matches = universalGetter(searchStr, (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves));
 			}catch(err){matches = [];}
 			response(matches);
 		},
 		select : function(event, ui) {
 			var moveType = this.id[0];
-			this.setAttribute('index', ui.item.index);
+			this.setAttribute('index', getEntryIndex(ui.item.name.toLowerCase(), (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves)));
 			this.setAttribute('style', 'background-image: url(' + ui.item.icon + ')');
 		},
 		change : function(event, ui) {
-			var moveType = this.id[0];
-			var idx = ui.item ? ui.item.index : getIndexByName(this.value, (moveType == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA));
-			this.setAttribute('index', idx);
-			this.setAttribute('style', 'background-image: url(' + getTypeIcon({mtype: moveType, index: idx}) + ')');
+			if (!ui.item){ // Change not due to selecting an item from menu
+				var moveType = this.id[0];
+				var idx = getEntryIndex(this.value, (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves));
+				this.setAttribute('index', idx);
+				this.setAttribute('style', 'background-image: url(' + getTypeIcon({mtype: moveType, index: idx}) + ')');
+			}
 		}
 	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_move_item;
 	

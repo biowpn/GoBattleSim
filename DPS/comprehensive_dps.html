@@ -1,6 +1,6 @@
 <style>
 div#ranking_table_wrapper td{
-	font-size: 12px;
+ font-size: 12px;
 }
 div#ranking_table_wrapper th {
     font-size: 11px;
@@ -11,19 +11,6 @@ div#subMenu {
 div#ranking_table_wrapper {
     margin-top: 10px;
 }
-
-.move-input-with-icon {
-    background-size: 16px 16px;
-    background-position: 4px;
-    padding-left: 30px !important;
-}
-
-.species-input-with-icon {
-    background-size: 30px 30px;
-    background-position: left;
-	padding-left: 35px !important;
-}
-
 </style>
 
 
@@ -32,8 +19,8 @@ div#ranking_table_wrapper {
 		<tr>
 			<th>Move Category</th> 
 			<td><select id='moveEditForm-moveType'>
-				<option value='f'>Fast</option>
-				<option value='c'>Charged</option>
+				<option value='FastMoves'>Fast</option>
+				<option value='ChargedMoves'>Charged</option>
 			</select></td>
 		</tr>
 		<tr>
@@ -155,6 +142,14 @@ div#ranking_table_wrapper {
 </div>
 
 
+<table>
+	<colgroup><col width='100%'></colgroup>
+	<tr>
+		<td>
+		<div id='ui-use-box'><label style='width:100%; font-size:16px;'>Use Pokemon from GamePress Box<input type='checkbox' id='ui-use-box-checkbox'></label></div>
+		</td>
+	</tr>
+</table>
 
 <table>
 	<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
@@ -197,7 +192,7 @@ div#ranking_table_wrapper {
 				<button class='player_button' id='moveEditFormOpener'>Move</button>
 				<button class='player_button' id='pokemonEditFormOpener'>Species</button>
 				<button class='player_button' id='modEditFormOpener'>Mods</button>
-				<button class='player_button' onclick="calculate(); $('#subMenu').slideToggle('fast')">Refresh</button>
+				<button class='player_button' id='refresher'>Refresh</button>
 			</div>
 		</td>
 	</tr>
@@ -219,18 +214,15 @@ div#ranking_table_wrapper {
 
 <script>
 
-/* user defined data*/
-if (localStorage){
-	if (localStorage.POKEMON_SPECIES_DATA_LOCAL){
-		POKEMON_SPECIES_DATA_LOCAL = JSON.parse(localStorage.POKEMON_SPECIES_DATA_LOCAL);
+// Use Pokemon from Box
+$( "#ui-use-box" ).controlgroup();
+$( "#ui-use-box-checkbox" ).change(function(){
+	if(this.checked){
+		calculateBox();
+	}else{
+		calculate();
 	}
-	if (localStorage.FAST_MOVE_DATA_LOCAL){
-		FAST_MOVE_DATA_LOCAL = JSON.parse(localStorage.FAST_MOVE_DATA_LOCAL);
-	}
-	if (localStorage.CHARGED_MOVE_DATA_LOCAL){
-		CHARGED_MOVE_DATA_LOCAL = JSON.parse(localStorage.CHARGED_MOVE_DATA_LOCAL);
-	}
-}
+})
 
 // Sub Menu for Add/Edit functions
 $( '#subMenu' ).hide();
@@ -268,7 +260,7 @@ $( "#pokemonEditForm" ).on('dialogclose', function(event) {
 var moveEditFormPokeTypeSelect = document.getElementById('moveEditForm-pokeType');
 var pokemonEditFormPokeType1Select = document.getElementById('pokemonEditForm-pokeType1');
 var pokemonEditFormPokeType2Select = document.getElementById('pokemonEditForm-pokeType2');
-for (var type in TYPE_ADVANTAGES){
+for (var type in Data.TypeEffectiveness){
 	moveEditFormPokeTypeSelect.appendChild(createElement('option', toTitleCase(type), {value : type}));
 	pokemonEditFormPokeType1Select.appendChild(createElement('option', toTitleCase(type), {value : type}));
 	pokemonEditFormPokeType2Select.appendChild(createElement('option', toTitleCase(type), {value : type}));
@@ -285,6 +277,16 @@ $( "#modEditForm" ).dialog({
 $( "#modEditFormOpener" ).click(function() {
 	$( '#subMenu' ).hide();
 	$( "#modEditForm" ).dialog( "open" );
+});
+
+// Refresh button
+$ ( "#refresher" ).click(function(){
+	if (document.getElementById('ui-use-box-checkbox').checked){
+		calculateBox();
+	}else{
+		calculate();
+	}
+	$('#subMenu').slideToggle('fast')
 });
 
 populateAll(applicationInit);

@@ -335,8 +335,8 @@
 		<tr>
 			<th>Move Category</th> 
 			<td><select id='moveEditForm-moveType'>
-				<option value='f'>Fast</option>
-				<option value='c'>Charged</option>
+				<option value='FastMoves'>Fast</option>
+				<option value='ChargedMoves'>Charged</option>
 			</select></td>
 		</tr>
 		<tr>
@@ -581,7 +581,7 @@
 					</ul>
 				</span>
 				<span style='width:50%; float:right; display: inline-block'>
-					<img id='ui-species_QSW-boss' style='width:160px; height:160px' name='latios' index='380' raid_tier='5'
+					<img id='ui-species_QSW-boss' style='width:160px; height:160px' name='latios' index='-1' raid_tier='5'
 						src='https://pokemongo.gamepress.gg/sites/pokemongo/files/2017-08/381_0.png'></img>
 				</span>
 
@@ -695,13 +695,10 @@ const QUICK_START_WIZARD_CLONE_PLAYER = {
 	}]
 };
 
-var currentJobSize = 0;
-var maxJobSize = 0;
 var simResults = [];
-var atkrCopyPasteClipboard = null;
 var MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
 var qsW_sort = 'dps';
-
+var currentJobSize = 0;
 
 
 /* Initialize Modules*/
@@ -752,7 +749,7 @@ $( "#pokemonEditForm" ).on('dialogclose', function(event) {
 var moveEditFormPokeTypeSelect = document.getElementById('moveEditForm-pokeType');
 var pokemonEditFormPokeType1Select = document.getElementById('pokemonEditForm-pokeType1');
 var pokemonEditFormPokeType2Select = document.getElementById('pokemonEditForm-pokeType2');
-for (var type in TYPE_ADVANTAGES){
+for (var type in Data.TypeEffectiveness){
 	moveEditFormPokeTypeSelect.appendChild(createElement('option', toTitleCase(type), {value : type}));
 	pokemonEditFormPokeType1Select.appendChild(createElement('option', toTitleCase(type), {value : type}));
 	pokemonEditFormPokeType2Select.appendChild(createElement('option', toTitleCase(type), {value : type}));
@@ -776,9 +773,9 @@ $( "#parameterEditForm" ).on('dialogclose', function(event) {
 });
 
 var parameterTable = document.getElementById('parameterEditForm-Table');
-for (var attr in BATTLE_SETTINGS){
+for (var attr in Data.BattleSettings){
 	var row = createRow([attr, "<input type='number' id='parameterEditForm-" + attr + "'></input>"],'td');
-	row.children[1].children[0].value = BATTLE_SETTINGS[attr];
+	row.children[1].children[0].value = Data.BattleSettings[attr];
 	parameterTable.children[1].appendChild(row);
 };
 
@@ -818,14 +815,6 @@ $( "#modEditFormOpener" ).click(function() {
 	$( "#modEditForm" ).dialog( "open" );
 });
 
-
-// Populate valid IV and Level values
-for (var i = 0; i < 16; i++){
-	IV_VALUES.push({value: i});
-}
-for (var i = 1; i <= 40; i += 0.5){
-	LEVEL_VALUES.push({value: i});
-}
 
 
 // Quick Start Wizard
@@ -885,7 +874,7 @@ $ ('#quickStartWizardOpener').click(function() {
 
 // Final preparation
 function applicationInit(){
-	if (typeof userID2 != 'underfined' && userID2){
+	if (window['userID2']){
 		fetchUserData(userID2, function(){
 			send_feedback("Imported user " + userID2, false, 'userEditForm-feedback');
 			udpateUserTable();
@@ -894,12 +883,12 @@ function applicationInit(){
 	
 	if (window.location.href.includes('?')){
 		writeUserInput(parseConfigFromUrl(window.location.href));
-		main({maxJobSize: 10000});
+		main();
 	}
 	
 	populateQuickStartWizardBossList('current');
 	
-	if (localStorage && !localStorage.QUICK_START_WIZARD_NO_SHOW && !window.location.href.includes('?'))
+	if (!LocalData.QuickStartWizardNoShow && !window.location.href.includes('?'))
 		$( "#quickStartWizard" ).dialog( "open" );
 }
 
@@ -918,11 +907,6 @@ function main(args){
 		send_feedback_dialog("Simulating...");
 	}
 	initMasterSummaryTableMetrics();
-	
-	maxJobSize = 0;
-	if (args && args.maxJobSize){
-		maxJobSize = args.maxJobSize;
-	}
 	
 	date = new Date();
 	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations started");

@@ -1,14 +1,8 @@
 /* GBS_UI_3_parser.js */
 
-var parsedSpeciesFieldMatches = {};
-var parsedFastMoveFieldMatches = {};
-var parsedChargeMoveFieldMatches = {};
 
 function initMasterSummaryTableMetrics(){
 	currentJobSize = 0;
-	parsedSpeciesFieldMatches = {};
-	parsedFastMoveFieldMatches = {};
-	parsedChargeMoveFieldMatches = {};
 }
 
 function createNewMetric(metric, nameDisplayed){
@@ -43,7 +37,7 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 	}else if (attr == 'fmove' || attr == 'cmove'){
 		input_type = 2;
 		expressionStr_default = 'current,legacy,exclusive';
-		markMoveDatabase(attr[0], pkmInfo.index);
+		markMoveDatabase(attr[0], getEntryIndex((pkmInfo.name || pkmInfo.species).toLowerCase(), Data.Pokemon));
 	}
 	
 	var exact_match_idx = pred(expressionStr, universe);
@@ -65,33 +59,13 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 			expressionStr = expressionStr.slice(1).trim();
 		expressionStr = expressionStr || expressionStr_default;
 		
-		var matches = [];
-		if (attr == 'species' && parsedSpeciesFieldMatches[address]){
-			matches = parsedSpeciesFieldMatches[address];
-		}else if (attr == 'fmove' && parsedFastMoveFieldMatches[address] && parsedFastMoveFieldMatches[address][pkmInfo.index]){
-			matches = parsedFastMoveFieldMatches[address][pkmInfo.index];
-		}else if (attr == 'cmove' && parsedChargeMoveFieldMatches[address] && parsedChargeMoveFieldMatches[address][pkmInfo.index]){
-			matches = parsedChargeMoveFieldMatches[address][pkmInfo.index];
-		}else{
-			matches = universalGetter(expressionStr, universe);
-			if (attr == 'species'){
-				parsedSpeciesFieldMatches[address] = matches;
-			}else if (attr == 'fmove'){
-				if (!parsedFastMoveFieldMatches[address])
-					parsedFastMoveFieldMatches[address] = {};
-				parsedFastMoveFieldMatches[address][pkmInfo.index] = matches;
-			}else if (attr == 'cmove'){
-				if (!parsedChargeMoveFieldMatches[address])
-					parsedChargeMoveFieldMatches[address] = {};
-				parsedChargeMoveFieldMatches[address][pkmInfo.index] = matches;
-			}
-		}
+		var matches = universalGetter(expressionStr, universe);
 		if (matches.length == 0){
 			send_feedback(address + '[' + pkmInfo.label + '].' + attr + ": No match", true);
 			return [0];
 		}
 		
-		if (selector == '*')
+		if (selector != '?')
 			createNewMetric('*' + address + '.' + attr);
 
 		for (var i = 0; i < matches.length; i++){
@@ -101,7 +75,7 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 			else if (input_type == 1)
 				getPokemonInfoFromAddress(cfg_copy, address)[attr_idx] = matches[i].value;
 			else if (input_type == 2)
-				getPokemonInfoFromAddress(cfg_copy, address)[attr_idx] = matches[i].index;
+				getPokemonInfoFromAddress(cfg_copy, address)[attr_idx] = getEntryIndex(matches[i].name, universe);
 			
 			var tempResults = iterBranchHandler(cfg_copy);
 			tempResults.forEach(function(sim){
@@ -132,19 +106,19 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 function parsePokemonInput(cfg, address){
 	var branches = [];
 	
-	branches = parsePokemonAttributeExpression(cfg, address, 'species', 'index', getIndexByName, getPokemonSpeciesOptions(parseInt(address.split('-')[0]) - 1));
+	branches = parsePokemonAttributeExpression(cfg, address, 'species', 'index', getEntryIndex, getPokemonSpeciesOptions(parseInt(address.split('-')[0]) - 1));
 	if (branches.length) return branches;
-	branches = parsePokemonAttributeExpression(cfg, address, 'level', 'level', parseFloat, LEVEL_VALUES);
+	branches = parsePokemonAttributeExpression(cfg, address, 'level', 'level', parseFloat, Data.LevelSettings);
 	if (branches.length) return branches;
-	branches = parsePokemonAttributeExpression(cfg, address, 'atkiv', 'atkiv', parseInt, IV_VALUES);
+	branches = parsePokemonAttributeExpression(cfg, address, 'atkiv', 'atkiv', parseInt, Data.IndividualValues);
 	if (branches.length) return branches;
-	branches = parsePokemonAttributeExpression(cfg, address, 'defiv', 'defiv', parseInt, IV_VALUES);
+	branches = parsePokemonAttributeExpression(cfg, address, 'defiv', 'defiv', parseInt, Data.IndividualValues);
 	if (branches.length) return branches;
-	branches = parsePokemonAttributeExpression(cfg, address, 'stmiv', 'stmiv', parseInt, IV_VALUES);
+	branches = parsePokemonAttributeExpression(cfg, address, 'stmiv', 'stmiv', parseInt, Data.IndividualValues);
 	if (branches.length) return branches;
-	branches = parsePokemonAttributeExpression(cfg, address, 'fmove', 'fmove_index', getIndexByName, FAST_MOVE_DATA);
+	branches = parsePokemonAttributeExpression(cfg, address, 'fmove', 'fmove_index', getEntryIndex, Data.FastMoves);
 	if (branches.length) return branches;
-	branches = parsePokemonAttributeExpression(cfg, address, 'cmove', 'cmove_index', getIndexByName, CHARGED_MOVE_DATA);
+	branches = parsePokemonAttributeExpression(cfg, address, 'cmove', 'cmove_index', getEntryIndex, Data.ChargedMoves);
 	if (branches.length) return branches;
 	
 	return branches;
@@ -154,8 +128,8 @@ function parseWeatherInput(cfg){
 	var branches = [];
 	if (cfg.generalSettings.weather == '*'){
 		createNewMetric('weather');
-		for (var i = 0; i < WEATHER_LIST.length; i++){
-			cfg.generalSettings.weather = WEATHER_LIST[i];
+		for (var i = 0; i < Data.WeatherSettings.length; i++){
+			cfg.generalSettings.weather = Data.WeatherSettings[i].name;
 			runSim(JSON.parse(JSON.stringify(cfg)), branches);
 		}
 	}
@@ -166,12 +140,6 @@ function parseWeatherInput(cfg){
 function iterBranchHandler(cfg){
 	if (!cfg)
 		return [];
-	/*
-	if (maxJobSize && currentJobSize > maxJobSize){
-		console.log('Aborted due to current job size(' + currentJobSize + ') exceeding maxJobSize(' + maxJobSize + ')');
-		return [];
-	}
-	*/
 	
 	var branches = [];
 	for (var i = 0; i < cfg['atkrSettings'].length; i++){
@@ -204,13 +172,14 @@ function runSim(cfg, resCollector){
 		app_world.battle();
 		interResults.push(app_world.get_statistics());
 	}
+	currentJobSize += numSimRun;
+	
 	if (cfg['generalSettings']['reportType'] == 'avrg')
 		resCollector.push({input: cfg, output: averageOutputs(interResults)});
 	else if (cfg['generalSettings']['reportType'] == 'enum'){
 		for (var i = 0; i < interResults.length; i++)
 			resCollector.push({input: cfg, output: interResults[i]});
 	}
-	currentJobSize += interResults.length;
 }
 
 function averageOutputs(results){

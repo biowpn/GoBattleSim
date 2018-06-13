@@ -1,64 +1,7 @@
 /* GBS_Core.js */
 
 /* 
- *	PART I(a): GAME DATA
- */
- 
-const MAX_NUM_POKEMON_PER_PARTY = 6;
-const MAX_NUM_PARTIES_PER_PLAYER = 5;
-const MAX_NUM_OF_PLAYERS = 20;
-
-var BATTLE_SETTINGS = {
-	// From Game Master
-	'sameTypeAttackBonusMultiplier': 1.2, 
-	'maximumEnergy': 100, 
-	'energyDeltaPerHealthLost': 0.5, 
-	'dodgeDurationMs': 500, 
-	'swapDurationMs': 1000, 
-	'dodgeDamageReductionPercent': 0.75, 
-	'weatherAttackBonusMultiplier': 1.2,
-	
-	// Self-defined
-	'dodgeWindowMs': 700,
-	'dodgeSwipeMs': 300,
-	'arenaEntryLagMs': 3000,
-	'arenaEarlyTerminationMs': 3000,
-	'fastMoveLagMs': 25,
-	'chargedMoveLagMs': 100,
-	'timelimitGymMs': 100000,
-	'timelimitRaidMs': 180000,
-	'timelimitLegendaryRaidMs': 300000,
-	'rejoinDurationMs': 10000,
-	'itemMenuAnimationTimeMs': 200,
-	'maxReviveTimePerPokemonMs': 800
-};
-
-
-// These data are populated else where
-var FAST_MOVE_DATA = [];
-var CHARGED_MOVE_DATA = [];
-var MOVE_EFFECT_DATA = [];
-var POKEMON_SPECIES_DATA = [];
-var LEVEL_VALUES = [];
-var IV_VALUES = [];
-var CPM_TABLE = [];
-
-var TYPE_ADVANTAGES = {"normal": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 0.714, "bug": 1.0, "ghost": 0.51, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "fighting": {"normal": 1.4, "fighting": 1.0, "flying": 0.714, "poison": 0.714, "ground": 1.0, "rock": 1.4, "bug": 0.714, "ghost": 0.51, "steel": 1.4, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 0.714, "ice": 1.4, "dragon": 1.0, "dark": 1.4, "fairy": 0.714}, "flying": {"normal": 1.0, "fighting": 1.4, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 0.714, "bug": 1.4, "ghost": 1.0, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.4, "electric": 0.714, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "poison": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 0.714, "ground": 0.714, "rock": 0.714, "bug": 1.0, "ghost": 0.714, "steel": 0.51, "fire": 1.0, "water": 1.0, "grass": 1.4, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.4}, "ground": {"normal": 1.0, "fighting": 1.0, "flying": 0.51, "poison": 1.4, "ground": 1.0, "rock": 1.4, "bug": 0.714, "ghost": 1.0, "steel": 1.4, "fire": 1.4, "water": 1.0, "grass": 0.714, "electric": 1.4, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "rock": {"normal": 1.0, "fighting": 0.714, "flying": 1.4, "poison": 1.0, "ground": 0.714, "rock": 1.0, "bug": 1.4, "ghost": 1.0, "steel": 0.714, "fire": 1.4, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.4, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "bug": {"normal": 1.0, "fighting": 0.714, "flying": 0.714, "poison": 0.714, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 0.714, "steel": 0.714, "fire": 0.714, "water": 1.0, "grass": 1.4, "electric": 1.0, "psychic": 1.4, "ice": 1.0, "dragon": 1.0, "dark": 1.4, "fairy": 0.714}, "ghost": {"normal": 0.51, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.4, "steel": 1.0, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.4, "ice": 1.0, "dragon": 1.0, "dark": 0.714, "fairy": 1.0}, "steel": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.4, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 0.714, "grass": 1.0, "electric": 0.714, "psychic": 1.0, "ice": 1.4, "dragon": 1.0, "dark": 1.0, "fairy": 1.4}, "fire": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 0.714, "bug": 1.4, "ghost": 1.0, "steel": 1.4, "fire": 0.714, "water": 0.714, "grass": 1.4, "electric": 1.0, "psychic": 1.0, "ice": 1.4, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "water": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.4, "rock": 1.4, "bug": 1.0, "ghost": 1.0, "steel": 1.0, "fire": 1.4, "water": 0.714, "grass": 0.714, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "grass": {"normal": 1.0, "fighting": 1.0, "flying": 0.714, "poison": 0.714, "ground": 1.4, "rock": 1.4, "bug": 0.714, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 1.4, "grass": 0.714, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "electric": {"normal": 1.0, "fighting": 1.0, "flying": 1.4, "poison": 1.0, "ground": 0.51, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 1.0, "fire": 1.0, "water": 1.4, "grass": 0.714, "electric": 0.714, "psychic": 1.0, "ice": 1.0, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "psychic": {"normal": 1.0, "fighting": 1.4, "flying": 1.0, "poison": 1.4, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 0.714, "ice": 1.0, "dragon": 1.0, "dark": 0.51, "fairy": 1.0}, "ice": {"normal": 1.0, "fighting": 1.0, "flying": 1.4, "poison": 1.0, "ground": 1.4, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 0.714, "grass": 1.4, "electric": 1.0, "psychic": 1.0, "ice": 0.714, "dragon": 1.4, "dark": 1.0, "fairy": 1.0}, "dragon": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.4, "dark": 1.0, "fairy": 0.51}, "dark": {"normal": 1.0, "fighting": 0.714, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.4, "steel": 1.0, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.4, "ice": 1.0, "dragon": 1.0, "dark": 0.714, "fairy": 0.714}, "fairy": {"normal": 1.0, "fighting": 1.4, "flying": 1.0, "poison": 0.714, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.4, "dark": 1.4, "fairy": 1.0}};
-
-var WEATHER_BOOSTED_TYPES = {"SUNNY_CLEAR": ["grass", "ground", "fire"], "RAIN": ["water", "electric", "bug"], "PARTLY_CLOUDY": ["normal", "rock"], "CLOUDY": ["fairy", "fighting", "poison"], "WINDY": ["dragon", "flying", "psychic"], "SNOW": ["ice", "steel"], "FOG": ["dark", "ghost"], "EXTREME": []};
-
-var WEATHER_LIST = ["EXTREME", "SUNNY_CLEAR", "RAIN", "PARTLY_CLOUDY", "CLOUDY", "WINDY", "SNOW", "FOG"];
-
-var WeatherSettings = [{'name': 'CLEAR', 'boostedTypes': ['grass', 'ground', 'fire']}, {'name': 'FOG', 'boostedTypes': ['dark', 'ghost']}, {'name': 'CLOUDY', 'boostedTypes': ['fairy', 'fighting', 'poison']}, {'name': 'PARTLY_CLOUDY', 'boostedTypes': ['normal', 'rock']}, {'name': 'RAINY', 'boostedTypes': ['water', 'electric', 'bug']}, {'name': 'SNOW', 'boostedTypes': ['ice', 'steel']}, {'name': 'WINDY', 'boostedTypes': ['dragon', 'flying', 'psychic']}];
-
-var RAID_BOSS_CPM = [0.6, 0.67, 0.7300000190734863, 0.7900000214576721, 0.7900000214576721];
-
-var RAID_BOSS_HP = [600, 1800, 3000, 7500, 12500];
-
-
-
-/* 
- *	PART I(b): SIMULATOR SETTINGS
+ *	PART I: SIMULATOR SETTINGS
  */
 
 const EVENT_TYPE = {
@@ -73,8 +16,6 @@ const EVENT_TYPE = {
 };
 
 
-
-
 /*
  *	PART II: GLOBAL FUNCTIONS
  */
@@ -82,14 +23,14 @@ const EVENT_TYPE = {
 function damage(dmg_giver, dmg_taker, move, weather){
 	var stab = 1;
 	if (move.pokeType == dmg_giver.pokeType1 || move.pokeType == dmg_giver.pokeType2){
-		stab = BATTLE_SETTINGS.sameTypeAttackBonusMultiplier;
+		stab = Data.BattleSettings.sameTypeAttackBonusMultiplier;
 	}
 	var wab = 1;
-	if (WEATHER_BOOSTED_TYPES[weather].includes(move.pokeType)){
-		wab = BATTLE_SETTINGS.weatherAttackBonusMultiplier;
+	if (Data.TypeEffectiveness[move.pokeType].boostedIn == weather){
+		wab = Data.BattleSettings.weatherAttackBonusMultiplier;
 	}
-	var effe1 = TYPE_ADVANTAGES[move.pokeType][dmg_taker.pokeType1] || 1;
-	var effe2 = TYPE_ADVANTAGES[move.pokeType][dmg_taker.pokeType2] || 1;
+	var effe1 = Data.TypeEffectiveness[move.pokeType][dmg_taker.pokeType1] || 1;
+	var effe2 = Data.TypeEffectiveness[move.pokeType][dmg_taker.pokeType2] || 1;
 	return Math.ceil(0.5*dmg_giver.Atk/dmg_taker.Def*move.power*effe1*effe2*stab*wab);
 }
 
@@ -99,12 +40,12 @@ function calculateCP(pkm){
 
 function calculateLevelByCP(pkm, CP){
 	var pkm_copy = JSON.parse(JSON.stringify(pkm));
-	for (var i = 0; i < CPM_TABLE.length; i++){
-		pkm_copy.cpm = CPM_TABLE[i];
-		if (calculateCP(pkm_copy) >= CP)
-			return i/2 + 1;
+	for (var i = 0; i < Data.LevelSettings.length; i++){
+		pkm_copy.cpm = Data.LevelSettings[i].cpm;
+		if (calculateCP(pkm_copy) == CP)
+			return Data.LevelSettings[i].name;
 	}
-	return (CPM_TABLE.length - 1)/2 + 1;
+	return '';
 }
 
  
@@ -121,8 +62,8 @@ function Move(cfg){
 		this[attr] = cfg[attr];
 	}
 	if (this.effect_name){
-		this.effect = JSON.parse(JSON.stringify(MOVE_EFFECT_DATA[getIndexByName(this.effect_name, MOVE_EFFECT_DATA)]));
-		this.effect.sub = MOVE_EFFECT_SUBROUTINE_DICTIONARY[this.effect.sub_name];
+		this.effect = getEntry(this.effect_name, Data.MoveEffects);
+		this.effect.sub = getEntry(this.effect.sub_name, Data.MoveEffectSubroutines);
 	}
 }
 
@@ -145,9 +86,12 @@ Move.prototype.export_state = function(){
 /* Class <Pokemon> */
 // constructor
 function Pokemon(cfg){
-	this.index = cfg.index;
-	this.fmove_index = cfg.fmove_index;
-	this.cmove_index = cfg.cmove_index;
+	this.id = Math.round(1000000 * Math.random());
+	
+	this.index = cfg.index >= 0 ? cfg.index : getEntryIndex(cfg.name || cfg.species, Data.Pokemon);
+	this.fmove_index = cfg.fmove_index >= 0 ? cfg.fmove_index : getEntryIndex(cfg.fmove, Data.FastMoves);
+	this.cmove_index = cfg.cmove_index >= 0 ? cfg.cmove_index : getEntryIndex(cfg.cmove, Data.ChargedMoves);
+	this.nickname = cfg.nickname || "";
 
 	this.raidTier = cfg.raid_tier;
 	this.atkiv = parseInt(cfg.atkiv);
@@ -159,7 +103,6 @@ function Pokemon(cfg){
 	
 	this.immortal = false;
 	this.playerCode = cfg.player_code;
-	this.index_party = cfg.index_party;
 	
 	this.init();
 }
@@ -180,11 +123,11 @@ Pokemon.prototype.export_state = function(){
 }
 
 Pokemon.prototype.init = function(){
-	for (var attr in POKEMON_SPECIES_DATA[this.index]){
-		this[attr] = POKEMON_SPECIES_DATA[this.index][attr];
+	for (var attr in Data.Pokemon[this.index]){
+		this[attr] = Data.Pokemon[this.index][attr];
 	}
-	this.fmove = new Move(FAST_MOVE_DATA[this.fmove_index]);
-	this.cmove = new Move(CHARGED_MOVE_DATA[this.cmove_index]);
+	this.fmove = new Move(Data.FastMoves[this.fmove_index]);
+	this.cmove = new Move(Data.ChargedMoves[this.cmove_index]);
 	
 	this.calculate_current_stats();
 	
@@ -205,7 +148,7 @@ Pokemon.prototype.init = function(){
 }
 
 Pokemon.prototype.calculate_current_stats = function(){
-	this.cpm = CPM_TABLE[Math.round(2*this.level - 2)];
+	this.cpm = Data.LevelSettings[Math.round(2*this.level - 2)].cpm;
 	this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
 	this.Def = (this.baseDef + this.defiv) * this.cpm;
 	this.Stm = (this.baseStm + this.stmiv) * this.cpm;
@@ -215,10 +158,10 @@ Pokemon.prototype.calculate_current_stats = function(){
 		this.maxHP = 2 * Math.floor(this.Stm);
 		this.playerCode = 'dfdr';
 	}else {// raid boss
-		this.cpm = RAID_BOSS_CPM[this.raidTier - 1];
+		this.cpm = getEntry(this.raidTier.toString(), Data.RaidTierSettings).cpm;
 		this.Atk = (this.baseAtk + 15) * this.cpm;
 		this.Def = (this.baseDef + 15) * this.cpm;
-		this.maxHP = RAID_BOSS_HP[this.raidTier - 1];
+		this.maxHP = getEntry(this.raidTier.toString(), Data.RaidTierSettings).HP;
 		this.playerCode = 'dfdr';
 	}
 }
@@ -232,9 +175,9 @@ Pokemon.prototype.heal = function(){
 // A Pokemon gains/(loses) energy
 Pokemon.prototype.gain_energy = function(energyDelta){
 	this.energy += energyDelta;
-	if (this.energy > BATTLE_SETTINGS.maximumEnergy){
-		this.total_energy_overcharged += this.energy - BATTLE_SETTINGS.maximumEnergy;
-		this.energy = BATTLE_SETTINGS.maximumEnergy;
+	if (this.energy > Data.BattleSettings.maximumEnergy){
+		this.total_energy_overcharged += this.energy - Data.BattleSettings.maximumEnergy;
+		this.energy = Data.BattleSettings.maximumEnergy;
 	}
 }
 
@@ -245,7 +188,7 @@ Pokemon.prototype.take_damage = function(dmg){
 		this.num_deaths++;
 		this.active = false;
 	}
-	this.gain_energy(Math.ceil(dmg * BATTLE_SETTINGS.energyDeltaPerHealthLost));
+	this.gain_energy(Math.ceil(dmg * Data.BattleSettings.energyDeltaPerHealthLost));
 	this.has_dodged_next_attack = false;
 }
 
@@ -295,7 +238,6 @@ function Party(cfg){
 		cfg.pokemon_list[k].player_code = this.playerCode;
 		for (var r = 0; r < cfg.pokemon_list[k].copies; r++){
 			var pkmCfg = cfg.pokemon_list[k];
-			pkmCfg.index_party = this.pokemonArr.length;
 			this.pokemonArr.push(new Pokemon(pkmCfg));
 		}
 	}
@@ -397,13 +339,13 @@ Player.prototype.next_pokemon_up = function(){
 	var current_party = this.partiesArr[this.active_idx];
 	if (current_party.next_pokemon_up()){ // Current party has next active Pokemon up
 		this.active_pkm = current_party.active_pkm;
-		timeBeforeActive = BATTLE_SETTINGS.swapDurationMs;
+		timeBeforeActive = Data.BattleSettings.swapDurationMs;
 	}else{ // Current party all faint. Need to rejoin
-		timeBeforeActive = BATTLE_SETTINGS.rejoinDurationMs;
+		timeBeforeActive = Data.BattleSettings.rejoinDurationMs;
 		if (current_party.revive_strategy == true){ // Revive currently party
 			current_party.heal();
 			this.active_pkm = current_party.active_pkm;
-			timeBeforeActive += BATTLE_SETTINGS.itemMenuAnimationTimeMs +  current_party.pokemonArr.length * BATTLE_SETTINGS.maxReviveTimePerPokemonMs;
+			timeBeforeActive += Data.BattleSettings.itemMenuAnimationTimeMs +  current_party.pokemonArr.length * Data.BattleSettings.maxReviveTimePerPokemonMs;
 			this.num_rejoin++;
 		}else{ // Try to switch to the next line-up, no need to revive
 			if (++this.active_idx < this.partiesArr.length){
@@ -466,11 +408,11 @@ function World(cfg){
 	// Set up general
 	this.raid_tier = cfg['dfdrSettings']['raid_tier'];
 	if (this.raid_tier == -1)
-		this.timelimit_ms = BATTLE_SETTINGS.timelimitGymMs;
+		this.timelimit_ms = Data.BattleSettings.timelimitGymMs;
 	else if (this.raid_tier < 5)
-		this.timelimit_ms = BATTLE_SETTINGS.timelimitRaidMs;
+		this.timelimit_ms = Data.BattleSettings.timelimitRaidMs;
 	else
-		this.timelimit_ms = BATTLE_SETTINGS.timelimitLegendaryRaidMs;
+		this.timelimit_ms = Data.BattleSettings.timelimitLegendaryRaidMs;
 	this.weather = cfg['generalSettings']['weather'] || "EXTREME";
 	this.log_style = cfg['generalSettings']['logStyle'] || 0;
 	this.dodge_bug = cfg['generalSettings']['dodgeBug'] || 0;
@@ -505,7 +447,7 @@ World.prototype.export_state = function(){
 			'dodgeBug': this.dodgeBug,
 			'immortalDefender': this.immortalDefender
 		},
-		'battleSettings': JSON.parse(JSON.stringify(BATTLE_SETTINGS))
+		'battleSettings': JSON.parse(JSON.stringify(Data.BattleSettings))
 	};
 	for (var i = 0; i < this.playersArr.length; i++)
 		state.atkrSettings.push(this.playersArr[i].export_state());
@@ -529,7 +471,7 @@ World.prototype.init = function(){
 
 // Player's Pokemon uses a move
 World.prototype.atkr_use_move = function(pkm, pkm_hurt, move, t){
-	t += move.moveType == 'f' ? BATTLE_SETTINGS.fastMoveLagMs : BATTLE_SETTINGS.chargedMoveLagMs;
+	t += move.moveType == 'f' ? Data.BattleSettings.fastMoveLagMs : Data.BattleSettings.chargedMoveLagMs;
 	var energyDeltaEvent = {
 		name: EVENT_TYPE.EnergyDelta, t: t + move.dws, subject: pkm, energyDelta: move.energyDelta
 	};
@@ -598,24 +540,24 @@ World.prototype.enqueueActions = function(pkm, pkm_hurt, t, actions){
 			this.tline.enqueue({
 				name: EVENT_TYPE.Announce, t: tFree, subject: pkm, object: pkm_hurt, move: pkm.fmove
 			});
-			tFree += pkm.fmove.duration + BATTLE_SETTINGS.fastMoveLagMs;
+			tFree += pkm.fmove.duration + Data.BattleSettings.fastMoveLagMs;
 		}else if (actions[i] == 'c'){ // Use charge move if energy is enough
 			if (pkm.energy + pkm.cmove.energyDelta >= 0){
 				this.tline.enqueue({
 					name: EVENT_TYPE.Announce, t: tFree, subject: pkm, object: pkm_hurt, move: pkm.cmove
 				});
-				tFree += pkm.cmove.duration + BATTLE_SETTINGS.chargedMoveLagMs;
+				tFree += pkm.cmove.duration + Data.BattleSettings.chargedMoveLagMs;
 			}else{ // insufficient energy, use fmove instead
 				this.tline.enqueue({
 					name: EVENT_TYPE.Announce, t: tFree, subject: pkm, object: pkm_hurt, move: pkm.fmove
 				});
-				tFree += pkm.fmove.duration + BATTLE_SETTINGS.fastMoveLagMs;
+				tFree += pkm.fmove.duration + Data.BattleSettings.fastMoveLagMs;
 			}
 		}else if (actions[i] == 'd'){ // dodge
 			this.tline.enqueue({
 				name: EVENT_TYPE.Dodge, t: tFree, subject: pkm
 			});
-			tFree += BATTLE_SETTINGS.dodgeDurationMs;
+			tFree += Data.BattleSettings.dodgeDurationMs;
 		}else // wait
 			tFree += actions[i];
 	}
@@ -628,7 +570,7 @@ World.prototype.enqueueActions = function(pkm, pkm_hurt, t, actions){
 World.prototype.nextHurtEventOf = function(pkm){
 	for (var i = 0; i < this.tline.list.length; i++){
 		var thisEvent = this.tline.list[i];
-		if (thisEvent.name == EVENT_TYPE.Hurt && thisEvent.subject.playerCode == pkm.playerCode && thisEvent.subject.index_party == pkm.index_party)
+		if (thisEvent.name == EVENT_TYPE.Hurt && thisEvent.subject.id == pkm.id)
 			return thisEvent;
 	}
 }
@@ -677,7 +619,7 @@ World.prototype.any_player_active = function (){
 
 // TODO: Main function for simulating a battle
 World.prototype.battle = function (){
-	var t = BATTLE_SETTINGS.arenaEntryLagMs;
+	var t = Data.BattleSettings.arenaEntryLagMs;
 	var elog = [];
 	var dfdr = this.dfdr;
 	
@@ -699,7 +641,7 @@ World.prototype.battle = function (){
 	while (dfdr.active && this.any_player_active_bool){
 		var e = this.tline.list.shift();
 		t = e.t;
-		if (t >= this.timelimit_ms - BATTLE_SETTINGS.arenaEarlyTerminationMs && !this.immortal_defender)
+		if (t >= this.timelimit_ms - Data.BattleSettings.arenaEarlyTerminationMs && !this.immortal_defender)
 			break;
 		
 		// 1. First process the event
@@ -735,8 +677,8 @@ World.prototype.battle = function (){
 			elog.push(e);
 		}else if (e.name == EVENT_TYPE.Dodge){
 			var eHurt = this.nextHurtEventOf(e.subject);
-			if (eHurt && !e.dodged && (eHurt.t - BATTLE_SETTINGS.dodgeWindowMs) <= t && t <= eHurt.t){
-				eHurt.dmg = Math.max(1, Math.floor(eHurt.dmg * (1 - BATTLE_SETTINGS.dodgeDamageReductionPercent)));
+			if (eHurt && !e.dodged && (eHurt.t - Data.BattleSettings.dodgeWindowMs) <= t && t <= eHurt.t){
+				eHurt.dmg = Math.max(1, Math.floor(eHurt.dmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent)));
 				e.dodged = true;
 			}
 			elog.push(e);
@@ -757,7 +699,7 @@ World.prototype.battle = function (){
 				if (old_pkm && old_pkm.HP <= 0){
 					for (var j = 0; j < this.tline.list.length; j++){
 						var thisEvent =  this.tline.list[j];
-						if (thisEvent.name == EVENT_TYPE.AtkrFree && thisEvent.subject.playerCode == old_pkm.playerCode && thisEvent.subject.index_party == old_pkm.index_party)
+						if (thisEvent.name == EVENT_TYPE.AtkrFree && thisEvent.subject.id == old_pkm.id)
 							this.tline.list.splice(j--, 1);
 					}
 					old_pkm.time_leave_ms = t;
@@ -815,38 +757,69 @@ World.prototype.add_to_log = function(events){
 	var nonEmpty = [false, false, false, false, false];
 	var dfdrHurt_totalDmg = 0;
 	for (var i = 0; i < rowData.length; i++){
-		rowData[i].t = Math.round((events[0]).t/10)/100;
-		rowData[i].dfdr = "";
+		rowData[i].t = {
+			'type': 'text',
+			'text': Math.round((events[0]).t/10)/100
+		};
+		rowData[i].dfdr = {
+			'type': 'text',
+			'text': ""
+		};
 		for (var j = 1; j <= numPlayer; j++)
-			rowData[i][j] = "";
+			rowData[i][j] = {
+				'type': 'text',
+				'text': ""
+			};
 	}
 	
 	for (var i = 0; i < events.length; i++){
 		var e = events[i];
 		if (e.name == EVENT_TYPE.Enter){
 			nonEmpty[0] = true;
-			rowData[0][e.subject.playerCode] = 'pokemon:' + e.subject.index;
+			rowData[0][e.subject.playerCode] = {
+				'type': 'pokemon',
+				'name': e.subject.name,
+				'nickname': e.subject.nickname
+			};
 		}else if (e.name == EVENT_TYPE.Hurt){
 			if (e.subject.raidTier == 0){ // atkrHurt
 				nonEmpty[1] = true;
-				rowData[1][e.subject.playerCode] = e.subject.HP + '(-' + e.dmg + ')';
-				rowData[1].dfdr = e.move.moveType + 'move:' + e.move.index;
-			} else{ // dfdrHurt
+				rowData[1][e.subject.playerCode] = {
+					'type': 'text',
+					'text': e.subject.HP + '(-' + e.dmg + ')'
+				};
+				rowData[1].dfdr = {
+					'type': e.move.moveType + 'move', 
+					'name': e.move.name
+				};
+			}else{ // dfdrHurt
 				nonEmpty[2] = true;
 				dfdrHurt_totalDmg += e.dmg;
-				rowData[2].dfdr = e.subject.HP; // calculate dmg later
-				rowData[2][e.object.playerCode] = e.move.moveType + 'move:' + e.move.index;
+				rowData[2].dfdr = {
+					'type': 'text',
+					'text': e.subject.HP // calculate dmg later
+				}; 
+				rowData[2][e.object.playerCode] = {
+					'type': e.move.moveType + 'move', 
+					'name': e.move.name
+				};
 			}
 		}else if (e.name == EVENT_TYPE.Dodge){
 			nonEmpty[3] = true;
-			rowData[3][e.subject.playerCode] = EVENT_TYPE.Dodge;
+			rowData[3][e.subject.playerCode] = {
+				'type': 'text',
+				'text': 'Dodge'
+			};
 		}else if (e.name == EVENT_TYPE.MoveEffect){
 			nonEmpty[4] = true;
-			rowData[4][e.subject.playerCode] = e.text;
+			rowData[4][e.subject.playerCode] = {
+				'type': 'text', 
+				'text': e.text
+			};
 		}
 	}
 	if (nonEmpty[2]){
-		rowData[2].dfdr += '(-' + dfdrHurt_totalDmg + ')';
+		rowData[2].dfdr.text += '(-' + dfdrHurt_totalDmg + ')';
 	}
 	
 	for (var i = 0; i < rowData.length; i++){
@@ -967,7 +940,7 @@ function atkr_choose_1(state){
 		
 		var timeTillHurt = hurtEvent.t - t;
 		var undodgedDmg = damage(hurtEvent.object, this, hurtEvent.move, weather);
-		var dodgedDmg = dodge_bug ? undodgedDmg : Math.floor(undodgedDmg * (1 - BATTLE_SETTINGS.dodgeDamageReductionPercent));
+		var dodgedDmg = dodge_bug ? undodgedDmg : Math.floor(undodgedDmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent));
 		var fDmg = damage(this, dfdr, this.fmove, weather);
 		var cDmg = damage(this, dfdr, this.cmove, weather);
 
@@ -975,15 +948,15 @@ function atkr_choose_1(state){
 		if (this.HP > dodgedDmg){
 			// (a) if this Pokemon can survive the dodged damage, then it's better to dodge
 			var res = strategyMaxDmg(timeTillHurt, this.energy, fDmg, this.fmove.energyDelta, 
-									this.fmove.duration + BATTLE_SETTINGS.fastMoveLagMs, cDmg, this.cmove.energyDelta, this.cmove.duration + BATTLE_SETTINGS.chargedMoveLagMs);
-			return res[2].concat([Math.max(timeTillHurt - BATTLE_SETTINGS.dodgeWindowMs - res[1], 0), 'd']);
+									this.fmove.duration + Data.BattleSettings.fastMoveLagMs, cDmg, this.cmove.energyDelta, this.cmove.duration + Data.BattleSettings.chargedMoveLagMs);
+			return res[2].concat([Math.max(timeTillHurt - Data.BattleSettings.dodgeWindowMs - res[1], 0), 'd']);
 		} else{
 			// (b) otherwise, just don't bother to dodge, and YOLO!
 			// Compare two strategies: a FMove at the end (resF) or a CMove at the end (resC) by exploiting DWS
-			var resF = strategyMaxDmg(timeTillHurt - this.fmove.dws - BATTLE_SETTINGS.fastMoveLagMs, this.energy, fDmg, this.fmove.energyDelta, 
-									this.fmove.duration + BATTLE_SETTINGS.fastMoveLagMs, cDmg, this.cmove.energyDelta, this.cmove.duration + BATTLE_SETTINGS.chargedMoveLagMs);
-			var resC = strategyMaxDmg(timeTillHurt - this.cmove.dws - BATTLE_SETTINGS.chargedMoveLagMs, this.energy + this.cmove.energyDelta, fDmg, this.fmove.energyDelta, 
-									this.fmove.duration + BATTLE_SETTINGS.fastMoveLagMs, cDmg, this.cmove.energyDelta, this.cmove.duration + BATTLE_SETTINGS.chargedMoveLagMs);
+			var resF = strategyMaxDmg(timeTillHurt - this.fmove.dws - Data.BattleSettings.fastMoveLagMs, this.energy, fDmg, this.fmove.energyDelta, 
+									this.fmove.duration + Data.BattleSettings.fastMoveLagMs, cDmg, this.cmove.energyDelta, this.cmove.duration + Data.BattleSettings.chargedMoveLagMs);
+			var resC = strategyMaxDmg(timeTillHurt - this.cmove.dws - Data.BattleSettings.chargedMoveLagMs, this.energy + this.cmove.energyDelta, fDmg, this.fmove.energyDelta, 
+									this.fmove.duration + Data.BattleSettings.fastMoveLagMs, cDmg, this.cmove.energyDelta, this.cmove.duration + Data.BattleSettings.chargedMoveLagMs);
 			if (resC[0] + cDmg > resF[0] + fDmg && resC[1] >= 0){ 
 				// Use a cmove at the end is better, on the condition that it obeys the energy rule
 				return resC[2].concat('c');
@@ -1013,20 +986,20 @@ function atkr_choose_2(state){
 	
 	if (t < hurtEvent.t && !this.has_dodged_next_attack){ // Case 1: A new attack has been announced and has not been dodged
 		this.has_dodged_next_attack = true; // prevent double dodging
-		var timeTillHurt = hurtEvent.t - t - BATTLE_SETTINGS.dodgeSwipeMs;
+		var timeTillHurt = hurtEvent.t - t - Data.BattleSettings.dodgeSwipeMs;
 		var undodgedDmg = damage(hurtEvent.object, this, hurtEvent.move, weather);
-		var dodgedDmg = dodge_bug ? undodgedDmg : Math.floor(undodgedDmg * (1 - BATTLE_SETTINGS.dodgeDamageReductionPercent));
+		var dodgedDmg = dodge_bug ? undodgedDmg : Math.floor(undodgedDmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent));
 		var opt_strat = strategyMaxDmg(timeTillHurt, this.energy, fDmg, this.fmove.energyDelta, 
-					this.fmove.duration + BATTLE_SETTINGS.fastMoveLagMs, cDmg, this.cmove.energyDelta, this.cmove.duration + BATTLE_SETTINGS.chargedMoveLagMs);
+					this.fmove.duration + Data.BattleSettings.fastMoveLagMs, cDmg, this.cmove.energyDelta, this.cmove.duration + Data.BattleSettings.chargedMoveLagMs);
 		var res = opt_strat[2];
 		if (hurtEvent.move.moveType == 'f') { // Case 1a: A fast move has been announced
 			if (this.HP > dodgedDmg){ // Only dodge when necessary
-				res.push(Math.max(0, timeTillHurt - opt_strat[1] - BATTLE_SETTINGS.dodgeWindowMs + BATTLE_SETTINGS.dodgeSwipeMs)); // wait until dodge window open
+				res.push(Math.max(0, timeTillHurt - opt_strat[1] - Data.BattleSettings.dodgeWindowMs + Data.BattleSettings.dodgeSwipeMs)); // wait until dodge window open
 				res.push('d');
 			}
 		}else{ // Case 1b: A charge move has been announced
 			if (this.HP > dodgedDmg){
-				res.push(Math.max(0, timeTillHurt - opt_strat[1] - BATTLE_SETTINGS.dodgeWindowMs + BATTLE_SETTINGS.dodgeSwipeMs)); // wait until dodge window open
+				res.push(Math.max(0, timeTillHurt - opt_strat[1] - Data.BattleSettings.dodgeWindowMs + Data.BattleSettings.dodgeSwipeMs)); // wait until dodge window open
 				res.push('d');
 				res.push('c'); // attempt to use cmove
 			}
@@ -1035,7 +1008,7 @@ function atkr_choose_2(state){
 	}else{ // Case 2: No new attack has been announced or has dodged the incoming attack
 		var res = [];
 		if (t > hurtEvent.t){ // just after dodging the current attack
-			var timeTillHurt = hurtEvent.t - t - BATTLE_SETTINGS.dodgeSwipeMs + (hurtEvent.move.duration - hurtEvent.move.dws) + 1500 + dfdr.fmove.dws;
+			var timeTillHurt = hurtEvent.t - t - Data.BattleSettings.dodgeSwipeMs + (hurtEvent.move.duration - hurtEvent.move.dws) + 1500 + dfdr.fmove.dws;
 			if (this.energy + this.cmove.energyDelta >= 0 && this.cmove.duration < timeTillHurt)
 				res.push('c');
 			else

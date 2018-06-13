@@ -2,7 +2,7 @@
 
 
 function moveEditFormSubmit(){
-	var moveType_input = document.getElementById('moveEditForm-moveType').value;
+	var moveDatabaseName = document.getElementById('moveEditForm-moveType').value;
 	var moveName = document.getElementById('moveEditForm-name').value.trim().toLowerCase();
 	
 	if (moveName == '')
@@ -10,88 +10,55 @@ function moveEditFormSubmit(){
 	
 	var move = {
 		name: moveName,
-		moveType: moveType_input,
+		moveType: moveDatabaseName[0].toLowerCase(),
 		power: parseInt(document.getElementById('moveEditForm-power').value),
 		pokeType: document.getElementById('moveEditForm-pokeType').value.toLowerCase(),
-		energyDelta: (moveType_input == 'f' ? 1 : -1) * Math.abs(parseInt(document.getElementById('moveEditForm-energyDelta').value)),
+		energyDelta: (moveDatabaseName[0].toLowerCase() == 'f' ? 1 : -1) * Math.abs(parseInt(document.getElementById('moveEditForm-energyDelta').value)),
 		dws: Math.abs(parseFloat(document.getElementById('moveEditForm-dws').value)) * 1000,
 		duration: Math.abs(parseFloat(document.getElementById('moveEditForm-duration').value)) * 1000
 	};
+
+	var move2 = getEntry(moveName, Data[moveDatabaseName]);
 	
-	var moveDatabase = (moveType_input == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA);
-	var moveDatabase_local = (moveType_input == 'f' ? FAST_MOVE_DATA_LOCAL : CHARGED_MOVE_DATA_LOCAL);
-	var idx = getIndexByName(moveName, moveDatabase);
-	
-	if (idx >= 0){
-		copyAllInfo(moveDatabase[idx], move);
-		move = moveDatabase[idx];
+	if (move2){
+		copyAllInfo(move2, move);
+		move = move2;
 		send_feedback('Move: ' + toTitleCase(moveName) + ' has been updated.', false, 'moveEditForm-feedback');
 	}else{
 		move.label = toTitleCase(moveName);
 		move.icon = "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + move.pokeType + ".png";
-		move.index = moveDatabase.length;
-		moveDatabase.push(move);
+		insertEntry(move, Data[moveDatabaseName]);
 		send_feedback('Move: ' + toTitleCase(moveName) + ' has been added.', false, 'moveEditForm-feedback');
 	}
 	
-	if (getIndexByName(moveName, moveDatabase_local) < 0){
-		moveDatabase_local.push(move);
+	if (getEntryIndex(moveName, LocalData[moveDatabaseName]) < 0){
+		insertEntry(move, LocalData[moveDatabaseName]);
 	}
-	if (localStorage){
-		localStorage.FAST_MOVE_DATA_LOCAL = JSON.stringify(FAST_MOVE_DATA_LOCAL);
-		localStorage.CHARGED_MOVE_DATA_LOCAL = JSON.stringify(CHARGED_MOVE_DATA_LOCAL);
-	}
+	saveLocalData();
 }
 
 function moveEditFormReset(){
-	FAST_MOVE_DATA = [];
-	CHARGED_MOVE_DATA = [];
+	Data.FastMoves = [];
+	Data.ChargedMoves = [];
 	send_feedback("Connecting to server...", true, 'moveEditForm-feedback');
 	fetchMoveData(function(){
 		send_feedback("Latest Move Data have been fetched", true, 'moveEditForm-feedback');
-		for (var i = 0; i < FAST_MOVE_DATA_LOCAL.length; i++){
-			if (getIndexByName(FAST_MOVE_DATA_LOCAL[i].name, FAST_MOVE_DATA) >= 0){
-				FAST_MOVE_DATA_LOCAL.splice(i--, 1);
-			}else{
-				FAST_MOVE_DATA_LOCAL[i].index = FAST_MOVE_DATA.length;
-				FAST_MOVE_DATA.push(FAST_MOVE_DATA_LOCAL[i]);
+		['FastMoves', 'ChargedMoves'].forEach(function(moveDatabaseName){
+			for (var i = 0; i < LocalData[moveDatabaseName].length; i++){
+				if (getEntry(LocalData[moveDatabaseName].name, Data[moveDatabaseName])){
+					LocalData[moveDatabaseName].splice(i--, 1);
+				}
 			}
-		}
-		for (var i = 0; i < CHARGED_MOVE_DATA_LOCAL.length; i++){
-			if (getIndexByName(CHARGED_MOVE_DATA_LOCAL[i].name, CHARGED_MOVE_DATA) >= 0){
-				CHARGED_MOVE_DATA_LOCAL.splice(i--, 1);
-			}else{
-				CHARGED_MOVE_DATA_LOCAL[i].index = CHARGED_MOVE_DATA.length;
-				CHARGED_MOVE_DATA.push(CHARGED_MOVE_DATA_LOCAL[i]);
-			}
-		}
-		if (localStorage){
-			localStorage.FAST_MOVE_DATA_LOCAL = JSON.stringify(FAST_MOVE_DATA_LOCAL);
-			localStorage.CHARGED_MOVE_DATA_LOCAL = JSON.stringify(CHARGED_MOVE_DATA_LOCAL);
-		}
+		});
+		saveLocalData();
 	});
 }
 
 function moveEditFormDelete(){
-	var moveType_input = document.getElementById('moveEditForm-moveType').value;
+	var moveDatabaseName = $('#moveEditForm-moveType').val();
 	var moveName = document.getElementById('moveEditForm-name').value.trim().toLowerCase();
-	var moveDatabase = (moveType_input == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA);
-	var moveDatabaseLocal = (moveType_input == 'f' ? FAST_MOVE_DATA_LOCAL : CHARGED_MOVE_DATA_LOCAL);
-	var idx = getIndexByName(moveName, moveDatabase);
 	
-	if (idx >= 0){
-		moveDatabase.splice(idx, 1);
-		for (var i = idx; i < moveDatabase.length; i++){
-			moveDatabase[i].index = i;
-		}
-		for (var i = 0; i < moveDatabaseLocal.length; i++){
-			if (moveDatabaseLocal[i].name == moveName)
-				moveDatabaseLocal.splice(i--, 1);
-		}
-		if (localStorage){
-			localStorage.FAST_MOVE_DATA_LOCAL = JSON.stringify(FAST_MOVE_DATA_LOCAL);
-			localStorage.CHARGED_MOVE_DATA_LOCAL = JSON.stringify(CHARGED_MOVE_DATA_LOCAL);
-		}
+	if (removeEntry(moveName, Data[moveDatabaseName]) || removeEntry(moveName, LocalData[moveDatabaseName])){
 		send_feedback("Move: " + moveName + " has been removed", false, 'moveEditForm-feedback');
 	}
 }
@@ -104,7 +71,7 @@ function autocompleteMoveEditForm(){
 		source: function(request, response){
 			var matches = [];
 			try{
-				matches = universalGetter(request.term, ($('#moveEditForm-moveType').val() == 'f' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA));
+				matches = universalGetter(request.term, Data[$('#moveEditForm-moveType').val()]);
 			}catch(err){matches = [];}
 			response(matches);
 		},
@@ -141,7 +108,7 @@ function pokemonEditFormSubmit(){
 	};
 	
 	['fmoves', 'cmoves'].forEach(function(mtype){
-		var Database = (mtype == 'fmoves' ? FAST_MOVE_DATA : CHARGED_MOVE_DATA);
+		var Database = (mtype == 'fmoves' ? Data.FastMoves : Data.ChargedMoves);
 		document.getElementById('pokemonEditForm-' + mtype).value.split(',').forEach(function(moveName){
 			moveName = moveName.trim().toLowerCase();
 			var poolPostFix = '';
@@ -156,7 +123,7 @@ function pokemonEditFormSubmit(){
 				universalGetter(moveName.substring(1, moveName.length), Database).forEach(function(move){
 					movepools[mtype + poolPostFix].push(move.name);
 				});
-			}else if (getIndexByName(moveName, Database) >= 0){
+			}else if (getEntryIndex(moveName, Database) >= 0){
 				movepools[mtype + poolPostFix].push(moveName);
 			}
 		});
@@ -177,70 +144,44 @@ function pokemonEditFormSubmit(){
 		chargedMoves_exclusive : movepools.cmoves_exclusive
 	};
 	
-	var idx = getIndexByName(pokemonName, POKEMON_SPECIES_DATA);
-	if (idx >= 0){
-		copyAllInfo(POKEMON_SPECIES_DATA[idx], pkm);
-		pkm = POKEMON_SPECIES_DATA[idx];
+	var pkm2 = getEntry(pokemonName, Data.Pokemon);
+	if (pkm2){
+		copyAllInfo(pkm2, pkm);
+		pkm = pkm2;
 		send_feedback('Pokemon: ' + toTitleCase(pokemonName) + ' has been updated.', false, 'pokemonEditForm-feedback');
 	}else{
 		pkm.dex = 0;
 		pkm.icon = "https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png";
 		pkm.label = toTitleCase(pokemonName);
 		pkm.rating = 0;
-		pkm.index = POKEMON_SPECIES_DATA.length;
-		POKEMON_SPECIES_DATA.push(pkm);
+		insertEntry(pkm, Data.Pokemon);
 		send_feedback('Pokemon: ' + toTitleCase(pokemonName) + ' has been added.', false, 'pokemonEditForm-feedback');
 	}
-	
-	if (getIndexByName(pokemonName, POKEMON_SPECIES_DATA_LOCAL) < 0){
-		POKEMON_SPECIES_DATA_LOCAL.push(pkm);
-	}
-	if (localStorage){
-		localStorage.POKEMON_SPECIES_DATA_LOCAL = JSON.stringify(POKEMON_SPECIES_DATA_LOCAL);
-	}
+
+	insertEntry(pkm, LocalData.Pokemon);
+	saveLocalData();
 }
 
 function pokemonEditFormReset(){
-	POKEMON_SPECIES_DATA = [];
-	if (localStorage){
-		localStorage.removeItem('POKEMON_SPECIES_DATA_LOCAL');
-	}
-	send_feedback("Local Pokemon Species have been erased.", false, 'pokemonEditForm-feedback');
+	Data.Pokemon = [];
 	send_feedback("Connecting to server...", true, 'pokemonEditForm-feedback');
 	fetchSpeciesData(function(){
-		handleSpeciesDatabase(POKEMON_SPECIES_DATA);
-		manuallyModifyData();
-		for (var i = 0; i < POKEMON_SPECIES_DATA_LOCAL.length; i++){
-			if (getIndexByName(POKEMON_SPECIES_DATA_LOCAL[i].name, POKEMON_SPECIES_DATA) >= 0){
-				POKEMON_SPECIES_DATA_LOCAL.splice(i--, 1);
-			}else{
-				POKEMON_SPECIES_DATA_LOCAL[i].index = POKEMON_SPECIES_DATA.length;
-				POKEMON_SPECIES_DATA.push(POKEMON_SPECIES_DATA_LOCAL[i]);
+		handleSpeciesDatabase(Data.Pokemon);
+		manuallyModifyData(Data);
+		for (var i = 0; i < LocalData.Pokemon.length; i++){
+			if (getEntry(LocalData.Pokemon[i].name, Data.Pokemon)){
+				LocalData.Pokemon.splice(i--, 1);
 			}
 		}
-		if (localStorage){
-			localStorage.POKEMON_SPECIES_DATA_LOCAL = JSON.stringify(POKEMON_SPECIES_DATA_LOCAL);
-		}
+		saveLocalData();
 		send_feedback("Latest Pokemon Data have been fetched", true, 'pokemonEditForm-feedback');
 	});
 }
 
 function pokemonEditFormDelete(){
 	var pokemonName = document.getElementById('pokemonEditForm-name').value.trim().toLowerCase();
-	var idx = getIndexByName(pokemonName, POKEMON_SPECIES_DATA);
 	
-	if (idx >= 0){
-		POKEMON_SPECIES_DATA.splice(idx, 1);
-		for (var i = idx; i < POKEMON_SPECIES_DATA.length; i++){
-			POKEMON_SPECIES_DATA[i].index = i;
-		}
-		for (var i = 0; i < POKEMON_SPECIES_DATA_LOCAL.length; i++){
-			if (POKEMON_SPECIES_DATA_LOCAL[i].name == pokemonName)
-				POKEMON_SPECIES_DATA_LOCAL.splice(i--, 1);
-		}
-		if (localStorage){
-			localStorage.POKEMON_SPECIES_DATA_LOCAL = JSON.stringify(POKEMON_SPECIES_DATA_LOCAL);
-		}
+	if (removeEntry(pokemonName, Data.Pokemon) || removeEntry(pokemonName, LocalData.Pokemon)){
 		send_feedback("Pokemon: " + pokemonName + " has been removed", false, 'pokemonEditForm-feedback');
 	}
 }
@@ -313,12 +254,12 @@ function userEditFormAddUser(){
 function userEditFormRemoveUser(){
 	var userID = document.getElementById('userEditForm-userID-1').value.trim();
 	var userIdxToRemove = -1;
-	for (var i = 0; i < USERS_INFO.length; i++){
-		if (USERS_INFO[i].id == userID)
+	for (var i = 0; i < Data.Users.length; i++){
+		if (Data.Users[i].id == userID)
 			userIdxToRemove = i;
 	}
 	if (userIdxToRemove >= 0){
-		USERS_INFO.splice(userIdxToRemove, 1);
+		Data.Users.splice(userIdxToRemove, 1);
 		relabelAll();
 		udpateUserTable();
 		send_feedback("Successfully removed user " + userID, false, 'userEditForm-feedback');
@@ -331,19 +272,19 @@ function userEditFormRemoveUser(){
 function udpateUserTable(){
 	var table = document.getElementById('userEditForm-userTable');
 	table.children[1].innerHTML = '';
-	for (var i = 0; i < USERS_INFO.length; i++){
+	for (var i = 0; i < Data.Users.length; i++){
 		table.children[1].appendChild(createRow([
 			i+1,
-			USERS_INFO[i].id,
-			USERS_INFO[i].box.length,
+			Data.Users[i].id,
+			Data.Users[i].box.length,
 			'<button onclick="udpateBoxTable('+i+')">Manage Box</button>'
 		],'td'));
 	}
 }
 
 function udpateBoxTable(userIndex){
-	document.getElementById('boxEditForm-title').innerHTML = 'User ' + USERS_INFO[userIndex].id;
-	var boxEditFormTable = $('#boxEditForm-pokemonTable').DataTable(), box = USERS_INFO[userIndex].box;
+	document.getElementById('boxEditForm-title').innerHTML = 'User ' + Data.Users[userIndex].id;
+	var boxEditFormTable = $('#boxEditForm-pokemonTable').DataTable(), box = Data.Users[userIndex].box;
 	
 	$( "#boxEditForm" ).dialog( "open" );
 	boxEditFormTable.clear();
@@ -359,8 +300,8 @@ function udpateBoxTable(userIndex){
 			box[i].stmiv,
 			box[i].atkiv,
 			box[i].defiv,
-			createIconLabelDiv2(FAST_MOVE_DATA[box[i].fmove_index].icon, toTitleCase(box[i].fmove), 'move-input-with-icon'),
-			createIconLabelDiv2(CHARGED_MOVE_DATA[box[i].cmove_index].icon, toTitleCase(box[i].cmove), 'move-input-with-icon')
+			createIconLabelDiv2(Data.FastMoves[box[i].fmove_index].icon, toTitleCase(box[i].fmove), 'move-input-with-icon'),
+			createIconLabelDiv2(Data.ChargedMoves[box[i].cmove_index].icon, toTitleCase(box[i].cmove), 'move-input-with-icon')
 		]);
 	}
 	boxEditFormTable.columns.adjust().draw();
@@ -374,9 +315,9 @@ function udpateBoxTable(userIndex){
 function boxEditFormSubmit(userIndex){
 	var data = $( '#boxEditForm-pokemonTable' ).DataTable().rows().data(), newBox = [];
 	for (var i = 0; i < data.length; i++){
-		newBox[i] = USERS_INFO[userIndex].box[parseInt(data[i][0]) - 1];
+		newBox[i] = Data.Users[userIndex].box[parseInt(data[i][0]) - 1];
 	}
-	USERS_INFO[userIndex].box = newBox;
+	Data.Users[userIndex].box = newBox;
 	relabelAll();
 	send_feedback("Box order has been saved", false, 'boxEditForm-feedback');
 }
@@ -384,29 +325,26 @@ function boxEditFormSubmit(userIndex){
 
 function parameterEditFormSubmit(){
 	var EDITABLE_PARAMETERS = {};
-	for (var attr in BATTLE_SETTINGS){
-		BATTLE_SETTINGS[attr] = parseFloat(document.getElementById('parameterEditForm-'+attr).value) || 0;
+	for (var attr in Data.BattleSettings){
+		Data.BattleSettings[attr] = parseFloat(document.getElementById('parameterEditForm-'+attr).value) || 0;
 	};
 	send_feedback("Battle settings have been updated", false, 'parameterEditForm-feedback');
-	if (localStorage){
-		localStorage.BATTLE_SETTINGS_LOCAL = JSON.stringify(BATTLE_SETTINGS);
-	}
+	saveLocalData();
 }
 
 function parameterEditFormReset(){
-	if (localStorage){
-		localStorage.removeItem('BATTLE_SETTINGS_LOCAL');
-	}
+	LocalData.BattleSettings = [];
+	saveLocalData();
 	send_feedback("Local battle settings have been erased. Refresh the page to get the default back", false, 'parameterEditForm-feedback');
 }
 
 
 function modEditFormSubmit(){
 	fetchAll(function(){
-		for (var i = 0; i < MOD_LIST.length; i++){
+		for (var i = 0; i < Data.Mods.length; i++){
 			var mod_checkbox = document.getElementById('mod_checkbox_' + i);
 			if (mod_checkbox && mod_checkbox.checked){
-				MOD_LIST[i].effect();
+				Data.Mods[i].effect(Data);
 			}
 		}
 		send_feedback_dialog("Mods have been applied", 'Feedback');
@@ -415,7 +353,7 @@ function modEditFormSubmit(){
 
 
 function populateQuickStartWizardBossList(tag){
-	var bosses = universalGetter('%' + tag, POKEMON_SPECIES_DATA);
+	var bosses = universalGetter('%' + tag, Data.Pokemon);
 	var bosses_by_tier = {
 		1: [], 2: [], 3:[], 4:[], 5:[]
 	};
@@ -430,14 +368,14 @@ function populateQuickStartWizardBossList(tag){
 			var listElement = createElement('li', '<div>Tier ' + t + '</div>');
 			var subList = document.createElement('ul');
 			bosses_by_tier[t].forEach(function(boss){
-				var e = createElement('li', '<div>' + boss.label + '</div>', {index: boss.index});
+				var e = createElement('li', '<div>' + boss.label + '</div>', {index: getEntryIndex(boss.name, Data.Pokemon)});
 				const tier = t;
 				e.onclick = function(){
 					var imgObj = document.getElementById('ui-species_QSW-boss'), idx = this.getAttribute('index');
-					imgObj.setAttribute('name', POKEMON_SPECIES_DATA[idx].name);
+					imgObj.setAttribute('name', Data.Pokemon[idx].name);
 					imgObj.setAttribute('index', idx);
 					imgObj.setAttribute('raid_tier', tier);
-					imgObj.setAttribute('src', POKEMON_SPECIES_DATA[idx].image);
+					imgObj.setAttribute('src', Data.Pokemon[idx].image);
 					$( '#quickStartWizard-raidbosslist' ).menu( "collapseAll", null, true );
 				};
 				subList.appendChild(e);
@@ -466,7 +404,7 @@ function quickStartWizard_submit(){
 	}
 	
 	qsw_config.dfdrSettings.species = document.getElementById('ui-species_QSW-boss').getAttribute('name');
-	qsw_config.dfdrSettings.index = parseInt(document.getElementById('ui-species_QSW-boss').getAttribute('index'));
+	// qsw_config.dfdrSettings.index = parseInt(document.getElementById('ui-species_QSW-boss').getAttribute('index'));
 	qsw_config.dfdrSettings.raid_tier = parseInt(document.getElementById('ui-species_QSW-boss').getAttribute('raid_tier'));
 	qsw_config.dfdrSettings.fmove = document.getElementById('fmove_QSW-boss').value || '*current';
 	qsw_config.dfdrSettings.cmove = document.getElementById('cmove_QSW-boss').value || '*current';
@@ -478,5 +416,7 @@ function quickStartWizard_submit(){
 
 function quickStartWizard_dontshowup(){
 	localStorage.setItem('QUICK_START_WIZARD_NO_SHOW', '1');
+	LocalData.QuickStartWizardNoShow = 1;
+	saveLocalData();
 	$( "#quickStartWizard" ).dialog( "close" );
 }
