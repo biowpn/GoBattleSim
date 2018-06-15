@@ -1,15 +1,17 @@
 <style>
 div#ranking_table_wrapper td{
- font-size: 12px;
+	font-size: 12px;
+	padding: 0px;
+	line-height: 3;
 }
 div#ranking_table_wrapper th {
-    font-size: 11px;
+	font-size: 11px;
 }
 div#subMenu {
-    z-index: 10;
+	z-index: 10;
 }
 div#ranking_table_wrapper {
-    margin-top: 10px;
+	margin-top: 10px;
 }
 </style>
 
@@ -159,9 +161,9 @@ div#ranking_table_wrapper {
 		<th>PokeType 2</th>
 	</tr>
 	<tr>
-		<td><input type='text' id='ui-species_d' index='-1' class='input-with-icon species-input-with-icon'></input></td>
-		<td><select id='d-pokeType1' onchange='recalculate()'></select></td>
-		<td><select id='d-pokeType2' onchange='recalculate()'></select></td>
+		<td><input type='text' id='ui-species_boss' index='-1' class='input-with-icon species-input-with-icon'></input></td>
+		<td><select id='d-pokeType1' onchange='UI_calculate()'></select></td>
+		<td><select id='d-pokeType2' onchange='UI_calculate()'></select></td>
 	</tr>
 </table>
 
@@ -172,8 +174,8 @@ div#ranking_table_wrapper {
 		<th>Enemy Charged Move</th>
 	</tr>
 	<tr>
-		<td><input type='text' id='fmove_d' index='-1' class='input-with-icon move-input-with-icon'></td>
-		<td><input type='text' id='cmove_d' index='-1' class='input-with-icon move-input-with-icon'></td>
+		<td><input type='text' id='fmove_boss' index='-1' class='input-with-icon move-input-with-icon'></td>
+		<td><input type='text' id='cmove_boss' index='-1' class='input-with-icon move-input-with-icon'></td>
 	</tr>
 </table>
 	
@@ -184,7 +186,7 @@ div#ranking_table_wrapper {
 		<th>Customization</th>
 	</tr>
 	<tr>
-		<td><select id='weather' onchange='recalculate()'></select></td>
+		<td><select id='weather' onchange='UI_calculate()'></select></td>
 		<td style='vertical-align:top; position:relative;'>
 			<button id='subMenuOpener'
 			onclick="$('#subMenu').slideToggle('fast')"><i class="fa fa-pencil" aria-hidden="true"></i> Customize</button>
@@ -198,17 +200,22 @@ div#ranking_table_wrapper {
 	</tr>
 </table>
 
-<input type='text' id='searchInput' onkeyup='search_trigger()'></input></td>
+<table>
+	<colgroup><col width='100%'></colgroup>
+	<tr>
+		<th>Search</th>
+	</tr>
+	<tr>
+		<td><input type='text' id='searchInput' onkeyup='search_trigger()'></input></td>
+	</tr>
+</table>
+
 
 
 <table id='ranking_table' style='width:100%;'>
-
 <thead></thead>
-
 <tfoot></tfoot>
-
 <tbody></tbody>
-
 </table>
 
 
@@ -217,12 +224,8 @@ div#ranking_table_wrapper {
 // Use Pokemon from Box
 $( "#ui-use-box" ).controlgroup();
 $( "#ui-use-box-checkbox" ).change(function(){
-	if(this.checked){
-		calculateBox();
-	}else{
-		calculate();
-	}
-})
+	UI_calculate(true);
+});
 
 // Sub Menu for Add/Edit functions
 $( '#subMenu' ).hide();
@@ -281,12 +284,8 @@ $( "#modEditFormOpener" ).click(function() {
 
 // Refresh button
 $ ( "#refresher" ).click(function(){
-	if (document.getElementById('ui-use-box-checkbox').checked){
-		calculateBox();
-	}else{
-		calculate();
-	}
-	$('#subMenu').slideToggle('fast')
+	$('#subMenu').hide();
+	UI_calculate(true);
 });
 
 populateAll(applicationInit);

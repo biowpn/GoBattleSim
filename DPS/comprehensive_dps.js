@@ -11,11 +11,11 @@ var DEFAULT_ENEMY_POKETYPE2 = 'none';
 var DEFAULT_WEATHER = 'EXTREME';
 
 var ConfigurableAttributes = [
-	{'elementId': "ui-species_d", 'qsField': "pkm", 'defaultValue': '', 'iconGetter': getPokemonIcon, 'databaseName': "Pokemon"}, 
+	{'elementId': "ui-species_boss", 'qsField': "pkm", 'defaultValue': '', 'iconGetter': getPokemonIcon, 'databaseName': "Pokemon"}, 
 	{'elementId': "d-pokeType1", 'qsField': "type1", 'defaultValue': DEFAULT_ENEMY_POKETYPE1}, 
 	{'elementId': "d-pokeType2", 'qsField': "type2", 'defaultValue': DEFAULT_ENEMY_POKETYPE2}, 
-	{'elementId': "fmove_d", 'qsField': "fm", 'defaultValue': '', 'iconGetter': getTypeIcon, 'databaseName': "FastMoves"}, 
-	{'elementId': "cmove_d", 'qsField': "cm", 'defaultValue': '', 'iconGetter': getTypeIcon, 'databaseName': "ChargedMoves"}, 
+	{'elementId': "fmove_boss", 'qsField': "fm", 'defaultValue': '', 'iconGetter': getTypeIcon, 'databaseName': "FastMoves"}, 
+	{'elementId': "cmove_boss", 'qsField': "cm", 'defaultValue': '', 'iconGetter': getTypeIcon, 'databaseName': "ChargedMoves"}, 
 	{'elementId': "weather", 'qsField': "wt", 'defaultValue': DEFAULT_WEATHER}, 
 	{'elementId': "searchInput", 'qsField': "qs", 'defaultValue': ''},
 	{'qsField': "by", defaultValue: "DPS"},
@@ -121,20 +121,15 @@ function getParameterByName(name, url) {
 function setConfigFromUrl(url){
 	if (url.includes('?')){
 		var cfg = {};
-		try{
-			cfg = uriToJSON(url.split('?')[1]);
-		}catch(err){
-			ConfigurableAttributes.forEach(function(info){
-				cfg[info.elementId || info.qsField] = getParameterByName(info.qsField, url) || info.defaultValue;
-			});
-		}
 		ConfigurableAttributes.forEach(function(info){
-			$('#' + info.elementId).val(cfg[info.elementId] || info.defaultValue);
+			cfg[info.qsField] = getParameterByName(info.qsField, url) || info.defaultValue;
+			$('#' + info.elementId).val(cfg[info.qsField] || info.defaultValue);
 			if (info.iconGetter){
-				$('#' + info.elementId).attr('style', "background-image: url(" + info.iconGetter({name: cfg[info.elementId], mtype: info.elementId[0]}) + ")");
+				console.log(info.iconGetter({name: cfg[info.qsField], mtype: info.elementId[0]}));
+				$('#' + info.elementId).attr('style', "background-image: url(" + info.iconGetter({name: cfg[info.qsField], mtype: info.elementId[0]}) + ")");
 			}
 			if (info.databaseName){
-				$('#' + info.elementId).attr('index', getEntryIndex(cfg[info.elementId], Data[info.databaseName]));
+				$('#' + info.elementId).attr('index', getEntryIndex(cfg[info.qsField].toLowerCase(), Data[info.databaseName]));
 			}
 		});		
 		if (cfg['by'] || cfg['order']){
@@ -185,33 +180,40 @@ function applicationInit(){
 	});
 	weatherSelect.value = DEFAULT_WEATHER;
 	
-	autocompletePokemonNodeSpecies(document.getElementById('ui-species_d'));
-	$( "#ui-species_d" ).on( "autocompleteselect", function(event, ui){
+	var enemySpeciesNode = document.getElementById('ui-species_boss');
+	var enemyFastMoveNode = document.getElementById('fmove_boss');
+	var enemyChargedMoveNode = document.getElementById('cmove_boss');
+	
+	autocompletePokemonNodeSpecies(enemySpeciesNode);
+	$( enemySpeciesNode ).on( "autocompleteselect", function(event, ui){
 		document.getElementById('d-pokeType1').value = ui.item.pokeType1;
 		document.getElementById('d-pokeType2').value = ui.item.pokeType2;
 		copyAllInfo(Context.enemy, ui.item);
 		$(this).val(ui.item.label);
 		this.setAttribute('index', getEntryIndex(ui.item.name, Data.Pokemon));
-		if ($('#fmove_d').attr('index') >= 0 && $('#cmove_d').attr('index') >= 0){
-			recalculate();
+		if ($(enemyFastMoveNode).attr('index') >= 0 && $(enemyChargedMoveNode).attr('index') >= 0){
+			this.blur();
+			UI_calculate(false);
 		}
 	});
 	
-	autocompletePokemonNodeMoves(document.getElementById('fmove_d'));
-	$( "#fmove_d" ).on( "autocompleteselect", function(event, ui){
+	autocompletePokemonNodeMoves(enemyFastMoveNode);
+	$( enemyFastMoveNode ).on( "autocompleteselect", function(event, ui){
 		$(this).val(ui.item.label);
 		this.setAttribute('index', getEntryIndex(ui.item.name, Data.FastMoves));
-		if ($('#ui-species_d').attr('index') >= 0 && $('#cmove_d').attr('index') >= 0){
-			recalculate();
+		if ($(enemySpeciesNode).attr('index') >= 0 && $(enemyChargedMoveNode).attr('index') >= 0){
+			this.blur();
+			UI_calculate(false);
 		}
 	});
 	
-	autocompletePokemonNodeMoves(document.getElementById('cmove_d'));
-	$( "#cmove_d" ).on( "autocompleteselect", function(event, ui){
+	autocompletePokemonNodeMoves(enemyChargedMoveNode);
+	$( enemyChargedMoveNode ).on( "autocompleteselect", function(event, ui){
 		$(this).val(ui.item.label);
 		this.setAttribute('index', getEntryIndex(ui.item.name, Data.ChargedMoves));
-		if ($('#ui-species_d').attr('index') >= 0 && $('#fmove_d').attr('index') >= 0){
-			recalculate();
+		if ($(enemySpeciesNode).attr('index') >= 0 && $(enemyFastMoveNode).attr('index') >= 0){
+			this.blur();
+			UI_calculate(false);
 		}
 	});
 	
@@ -237,10 +239,21 @@ function applicationInit(){
 	table.children[1].appendChild(footerRow);
 	
 	Table = $(table).DataTable({
-		scrollX: true,
-		scrollY: '80vh',
-		scroller: true,
-		"aoColumns": [
+		//scrollX: true,
+		//scrollY: '80vh',
+		//scroller: true,
+		lengthChange: false,
+		autoWidth: false,
+		columnDefs: [
+			{"width": "24%", "targets": 0},
+			{"width": "18%", "targets": 0},
+			{"width": "18%", "targets": 0},
+			{"width": "10%", "targets": 0},
+			{"width": "10%", "targets": 0},
+			{"width": "10%", "targets": 0},
+			{"width": "10%", "targets": 0},
+		],
+		aoColumns: [
 			null,
             null,
             null,
@@ -261,6 +274,7 @@ function applicationInit(){
 		setUrlFromConfig();
 	}
 
+	/*
 	Table.columns().flatten().each(function (colIdx){
 		var select = $('<select />')
 			.appendTo(
@@ -279,6 +293,7 @@ function applicationInit(){
 				select.append(op);
 			});
 	});
+	*/
 }
 
 
@@ -286,9 +301,9 @@ function applyContext(){
 	Context.weather = document.getElementById('weather').value;
 	
 	Context.generic_enemy_bool = false;
-	var d_index = parseInt(document.getElementById('ui-species_d').getAttribute('index'));
-	var d_fmove_index = parseInt(document.getElementById('fmove_d').getAttribute('index'));
-	var d_cmove_index = parseInt(document.getElementById('cmove_d').getAttribute('index'));
+	var d_index = getEntryIndex($('#ui-species_boss').val(), Data.Pokemon);
+	var d_fmove_index = getEntryIndex($('#fmove_boss').val(), Data.FastMoves);
+	var d_cmove_index = getEntryIndex($('#cmove_boss').val(), Data.ChargedMoves);
 	if (d_index < 0 || d_fmove_index < 0 || d_cmove_index < 0){
 		Context.generic_enemy_bool = true;
 		d_index = d_fmove_index = d_cmove_index = 0;
@@ -355,17 +370,20 @@ function calculate(){
 					console.log("Move not found: " + chargedMoves_all[k]);
 					continue;
 				}
-				
-				var pkm2 = new Pokemon({
-					'index': i,
-					'fmove_index': fmove_index,
-					'cmove_index': cmove_index,
-					'level': DEFAULT_LEVEL,
-					'atkiv': DEFAULT_IVs[0],
-					'defiv': DEFAULT_IVs[0],
-					'stmiv': DEFAULT_IVs[0],
-					'raid_tier': 0
-				});
+				try{
+					var pkm2 = new Pokemon({
+						'index': i,
+						'fmove_index': fmove_index,
+						'cmove_index': cmove_index,
+						'level': DEFAULT_LEVEL,
+						'atkiv': DEFAULT_IVs[0],
+						'defiv': DEFAULT_IVs[0],
+						'stmiv': DEFAULT_IVs[0],
+						'raid_tier': 0
+					});
+				}catch(err){
+					console.log(i);
+				}
 				var dfdrDmg = Context.enemy.calc_defender(pkm2);
 				pkm2.calc_DPS( -pkm2.cmove.energyDelta * 0.5 + pkm2.fmove.energyDelta * 0.5 + dfdrDmg.extra_energy_wasted, dfdrDmg.dps );
 				pkm2.cp = calculateCP(pkm2);
@@ -417,10 +435,6 @@ function calculateBox(){
 	
 	applyContext();
 	
-	if (!Data.Users){
-		return;
-	}
-	
 	for (var i = 0; i < Data.Users[0].box.length; i++){
 		var pkm2 = new Pokemon(Data.Users[0].box[i]);
 		var dfdrDmg = Context.enemy.calc_defender(pkm2);
@@ -442,6 +456,36 @@ function calculateBox(){
 	console.log(Date() + ": All DPS calculated");
 	pred = createComplexPredicate($('#searchInput').val());
 	$("#ranking_table").DataTable().draw();
+}
+
+
+function UI_calculate(startover){
+	calculationMethod = function(){};
+	if (startover){
+		var pokebox_checkbox = document.getElementById('ui-use-box-checkbox');
+		if (pokebox_checkbox.checked){
+			if (!Data.Users.length || userID2 == '0'){
+				send_feedback_dialog("To use your Pokemon, please log in");
+				pokebox_checkbox.checked = false;
+				$(pokebox_checkbox).button('refresh');
+				return;
+			}else{
+				calculationMethod = calculateBox;
+			}
+		}else{
+			calculationMethod = calculate;
+		}
+	}else{
+		calculationMethod = recalculate;
+	}
+	
+	send_feedback_dialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Calculating...");
+	setTimeout(function(){
+		calculationMethod();
+		while (DialogStack.length){
+			DialogStack.pop().dialog('close');
+		}
+	}, 50);
 }
 
 

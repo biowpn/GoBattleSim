@@ -179,7 +179,7 @@ function createSimplePredicate(str){
 	}else if (str[0] == '$'){ // Box
 		const str_const = str.slice(1).trim();
 		return function(obj){
-			return obj.box_index >= 0 && (!str_const || obj.nickname == str_const);
+			return obj.box_index >= 0 && (!str_const || obj.nickname.includes(str_const));
 		};
 	}else if (str[0] == '%'){ // Raid Boss
 		const str_const = str.slice(1);
@@ -304,7 +304,6 @@ function universalGetter(expression, Space){
 }
 
 function getPokemonSpeciesOptions(userIndex){
-	userIndex = userIndex || 0;
 	var speciesOptions = [];
 	if (0 <= userIndex && userIndex < Data.Users.length){
 		var userBox = Data.Users[userIndex].box;
@@ -341,28 +340,36 @@ function autocompletePokemonNodeSpecies(speciesInput){
 		minLength : 0,
 		delay : 200,
 		source : function(request, response){
-			var playerIdx = 0;
+			var user_idx = 0;
 			for (var i = 0; i < this.bindings.length; i++){
 				if (this.bindings[i].id && this.bindings[i].id.includes('species_')){
-					playerIdx = parseInt(this.bindings[i].id.split('_')[1].split('-')[0]);
+					thisAddress = this.bindings[i].id.split('_')[1];
+					user_idx = parseInt(thisAddress.split('-')[0]);
+					if (thisAddress == 'd'){
+						user_idx = 0;
+					}else if (isNaN(user_idx)){
+						user_idx = -1;
+					}
 					break;
 				}
 			}
 			var searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term), matches = [];
 			try{
-				matches = universalGetter(searchStr, getPokemonSpeciesOptions(playerIdx));
-			}catch(err){matches = [];}
+				matches = universalGetter(searchStr, getPokemonSpeciesOptions(user_idx));
+			}catch(err){
+			}
 			response(matches);
 		},
 		select : function(event, ui){
 			var pkmInfo = ui.item, thisAddress = this.id.split('_')[1];
 			if (pkmInfo.box_index >= 0){
 				var thisPokemonNode = document.getElementById('ui-pokemon_' + thisAddress);
-				var user_idx = (thisAddress == 'd' ? 0 : parseInt(thisAddress.split('-')[0]));
-				if (thisAddress != 'd')
+				var user_idx = parseInt(thisAddress.split('-')[0]);
+				if (!isNaN(user_idx)){
 					writeAttackerNode(thisPokemonNode, Data.Users[user_idx].box[pkmInfo.box_index]);
-				else
-					writeDefenderNode(thisPokemonNode, Data.Users[user_idx].box[pkmInfo.box_index]);
+				}else if (thisAddress == 'd'){
+					writeDefenderNode(thisPokemonNode, Data.Users[0].box[pkmInfo.box_index]);
+				}
 			}
 			this.setAttribute('index', getEntryIndex(pkmInfo.name, Data.Pokemon));
 			this.setAttribute('box_index', pkmInfo.box_index);
