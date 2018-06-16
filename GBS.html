@@ -874,13 +874,6 @@ $ ('#quickStartWizardOpener').click(function() {
 
 // Final preparation
 function applicationInit(){
-	if (window['userID2']){
-		fetchUserData(userID2, function(){
-			send_feedback("Imported user " + userID2, false, 'userEditForm-feedback');
-			udpateUserTable();
-		});
-	}
-	
 	if (window.location.href.includes('?')){
 		writeUserInput(parseConfigFromUrl(window.location.href));
 		main();

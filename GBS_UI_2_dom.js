@@ -756,7 +756,7 @@ function createPokemonStatisticsTable(pokemonStats){
 								"HP", "Energy", "TDO", "Duration", "DPS", "Detail"], 'th'));
 	for (var i = 0; i < pokemonStats.length; i++){
 		var ps = pokemonStats[i];
-		var row = createRow(["<img src='" + getPokemonIcon({index: ps.index}) + "' class='apitem-pokemon-icon'></img>", 
+		var row = createRow(["<img src='" + getPokemonIcon({name: ps.name}) + "' class='apitem-pokemon-icon'></img>", 
 			ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, "<a style='cursor: pointer'><i class='fa fa-info-circle' aria-hidden='true'></i></a>"], 'td');
 		
 		const ps_const = JSON.parse(JSON.stringify(ps));

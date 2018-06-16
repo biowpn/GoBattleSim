@@ -160,18 +160,14 @@ function setUrlFromConfig(){
 		}
 	});
 	
-	if (non_default_flag)
-		window.history.pushState('', '', window.location.href.split('?')[0] + '?' + $.param(cfg));
+	var comp = $.param(cfg);
+	window.history.pushState('', '', window.location.href.split('?')[0] + (comp ? '?' : '') + comp);
 }
 
 
 
 
 function applicationInit(){
-	if (window['userID2']){
-		fetchUserData(userID2);
-	}
-	
 	acceptedNumericalAttributes = acceptedNumericalAttributes.concat(['dps', 'tdo']);
 	
 	var weatherSelect = document.getElementById('weather');
@@ -239,11 +235,9 @@ function applicationInit(){
 	table.children[1].appendChild(footerRow);
 	
 	Table = $(table).DataTable({
-		//scrollX: true,
-		//scrollY: '80vh',
-		//scroller: true,
 		lengthChange: false,
 		autoWidth: false,
+		deferRender: true,
 		columnDefs: [
 			{"width": "24%", "targets": 0},
 			{"width": "18%", "targets": 0},
@@ -274,26 +268,6 @@ function applicationInit(){
 		setUrlFromConfig();
 	}
 
-	/*
-	Table.columns().flatten().each(function (colIdx){
-		var select = $('<select />')
-			.appendTo(
-				Table.column(colIdx).footer()
-			)
-			.on( 'change', function (){
-				Table.column( colIdx ).search( $(this).val() ).draw();
-			});
-		
-		select.append( $("<option value=' '>*</option>") );
-		Table.column( colIdx ).cache( 'search' ).sort().unique()
-			.each( function ( d ) {
-				var op = document.createElement('option');
-				op.value = d;
-				op.innerHTML = d;
-				select.append(op);
-			});
-	});
-	*/
 }
 
 

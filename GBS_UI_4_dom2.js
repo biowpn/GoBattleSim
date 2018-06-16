@@ -1,5 +1,23 @@
 /* GBS_UI_4_dom2.js */
 
+function recalculateIndex(className){
+	// When the database has changed in structure (insertion/deletion), call this method
+	var elements = document.getElementsByClassName(className || "input-with-icon");
+	for (var i = 0; i < elements.length; i++){
+		var e = elements[i];
+		if (!e.id || !e.getAttribute("index")){
+			continue;
+		}
+		if (e.id.includes("species")){
+			e.setAttribute("index", getEntryIndex(e.value.trim().toLowerCase(), Data.Pokemon));
+			// TODO: More handling for Box Pokemon
+		}else if (e.id.includes("fmove")){
+			e.setAttribute("index", getEntryIndex(e.value.trim().toLowerCase(), Data.FastMoves));
+		}else if (e.id.includes("cmove")){
+			e.setAttribute("index", getEntryIndex(e.value.trim().toLowerCase(), Data.ChargedMoves));
+		}
+	}
+}
 
 function moveEditFormSubmit(){
 	var moveDatabaseName = document.getElementById('moveEditForm-moveType').value;
@@ -28,6 +46,7 @@ function moveEditFormSubmit(){
 		move.label = toTitleCase(moveName);
 		move.icon = "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + move.pokeType + ".png";
 		insertEntry(move, Data[moveDatabaseName]);
+		recalculateIndex();
 		send_feedback('Move: ' + toTitleCase(moveName) + ' has been added.', false, 'moveEditForm-feedback');
 	}
 	
@@ -42,10 +61,11 @@ function moveEditFormReset(){
 	Data.ChargedMoves = [];
 	send_feedback("Connecting to server...", true, 'moveEditForm-feedback');
 	fetchMoveData(function(){
+		recalculateIndex();
 		send_feedback("Latest Move Data have been fetched", true, 'moveEditForm-feedback');
 		['FastMoves', 'ChargedMoves'].forEach(function(moveDatabaseName){
 			for (var i = 0; i < LocalData[moveDatabaseName].length; i++){
-				if (getEntry(LocalData[moveDatabaseName].name, Data[moveDatabaseName])){
+				if (getEntry(LocalData[moveDatabaseName][i].name, Data[moveDatabaseName])){
 					LocalData[moveDatabaseName].splice(i--, 1);
 				}
 			}
@@ -58,8 +78,9 @@ function moveEditFormDelete(){
 	var moveDatabaseName = $('#moveEditForm-moveType').val();
 	var moveName = document.getElementById('moveEditForm-name').value.trim().toLowerCase();
 	
-	if (removeEntry(moveName, Data[moveDatabaseName]) || removeEntry(moveName, LocalData[moveDatabaseName])){
+	if (removeEntry(moveName, Data[moveDatabaseName]) && removeEntry(moveName, LocalData[moveDatabaseName])){
 		send_feedback("Move: " + moveName + " has been removed", false, 'moveEditForm-feedback');
+		recalculateIndex();
 	}
 }
 
@@ -155,6 +176,7 @@ function pokemonEditFormSubmit(){
 		pkm.label = toTitleCase(pokemonName);
 		pkm.rating = 0;
 		insertEntry(pkm, Data.Pokemon);
+		recalculateIndex();
 		send_feedback('Pokemon: ' + toTitleCase(pokemonName) + ' has been added.', false, 'pokemonEditForm-feedback');
 	}
 
@@ -168,6 +190,7 @@ function pokemonEditFormReset(){
 	fetchSpeciesData(function(){
 		handleSpeciesDatabase(Data.Pokemon);
 		manuallyModifyData(Data);
+		recalculateIndex();
 		for (var i = 0; i < LocalData.Pokemon.length; i++){
 			if (getEntry(LocalData.Pokemon[i].name, Data.Pokemon)){
 				LocalData.Pokemon.splice(i--, 1);
@@ -181,7 +204,8 @@ function pokemonEditFormReset(){
 function pokemonEditFormDelete(){
 	var pokemonName = document.getElementById('pokemonEditForm-name').value.trim().toLowerCase();
 	
-	if (removeEntry(pokemonName, Data.Pokemon) || removeEntry(pokemonName, LocalData.Pokemon)){
+	if (removeEntry(pokemonName, Data.Pokemon) && removeEntry(pokemonName, LocalData.Pokemon)){
+		recalculateIndex();
 		send_feedback("Pokemon: " + pokemonName + " has been removed", false, 'pokemonEditForm-feedback');
 	}
 }
@@ -289,9 +313,10 @@ function udpateBoxTable(userIndex){
 	$( "#boxEditForm" ).dialog( "open" );
 	boxEditFormTable.clear();
 	for (var i = 0; i < box.length; i++){
+		var fmove = getEntry(box[i].fmove, Data.FastMoves), cmove = getEntry(box[i].cmove, Data.ChargedMoves);
 		boxEditFormTable.row.add([
 			i+1,
-			createIconLabelDiv2(box[i].icon, toTitleCase(box[i].species), 'species-input-with-icon'),
+			createIconLabelDiv2(box[i].icon, box[i].label, 'species-input-with-icon'),
 			createIconLabelDiv2(getTypeIcon({pokeType: box[i].pokeType1}), toTitleCase(box[i].pokeType1), 'move-input-with-icon'),
 			createIconLabelDiv2(getTypeIcon({pokeType: box[i].pokeType2}), toTitleCase(box[i].pokeType2), 'move-input-with-icon'),
 			box[i].nickname,
@@ -300,8 +325,8 @@ function udpateBoxTable(userIndex){
 			box[i].stmiv,
 			box[i].atkiv,
 			box[i].defiv,
-			createIconLabelDiv2(Data.FastMoves[box[i].fmove_index].icon, toTitleCase(box[i].fmove), 'move-input-with-icon'),
-			createIconLabelDiv2(Data.ChargedMoves[box[i].cmove_index].icon, toTitleCase(box[i].cmove), 'move-input-with-icon')
+			createIconLabelDiv2(fmove.icon, fmove.label, 'move-input-with-icon'),
+			createIconLabelDiv2(cmove.icon, cmove.label, 'move-input-with-icon')
 		]);
 	}
 	boxEditFormTable.columns.adjust().draw();

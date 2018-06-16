@@ -61,7 +61,7 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 		
 		var matches = universalGetter(expressionStr, universe);
 		if (matches.length == 0){
-			send_feedback(address + '[' + pkmInfo.label + '].' + attr + ": No match", true);
+			send_feedback(address + '.' + attr + " {" + expressionStr + "}: No match", true);
 			return [0];
 		}
 		

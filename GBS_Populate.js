@@ -2,7 +2,7 @@
 
 
 var FETCHED_STATUS = 0;
-var FETCHED_STATUS_PASS = 4;
+var FETCHED_STATUS_PASS = 5;
 
 /* 
  *	PART I(a): GAME DATA
@@ -346,27 +346,25 @@ function handleSpeciesDatabase(pokemonDataBase){
 function parseUserPokebox(data){
 	var box = [];
 	for (var i = 0; i < data.length; i++){
-		var species_idx = getEntryIndex(data[i].species.toLowerCase(), Data.Pokemon);
 		var pkm = {
 			species : data[i].species.toLowerCase(),
 			cp: parseInt(data[i].cp),
 			level: 0,
-			stmiv: parseInt(data[i].sta),
-			atkiv: parseInt(data[i].atk),
-			defiv: parseInt(data[i].def),
-			fmove: data[i].fast_move.toLowerCase(),
-			fmove_index : getEntryIndex(data[i].fast_move.toLowerCase(), Data.FastMoves),
-			cmove: data[i].charge_move.toLowerCase(),
-			cmove_index : getEntryIndex(data[i].charge_move.toLowerCase(), Data.ChargedMoves),
+			stmiv: parseInt(data[i].sta || data[i].stmiv || 0),
+			atkiv: parseInt(data[i].atk || data[i].atkiv || 0),
+			defiv: parseInt(data[i].def || data[i].defiv || 0),
+			fmove: (data[i].fast_move || data[i].fmove).toLowerCase(),
+			cmove: (data[i].charge_move || data[i].cmove).toLowerCase(),
 			nickname : data[i].nickname,
 			nid: data[i].nid
 		};
-		if (species_idx < 0 || pkm.fmove_index < 0 || pkm.cmove_index < 0){
+		var species = getEntry(pkm.species, Data.Pokemon), fmove = getEntry(pkm.fmove, Data.FastMoves), cmove = getEntry(pkm.cmove, Data.ChargedMoves);
+		if (!species || !fmove || !cmove){
 			console.log("[Error in importing User Pokemon: species/moves not in database]");
 			console.log(data[i]);
 			continue;
 		}
-		copyAllInfo(pkm, Data.Pokemon[species_idx]);
+		copyAllInfo(pkm, species);
 		pkm.box_index = i;
 		pkm.level = calculateLevelByCP(pkm, pkm.cp);
 		box.push(pkm);
@@ -551,17 +549,21 @@ function fetchMoveData(oncomplete){
 }
 
 // Import User
-function fetchUserData(userid, oncomplete){
+function fetchUserData(userid, oncomplete, init){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({
 		url: '/user-pokemon-json-list?_format=json&new&uid_raw=' + userid,
 		dataType: 'json',
 		success: function(data){
-			Data.Users.push({
+			var user = {
 				id: userid,
-				box: parseUserPokebox(data)
-			});
+				box: data
+			};
+			if (!init){
+				user.box = parseUserPokebox(data);
+			}
+			Data.Users.push(user);
 			fetchUserTeamData(userid);
 		},
 		complete: function(){
@@ -717,6 +719,17 @@ function fetchAll(oncomplete){
 			oncomplete();
 		});
 	});
+	
+	if (window['userID2'] && userID2 != '0'){
+		fetchUserData(userID2, function(){
+			FETCHED_STATUS++;
+			fetchAll_then(function(){
+				oncomplete();
+			});
+		}, true);
+	}else{
+		FETCHED_STATUS++;
+	}
 }
 
 
@@ -728,6 +741,9 @@ function fetchAll_then(onfinish){
 		Data.Pokemon = mergeDatabase(Data.Pokemon, LocalData.Pokemon);
 		Data.FastMoves = mergeDatabase(Data.FastMoves, LocalData.FastMoves);
 		Data.ChargedMoves = mergeDatabase(Data.ChargedMoves, LocalData.ChargedMoves);
+		Data.Users.forEach(function(user){
+			user.box = parseUserPokebox(user.box);
+		});
 		
 		if (onfinish)
 			onfinish();
