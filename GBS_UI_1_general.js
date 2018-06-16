@@ -150,8 +150,8 @@ function createSimplePredicate(str){
 		if (str.substring(0,3) == '<f>'){
 			const str_const = str.slice(3).trim();
 			return function(obj){
-				if (typeof obj.fmove_index == typeof 0 && obj.fmove_index >= 0){
-					var fmove = Data.FastMoves[obj.fmove_index];
+				var fmove = Data.FastMoves[obj.fmove_index] || (typeof obj.fmove == typeof "" ? getEntry(obj.fmove, Data.FastMoves) : obj.fmove);
+				if (fmove){
 					return fmove.name.includes(str_const) || fmove.pokeType == str_const;
 				}
 				return false;
@@ -159,8 +159,8 @@ function createSimplePredicate(str){
 		}else if (str.substring(0,3) == '<c>'){
 			const str_const = str.slice(3).trim();
 			return function(obj){
-				if (typeof obj.cmove_index == typeof 0 && obj.cmove_index >= 0){
-					var cmove = Data.ChargedMoves[obj.cmove_index];
+				var cmove = Data.ChargedMoves[obj.cmove_index] || (typeof obj.cmove == typeof "" ? getEntry(obj.cmove, Data.ChargedMoves) : obj.cmove);
+				if (cmove){
 					return cmove.name.includes(str_const) || cmove.pokeType == str_const;
 				}
 				return false;
@@ -374,6 +374,12 @@ function autocompletePokemonNodeSpecies(speciesInput){
 			this.setAttribute('index', getEntryIndex(pkmInfo.name, Data.Pokemon));
 			this.setAttribute('box_index', pkmInfo.box_index);
 			this.setAttribute('style', 'background-image: url(' + pkmInfo.icon + ')');
+			if (thisAddress == 'd' && $("#battleMode").val() == 'raid'){
+				var pkm = Data.Pokemon[this.getAttribute("index")];
+				if (pkm && pkm.marker_1){
+					$( "#raidTier" ).val(parseInt(pkm.marker_1.split(" ")[0]) || 5);
+				}
+			}
 		},
 		change : function (event, ui){
 			if (!ui.item){ // Change not due to selecting an item from menu

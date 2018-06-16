@@ -514,11 +514,11 @@ function parseDefenderNode(node){
 		index : idx >= 0 ? idx : getEntryIndex(nameInputValue.toLowerCase(), Data.Pokemon),
 		fmove_index : parseInt(row3.children[0].children[0].getAttribute('index')),
 		cmove_index : parseInt(row3.children[1].children[0].getAttribute('index')),
+		atkiv: 15,
+		defiv: 15,
+		stmiv: 15,
+		level: 40,
 		species: idx >= 0 ? Data.Pokemon[idx].name : nameInputValue,
-		level : 1,
-		atkiv : 0,
-		defiv : 0,
-		stmiv : 0,
 		fmove: row3.children[0].children[0].value.trim(),
 		cmove: row3.children[1].children[0].value.trim(),
 		stamp: ''
@@ -642,14 +642,15 @@ function writeDefenderNode(node, pkmConfig){
 	
 	var tb2 = node.children[1].children[1];
 	tb2.innerHTML = '';
-	if (!pkmConfig['raid_tier'] || pkmConfig['raid_tier'] == -1){ // gym
+	var mode = $("#battleMode").val();
+	if (mode == 'gym'){
 		tb2.innerHTML = "<colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>";
 		tb2.appendChild(createRow(['','','','']));
-		tb2.children[1].children[0].appendChild(createElement('input','',{placeholder: 'Level', value: pkmConfig['level']}));
-		tb2.children[1].children[1].appendChild(createElement('input','',{placeholder: 'HP. IV', value: pkmConfig['stmiv']}));
-		tb2.children[1].children[2].appendChild(createElement('input','',{placeholder: 'Atk. IV', value: pkmConfig['atkiv']}));
-		tb2.children[1].children[3].appendChild(createElement('input','',{placeholder: 'Def. IV', value: pkmConfig['defiv']}));
-	}else if (pkmConfig['raid_tier'] > 0){ // raid
+		tb2.children[1].children[0].appendChild(createElement('input','',{placeholder: 'Level', value: pkmConfig['level'] || ""}));
+		tb2.children[1].children[1].appendChild(createElement('input','',{placeholder: 'HP. IV', value: pkmConfig['stmiv'] || ""}));
+		tb2.children[1].children[2].appendChild(createElement('input','',{placeholder: 'Atk. IV', value: pkmConfig['atkiv'] || ""}));
+		tb2.children[1].children[3].appendChild(createElement('input','',{placeholder: 'Def. IV', value: pkmConfig['defiv'] || ""}));
+	}else{ // raid
 		tb2.innerHTML = "<colgroup><col width=100%></colgroup>";
 		tb2.appendChild(createRow(['']));
 		var raidSelection = createElement('select', '', {id: 'raidTier'});
@@ -663,14 +664,20 @@ function writeDefenderNode(node, pkmConfig){
 function updateDefenderNode(mode){
 	var defenderNode = document.getElementById('ui-pokemon_d');
 	var curDefenderConfig = parseDefenderNode(defenderNode);
-	curDefenderConfig.raid_tier = (mode == 'raid' ? 5 : -1);
+	if (mode == 'raid'){
+		var pkm = Data.Pokemon[curDefenderConfig.index];
+		if (pkm && pkm.marker_1){
+			curDefenderConfig.raid_tier = parseInt(pkm.marker_1.split(" ")[0]) || 5;
+		}
+	}else if (mode == 'gym'){
+		curDefenderConfig.raid_tier = -1;
+	}
 	writeDefenderNode(defenderNode, curDefenderConfig);
 }
 
 function writeUserInput(cfg){
 	for (var attr in cfg['generalSettings']){
-		var dom = document.getElementById(attr);
-		if (dom) dom.value = cfg['generalSettings'][attr];
+		$("#" + attr).val(cfg['generalSettings'][attr]);
 	}
 	
 	var attackerFieldBody = document.getElementById("AttackerInput").children[1];

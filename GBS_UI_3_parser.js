@@ -39,7 +39,7 @@ function parsePokemonAttributeExpression(cfg, address, attr, attr_idx, pred, uni
 		expressionStr_default = 'current,legacy,exclusive';
 		markMoveDatabase(attr[0], getEntryIndex((pkmInfo.name || pkmInfo.species).toLowerCase(), Data.Pokemon));
 	}
-	
+
 	var exact_match_idx = pred(expressionStr, universe);
 	if (!isNaN(exact_match_idx) && exact_match_idx >= 0){ // Exact Match
 		pkmInfo[attr_idx] = exact_match_idx;

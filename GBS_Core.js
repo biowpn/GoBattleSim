@@ -89,8 +89,8 @@ function Pokemon(cfg){
 	this.id = Math.round(1000000 * Math.random());
 	
 	this.index = cfg.index >= 0 ? cfg.index : getEntryIndex(cfg.name || cfg.species, Data.Pokemon);
-	this.fmove_index = cfg.fmove_index >= 0 ? cfg.fmove_index : getEntryIndex(cfg.fmove, Data.FastMoves);
-	this.cmove_index = cfg.cmove_index >= 0 ? cfg.cmove_index : getEntryIndex(cfg.cmove, Data.ChargedMoves);
+	this.fmove = Data.FastMoves[cfg.fmove_index] || (typeof cfg.fmove == typeof "" ? getEntry(cfg.fmove, Data.FastMoves) : cfg.fmove);
+	this.cmove = Data.ChargedMoves[cfg.cmove_index] || (typeof cfg.cmove == typeof "" ? getEntry(cfg.cmove, Data.ChargedMoves) : cfg.cmove);
 	this.nickname = cfg.nickname || "";
 
 	this.raidTier = cfg.raid_tier;
@@ -123,11 +123,9 @@ Pokemon.prototype.export_state = function(){
 }
 
 Pokemon.prototype.init = function(){
-	for (var attr in Data.Pokemon[this.index]){
-		this[attr] = Data.Pokemon[this.index][attr];
-	}
-	this.fmove = new Move(Data.FastMoves[this.fmove_index]);
-	this.cmove = new Move(Data.ChargedMoves[this.cmove_index]);
+	copyAllInfo(this, Data.Pokemon[this.index]);
+	this.fmove = new Move(this.fmove);
+	this.cmove = new Move(this.cmove);
 	
 	this.calculate_current_stats();
 	
@@ -148,13 +146,17 @@ Pokemon.prototype.init = function(){
 }
 
 Pokemon.prototype.calculate_current_stats = function(){
-	this.cpm = Data.LevelSettings[Math.round(2*this.level - 2)].cpm;
-	this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
-	this.Def = (this.baseDef + this.defiv) * this.cpm;
-	this.Stm = (this.baseStm + this.stmiv) * this.cpm;
 	if (!this.raidTier){ // attacker
+		this.cpm = Data.LevelSettings[Math.round(2*this.level - 2)].cpm;
+		this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
+		this.Def = (this.baseDef + this.defiv) * this.cpm;
+		this.Stm = (this.baseStm + this.stmiv) * this.cpm;
 		this.maxHP = Math.floor(this.Stm);
 	}else if (this.raidTier < 0){ // gym defender
+		this.cpm = Data.LevelSettings[Math.round(2*this.level - 2)].cpm;
+		this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
+		this.Def = (this.baseDef + this.defiv) * this.cpm;
+		this.Stm = (this.baseStm + this.stmiv) * this.cpm;
 		this.maxHP = 2 * Math.floor(this.Stm);
 		this.playerCode = 'dfdr';
 	}else {// raid boss

@@ -68,7 +68,6 @@ Pokemon.prototype.calc_DPS = function(x, y){
 }
 
 
-
 Pokemon.prototype.calc_defender = function(atkr){
 	if (Context.generic_enemy_bool){
 		return {
@@ -106,6 +105,8 @@ function damage2(dmg_giver, dmg_taker, move, weather){
 	var effe2 = Data.TypeEffectiveness[move.pokeType][dmg_taker.pokeType2] || 1;
 	return 0.5*dmg_giver.Atk/dmg_taker.Def*move.power*effe1*effe2*stab*wab + 0.5;
 }
+
+
 
 // https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript/901144#901144
 function getParameterByName(name, url) {
@@ -226,26 +227,23 @@ function applicationInit(){
 	
 	var table = document.getElementById('ranking_table');
 	var headerRow = document.createElement('tr');
-	var footerRow = document.createElement('tr');
 	colHeaders.forEach(function(header){
-		headerRow.innerHTML += '<th>' + header + '</th>';
-		footerRow.innerHTML += '<th></th>';
+		headerRow.innerHTML += '<th>' + header + '<\/th>';
 	});
 	table.children[0].appendChild(headerRow);
-	table.children[1].appendChild(footerRow);
 	
 	Table = $(table).DataTable({
 		lengthChange: false,
 		autoWidth: false,
 		deferRender: true,
 		columnDefs: [
-			{"width": "24%", "targets": 0},
-			{"width": "18%", "targets": 0},
-			{"width": "18%", "targets": 0},
-			{"width": "10%", "targets": 0},
-			{"width": "10%", "targets": 0},
-			{"width": "10%", "targets": 0},
-			{"width": "10%", "targets": 0},
+			{"width": "24%"},
+			{"width": "18%"},
+			{"width": "18%"},
+			{"width": "10%"},
+			{"width": "10%"},
+			{"width": "10%"},
+			{"width": "10%"},
 		],
 		aoColumns: [
 			null,
@@ -259,15 +257,12 @@ function applicationInit(){
 	});
 	$('#ranking_table_filter').hide();
 	Table.order( [ 3, 'desc' ] );
-	
-	setConfigFromUrl(window.location.href);
-	
-	calculate();
-	
 	Table.table().header().onclick = function(){
 		setUrlFromConfig();
 	}
-
+	
+	setConfigFromUrl(window.location.href);
+	calculate();
 }
 
 
@@ -275,9 +270,9 @@ function applyContext(){
 	Context.weather = document.getElementById('weather').value;
 	
 	Context.generic_enemy_bool = false;
-	var d_index = getEntryIndex($('#ui-species_boss').val(), Data.Pokemon);
-	var d_fmove_index = getEntryIndex($('#fmove_boss').val(), Data.FastMoves);
-	var d_cmove_index = getEntryIndex($('#cmove_boss').val(), Data.ChargedMoves);
+	var d_index = getEntryIndex($('#ui-species_boss').val().trim().toLowerCase(), Data.Pokemon);
+	var d_fmove_index = getEntryIndex($('#fmove_boss').val().trim().toLowerCase(), Data.FastMoves);
+	var d_cmove_index = getEntryIndex($('#cmove_boss').val().trim().toLowerCase(), Data.ChargedMoves);
 	if (d_index < 0 || d_fmove_index < 0 || d_cmove_index < 0){
 		Context.generic_enemy_bool = true;
 		d_index = d_fmove_index = d_cmove_index = 0;
@@ -304,22 +299,6 @@ function applyContext(){
 }
 
 
-// Generate a spectrum of DPS
-function generate_DPS_spectrum(pkm, settings){
-	settings = settings || {};
-	var X_min = settings.X_min || 0, X_max = settings.X_max || 100, X_num = settings.X_num || 100, X_step = (X_max - X_min) / X_num;
-	var Y_min = settings.Y_min || 0, Y_max = settings.Y_max || 1500/pkm.Def, Y_num = settings.Y_step || 100, Y_step = (Y_max - Y_min) / Y_num;
-	var DPS_spectrum = [];
-	for (var x = X_min; x < X_max; x += X_step){
-		var row = [];
-		for (var y = Y_min; y < Y_max; y += Y_step){
-			row.push(pkm.calc_DPS(x, y));
-		}
-		DPS_spectrum.push(row);
-	}
-	return DPS_spectrum;
-}
-
 
 // Calculate DPS and TDO
 function calculate(){
@@ -329,50 +308,45 @@ function calculate(){
 	applyContext();
 	
 	for (var i = 0; i < Data.Pokemon.length; i++){
-		var pkm = Data.Pokemon[i];
+		var pkm = new Pokemon({
+			'index': i,
+			'level': DEFAULT_LEVEL,
+			'atkiv': DEFAULT_IVs[0],
+			'defiv': DEFAULT_IVs[0],
+			'stmiv': DEFAULT_IVs[0],
+			'raid_tier': 0
+		});
+		pkm.cp = calculateCP(pkm);
+		var dfdrDmg = Context.enemy.calc_defender(pkm);
+		
 		var fastMoves_all = pkm.fastMoves.concat(pkm.fastMoves_legacy).concat(pkm.fastMoves_exclusive);
 		var chargedMoves_all = pkm.chargedMoves.concat(pkm.chargedMoves_legacy).concat(pkm.chargedMoves_exclusive);
 		for (var j = 0; j < fastMoves_all.length; j++){
+			pkm.fmove = getEntry(fastMoves_all[j], Data.FastMoves);
+			if (!pkm.fmove){
+				console.log("Move not found: " + fastMoves_all[j]);
+				continue;
+			}
 			for (var k = 0; k < chargedMoves_all.length; k++){
-				var fmove_index = getEntryIndex(fastMoves_all[j], Data.FastMoves);
-				if (fmove_index < 0){
-					console.log("Move not found: " + fastMoves_all[j]);
-					continue;
-				}
-				var cmove_index = getEntryIndex(chargedMoves_all[k], Data.ChargedMoves);
-				if (cmove_index < 0){
+				pkm.cmove = getEntry(chargedMoves_all[k], Data.ChargedMoves);
+				if (!pkm.cmove){
 					console.log("Move not found: " + chargedMoves_all[k]);
 					continue;
 				}
-				try{
-					var pkm2 = new Pokemon({
-						'index': i,
-						'fmove_index': fmove_index,
-						'cmove_index': cmove_index,
-						'level': DEFAULT_LEVEL,
-						'atkiv': DEFAULT_IVs[0],
-						'defiv': DEFAULT_IVs[0],
-						'stmiv': DEFAULT_IVs[0],
-						'raid_tier': 0
-					});
-				}catch(err){
-					console.log(i);
-				}
-				var dfdrDmg = Context.enemy.calc_defender(pkm2);
-				pkm2.calc_DPS( -pkm2.cmove.energyDelta * 0.5 + pkm2.fmove.energyDelta * 0.5 + dfdrDmg.extra_energy_wasted, dfdrDmg.dps );
-				pkm2.cp = calculateCP(pkm2);
+
+				pkm.calc_DPS(-pkm.cmove.energyDelta * 0.5 + pkm.fmove.energyDelta * 0.5 + dfdrDmg.extra_energy_wasted, dfdrDmg.dps);
 				
 				Table.row.add([
-					createIconLabelDiv2(pkm2.icon, pkm2.label, 'species-input-with-icon'), 
-					createIconLabelDiv2(pkm2.fmove.icon, pkm2.fmove.label, 'move-input-with-icon'), 
-					createIconLabelDiv2(pkm2.cmove.icon, pkm2.cmove.label, 'move-input-with-icon'), 
-					Math.round(pkm2.dps * 1000) / 1000, 
-					Math.round(pkm2.tdo * 10) / 10,
-					Math.round(pkm2.dps * pkm2.tdo * 10) / 10,
-					pkm2.cp
+					createIconLabelDiv2(pkm.icon, pkm.label, 'species-input-with-icon'), 
+					createIconLabelDiv2(pkm.fmove.icon, pkm.fmove.label, 'move-input-with-icon'), 
+					createIconLabelDiv2(pkm.cmove.icon, pkm.cmove.label, 'move-input-with-icon'), 
+					Math.round(pkm.dps * 1000) / 1000, 
+					Math.round(pkm.tdo * 10) / 10,
+					Math.round(pkm.dps * pkm.tdo * 10) / 10,
+					pkm.cp
 				]);
 
-				ALL_COMBINATIONS.push(pkm2);
+				ALL_COMBINATIONS.push(new Pokemon(pkm));
 			}
 		}
 	}
@@ -387,12 +361,12 @@ function recalculate(){
 	
 	var i = 0;
 	Table.data().each(function(row){
-		var pkm2 = ALL_COMBINATIONS[i];
-		var dfdrDmg = Context.enemy.calc_defender(pkm2);
-		pkm2.calc_DPS( -pkm2.cmove.energyDelta * 0.5 + pkm2.fmove.energyDelta * 0.5 + dfdrDmg.extra_energy_wasted, dfdrDmg.dps );
-		row[3] = Math.round(pkm2.dps * 1000) / 1000;
-		row[4] = Math.round(pkm2.tdo * 10) / 10;
-		row[5] = Math.round(pkm2.dps * pkm2.tdo * 10) / 10;
+		var pkm = ALL_COMBINATIONS[i];
+		var dfdrDmg = Context.enemy.calc_defender(pkm);
+		pkm.calc_DPS( -pkm.cmove.energyDelta * 0.5 + pkm.fmove.energyDelta * 0.5 + dfdrDmg.extra_energy_wasted, dfdrDmg.dps );
+		row[3] = Math.round(pkm.dps * 1000) / 1000;
+		row[4] = Math.round(pkm.tdo * 10) / 10;
+		row[5] = Math.round(pkm.dps * pkm.tdo * 10) / 10;
 		i++;
 	});
 	
@@ -410,21 +384,20 @@ function calculateBox(){
 	applyContext();
 	
 	for (var i = 0; i < Data.Users[0].box.length; i++){
-		var pkm2 = new Pokemon(Data.Users[0].box[i]);
-		var dfdrDmg = Context.enemy.calc_defender(pkm2);
-		pkm2.calc_DPS( -pkm2.cmove.energyDelta * 0.5 + pkm2.fmove.energyDelta * 0.5 + dfdrDmg.extra_energy_wasted, dfdrDmg.dps );
-		pkm2.cp = calculateCP(pkm2);
+		var pkm = new Pokemon(Data.Users[0].box[i]);
+		var dfdrDmg = Context.enemy.calc_defender(pkm);
+		pkm.calc_DPS( -pkm.cmove.energyDelta * 0.5 + pkm.fmove.energyDelta * 0.5 + dfdrDmg.extra_energy_wasted, dfdrDmg.dps );
 		Table.row.add([
-			createIconLabelDiv2(pkm2.icon, Data.Users[0].box[i].nickname, 'species-input-with-icon'), 
-			createIconLabelDiv2(pkm2.fmove.icon, pkm2.fmove.label, 'move-input-with-icon'), 
-			createIconLabelDiv2(pkm2.cmove.icon, pkm2.cmove.label, 'move-input-with-icon'), 
-			Math.round(pkm2.dps * 1000) / 1000, 
-			Math.round(pkm2.tdo * 10) / 10,
-			Math.round(pkm2.dps * pkm2.tdo * 10) / 10,
-			pkm2.cp
+			createIconLabelDiv2(pkm.icon, Data.Users[0].box[i].nickname, 'species-input-with-icon'), 
+			createIconLabelDiv2(pkm.fmove.icon, pkm.fmove.label, 'move-input-with-icon'), 
+			createIconLabelDiv2(pkm.cmove.icon, pkm.cmove.label, 'move-input-with-icon'), 
+			Math.round(pkm.dps * 1000) / 1000, 
+			Math.round(pkm.tdo * 10) / 10,
+			Math.round(pkm.dps * pkm.tdo * 10) / 10,
+			Data.Users[0].box[i].cp
 		]);
 		
-		ALL_COMBINATIONS.push(pkm2);
+		ALL_COMBINATIONS.push(pkm);
 	}
 	
 	console.log(Date() + ": All DPS calculated");
@@ -463,6 +436,49 @@ function UI_calculate(startover){
 }
 
 
+var lastKeyUpTime = 0;
+pred = function(obj){return true;}
+function search_trigger(){
+	lastKeyUpTime = Date.now();
+	setTimeout(function(){
+		if (Date.now() - lastKeyUpTime >= 600){
+			pred = createComplexPredicate($('#searchInput').val());
+			$("#ranking_table").DataTable().draw();
+		}
+	}, 600);
+}
+
+$.fn.dataTable.ext.search.push(
+    function( settings, searchData, index, rowData, counter ) {
+		var pkm = ALL_COMBINATIONS[index];
+		var res = true;
+		try{ res = pred(pkm);} catch(err){ res = true; }
+		return res;
+    }
+);
+
+
+
+
+/*
+	Features yet to be released
+*/
+
+// Generate a spectrum of DPS
+function generate_DPS_spectrum(pkm, settings){
+	settings = settings || {};
+	var X_min = settings.X_min || 0, X_max = settings.X_max || 100, X_num = settings.X_num || 100, X_step = (X_max - X_min) / X_num;
+	var Y_min = settings.Y_min || 0, Y_max = settings.Y_max || 1500/pkm.Def, Y_num = settings.Y_step || 100, Y_step = (Y_max - Y_min) / Y_num;
+	var DPS_spectrum = [];
+	for (var x = X_min; x < X_max; x += X_step){
+		var row = [];
+		for (var y = Y_min; y < Y_max; y += Y_step){
+			row.push(pkm.calc_DPS(x, y));
+		}
+		DPS_spectrum.push(row);
+	}
+	return DPS_spectrum;
+}
 
 // Calculate defender ability
 function calculate_defender(){
@@ -483,20 +499,20 @@ function calculate_defender(){
 			DPS_dict[type1 + ',' + type2] = 0;
 			DPS_dict[type2 + ',' + type1] = 0;
 			for (var k = 0; k < ALL_COMBINATIONS.length; k++){
-				var pkm2 = ALL_COMBINATIONS[k];
-				pkm2.calc_DPS( -pkm2.cmove.energyDelta * 0.5 + pkm2.fmove.energyDelta * 0.5, 400 / pkm2.Def );
-				if (pkm2.dps > DPS_dict[type1 + ',' + type2]){
-					DPS_dict[type1 + ',' + type2] = pkm2.dps;
-					DPS_dict[type2 + ',' + type1] = pkm2.dps;
+				var pkm = ALL_COMBINATIONS[k];
+				pkm.calc_DPS( -pkm.cmove.energyDelta * 0.5 + pkm.fmove.energyDelta * 0.5, 400 / pkm.Def );
+				if (pkm.dps > DPS_dict[type1 + ',' + type2]){
+					DPS_dict[type1 + ',' + type2] = pkm.dps;
+					DPS_dict[type2 + ',' + type1] = pkm.dps;
 				}
 			}
 		}
 	}
 	
 	for (var i = 0; i < ALL_COMBINATIONS.length; i++){
-		var pkm2 = ALL_COMBINATIONS[i];
-		var dps_in = DPS_dict[pkm2.pokeType1 + ',' + pkm2.pokeType2];
-		pkm2.defender_time = 2 * pkm2.Stm * pkm2.Def / (dps_in * DEFAULT_ENEMY_CURRENT_DEFENSE);
+		var pkm = ALL_COMBINATIONS[i];
+		var dps_in = DPS_dict[pkm.pokeType1 + ',' + pkm.pokeType2];
+		pkm.defender_time = 2 * pkm.Stm * pkm.Def / (dps_in * DEFAULT_ENEMY_CURRENT_DEFENSE);
 	}
 	
 	ALL_COMBINATIONS.sort(function(a,b){return b.defender_time - a.defender_time;});
@@ -526,41 +542,3 @@ function calc_pvp_outcome(pkm1, pkm2){
 	
 	// TODO
 }
-
-
-function get_combination(species_query, fmove_query, cmove_query){
-	pred_s = createComplexPredicate(species_query || '');
-	pred_f = createComplexPredicate(fmove_query || '');
-	pred_c = createComplexPredicate(cmove_query || '');
-	
-	var result = [];
-	for (var i = 0; i < ALL_COMBINATIONS.length; i++){
-		var pkm = ALL_COMBINATIONS[i];
-		if (pred_s(pkm) && pred_f(pkm.fmove) && pred_c(pkm.cmove))
-			result.push(pkm);
-	}
-	return result;
-}
-
-
-
-var lastKeyUpTime = 0;
-pred = function(obj){return true;}
-function search_trigger(){
-	lastKeyUpTime = Date.now();
-	setTimeout(function(){
-		if (Date.now() - lastKeyUpTime >= 600){
-			pred = createComplexPredicate($('#searchInput').val());
-			$("#ranking_table").DataTable().draw();
-		}
-	}, 600);
-}
-
-$.fn.dataTable.ext.search.push(
-    function( settings, searchData, index, rowData, counter ) {
-		var pkm = ALL_COMBINATIONS[index];
-		var res = true;
-		try{ res = pred(pkm);} catch(err){ res = true; }
-		return res;
-    }
-);
