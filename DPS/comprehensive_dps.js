@@ -101,9 +101,10 @@ function damage2(dmg_giver, dmg_taker, move, weather){
 	if (Data.TypeEffectiveness[move.pokeType].boostedIn == weather){
 		wab = Data.BattleSettings.weatherAttackBonusMultiplier;
 	}
+	var fab = dmg_giver.fab || 1;
 	var effe1 = Data.TypeEffectiveness[move.pokeType][dmg_taker.pokeType1] || 1;
 	var effe2 = Data.TypeEffectiveness[move.pokeType][dmg_taker.pokeType2] || 1;
-	return 0.5*dmg_giver.Atk/dmg_taker.Def*move.power*effe1*effe2*stab*wab + 0.5;
+	return 0.5*dmg_giver.Atk/dmg_taker.Def*move.power*effe1*effe2*stab*wab*fab + 0.5;
 }
 
 
@@ -345,8 +346,12 @@ function calculate(){
 					Math.round(pkm.dps * pkm.tdo * 10) / 10,
 					pkm.cp
 				]);
-
-				ALL_COMBINATIONS.push(new Pokemon(pkm));
+				
+				var pkm2 = new Pokemon(pkm);
+				pkm2.cp = pkm.cp;
+				pkm2.dps = pkm.dps;
+				pkm2.tdo = pkm.tdo;
+				ALL_COMBINATIONS.push(pkm2);
 			}
 		}
 	}

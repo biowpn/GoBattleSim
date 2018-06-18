@@ -15,7 +15,11 @@ const MAX_NUM_OF_PLAYERS = 20;
 
 var Data = {
 	BattleSettings: {
-		'sameTypeAttackBonusMultiplier': 1.2, 
+		'goodFriendAttackBonusMultiplier': 1.05, 
+		'greatFriendAttackBonusMultiplier': 1.1, 
+		'ultraFriendAttackBonusMultiplier': 1.15, 
+		'bestFriendAttackBonusMultiplier': 1.2,
+		'sameTypeAttackBonusMultiplier': 1.2,
 		'maximumEnergy': 100, 
 		'energyDeltaPerHealthLost': 0.5, 
 		'dodgeDurationMs': 500, 
@@ -36,16 +40,54 @@ var Data = {
 		'maxReviveTimePerPokemonMs': 800
 	},
 	
+	FriendSettings: [
+		{
+			'name': "normal",
+			'label': "Friend",
+			'multiplier': 1
+		},
+		{
+			'name': "good",
+			'label': "Good Friend",
+			'multiplier': 1.05
+		},
+		{
+			'name': "great",
+			'label': "Great Friend",
+			'multiplier': 1.1
+		},
+		{
+			'name': "ultra",
+			'label': "Ultra Friend",
+			'multiplier': 1.15
+		},
+		{
+			'name': "best",
+			'label': "Best Friend",
+			'multiplier': 1.2
+		},
+	],
+	
 	TypeEffectiveness: {"normal": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 0.714, "bug": 1.0, "ghost": 0.51, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "fighting": {"normal": 1.4, "fighting": 1.0, "flying": 0.714, "poison": 0.714, "ground": 1.0, "rock": 1.4, "bug": 0.714, "ghost": 0.51, "steel": 1.4, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 0.714, "ice": 1.4, "dragon": 1.0, "dark": 1.4, "fairy": 0.714}, "flying": {"normal": 1.0, "fighting": 1.4, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 0.714, "bug": 1.4, "ghost": 1.0, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.4, "electric": 0.714, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "poison": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 0.714, "ground": 0.714, "rock": 0.714, "bug": 1.0, "ghost": 0.714, "steel": 0.51, "fire": 1.0, "water": 1.0, "grass": 1.4, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.4}, "ground": {"normal": 1.0, "fighting": 1.0, "flying": 0.51, "poison": 1.4, "ground": 1.0, "rock": 1.4, "bug": 0.714, "ghost": 1.0, "steel": 1.4, "fire": 1.4, "water": 1.0, "grass": 0.714, "electric": 1.4, "psychic": 1.0, "ice": 1.0, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "rock": {"normal": 1.0, "fighting": 0.714, "flying": 1.4, "poison": 1.0, "ground": 0.714, "rock": 1.0, "bug": 1.4, "ghost": 1.0, "steel": 0.714, "fire": 1.4, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.4, "dragon": 1.0, "dark": 1.0, "fairy": 1.0}, "bug": {"normal": 1.0, "fighting": 0.714, "flying": 0.714, "poison": 0.714, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 0.714, "steel": 0.714, "fire": 0.714, "water": 1.0, "grass": 1.4, "electric": 1.0, "psychic": 1.4, "ice": 1.0, "dragon": 1.0, "dark": 1.4, "fairy": 0.714}, "ghost": {"normal": 0.51, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.4, "steel": 1.0, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.4, "ice": 1.0, "dragon": 1.0, "dark": 0.714, "fairy": 1.0}, "steel": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.4, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 0.714, "grass": 1.0, "electric": 0.714, "psychic": 1.0, "ice": 1.4, "dragon": 1.0, "dark": 1.0, "fairy": 1.4}, "fire": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 0.714, "bug": 1.4, "ghost": 1.0, "steel": 1.4, "fire": 0.714, "water": 0.714, "grass": 1.4, "electric": 1.0, "psychic": 1.0, "ice": 1.4, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "water": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.4, "rock": 1.4, "bug": 1.0, "ghost": 1.0, "steel": 1.0, "fire": 1.4, "water": 0.714, "grass": 0.714, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "grass": {"normal": 1.0, "fighting": 1.0, "flying": 0.714, "poison": 0.714, "ground": 1.4, "rock": 1.4, "bug": 0.714, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 1.4, "grass": 0.714, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "electric": {"normal": 1.0, "fighting": 1.0, "flying": 1.4, "poison": 1.0, "ground": 0.51, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 1.0, "fire": 1.0, "water": 1.4, "grass": 0.714, "electric": 0.714, "psychic": 1.0, "ice": 1.0, "dragon": 0.714, "dark": 1.0, "fairy": 1.0}, "psychic": {"normal": 1.0, "fighting": 1.4, "flying": 1.0, "poison": 1.4, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 0.714, "ice": 1.0, "dragon": 1.0, "dark": 0.51, "fairy": 1.0}, "ice": {"normal": 1.0, "fighting": 1.0, "flying": 1.4, "poison": 1.0, "ground": 1.4, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 0.714, "grass": 1.4, "electric": 1.0, "psychic": 1.0, "ice": 0.714, "dragon": 1.4, "dark": 1.0, "fairy": 1.0}, "dragon": {"normal": 1.0, "fighting": 1.0, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.4, "dark": 1.0, "fairy": 0.51}, "dark": {"normal": 1.0, "fighting": 0.714, "flying": 1.0, "poison": 1.0, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.4, "steel": 1.0, "fire": 1.0, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.4, "ice": 1.0, "dragon": 1.0, "dark": 0.714, "fairy": 0.714}, "fairy": {"normal": 1.0, "fighting": 1.4, "flying": 1.0, "poison": 0.714, "ground": 1.0, "rock": 1.0, "bug": 1.0, "ghost": 1.0, "steel": 0.714, "fire": 0.714, "water": 1.0, "grass": 1.0, "electric": 1.0, "psychic": 1.0, "ice": 1.0, "dragon": 1.4, "dark": 1.4, "fairy": 1.0}},
 	
-	WeatherSettings: [{'name': 'CLEAR', 'boostedTypes': ['grass', 'ground', 'fire']}, {'name': 'FOG', 'boostedTypes': ['dark', 'ghost']}, {'name': 'CLOUDY', 'boostedTypes': ['fairy', 'fighting', 'poison']}, {'name': 'PARTLY_CLOUDY', 'boostedTypes': ['normal', 'rock']}, {'name': 'RAINY', 'boostedTypes': ['water', 'electric', 'bug']}, {'name': 'SNOW', 'boostedTypes': ['ice', 'steel']}, {'name': 'WINDY', 'boostedTypes': ['dragon', 'flying', 'psychic']}, {'name': 'EXTREME', 'boostedTypes': []}],
+	WeatherSettings: [
+		{'name': 'EXTREME', 'label': "Extreme", 'boostedTypes': []},
+		{'name': 'CLEAR', 'label': "Clear", 'boostedTypes': ['grass', 'ground', 'fire']},
+		{'name': 'FOG', 'label': "Fog", 'boostedTypes': ['dark', 'ghost']},
+		{'name': 'CLOUDY', 'label': "Cloudy", 'boostedTypes': ['fairy', 'fighting', 'poison']},
+		{'name': 'PARTLY_CLOUDY', 'label': "Partly Cloudy", 'boostedTypes': ['normal', 'rock']},
+		{'name': 'RAINY', 'label': "Rainy", 'boostedTypes': ['water', 'electric', 'bug']},
+		{'name': 'SNOW', 'label': "Snow", 'boostedTypes': ['ice', 'steel']},
+		{'name': 'WINDY', 'label': "Windy", 'boostedTypes': ['dragon', 'flying', 'psychic']}
+	],
+		
 	
 	RaidTierSettings: [
-		{"name": "1", "cpm": 0.6, "HP": 600},
-		{"name": "2", "cpm": 0.67, "HP": 1800},
-		{"name": "3", "cpm": 0.7300000190734863, "HP": 3000},
-		{"name": "4", "cpm": 0.7900000214576721, "HP": 7500},
-		{"name": "5", "cpm": 0.7900000214576721, "HP": 12500},
+		{"name": "1", "label": "Tier 1", "cpm": 0.6, "HP": 600},
+		{"name": "2", "label": "Tier 2", "cpm": 0.67, "HP": 1800},
+		{"name": "3", "label": "Tier 3", "cpm": 0.7300000190734863, "HP": 3000},
+		{"name": "4", "label": "Tier 4", "cpm": 0.7900000214576721, "HP": 7500},
+		{"name": "5", "label": "Tier 5", "cpm": 0.7900000214576721, "HP": 12500},
 	],
 	
 	RaidBosses: [],
@@ -254,6 +296,21 @@ function getTypeIcon(kwargs){
 	}
 }
 
+function getFriendMultiplier(friend){
+	// for now
+	return Data.BattleSettings[friend + "AttackBonusMultiplier"] || 1;
+	
+	for (var i = 0; i < Data.FriendSettings.length; i++){
+		if (Data.FriendSettings[i].name == friend){
+			return Data.FriendSettings[i].multiplier;
+		}
+	}
+	return 1;
+}
+
+
+
+
 // Returns a new merged database
 function mergeDatabase(database1, database2, conflictSolver){
 	conflictSolver = conflictSolver || function(e1, e2){ return e2; } // simple overwriting. Pick the "right" one
@@ -360,13 +417,18 @@ function parseUserPokebox(data){
 		};
 		var species = getEntry(pkm.species, Data.Pokemon), fmove = getEntry(pkm.fmove, Data.FastMoves), cmove = getEntry(pkm.cmove, Data.ChargedMoves);
 		if (!species || !fmove || !cmove){
-			console.log("[Error in importing User Pokemon: species/moves not in database]");
+			console.log("[Error] When importing User Pokemon: species/moves not in database");
 			console.log(data[i]);
 			continue;
 		}
 		copyAllInfo(pkm, species);
 		pkm.box_index = i;
 		pkm.level = calculateLevelByCP(pkm, pkm.cp);
+		if (!pkm.level){
+			console.log("[Error] When importing User Pokemon: invalid level");
+			console.log(data[i]);
+			continue;
+		}
 		box.push(pkm);
 	}
 	return box;
@@ -687,7 +749,7 @@ function saveLocalData(){
 
 
 // Get all the data from server
-function fetchAll(oncomplete){
+function fetchAll(oncomplete, isInit){
 	FETCHED_STATUS = 0;
 	
 	fetchLevelData();
@@ -720,7 +782,7 @@ function fetchAll(oncomplete){
 		});
 	});
 	
-	if (window['userID2'] && userID2 != '0'){
+	if (isInit && window['userID2'] && userID2 != '0'){
 		fetchUserData(userID2, function(){
 			FETCHED_STATUS++;
 			fetchAll_then(function(){
@@ -794,6 +856,6 @@ function populateAll(dataReady){
 			}
 			
 			dataReady();
-		});
+		}, true);
 	});
 }

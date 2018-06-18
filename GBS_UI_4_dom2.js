@@ -79,8 +79,9 @@ function moveEditFormDelete(){
 	var moveName = document.getElementById('moveEditForm-name').value.trim().toLowerCase();
 	
 	if (removeEntry(moveName, Data[moveDatabaseName]) && removeEntry(moveName, LocalData[moveDatabaseName])){
-		send_feedback("Move: " + moveName + " has been removed", false, 'moveEditForm-feedback');
 		recalculateIndex();
+		saveLocalData();
+		send_feedback("Move: " + moveName + " has been removed", false, 'moveEditForm-feedback');
 	}
 }
 
@@ -206,6 +207,7 @@ function pokemonEditFormDelete(){
 	
 	if (removeEntry(pokemonName, Data.Pokemon) && removeEntry(pokemonName, LocalData.Pokemon)){
 		recalculateIndex();
+		saveLocalData();
 		send_feedback("Pokemon: " + pokemonName + " has been removed", false, 'pokemonEditForm-feedback');
 	}
 }
@@ -372,8 +374,8 @@ function modEditFormSubmit(){
 				Data.Mods[i].effect(Data);
 			}
 		}
-		send_feedback_dialog("Mods have been applied", 'Feedback');
-	});
+		send_feedback_dialog("Mods have been applied");
+	}, false);
 }
 
 
@@ -444,4 +446,44 @@ function quickStartWizard_dontshowup(){
 	LocalData.QuickStartWizardNoShow = 1;
 	saveLocalData();
 	$( "#quickStartWizard" ).dialog( "close" );
+}
+
+
+function breakpointCalculatorSubmit(){
+	var attackers = universalGetter($("#ui-species_0").val(), getPokemonSpeciesOptions(0));
+	var defenders = universalGetter($("#ui-species_boss").val(), Data.Pokemon);
+	var weather = $("#breakpointCalculator-weather").val();
+	var friend = $("#breakpointCalculator-friend").val();
+	var raidTier = $("#breakpointCalculator-raidTier").val();
+	
+	breakpointCalculatorTable.clear();
+	
+	for (var i = 0; i < attackers.length; i++){
+		try{
+			var atkr = new Pokemon(attackers[i]);
+		}catch(err){
+			continue;
+		}
+		atkr.fab = Data.BattleSettings[friend + 'FriendAttackBonusMultiplier'] || 1;
+		
+		for (var j = 0; j < defenders.length; j++){
+			var dfdr = new Pokemon({
+				name: defenders[j].name,
+				raid_tier: raidTier
+			});
+			var bp_res = calculateBreakpoints(atkr, dfdr, atkr.fmove, weather);
+			breakpointCalculatorTable.row.add([
+				createIconLabelDiv2(atkr.icon, atkr.nickname, 'species-input-with-icon'),
+				createIconLabelDiv2(atkr.fmove.icon, atkr.fmove.label, 'move-input-with-icon'),
+				createIconLabelDiv2(dfdr.icon, dfdr.label, 'species-input-with-icon'),
+				bp_res.finalDamage,
+				bp_res.breakpoints[0],
+				bp_res.breakpoints.slice(1, 4).join(", ")
+			]);
+		}
+	}
+	
+	breakpointCalculatorTable.draw();
+	
+	addFilterToFooter(breakpointCalculatorTable);
 }

@@ -193,6 +193,19 @@
 	.ui-dialog-buttonset {
 		width: 100%;
 	}
+	
+	.sub-menu-container {
+		vertical-align: top; 
+		position: relative;
+	}
+	
+	.sub-menu-opener {
+	}
+	
+	.sub-menu {
+		position: absolute;
+		width: 90%;
+	}
 
 
 </style>
@@ -202,13 +215,13 @@
 <div id='menu'>
 	<table style="position: relative; height: 40px"><colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>
 		<tr>
-			<td style='vertical-align: top'><button id='quickStartWizardOpener'>
-			<i class="fa fa-bolt" aria-hidden="true"></i> Quick Start</button></td>
+			<td style='vertical-align: top'>
+				<button id='userEditFormOpener'><i class="fa fa-user" aria-hidden="true"></i> User/Box</button>
+			</td>
 			
-			<td style='vertical-align: top; position: relative;'>
-				<button id='subMenuOpener' onmouseover="//$('#subMenu').slideToggle('fast')" 
-				onclick="$('#subMenu').slideToggle('fast')"><i class="fa fa-pencil" aria-hidden="true"></i> Customize</button>
-				<div id='subMenu' style='position: absolute; width: 90%'>
+			<td class='sub-menu-container'>
+				<button class='sub-menu-opener'><i class="fa fa-cog" aria-hidden="true"></i> Customize</button>
+				<div class='sub-menu'>
 					<button class='player_button' id='moveEditFormOpener'>Move</button>
 					<button class='player_button' id='pokemonEditFormOpener'>Species</button>
 					<button class='player_button' id='parameterEditFormOpener'>Battle Settings</button>
@@ -217,10 +230,22 @@
 
 			</td>
 			
-			<td style='vertical-align: top'><button id='userEditFormOpener'><i class="fa fa-user" aria-hidden="true"></i> User/Box</button></td>
+			<td class='sub-menu-container'>
+				<button class='sub-menu-opener'><i class="fa fa-wrench" aria-hidden="true"></i> Tools</button>
+				<div class='sub-menu'>
+					<button class='player_button' id='breakpointCalculatorOpener'>Breakpoint Calc</button>
+				</div>
+			</td>
 			
-			<td style='vertical-align: top'><button onclick="window.open('https://pokemongo.gamepress.gg/comprehensive-guide-gobattlesim', '_blank')">
-				<i class="fa fa-book" aria-hidden="true"></i> Guide</button></td>
+			<td class='sub-menu-container'>
+				<button class='sub-menu-opener'><i class="fa fa-question" aria-hidden="true"></i> Help</button>
+				<div class='sub-menu'>
+					<button class='player_button' id='quickStartWizardOpener'>Quick Start</button>
+					<button class='player_button' onclick="window.open('https://pokemongo.gamepress.gg/comprehensive-guide-gobattlesim', '_blank')">User Manual</button>
+					<button class='player_button' onclick="window.open('https://pokemongo.gamepress.gg/gobattlesim-and-comprehensive-dps-spreadsheet-change-log', '_blank')">Change Log</button>
+				</div>
+			</td>
+			
 		</tr>
 	</table>
 </div>
@@ -277,15 +302,6 @@
 		<th>Weather</th>
 		<td>
 			<select id="weather">
-				<option value="EXTREME">Extreme</option>
-				<option value="SUNNY_CLEAR">Sunny/Clear</option>
-				<option value="RAIN">Rain</option>
-				<option value="PARTLY_CLOUDY">Party Cloudy</option>
-				<option value="CLOUDY">Cloudy</option>
-				<option value="WINDY">Windy</option>
-				<option value="SNOW">Snow</option>
-				<option value="FOG">Fog</option>
-				<option value="*">*All</option>
 			</select>
 		</td>
 	</tr>
@@ -370,7 +386,7 @@
 		<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
 		<tr>
 			<td><button onclick='moveEditFormSubmit()' id='moveEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
-			<td><button onclick='moveEditFormDelete()' id='moveEditForm-delete'><i class="fa fa-times" aria-hidden="true"></i> Delete</button></td>
+			<td><button onclick='moveEditFormDelete()' id='moveEditForm-delete'><i class="fa fa-trash" aria-hidden="true"></i> Delete</button></td>
 			<td><button onclick='moveEditFormReset()' id='moveEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
 		</tr>
 	</table>
@@ -423,7 +439,7 @@
 		<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
 		<tr>
 			<td><button onclick='pokemonEditFormSubmit()' id='pokemonEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
-			<td><button onclick='pokemonEditFormDelete()' id='pokemonEditForm-delete'><i class="fa fa-times" aria-hidden="true"></i> Delete</button></td>
+			<td><button onclick='pokemonEditFormDelete()' id='pokemonEditForm-delete'><i class="fa fa-trash" aria-hidden="true"></i> Delete</button></td>
 			<td><button onclick='pokemonEditFormReset()' id='pokemonEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
 		</tr>
 	</table>
@@ -626,6 +642,58 @@
 </div>
 
 
+<div id='breakpointCalculator' title="Breakpoint Calculator">
+	<table id='breakpointCalculator-input'>
+		<colgroup><col width='50%'><col width='50%'></colgroup>
+		<tr>
+			<th>Attacker</th>
+			<th>Defender</th>
+		</tr>
+		<tr>
+			<td><input id='ui-species_0' placeholder='Attacker' value='$' class='input-with-icon species-input-with-icon'></input></td>
+			<td><input id='ui-species_boss' placeholder='Defender' value='%5' class='input-with-icon species-input-with-icon'></input></td>
+		</tr>
+	</table>
+	<table id='breakpointCalculator-input2'>
+		<colgroup><col width='25%'><col width='25%'><col width='50%'></colgroup>
+		<tr>
+			<th>Weather</th>
+			<th>Friend</th>
+			<th>Raid Tier</th>
+		</tr>
+		<tr>
+			<td>
+				<select id="breakpointCalculator-weather">
+				</select>
+			</td>
+			<td>
+				<select id="breakpointCalculator-friend">
+				</select>
+			</td>
+			<td>
+				<select id="breakpointCalculator-raidTier">
+				</select>
+			</td>
+		</tr>
+	</table>
+	
+	<br>
+	<button onclick='breakpointCalculatorSubmit()' id='breakpointCalculator-submit'>Calculate</button>
+	<br>
+	
+	<table id='breakpointCalculator-output'>
+		<thead>
+			<th>Attacker</th><th>Move</th><th>Defender</th><th>Final Damage</th><th>Final Breakpoint</th><th>Other Breakpoints</th>
+		</thead>
+		<tfoot>
+			<th></th><th></th><th></th><th></th><th></th><th></th>
+		</tfoot>
+		<tbody>
+		</tbody>
+	</table>
+
+</div>
+
 
 
 <script>
@@ -702,20 +770,38 @@ var currentJobSize = 0;
 
 
 /* Initialize Modules*/
-$("#savePartyDialog").dialog({
-	autoOpen: false,
-	modal: true
-});
-
 $("#removePartyDialog").dialog({
 	autoOpen: false,
 	modal: true
 });
 
+var gs_weather = document.getElementById('weather');
+Data.WeatherSettings.forEach(function(weatherSetting){
+	gs_weather.appendChild(createElement('option', weatherSetting.label, {value: weatherSetting.name}));
+});
 
-// Sub Menu for Add/Edit functions
-$( '#subMenu' ).hide();
-$( '#subMenu' ).menu();
+
+// Sub Menu initialization
+var SubMenuContainers = document.getElementsByClassName('sub-menu-container');
+for (var i = 0; i < SubMenuContainers.length; i++){
+	var container = SubMenuContainers[i];
+	container.children[0].onclick = function(){
+		$(this.parentNode.children[1]).slideToggle('fast');
+		var subMenus = document.getElementsByClassName('sub-menu');
+		for (var j = 0; j < subMenus.length; j++){
+			if (subMenus[j].id != this.parentNode.children[1].id){
+				$(subMenus[j]).hide();
+			}
+		}
+	}
+	for (var j = 0; j < container.children[1].children.length; j++){
+		$( container.children[1].children[j] ).click(function(){
+			$(this.parentNode).hide();
+		});
+	}
+	$(container.children[1]).menu();
+	$(container.children[1]).hide();
+}
 
 
 // Move Edit Form
@@ -724,7 +810,6 @@ $( "#moveEditForm" ).dialog({
 	width: 600
 });
 $( "#moveEditFormOpener" ).click(function() {
-	$('#subMenu').hide();
 	$( "#moveEditForm" ).dialog( "open" );
 });
 autocompleteMoveEditForm();
@@ -732,13 +817,13 @@ $( "#moveEditForm" ).on('dialogclose', function(event) {
 	send_feedback('', false, 'moveEditForm-feedback');
 });
 
+
 // Species Edit Form
 $( "#pokemonEditForm" ).dialog({ 
 	autoOpen: false,
 	width: 600
 });
 $( "#pokemonEditFormOpener" ).click(function() {
-	$('#subMenu').hide();
 	$( "#pokemonEditForm" ).dialog( "open" );
 });
 autocompletePokemonEditForm();
@@ -765,7 +850,6 @@ $( "#parameterEditForm" ).dialog({
 	maxHeight: 700
 });
 $( "#parameterEditFormOpener" ).click(function() {
-	$('#subMenu').hide();
 	$( "#parameterEditForm" ).dialog( "open" );
 });
 $( "#parameterEditForm" ).on('dialogclose', function(event) {
@@ -811,13 +895,63 @@ $( "#modEditForm" ).dialog({
 	width: 600
 });
 $( "#modEditFormOpener" ).click(function() {
-	$( '#subMenu' ).hide();
 	$( "#modEditForm" ).dialog( "open" );
 });
 
 
+// Breakpoint Calculator
+$( "#breakpointCalculator" ).dialog({ 
+	autoOpen: false,
+	width: 800
+});
+$( "#breakpointCalculatorOpener" ).click(function() {
+	$( "#breakpointCalculator" ).dialog( "open" );
+});
+var breakpointCalculatorTable = $( "#breakpointCalculator-output" ).DataTable({
+	lengthChange: false
+});
+$("#breakpointCalculator-output_filter").hide();
+
+autocompletePokemonNodeSpecies(document.getElementById('ui-species_0'));
+autocompletePokemonNodeSpecies(document.getElementById('ui-species_boss'));
+
+var bpc_weather = document.getElementById('breakpointCalculator-weather');
+Data.WeatherSettings.forEach(function(weatherSetting){
+	bpc_weather.appendChild(createElement('option', weatherSetting.label, {value: weatherSetting.name}));
+});
+var bpc_friend = document.getElementById('breakpointCalculator-friend');
+Data.FriendSettings.forEach(function(friendSetting){
+	bpc_friend.appendChild(createElement('option', friendSetting.label, {value: friendSetting.name}));
+});
+var bpc_raidTier = document.getElementById('breakpointCalculator-raidTier');
+Data.RaidTierSettings.forEach(function(tierSetting){
+	bpc_raidTier.appendChild(createElement('option', tierSetting.label, {value: tierSetting.name}));
+});
+bpc_raidTier.value = 5;
+
+
 
 // Quick Start Wizard
+$('#quickStartWizardOpener').click(function() {
+	$( "#quickStartWizard" ).dialog( "open" );
+});
+
+$("#quickStartWizard").dialog({ 
+	autoOpen: false,
+	width: 600,
+	height: 700,
+	buttons: [{
+		text: 'GO',
+		style: 'width: 40%; float: left;',
+		click: quickStartWizard_submit
+		
+	},{
+		text: "Don't show Up Again",
+		style: 'width: 40%; float: right;',
+		click: quickStartWizard_dontshowup
+	}]
+});
+
 $( '#quickStartWizard-pokemonSource' ).selectmenu({appendTo: '#quickStartWizard'});
 
 $( '#quickStartWizard-raidbosstags' ).controlgroup();
@@ -851,26 +985,6 @@ autocompletePokemonNodeMoves(document.getElementById('cmove_QSW-boss'));
 $('#fmove_QSW-boss').autocomplete( "option", "appendTo", "#quickStartWizard" );
 $('#cmove_QSW-boss').autocomplete( "option", "appendTo", "#quickStartWizard" );
 
-$("#quickStartWizard").dialog({ 
-	autoOpen: false,
-	width: 600,
-	height: 700,
-	buttons: [{
-		text: 'GO',
-		style: 'width: 40%; float: left;',
-		click: quickStartWizard_submit
-		
-	},{
-		text: "Don't show Up Again",
-		style: 'width: 40%; float: right;',
-		click: quickStartWizard_dontshowup
-	}]
-});
-
-$ ('#quickStartWizardOpener').click(function() {
-	$( "#quickStartWizard" ).dialog( "open" );
-});
-
 
 // Final preparation
 function applicationInit(){
@@ -878,9 +992,7 @@ function applicationInit(){
 		writeUserInput(parseConfigFromUrl(window.location.href));
 		main();
 	}
-	
 	populateQuickStartWizardBossList('current');
-	
 	if (!LocalData.QuickStartWizardNoShow && !window.location.href.includes('?'))
 		$( "#quickStartWizard" ).dialog( "open" );
 }
@@ -930,7 +1042,6 @@ function main(args){
 		}, 100);
 	}
 }
-
 
 addPlayerNode();
 document.getElementById("ui-defenderinputbody").innerHTML = "";

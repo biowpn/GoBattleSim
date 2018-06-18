@@ -29,26 +29,42 @@ function damage(dmg_giver, dmg_taker, move, weather){
 	if (Data.TypeEffectiveness[move.pokeType].boostedIn == weather){
 		wab = Data.BattleSettings.weatherAttackBonusMultiplier;
 	}
+	var fab = dmg_giver.fab || 1;
 	var effe1 = Data.TypeEffectiveness[move.pokeType][dmg_taker.pokeType1] || 1;
 	var effe2 = Data.TypeEffectiveness[move.pokeType][dmg_taker.pokeType2] || 1;
-	return Math.ceil(0.5*dmg_giver.Atk/dmg_taker.Def*move.power*effe1*effe2*stab*wab);
+	return Math.ceil(0.5*dmg_giver.Atk/dmg_taker.Def*move.power*effe1*effe2*stab*wab*fab);
 }
 
 function calculateCP(pkm){
 	return Math.max(10, Math.floor((pkm.baseAtk+pkm.atkiv)*Math.sqrt((pkm.baseDef+pkm.defiv)*(pkm.baseStm+pkm.stmiv))*pkm.cpm*pkm.cpm/10));
 }
 
-function calculateLevelByCP(pkm, CP){
+function calculateLevelByCP(pkm, CP, exact){
 	var pkm_copy = JSON.parse(JSON.stringify(pkm));
 	for (var i = 0; i < Data.LevelSettings.length; i++){
 		pkm_copy.cpm = Data.LevelSettings[i].cpm;
-		if (calculateCP(pkm_copy) == CP)
+		if (calculateCP(pkm_copy) == CP || (!exact && calculateCP(pkm_copy) > CP))
 			return Data.LevelSettings[i].name;
 	}
 	return '';
 }
 
- 
+function calculateBreakpoints(dmg_giver, dmg_taker, move, weather){
+	var breakpoints = [], lastDamage = 0, thisDamage = 0;
+	var atkr = new Pokemon(dmg_giver);
+	for (var i = 0; i < Data.LevelSettings.length; i++){
+		atkr.Atk = (atkr.baseAtk + atkr.atkiv) * Data.LevelSettings[i].cpm;
+		thisDamage = damage(atkr, dmg_taker, move, weather);
+		if (thisDamage != lastDamage){
+			breakpoints.unshift(Data.LevelSettings[i].value);
+			lastDamage = thisDamage;
+		}
+	}
+	return {
+		"breakpoints": breakpoints,
+		"finalDamage": thisDamage
+	};
+}
 
 
 /*
@@ -63,7 +79,7 @@ function Move(cfg){
 	}
 	if (this.effect_name){
 		this.effect = getEntry(this.effect_name, Data.MoveEffects);
-		this.effect.sub = getEntry(this.effect.sub_name, Data.MoveEffectSubroutines);
+		this.effect.sub = getEntry(this.effect.sub_name, Data.MoveEffectSubroutines).sub;
 	}
 }
 
@@ -103,6 +119,7 @@ function Pokemon(cfg){
 	
 	this.immortal = false;
 	this.playerCode = cfg.player_code;
+	this.fab = cfg.fab || 1;
 	
 	this.init();
 }
@@ -233,13 +250,14 @@ Pokemon.prototype.get_statistics = function(){
 function Party(cfg){
 	this.playerCode = cfg.player_code;
 	this.revive_strategy = cfg.revive_strategy;
+	this.fab = cfg.fab || 1;
 	
 	this.pokemonArr = [];
 	for (var k = 0; k < cfg.pokemon_list.length; k++){
 		cfg.pokemon_list[k].player_code = this.playerCode;
+		cfg.pokemon_list[k].fab = this.fab;
 		for (var r = 0; r < cfg.pokemon_list[k].copies; r++){
-			var pkmCfg = cfg.pokemon_list[k];
-			this.pokemonArr.push(new Pokemon(pkmCfg));
+			this.pokemonArr.push(new Pokemon(cfg.pokemon_list[k]));
 		}
 	}
 	
@@ -306,10 +324,12 @@ Party.prototype.get_statistics = function(){
 /* Class <Player> */
 function Player(cfg){
 	this.playerCode = cfg.player_code;
+	this.fab = Data.BattleSettings[cfg.friend + "FriendAttackBonusMultiplier"] || 1;
 	
 	this.partiesArr = [];
 	for (var j = 0; j < cfg.party_list.length; j++){
 		cfg.party_list[j].player_code = this.playerCode;
+		cfg.party_list[j].fab = this.fab;
 		this.partiesArr.push(new Party(cfg.party_list[j]));
 	}
 	this.init();

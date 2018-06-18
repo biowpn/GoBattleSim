@@ -56,13 +56,21 @@ function uriToJSON(urijson){ return JSON.parse(decodeURIComponent(urijson)); }
 
 function exportConfigToUrl(cfg){
 	var cfg_min = {
-		atkrSettings: [], dfdrSettings: {},
+		atkrSettings: [], 
+		dfdrSettings: {},
 		generalSettings: JSON.parse(JSON.stringify(cfg.generalSettings))
 	};
 	for (var i = 0; i < cfg.atkrSettings.length; i++){
-		cfg_min.atkrSettings.push({party_list: []});
+		cfg_min.atkrSettings.push({
+			party_list: []
+		});
+		if (cfg.atkrSettings[i].friend){
+			cfg_min.atkrSettings[i].friend = cfg.atkrSettings[i].friend;
+		}
 		for (var j = 0; j < cfg.atkrSettings[i].party_list.length; j++){
-			cfg_min.atkrSettings[i].party_list.push({pokemon_list: []});
+			cfg_min.atkrSettings[i].party_list.push({
+				pokemon_list: []
+			});
 			if (cfg.atkrSettings[i].party_list[j].revive_strategy)
 				cfg_min.atkrSettings[i].party_list[j].revive_strategy = cfg.atkrSettings[i].party_list[j].revive_strategy;
 			for (var k = 0; k < cfg.atkrSettings[i].party_list[j].pokemon_list.length; k++){
@@ -247,7 +255,7 @@ function createComplexPredicate(expression){
 		if (token == '('){
 			stack.push(token);
 		}else if (token == ')'){
-			while (stack[stack.length-1] != '(')
+			while (stack.length && stack[stack.length-1] != '(')
 				tokensArr.push(stack.pop());
 			stack.pop();
 		}else if (LOGICAL_OPERATORS.hasOwnProperty(token)){
@@ -365,11 +373,13 @@ function autocompletePokemonNodeSpecies(speciesInput){
 			if (pkmInfo.box_index >= 0){
 				var thisPokemonNode = document.getElementById('ui-pokemon_' + thisAddress);
 				var user_idx = parseInt(thisAddress.split('-')[0]);
-				if (!isNaN(user_idx)){
-					writeAttackerNode(thisPokemonNode, Data.Users[user_idx].box[pkmInfo.box_index]);
-				}else if (thisAddress == 'd'){
-					writeDefenderNode(thisPokemonNode, Data.Users[0].box[pkmInfo.box_index]);
-				}
+				try{
+					if (!isNaN(user_idx)){
+						writeAttackerNode(thisPokemonNode, Data.Users[user_idx].box[pkmInfo.box_index]);
+					}else if (thisAddress == 'd'){
+						writeDefenderNode(thisPokemonNode, Data.Users[0].box[pkmInfo.box_index]);
+					}
+				}catch(err){}
 			}
 			this.setAttribute('index', getEntryIndex(pkmInfo.name, Data.Pokemon));
 			this.setAttribute('box_index', pkmInfo.box_index);
@@ -436,6 +446,29 @@ function autocompletePokemonNodeMoves(moveInput){
 }
 
 
+function addFilterToFooter(table){
+	table.columns().flatten().each(function (colIdx){
+		table.column(colIdx).footer().innerHTML = "";
+		var select = $('<select />')
+			.appendTo(
+				table.column(colIdx).footer()
+			)
+			.on( 'change', function (){
+				table.column( colIdx ).search( $(this).val() ).draw();
+			});
+		
+		select.append( $("<option value=' '>*</option>") );
+		table.column( colIdx ).cache( 'search' ).sort().unique()
+			.each( function ( d ) {
+				var op = document.createElement('option');
+				op.value = d;
+				op.innerHTML = d;
+				select.append(op);
+			});
+	});
+}
+
+
 function send_feedback(msg, appending, feedbackDivId){
 	var feedbackSection = document.getElementById(feedbackDivId || "feedback_message");
 	if (feedbackSection){
@@ -448,7 +481,7 @@ function send_feedback(msg, appending, feedbackDivId){
 
 function send_feedback_dialog(msg, dialogTitle){
 	var d = $(createElement('div', msg, {
-		title: dialogTitle || 'GoBattleSim'
+		title: dialogTitle || document.title
 	})).dialog({
 		buttons: {
 			"OK": function(){

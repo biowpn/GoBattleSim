@@ -274,6 +274,15 @@ function createPlayerNode(){
 	playerNode.children[0].setAttribute('class', 'section-node-head');
 	playerNode.children[0].innerHTML = "<span class='section-node-title'>Unlabeled Player</span>";
 	
+	var playerFriendLevelInput = createElement('select','', {
+		style: 'width: 30%; display: inline-block; text-align: center;'
+	});
+	Data.FriendSettings.forEach(function(friendSetting){
+		playerFriendLevelInput.appendChild(createElement('option', friendSetting.label, {value: friendSetting.name}));
+	});
+	
+	playerNode.children[0].appendChild(playerFriendLevelInput);
+	
 	var controlButtonDiv = document.createElement('div');
 	controlButtonDiv.setAttribute('class', 'section-buttons-panel');
 	
@@ -494,6 +503,7 @@ function parsePartyNode(node){
 
 function parsePlayerNode(node){
 	var player_cfg = {
+		friend: node.children[0].children[1].value,
 		party_list: []
 	};
 	for (var j = 0; j < node.children[1].children.length; j++)
@@ -611,6 +621,7 @@ function writePartyNode(node, partyConfig){
 }
 
 function writePlayerNode(node, playerConfig){
+	node.children[0].children[1].value = playerConfig.friend || 'stranger';
 	node.children[1].innerHTML = "";
 	for (var j = 0; j < playerConfig.party_list.length; j++){
 		var partyNode = createPartyNode();
@@ -654,8 +665,9 @@ function writeDefenderNode(node, pkmConfig){
 		tb2.innerHTML = "<colgroup><col width=100%></colgroup>";
 		tb2.appendChild(createRow(['']));
 		var raidSelection = createElement('select', '', {id: 'raidTier'});
-		for (var i = 1; i <= 5; i++)
-			raidSelection.appendChild(createElement('option', 'Tier ' + i, {value: i}));
+		for (var i = 0; i < Data.RaidTierSettings.length; i++){
+			raidSelection.appendChild(createElement('option', Data.RaidTierSettings[i].label, {value: Data.RaidTierSettings[i].name}));
+		}
 		tb2.children[1].children[0].appendChild(raidSelection);
 		tb2.children[1].children[0].children[0].value = pkmConfig['raid_tier'] || 5;
 	}
@@ -793,26 +805,8 @@ function displayMasterSummaryTable(){
         scrollX: true,
 		scrollY: '60vh'
 	});
-	table.columns().flatten().each(function (colIdx){
-		var select = $('<select />')
-			.appendTo(
-				table.column(colIdx).footer()
-			)
-			.on( 'change', function (){
-				table.column( colIdx ).search( $(this).val() ).draw();
-			});
-			
-		select[0].id = 'ui-mst-select-' + colIdx;
-		
-		select.append( $("<option value=' '>*</option>") );
-		table.column( colIdx ).cache( 'search' ).sort().unique()
-			.each( function ( d ) {
-				var op = document.createElement('option');
-				op.value = d;
-				op.innerHTML = d;
-				select.append(op);
-			});
-	});
+	
+	addFilterToFooter(table);
 }
 
 function displayDetail(i){
