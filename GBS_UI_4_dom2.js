@@ -39,15 +39,15 @@ function moveEditFormSubmit(){
 	var move2 = getEntry(moveName, Data[moveDatabaseName]);
 	
 	if (move2){
-		copyAllInfo(move2, move);
+		leftMerge(move2, move);
 		move = move2;
-		send_feedback('Move: ' + toTitleCase(moveName) + ' has been updated.', false, 'moveEditForm-feedback');
+		sendFeedback('Move: ' + toTitleCase(moveName) + ' has been updated.', false, 'moveEditForm-feedback');
 	}else{
 		move.label = toTitleCase(moveName);
 		move.icon = "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + move.pokeType + ".png";
 		insertEntry(move, Data[moveDatabaseName]);
 		recalculateIndex();
-		send_feedback('Move: ' + toTitleCase(moveName) + ' has been added.', false, 'moveEditForm-feedback');
+		sendFeedback('Move: ' + toTitleCase(moveName) + ' has been added.', false, 'moveEditForm-feedback');
 	}
 	
 	if (getEntryIndex(moveName, LocalData[moveDatabaseName]) < 0){
@@ -59,10 +59,10 @@ function moveEditFormSubmit(){
 function moveEditFormReset(){
 	Data.FastMoves = [];
 	Data.ChargedMoves = [];
-	send_feedback("Connecting to server...", true, 'moveEditForm-feedback');
+	sendFeedback("Connecting to server...", true, 'moveEditForm-feedback');
 	fetchMoveData(function(){
 		recalculateIndex();
-		send_feedback("Latest Move Data have been fetched", true, 'moveEditForm-feedback');
+		sendFeedback("Latest Move Data have been fetched", true, 'moveEditForm-feedback');
 		['FastMoves', 'ChargedMoves'].forEach(function(moveDatabaseName){
 			for (var i = 0; i < LocalData[moveDatabaseName].length; i++){
 				if (getEntry(LocalData[moveDatabaseName][i].name, Data[moveDatabaseName])){
@@ -81,7 +81,7 @@ function moveEditFormDelete(){
 	if (removeEntry(moveName, Data[moveDatabaseName]) && removeEntry(moveName, LocalData[moveDatabaseName])){
 		recalculateIndex();
 		saveLocalData();
-		send_feedback("Move: " + moveName + " has been removed", false, 'moveEditForm-feedback');
+		sendFeedback("Move: " + moveName + " has been removed", false, 'moveEditForm-feedback');
 	}
 }
 
@@ -93,8 +93,8 @@ function autocompleteMoveEditForm(){
 		source: function(request, response){
 			var matches = [];
 			try{
-				matches = universalGetter(request.term, Data[$('#moveEditForm-moveType').val()]);
-			}catch(err){matches = [];}
+				matches = Data[$('#moveEditForm-moveType').val()].filter(Predicate(request.term));
+			}catch(err){}
 			response(matches);
 		},
 		select : function(event, ui) {
@@ -108,7 +108,7 @@ function autocompleteMoveEditForm(){
 		},
 		change : function(event, ui) {
 		}
-	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_move_item;
+	}).autocomplete( "instance" )._renderItem = _renderAutocompleteMoveItem;
 	
 	// document.getElementById('moveEditForm-name' ).onfocus = function(){$(this).autocomplete("search", "");}
 	
@@ -142,7 +142,7 @@ function pokemonEditFormSubmit(){
 				poolPostFix = '_legacy';
 			}
 			if (moveName[0] == '$'){
-				universalGetter(moveName.substring(1, moveName.length), Database).forEach(function(move){
+				Database.filter(Predicate(moveName.substring(1, moveName.length))).forEach(function(move){
 					movepools[mtype + poolPostFix].push(move.name);
 				});
 			}else if (getEntryIndex(moveName, Database) >= 0){
@@ -168,9 +168,9 @@ function pokemonEditFormSubmit(){
 	
 	var pkm2 = getEntry(pokemonName, Data.Pokemon);
 	if (pkm2){
-		copyAllInfo(pkm2, pkm);
+		leftMerge(pkm2, pkm);
 		pkm = pkm2;
-		send_feedback('Pokemon: ' + toTitleCase(pokemonName) + ' has been updated.', false, 'pokemonEditForm-feedback');
+		sendFeedback('Pokemon: ' + toTitleCase(pokemonName) + ' has been updated.', false, 'pokemonEditForm-feedback');
 	}else{
 		pkm.dex = 0;
 		pkm.icon = "https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png";
@@ -178,7 +178,7 @@ function pokemonEditFormSubmit(){
 		pkm.rating = 0;
 		insertEntry(pkm, Data.Pokemon);
 		recalculateIndex();
-		send_feedback('Pokemon: ' + toTitleCase(pokemonName) + ' has been added.', false, 'pokemonEditForm-feedback');
+		sendFeedback('Pokemon: ' + toTitleCase(pokemonName) + ' has been added.', false, 'pokemonEditForm-feedback');
 	}
 
 	insertEntry(pkm, LocalData.Pokemon);
@@ -187,7 +187,7 @@ function pokemonEditFormSubmit(){
 
 function pokemonEditFormReset(){
 	Data.Pokemon = [];
-	send_feedback("Connecting to server...", true, 'pokemonEditForm-feedback');
+	sendFeedback("Connecting to server...", true, 'pokemonEditForm-feedback');
 	fetchSpeciesData(function(){
 		handleSpeciesDatabase(Data.Pokemon);
 		manuallyModifyData(Data);
@@ -198,7 +198,7 @@ function pokemonEditFormReset(){
 			}
 		}
 		saveLocalData();
-		send_feedback("Latest Pokemon Data have been fetched", true, 'pokemonEditForm-feedback');
+		sendFeedback("Latest Pokemon Data have been fetched", true, 'pokemonEditForm-feedback');
 	});
 }
 
@@ -208,7 +208,7 @@ function pokemonEditFormDelete(){
 	if (removeEntry(pokemonName, Data.Pokemon) && removeEntry(pokemonName, LocalData.Pokemon)){
 		recalculateIndex();
 		saveLocalData();
-		send_feedback("Pokemon: " + pokemonName + " has been removed", false, 'pokemonEditForm-feedback');
+		sendFeedback("Pokemon: " + pokemonName + " has been removed", false, 'pokemonEditForm-feedback');
 	}
 }
 
@@ -220,8 +220,8 @@ function autocompletePokemonEditForm(){
 		source: function(request, response){
 			var matches = [];
 			try{
-				matches = universalGetter(request.term, getPokemonSpeciesOptions(-1));
-			}catch(err){matches = [];}
+				matches = getPokemonOptions(-1).filter(Predicate(request.term));
+			}catch(err){}
 			response(matches);
 		},
 		select : function(event, ui) {
@@ -262,7 +262,7 @@ function autocompletePokemonEditForm(){
 				document.getElementById('pokemonEditForm-cmoves').value = toTitleCase(cmoves_exp);
 			}
 		}
-	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_pokemon_item;
+	}).autocomplete( "instance" )._renderItem = _renderAutocompletePokemonItem;
 	
 	// document.getElementById('pokemonEditForm-name' ).onfocus = function(){$(this).autocomplete("search", "");}
 }
@@ -270,9 +270,9 @@ function autocompletePokemonEditForm(){
 
 function userEditFormAddUser(){
 	var userID = document.getElementById('userEditForm-userID-1').value.trim();
-	send_feedback("Connecting to server...", false, 'userEditForm-feedback');
+	sendFeedback("Connecting to server...", false, 'userEditForm-feedback');
 	fetchUserData(userID, function(){
-		send_feedback("Imported user " + userID, false, 'userEditForm-feedback');
+		sendFeedback("Imported user " + userID, false, 'userEditForm-feedback');
 		udpateUserTable();
 	});
 }
@@ -288,9 +288,9 @@ function userEditFormRemoveUser(){
 		Data.Users.splice(userIdxToRemove, 1);
 		relabelAll();
 		udpateUserTable();
-		send_feedback("Successfully removed user " + userID, false, 'userEditForm-feedback');
+		sendFeedback("Successfully removed user " + userID, false, 'userEditForm-feedback');
 	}else{
-		send_feedback("No user with ID " + userID + " was found", false, 'userEditForm-feedback');
+		sendFeedback("No user with ID " + userID + " was found", false, 'userEditForm-feedback');
 	}
 }
 
@@ -346,7 +346,7 @@ function boxEditFormSubmit(userIndex){
 	}
 	Data.Users[userIndex].box = newBox;
 	relabelAll();
-	send_feedback("Box order has been saved", false, 'boxEditForm-feedback');
+	sendFeedback("Box order has been saved", false, 'boxEditForm-feedback');
 }
 
 
@@ -355,14 +355,14 @@ function parameterEditFormSubmit(){
 	for (var attr in Data.BattleSettings){
 		Data.BattleSettings[attr] = parseFloat(document.getElementById('parameterEditForm-'+attr).value) || 0;
 	};
-	send_feedback("Battle settings have been updated", false, 'parameterEditForm-feedback');
+	sendFeedback("Battle settings have been updated", false, 'parameterEditForm-feedback');
 	saveLocalData();
 }
 
 function parameterEditFormReset(){
 	LocalData.BattleSettings = [];
 	saveLocalData();
-	send_feedback("Local battle settings have been erased. Refresh the page to get the default back", false, 'parameterEditForm-feedback');
+	sendFeedback("Local battle settings have been erased. Refresh the page to get the default back", false, 'parameterEditForm-feedback');
 }
 
 
@@ -374,13 +374,13 @@ function modEditFormSubmit(){
 				Data.Mods[i].effect(Data);
 			}
 		}
-		send_feedback_dialog("Mods have been applied");
+		sendFeedbackDialog("Mods have been applied");
 	}, false);
 }
 
 
 function populateQuickStartWizardBossList(tag){
-	var bosses = universalGetter('%' + tag, Data.Pokemon);
+	var bosses = Data.Pokemon.filter(Predicate('%' + tag));
 	var bosses_by_tier = {
 		1: [], 2: [], 3:[], 4:[], 5:[]
 	};
@@ -450,8 +450,8 @@ function quickStartWizard_dontshowup(){
 
 
 function breakpointCalculatorSubmit(){
-	var attackers = universalGetter($("#ui-species_0").val(), getPokemonSpeciesOptions(0));
-	var defenders = universalGetter($("#ui-species_boss").val(), Data.Pokemon);
+	var attackers = getPokemonOptions(0).filter(Predicate($("#ui-species_0").val()));
+	var defenders = Data.Pokemon.filter(Predicate($("#ui-species_boss").val()));
 	var weather = $("#breakpointCalculator-weather").val();
 	var friend = $("#breakpointCalculator-friend").val();
 	var raidTier = $("#breakpointCalculator-raidTier").val();
@@ -464,7 +464,7 @@ function breakpointCalculatorSubmit(){
 		}catch(err){
 			continue;
 		}
-		atkr.fab = Data.BattleSettings[friend + 'FriendAttackBonusMultiplier'] || 1;
+		atkr.fab = getFriendMultiplier(friend);
 		
 		for (var j = 0; j < defenders.length; j++){
 			var dfdr = new Pokemon({
@@ -472,18 +472,22 @@ function breakpointCalculatorSubmit(){
 				raid_tier: raidTier
 			});
 			var bp_res = calculateBreakpoints(atkr, dfdr, atkr.fmove, weather);
+			var powerup_cost = calculateLevelUpCost(atkr.level, bp_res.breakpoints[0]);
 			breakpointCalculatorTable.row.add([
 				createIconLabelDiv2(atkr.icon, atkr.nickname, 'species-input-with-icon'),
 				createIconLabelDiv2(atkr.fmove.icon, atkr.fmove.label, 'move-input-with-icon'),
 				createIconLabelDiv2(dfdr.icon, dfdr.label, 'species-input-with-icon'),
 				bp_res.finalDamage,
-				bp_res.breakpoints[0],
-				bp_res.breakpoints.slice(1, 4).join(", ")
+				bp_res.breakpoints.slice(0, 3).join(", "),
+				powerup_cost.stardust,
+				powerup_cost.candy
 			]);
 		}
 	}
 	
+	$.fn.dataTable.ext.search.push(function( settings, searchData, index, rowData, counter ) {return true;});
 	breakpointCalculatorTable.draw();
+	$.fn.dataTable.ext.search.pop();
 	
 	addFilterToFooter(breakpointCalculatorTable);
 }

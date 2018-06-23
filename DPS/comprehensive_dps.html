@@ -1,18 +1,20 @@
 <style>
-div#ranking_table_wrapper td{
-	font-size: 12px;
-	padding: 0px;
-	line-height: 3;
-}
-div#ranking_table_wrapper th {
-	font-size: 11px;
-}
-div#subMenu {
-	z-index: 10;
-}
-div#ranking_table_wrapper {
-	margin-top: 10px;
-}
+	div#ranking_table_wrapper td{
+		font-size: 12px;
+		padding: 0px;
+		line-height: 3;
+	}
+	div#ranking_table_wrapper th {
+		font-size: 11px;
+	}
+	div#subMenu {
+		z-index: 10;
+	}
+	div#ranking_table_wrapper {
+		margin-top: 10px;
+	}
+
+
 </style>
 
 
@@ -162,8 +164,8 @@ div#ranking_table_wrapper {
 	</tr>
 	<tr>
 		<td><input type='text' id='ui-species_boss' index='-1' class='input-with-icon species-input-with-icon'></input></td>
-		<td><select id='d-pokeType1' onchange='UI_calculate()'></select></td>
-		<td><select id='d-pokeType2' onchange='UI_calculate()'></select></td>
+		<td><select id='d-pokeType1' onchange='requestSpreadsheet()'></select></td>
+		<td><select id='d-pokeType2' onchange='requestSpreadsheet()'></select></td>
 	</tr>
 </table>
 
@@ -186,11 +188,10 @@ div#ranking_table_wrapper {
 		<th>Customization</th>
 	</tr>
 	<tr>
-		<td><select id='weather' onchange='UI_calculate()'></select></td>
-		<td style='vertical-align:top; position:relative;'>
-			<button id='subMenuOpener'
-			onclick="$('#subMenu').slideToggle('fast')"><i class="fa fa-pencil" aria-hidden="true"></i> Customize</button>
-			<div id='subMenu' style='position: absolute; width: 95%'>
+		<td><select id='weather' onchange='requestSpreadsheet()'></select></td>
+		<td class='sub-menu-container'>
+			<button class='sub-menu-opener'><i class="fa fa-cog" aria-hidden="true"></i> Customize</button>
+			<div class='sub-menu'>
 				<button class='player_button' id='moveEditFormOpener'>Move</button>
 				<button class='player_button' id='pokemonEditFormOpener'>Species</button>
 				<button class='player_button' id='modEditFormOpener'>Mods</button>
@@ -199,6 +200,10 @@ div#ranking_table_wrapper {
 		</td>
 	</tr>
 </table>
+
+<br>
+<br>
+
 
 <table>
 	<colgroup><col width='100%'></colgroup>
@@ -224,12 +229,30 @@ div#ranking_table_wrapper {
 // Use Pokemon from Box
 $( "#ui-use-box" ).controlgroup();
 $( "#ui-use-box-checkbox" ).change(function(){
-	UI_calculate(true);
+	requestSpreadsheet(true);
 });
 
-// Sub Menu for Add/Edit functions
-$( '#subMenu' ).hide();
-$( '#subMenu' ).menu();
+// Sub Menu initialization
+var SubMenuContainers = document.getElementsByClassName('sub-menu-container');
+for (var i = 0; i < SubMenuContainers.length; i++){
+	var container = SubMenuContainers[i];
+	container.children[0].onclick = function(){
+		$(this.parentNode.children[1]).slideToggle('fast');
+		var subMenus = document.getElementsByClassName('sub-menu');
+		for (var j = 0; j < subMenus.length; j++){
+			if (subMenus[j].id != this.parentNode.children[1].id){
+				$(subMenus[j]).hide();
+			}
+		}
+	}
+	for (var j = 0; j < container.children[1].children.length; j++){
+		$( container.children[1].children[j] ).click(function(){
+			$(this.parentNode).hide();
+		});
+	}
+	$(container.children[1]).menu();
+	$(container.children[1]).hide();
+}
 
 
 // Move Edit Form
@@ -238,12 +261,11 @@ $( "#moveEditForm" ).dialog({
 	width: 600
 });
 $( "#moveEditFormOpener" ).click(function() {
-	$('#subMenu').hide();
 	$( "#moveEditForm" ).dialog( "open" );
 });
 autocompleteMoveEditForm();
 $( "#moveEditFormOpener" ).on('dialogclose', function(event) {
-	send_feedback('', false, 'moveEditForm-feedback');
+	sendFeedback('', false, 'moveEditForm-feedback');
 });
 
 // Species Edit Form
@@ -252,12 +274,11 @@ $( "#pokemonEditForm" ).dialog({
 	width: 600
 });
 $( "#pokemonEditFormOpener" ).click(function() {
-	$('#subMenu').hide();
 	$( "#pokemonEditForm" ).dialog( "open" );
 });
 autocompletePokemonEditForm();
 $( "#pokemonEditForm" ).on('dialogclose', function(event) {
-	send_feedback('', false, 'pokemonEditForm-feedback');
+	sendFeedback('', false, 'pokemonEditForm-feedback');
 });
 
 var moveEditFormPokeTypeSelect = document.getElementById('moveEditForm-pokeType');
@@ -278,14 +299,12 @@ $( "#modEditForm" ).dialog({
 	width: 600
 });
 $( "#modEditFormOpener" ).click(function() {
-	$( '#subMenu' ).hide();
 	$( "#modEditForm" ).dialog( "open" );
 });
 
 // Refresh button
 $ ( "#refresher" ).click(function(){
-	$('#subMenu').hide();
-	UI_calculate(true);
+	requestSpreadsheet(true);
 });
 
 populateAll(applicationInit);

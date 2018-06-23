@@ -73,17 +73,22 @@ function calculateBreakpoints(dmg_giver, dmg_taker, move, weather){
 
 /* Class <Move> */
 // constructor
-function Move(cfg){
-	for (var attr in cfg){
-		this[attr] = cfg[attr];
-	}
+function Move(m, mtype){
+	var moveDatabase = (mtype == 'f' ? Data.FastMoves : Data.ChargedMoves);
+	if (typeof m == typeof 0 && m >= 0)
+		leftMerge(this, moveDatabase[m]);
+	else if (typeof m == typeof "")
+		leftMerge(this, getEntry(m.toLowerCase(), moveDatabase));
+	else
+		leftMerge(this, m);
+
 	if (this.effect_name){
 		this.effect = getEntry(this.effect_name, Data.MoveEffects);
 		this.effect.sub = getEntry(this.effect.sub_name, Data.MoveEffectSubroutines).sub;
 	}
 }
 
-Move.prototype.export_state = function(){
+Move.prototype.exportState = function(){
 	return {
 		'name': this.name,
 		'pokeType': this.pokeType,
@@ -104,9 +109,24 @@ Move.prototype.export_state = function(){
 function Pokemon(cfg){
 	this.id = Math.round(1000000 * Math.random());
 	
-	this.index = cfg.index >= 0 ? cfg.index : getEntryIndex(cfg.name || cfg.species, Data.Pokemon);
-	this.fmove = Data.FastMoves[cfg.fmove_index] || (typeof cfg.fmove == typeof "" ? getEntry(cfg.fmove, Data.FastMoves) : cfg.fmove);
-	this.cmove = Data.ChargedMoves[cfg.cmove_index] || (typeof cfg.cmove == typeof "" ? getEntry(cfg.cmove, Data.ChargedMoves) : cfg.cmove);
+	var speciesData = {};
+	if (typeof cfg.index == typeof 0 && cfg.index >= 0)
+		speciesData = Data.Pokemon[cfg.index];
+	else if (typeof cfg.name == typeof "")
+		speciesData = getEntry(cfg.name.toLowerCase(), Data.Pokemon);
+	else if (typeof cfg.species == typeof "")
+		speciesData = getEntry(cfg.species.toLowerCase(), Data.Pokemon);
+	else
+		speciesData = cfg.species;
+	this.name = speciesData.name;
+	leftMerge(this, speciesData);
+	
+
+	this.fmove = new Move(cfg.fmove, 'f');
+	this.fmove_name = this.fmove.name;
+	this.cmove = new Move(cfg.cmove, 'c');
+	this.cmove_name = this.cmove.name;
+	
 	this.nickname = cfg.nickname || "";
 
 	this.raidTier = cfg.raid_tier;
@@ -121,10 +141,10 @@ function Pokemon(cfg){
 	this.playerCode = cfg.player_code;
 	this.fab = cfg.fab || 1;
 	
-	this.init();
+	this.init(true);
 }
 
-Pokemon.prototype.export_state = function(){
+Pokemon.prototype.exportState = function(){
 	return {
 		'name': this.name,
 		'pokeType1': this.pokeType1,
@@ -133,18 +153,20 @@ Pokemon.prototype.export_state = function(){
 		'Def': this.Def,
 		'Stm': this.Stm,
 		'maxHP': this.maxHP,
-		'fmove': this.fmove.export_state(),
-		'cmove': this.cmove.export_state(),
+		'fmove': this.fmove.exportState(),
+		'cmove': this.cmove.exportState(),
 		'dodge': this.dodge
 	};
 }
 
-Pokemon.prototype.init = function(){
-	copyAllInfo(this, Data.Pokemon[this.index]);
-	this.fmove = new Move(this.fmove);
-	this.cmove = new Move(this.cmove);
+Pokemon.prototype.init = function(constructorCalled){
+	if (!constructorCalled){
+		leftMerge(this, getEntry(this.name, Data.Pokemon));
+		this.fmove = new Move(this.fmove_name, 'f');
+		this.cmove = new Move(this.cmove_name, 'c');
+	}
 	
-	this.calculate_current_stats();
+	this.initCurrentStats();
 	
 	this.has_dodged_next_attack = false;
 	this.active = false;
@@ -162,7 +184,7 @@ Pokemon.prototype.init = function(){
 	this.heal();
 }
 
-Pokemon.prototype.calculate_current_stats = function(){
+Pokemon.prototype.initCurrentStats = function(){
 	if (!this.raidTier){ // attacker
 		this.cpm = Data.LevelSettings[Math.round(2*this.level - 2)].cpm;
 		this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
@@ -192,7 +214,7 @@ Pokemon.prototype.heal = function(){
 }
 
 // A Pokemon gains/(loses) energy
-Pokemon.prototype.gain_energy = function(energyDelta){
+Pokemon.prototype.gainEnergy = function(energyDelta){
 	this.energy += energyDelta;
 	if (this.energy > Data.BattleSettings.maximumEnergy){
 		this.total_energy_overcharged += this.energy - Data.BattleSettings.maximumEnergy;
@@ -201,18 +223,18 @@ Pokemon.prototype.gain_energy = function(energyDelta){
 }
 
 // A Pokemon takes damage and gains energy
-Pokemon.prototype.take_damage = function(dmg){
+Pokemon.prototype.takeDamage = function(dmg){
 	this.HP -= dmg;
 	if (this.HP <= 0 && !this.immortal){
 		this.num_deaths++;
 		this.active = false;
 	}
-	this.gain_energy(Math.ceil(dmg * Data.BattleSettings.energyDeltaPerHealthLost));
+	this.gainEnergy(Math.ceil(dmg * Data.BattleSettings.energyDeltaPerHealthLost));
 	this.has_dodged_next_attack = false;
 }
 
 // Keeping record of tdo for performance analysis
-Pokemon.prototype.attribute_damage = function(dmg, mType){
+Pokemon.prototype.attributeDamage = function(dmg, mType){
 	this.tdo += dmg;
 	if (mType == 'f'){
 		this.tdo_fmove += dmg;
@@ -226,7 +248,7 @@ Pokemon.prototype.attribute_damage = function(dmg, mType){
 
 
 // Return the performance statistics of the Pokemon
-Pokemon.prototype.get_statistics = function(){
+Pokemon.prototype.getStatistics = function(){
 	return {
 		player_code: this.playerCode,
 		name : this.name,
@@ -264,13 +286,13 @@ function Party(cfg){
 	this.init();
 }
 
-Party.prototype.export_state = function(){
+Party.prototype.exportState = function(){
 	var state = {
 		'revive_strategy': this.revive_strategy,
 		'pokemon_list': []
 	};
 	for (var i = 0; i < this.pokemonArr.length; i++)
-		state.pokemon_list.push(this.pokemonArr[i].export_state());
+		state.pokemon_list.push(this.pokemonArr[i].exportState());
 	return state;
 }
 
@@ -285,7 +307,7 @@ Party.prototype.init = function(){
 
 // Switch the active Pokemon to the next Pokemon in the party
 // Returns true if successful. Otherwise sets active_pkm to null
-Party.prototype.next_pokemon_up = function (){
+Party.prototype.sendNextPokemonUp = function (){
 	if (++this.active_idx < this.pokemonArr.length){
 		this.active_pkm = this.pokemonArr[this.active_idx];
 		return true;
@@ -306,7 +328,7 @@ Party.prototype.heal = function (){
 }
 
 // Return the performance statistics of the team
-Party.prototype.get_statistics = function(){
+Party.prototype.getStatistics = function(){
 	var sum_tdo = 0, sum_num_deaths = 0;
 	for (var i = 0; i < this.pokemonArr.length; i++){
 		sum_tdo += this.pokemonArr[i].tdo;
@@ -324,7 +346,7 @@ Party.prototype.get_statistics = function(){
 /* Class <Player> */
 function Player(cfg){
 	this.playerCode = cfg.player_code;
-	this.fab = Data.BattleSettings[cfg.friend + "FriendAttackBonusMultiplier"] || 1;
+	this.fab = getFriendMultiplier(cfg.friend);
 	
 	this.partiesArr = [];
 	for (var j = 0; j < cfg.party_list.length; j++){
@@ -335,12 +357,12 @@ function Player(cfg){
 	this.init();
 }
 
-Player.prototype.export_state = function(){
+Player.prototype.exportState = function(){
 	var state = {
 		'party_list': []
 	};
 	for (var i = 0; i < this.partiesArr.length; i++)
-		state.party_list.push(this.partiesArr[i].export_state());
+		state.party_list.push(this.partiesArr[i].exportState());
 	return state;
 }
 
@@ -355,10 +377,10 @@ Player.prototype.init = function(){
 
 // Control asks for the next Pokemon, and the time before it is sent to field.
 // Return -1 if this player is done.
-Player.prototype.next_pokemon_up = function(){
+Player.prototype.sendNextPokemonUp = function(){
 	var timeBeforeActive = 0;
 	var current_party = this.partiesArr[this.active_idx];
-	if (current_party.next_pokemon_up()){ // Current party has next active Pokemon up
+	if (current_party.sendNextPokemonUp()){ // Current party has next active Pokemon up
 		this.active_pkm = current_party.active_pkm;
 		timeBeforeActive = Data.BattleSettings.swapDurationMs;
 	}else{ // Current party all faint. Need to rejoin
@@ -383,10 +405,10 @@ Player.prototype.next_pokemon_up = function(){
 }
 
 
-Player.prototype.get_statistics = function(total_players_tdo){
+Player.prototype.getStatistics = function(total_players_tdo){
 	var sum_tdo = 0, sum_num_deaths = 0;
 	for (var i = 0; i < this.partiesArr.length; i++){
-		var party_stat = this.partiesArr[i].get_statistics();
+		var party_stat = this.partiesArr[i].getStatistics();
 		sum_tdo += party_stat.tdo;
 		sum_num_deaths += party_stat.num_deaths;
 	}
@@ -458,10 +480,10 @@ function World(cfg){
 	this.init();
 }
 
-World.prototype.export_state = function(){
+World.prototype.exportState = function(){
 	var state = {
 		'atkrSettings': [],
-		'dfdrSettings': this.dfdr.export_state(),
+		'dfdrSettings': this.dfdr.exportState(),
 		'generalSettings': {
 			'timelimit_ms': this.timelimit_ms,
 			'weather': this.weather,
@@ -471,7 +493,7 @@ World.prototype.export_state = function(){
 		'battleSettings': JSON.parse(JSON.stringify(Data.BattleSettings))
 	};
 	for (var i = 0; i < this.playersArr.length; i++)
-		state.atkrSettings.push(this.playersArr[i].export_state());
+		state.atkrSettings.push(this.playersArr[i].exportState());
 	
 	return state;
 }
@@ -483,7 +505,7 @@ World.prototype.init = function(){
 	this.dfdr.init();
 	
 	this.tline = new Timeline();
-	this.any_player_active_bool = true;
+	this.isAnyPlayerActive_bool = true;
 	this.any_attacker_fainted_bool = false;
 	this.projected_atkrHurtEvent = null;
 	this.battle_length = 0;
@@ -491,7 +513,7 @@ World.prototype.init = function(){
 }
 
 // Player's Pokemon uses a move
-World.prototype.atkr_use_move = function(pkm, pkm_hurt, move, t){
+World.prototype.attackerUsesMove = function(pkm, pkm_hurt, move, t){
 	t += move.moveType == 'f' ? Data.BattleSettings.fastMoveLagMs : Data.BattleSettings.chargedMoveLagMs;
 	var energyDeltaEvent = {
 		name: EVENT_TYPE.EnergyDelta, t: t + move.dws, subject: pkm, energyDelta: move.energyDelta
@@ -519,7 +541,7 @@ World.prototype.atkr_use_move = function(pkm, pkm_hurt, move, t){
 }
 
 // Gym Defender/Raid Boss uses a move, hurting all active attackers
-World.prototype.dfdr_use_move = function(pkm, move, t){
+World.prototype.defenderUsesMove = function(pkm, move, t){
 	var energyDeltaEvent = {
 		name: EVENT_TYPE.EnergyDelta, t: t + move.dws, subject: pkm, energyDelta: move.energyDelta
 	};
@@ -598,7 +620,7 @@ World.prototype.nextHurtEventOf = function(pkm){
 
 
 // Gym Defender/Raid Boss strategy
-World.prototype.dfdr_choose = function (pkm, t, current_move){
+World.prototype.defenderChoose = function (pkm, t, current_move){
 	// A defender decides the next action (at t + current_move.duration + delay) now (at t)
 
 	var next_move = pkm.fmove;
@@ -621,13 +643,13 @@ World.prototype.dfdr_choose = function (pkm, t, current_move){
 
 
 // Gym Defender or Raid Boss moves at the start of a battle
-World.prototype.initial_dfdr_choose = function (dfdr, t){
-	this.dfdr_use_move(dfdr, dfdr.fmove, t);
-	this.dfdr_choose(dfdr, t - dfdr.fmove.duration, dfdr.fmove);
+World.prototype.defenderChooseInitial = function (dfdr, t){
+	this.defenderUsesMove(dfdr, dfdr.fmove, t);
+	this.defenderChoose(dfdr, t - dfdr.fmove.duration, dfdr.fmove);
 }
 
 // Check if any of the player is still in game
-World.prototype.any_player_active = function (){
+World.prototype.isAnyPlayerActive = function (){
 	for (var i = 0; i < this.playersArr.length; i++){
 		var pkm = this.playersArr[i].active_pkm;
 		if (pkm && pkm.HP > 0){
@@ -656,10 +678,10 @@ World.prototype.battle = function (){
 	this.tline.enqueue({
 		name: EVENT_TYPE.Enter, t: t, subject: dfdr
 	});
-	this.initial_dfdr_choose(dfdr, t);
+	this.defenderChooseInitial(dfdr, t);
 	dfdr.active = true;
 
-	while (dfdr.active && this.any_player_active_bool){
+	while (dfdr.active && this.isAnyPlayerActive_bool){
 		var e = this.tline.list.shift();
 		t = e.t;
 		if (t >= this.timelimit_ms - Data.BattleSettings.arenaEarlyTerminationMs && !this.immortal_defender)
@@ -676,18 +698,18 @@ World.prototype.battle = function (){
 			});
 			this.enqueueActions(e.subject, dfdr, t, actions);
 		}else if (e.name == EVENT_TYPE.DfdrFree){
-			this.dfdr_choose(e.subject, t, e.move);
+			this.defenderChoose(e.subject, t, e.move);
 		}else if (e.name == EVENT_TYPE.Hurt){
 			if (e.subject.active && e.object.active){
-				e.subject.take_damage(e.dmg);
+				e.subject.takeDamage(e.dmg);
 				e.subject.has_dodged_next_attack = false;
 				if (e.subject.HP <= 0 && e.subject.raidTier == 0)
 					this.any_attacker_fainted_bool = true;
-				e.object.attribute_damage(e.dmg, e.move.moveType);
+				e.object.attributeDamage(e.dmg, e.move.moveType);
 				elog.push(e);
 			}
 		}else if (e.name == EVENT_TYPE.EnergyDelta){
-			e.subject.gain_energy(e.energyDelta);
+			e.subject.gainEnergy(e.energyDelta);
 		}else if (e.name == EVENT_TYPE.Enter){
 			e.subject.time_enter_ms = t;
 			e.subject.active = true;
@@ -705,9 +727,9 @@ World.prototype.battle = function (){
 			elog.push(e);
 		}else if (e.name == EVENT_TYPE.Announce){
 			if (e.subject.raidTier == 0) // Atkr
-				this.atkr_use_move(e.subject, e.object, e.move, t);
+				this.attackerUsesMove(e.subject, e.object, e.move, t);
 			else
-				this.dfdr_use_move(e.subject, e.move, t);
+				this.defenderUsesMove(e.subject, e.move, t);
 		}else if (e.name == EVENT_TYPE.MoveEffect){
 			e.action(e);
 			elog.push(e);
@@ -725,7 +747,7 @@ World.prototype.battle = function (){
 					}
 					old_pkm.time_leave_ms = t;
 					old_pkm.total_time_active_ms += t - old_pkm.time_enter_ms;
-					var delay = this_player.next_pokemon_up(); // Ask for sending another attacker
+					var delay = this_player.sendNextPokemonUp(); // Ask for sending another attacker
 					if (this_player.active_pkm)
 						this.tline.enqueue({
 							name: EVENT_TYPE.Enter, t: t + delay, subject: this_player.active_pkm
@@ -733,7 +755,7 @@ World.prototype.battle = function (){
 				}
 			}
 			this.any_attacker_fainted_bool = false;
-			this.any_player_active_bool = this.any_player_active();
+			this.isAnyPlayerActive_bool = this.isAnyPlayerActive();
 		}
 		
 		// 3. Check if the defender fainted
@@ -746,13 +768,13 @@ World.prototype.battle = function (){
 		if (this.tline.list.length > 0 && t == this.tline.list[0].t)
 			continue;
 		if (this.log_style && elog.length > 0)
-			this.add_to_log(elog);
+			this.appendToLog(elog);
 		elog = [];
 	}
 	
 	// Battle has ended, some leftovers
 	if (this.log_style && elog.length > 0)
-		this.add_to_log(elog);
+		this.appendToLog(elog);
 		
 	this.battle_length = t;
 	for (var i = 0; i < this.playersArr.length; i++){
@@ -771,7 +793,7 @@ World.prototype.battle = function (){
 
 // Add events of the same time to battle log
 // Format: [time] [team 1 pokemon] ... [team n pokemon] [defender]
-World.prototype.add_to_log = function(events){
+World.prototype.appendToLog = function(events){
 	var numPlayer = this.playersArr.length;
 	// Correspond to Enter, AtkrHurt, DfdrHurt, AtkrDogde, and move effect event
 	var rowData = [[],[],[],[],[]];
@@ -818,7 +840,7 @@ World.prototype.add_to_log = function(events){
 				dfdrHurt_totalDmg += e.dmg;
 				rowData[2].dfdr = {
 					'type': 'text',
-					'text': e.subject.HP // calculate dmg later
+					'text': e.subject.HP
 				}; 
 				rowData[2][e.object.playerCode] = {
 					'type': e.move.moveType + 'move', 
@@ -850,7 +872,7 @@ World.prototype.add_to_log = function(events){
 }
 
 // Return the statistis and battle log
-World.prototype.get_statistics = function(){
+World.prototype.getStatistics = function(){
 	// The information package include four parts:
 	var general_stat = [];	// 1. General statistics (time, winner, etc)
 	var player_stats = [];	// 2. Players performance statistics
@@ -867,17 +889,17 @@ World.prototype.get_statistics = function(){
 	
 	for (var i = 0; i < this.playersArr.length; i++){
 		var player = this.playersArr[i];
-		var ts = player.get_statistics(general_stat['tdo']);
+		var ts = player.getStatistics(general_stat['tdo']);
 		general_stat['total_deaths'] += ts['num_deaths'];
 		player_stats.push(ts);
 		pokemon_stats.push([]);
 		for (var j = 0; j < player.partiesArr.length; j++){
 			pokemon_stats[i].push([]);
 			for (var k = 0; k < player.partiesArr[j].pokemonArr.length; k++)
-				pokemon_stats[i][j].push(player.partiesArr[j].pokemonArr[k].get_statistics());
+				pokemon_stats[i][j].push(player.partiesArr[j].pokemonArr[k].getStatistics());
 		}
 	}
-	pokemon_stats.push(this.dfdr.get_statistics());
+	pokemon_stats.push(this.dfdr.getStatistics());
 	
 	return {
 		generalStat : general_stat,

@@ -31,7 +31,7 @@ var Context = {
 var ALL_COMBINATIONS = [];
 
 
-Pokemon.prototype.calc_DPS = function(x, y){
+Pokemon.prototype.calculateDPS = function(x, y){
 	// x is the energy left; y is the enemy DPS
 	var FDmg = damage2(this, Context.enemy, this.fmove, Context.weather);
 	var CDmg = damage2(this, Context.enemy, this.cmove, Context.weather);
@@ -68,7 +68,7 @@ Pokemon.prototype.calc_DPS = function(x, y){
 }
 
 
-Pokemon.prototype.calc_defender = function(atkr){
+Pokemon.prototype.calculateDPSIntake = function(atkr){
 	if (Context.generic_enemy_bool){
 		return {
 			dps: 900 / atkr.Def,
@@ -109,16 +109,7 @@ function damage2(dmg_giver, dmg_taker, move, weather){
 
 
 
-// https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript/901144#901144
-function getParameterByName(name, url) {
-    if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-}
+
 
 function setConfigFromUrl(url){
 	if (url.includes('?')){
@@ -186,12 +177,12 @@ function applicationInit(){
 	$( enemySpeciesNode ).on( "autocompleteselect", function(event, ui){
 		document.getElementById('d-pokeType1').value = ui.item.pokeType1;
 		document.getElementById('d-pokeType2').value = ui.item.pokeType2;
-		copyAllInfo(Context.enemy, ui.item);
+		leftMerge(Context.enemy, ui.item);
 		$(this).val(ui.item.label);
 		this.setAttribute('index', getEntryIndex(ui.item.name, Data.Pokemon));
 		if ($(enemyFastMoveNode).attr('index') >= 0 && $(enemyChargedMoveNode).attr('index') >= 0){
 			this.blur();
-			UI_calculate(false);
+			requestSpreadsheet(false);
 		}
 	});
 	
@@ -201,7 +192,7 @@ function applicationInit(){
 		this.setAttribute('index', getEntryIndex(ui.item.name, Data.FastMoves));
 		if ($(enemySpeciesNode).attr('index') >= 0 && $(enemyChargedMoveNode).attr('index') >= 0){
 			this.blur();
-			UI_calculate(false);
+			requestSpreadsheet(false);
 		}
 	});
 	
@@ -211,7 +202,7 @@ function applicationInit(){
 		this.setAttribute('index', getEntryIndex(ui.item.name, Data.ChargedMoves));
 		if ($(enemySpeciesNode).attr('index') >= 0 && $(enemyFastMoveNode).attr('index') >= 0){
 			this.blur();
-			UI_calculate(false);
+			requestSpreadsheet(false);
 		}
 	});
 	
@@ -263,7 +254,7 @@ function applicationInit(){
 	}
 	
 	setConfigFromUrl(window.location.href);
-	calculate();
+	generateSpreadsheet(Data.Pokemon);
 }
 
 
@@ -301,44 +292,47 @@ function applyContext(){
 
 
 
-// Calculate DPS and TDO
-function calculate(){
+function generateSpreadsheet(pokemonCollection){
 	ALL_COMBINATIONS = [];
 	Table.clear();
-	
 	applyContext();
 	
-	for (var i = 0; i < Data.Pokemon.length; i++){
-		var pkm = new Pokemon({
-			'index': i,
-			'level': DEFAULT_LEVEL,
-			'atkiv': DEFAULT_IVs[0],
-			'defiv': DEFAULT_IVs[0],
-			'stmiv': DEFAULT_IVs[0],
-			'raid_tier': 0
-		});
-		pkm.cp = calculateCP(pkm);
-		var dfdrDmg = Context.enemy.calc_defender(pkm);
+	for (var i = 0; i < pokemonCollection.length; i++){
+		var p = pokemonCollection[i];
 		
-		var fastMoves_all = pkm.fastMoves.concat(pkm.fastMoves_legacy).concat(pkm.fastMoves_exclusive);
-		var chargedMoves_all = pkm.chargedMoves.concat(pkm.chargedMoves_legacy).concat(pkm.chargedMoves_exclusive);
+		var fastMoves_all = p.fmove ? [p.fmove] : p.fastMoves.concat(p.fastMoves_legacy).concat(p.fastMoves_exclusive);
+		var chargedMoves_all = p.cmove ? [p.cmove] : p.chargedMoves.concat(p.chargedMoves_legacy).concat(p.chargedMoves_exclusive);
 		for (var j = 0; j < fastMoves_all.length; j++){
-			pkm.fmove = getEntry(fastMoves_all[j], Data.FastMoves);
-			if (!pkm.fmove){
+			
+			var fmove = getEntry(fastMoves_all[j], Data.FastMoves);
+			if (!fmove){
 				console.log("Move not found: " + fastMoves_all[j]);
 				continue;
 			}
 			for (var k = 0; k < chargedMoves_all.length; k++){
-				pkm.cmove = getEntry(chargedMoves_all[k], Data.ChargedMoves);
-				if (!pkm.cmove){
+				var cmove = getEntry(chargedMoves_all[k], Data.ChargedMoves);
+				if (!cmove){
 					console.log("Move not found: " + chargedMoves_all[k]);
 					continue;
 				}
+				
+				var pkm = new Pokemon({
+					'species': p,
+					'fmove': fmove,
+					'cmove': cmove,
+					'level': p.level || DEFAULT_LEVEL,
+					'atkiv': typeof p.atkiv == typeof 0 ? p.atkiv : DEFAULT_IVs[0],
+					'defiv': typeof p.defiv == typeof 0 ? p.defiv : DEFAULT_IVs[1],
+					'stmiv': typeof p.stmiv == typeof 0 ? p.stmiv : DEFAULT_IVs[2],
+					'raid_tier': 0
+				});
+				pkm.cp = calculateCP(pkm);
+				var dfdrDmg = Context.enemy.calculateDPSIntake(pkm);
 
-				pkm.calc_DPS(-pkm.cmove.energyDelta * 0.5 + pkm.fmove.energyDelta * 0.5 + dfdrDmg.extra_energy_wasted, dfdrDmg.dps);
+				pkm.calculateDPS(-pkm.cmove.energyDelta * 0.5 + pkm.fmove.energyDelta * 0.5 + dfdrDmg.extra_energy_wasted, dfdrDmg.dps);
 				
 				Table.row.add([
-					createIconLabelDiv2(pkm.icon, pkm.label, 'species-input-with-icon'), 
+					createIconLabelDiv2(pkm.icon, p.nickname || pkm.label, 'species-input-with-icon'), 
 					createIconLabelDiv2(pkm.fmove.icon, pkm.fmove.label, 'move-input-with-icon'), 
 					createIconLabelDiv2(pkm.cmove.icon, pkm.cmove.label, 'move-input-with-icon'), 
 					Math.round(pkm.dps * 1000) / 1000, 
@@ -347,11 +341,7 @@ function calculate(){
 					pkm.cp
 				]);
 				
-				var pkm2 = new Pokemon(pkm);
-				pkm2.cp = pkm.cp;
-				pkm2.dps = pkm.dps;
-				pkm2.tdo = pkm.tdo;
-				ALL_COMBINATIONS.push(pkm2);
+				ALL_COMBINATIONS.push(pkm);
 			}
 		}
 	}
@@ -360,15 +350,14 @@ function calculate(){
 	$("#ranking_table").DataTable().draw();
 }
 
-
-function recalculate(){
+function updateSpreadsheet(){
 	applyContext();
 	
 	var i = 0;
 	Table.data().each(function(row){
 		var pkm = ALL_COMBINATIONS[i];
-		var dfdrDmg = Context.enemy.calc_defender(pkm);
-		pkm.calc_DPS( -pkm.cmove.energyDelta * 0.5 + pkm.fmove.energyDelta * 0.5 + dfdrDmg.extra_energy_wasted, dfdrDmg.dps );
+		var dfdrDmg = Context.enemy.calculateDPSIntake(pkm);
+		pkm.calculateDPS( -pkm.cmove.energyDelta * 0.5 + pkm.fmove.energyDelta * 0.5 + dfdrDmg.extra_energy_wasted, dfdrDmg.dps );
 		row[3] = Math.round(pkm.dps * 1000) / 1000;
 		row[4] = Math.round(pkm.tdo * 10) / 10;
 		row[5] = Math.round(pkm.dps * pkm.tdo * 10) / 10;
@@ -381,57 +370,31 @@ function recalculate(){
 	$("#ranking_table").DataTable().draw();
 }
 
-
-function calculateBox(){
-	ALL_COMBINATIONS = [];
-	Table.clear();
-	
-	applyContext();
-	
-	for (var i = 0; i < Data.Users[0].box.length; i++){
-		var pkm = new Pokemon(Data.Users[0].box[i]);
-		var dfdrDmg = Context.enemy.calc_defender(pkm);
-		pkm.calc_DPS( -pkm.cmove.energyDelta * 0.5 + pkm.fmove.energyDelta * 0.5 + dfdrDmg.extra_energy_wasted, dfdrDmg.dps );
-		Table.row.add([
-			createIconLabelDiv2(pkm.icon, Data.Users[0].box[i].nickname, 'species-input-with-icon'), 
-			createIconLabelDiv2(pkm.fmove.icon, pkm.fmove.label, 'move-input-with-icon'), 
-			createIconLabelDiv2(pkm.cmove.icon, pkm.cmove.label, 'move-input-with-icon'), 
-			Math.round(pkm.dps * 1000) / 1000, 
-			Math.round(pkm.tdo * 10) / 10,
-			Math.round(pkm.dps * pkm.tdo * 10) / 10,
-			Data.Users[0].box[i].cp
-		]);
-		
-		ALL_COMBINATIONS.push(pkm);
-	}
-	
-	console.log(Date() + ": All DPS calculated");
-	pred = createComplexPredicate($('#searchInput').val());
-	$("#ranking_table").DataTable().draw();
-}
-
-
-function UI_calculate(startover){
+function requestSpreadsheet(startover){
 	calculationMethod = function(){};
 	if (startover){
 		var pokebox_checkbox = document.getElementById('ui-use-box-checkbox');
 		if (pokebox_checkbox.checked){
 			if (!Data.Users.length || userID2 == '0'){
-				send_feedback_dialog("To use your Pokemon, please log in");
+				sendFeedbackDialog("To use your Pokemon, please log in");
 				pokebox_checkbox.checked = false;
 				$(pokebox_checkbox).button('refresh');
 				return;
 			}else{
-				calculationMethod = calculateBox;
+				calculationMethod = function(){
+					generateSpreadsheet(Data.Users[0].box);
+				};
 			}
 		}else{
-			calculationMethod = calculate;
+			calculationMethod = function(){
+				generateSpreadsheet(Data.Pokemon);
+			};
 		}
 	}else{
-		calculationMethod = recalculate;
+		calculationMethod = updateSpreadsheet;
 	}
 	
-	send_feedback_dialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Calculating...");
+	sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Calculating...");
 	setTimeout(function(){
 		calculationMethod();
 		while (DialogStack.length){
@@ -470,7 +433,7 @@ $.fn.dataTable.ext.search.push(
 */
 
 // Generate a spectrum of DPS
-function generate_DPS_spectrum(pkm, settings){
+function generateSpectrum(pkm, settings){
 	settings = settings || {};
 	var X_min = settings.X_min || 0, X_max = settings.X_max || 100, X_num = settings.X_num || 100, X_step = (X_max - X_min) / X_num;
 	var Y_min = settings.Y_min || 0, Y_max = settings.Y_max || 1500/pkm.Def, Y_num = settings.Y_step || 100, Y_step = (Y_max - Y_min) / Y_num;
@@ -478,15 +441,15 @@ function generate_DPS_spectrum(pkm, settings){
 	for (var x = X_min; x < X_max; x += X_step){
 		var row = [];
 		for (var y = Y_min; y < Y_max; y += Y_step){
-			row.push(pkm.calc_DPS(x, y));
+			row.push(pkm.calculateDPS(x, y));
 		}
 		DPS_spectrum.push(row);
 	}
 	return DPS_spectrum;
 }
 
-// Calculate defender ability
-function calculate_defender(){
+// Defender ability
+function calculateDefender(){
 	DPS_dict = {};
 	
 	var type_list = ['none'];
@@ -505,7 +468,7 @@ function calculate_defender(){
 			DPS_dict[type2 + ',' + type1] = 0;
 			for (var k = 0; k < ALL_COMBINATIONS.length; k++){
 				var pkm = ALL_COMBINATIONS[k];
-				pkm.calc_DPS( -pkm.cmove.energyDelta * 0.5 + pkm.fmove.energyDelta * 0.5, 400 / pkm.Def );
+				pkm.calculateDPS( -pkm.cmove.energyDelta * 0.5 + pkm.fmove.energyDelta * 0.5, 400 / pkm.Def );
 				if (pkm.dps > DPS_dict[type1 + ',' + type2]){
 					DPS_dict[type1 + ',' + type2] = pkm.dps;
 					DPS_dict[type2 + ',' + type1] = pkm.dps;
@@ -535,8 +498,8 @@ function calculate_defender(){
 }
 
 
-// Calculate PVP Outcome
-function calc_pvp_outcome(pkm1, pkm2){
+// PVP Outcome
+function calculatePVP(pkm1, pkm2){
 	var FDmg1 = damage(pkm1, pkm2, pkm1.fmove, Context.weather), FDmg2 = damage(pkm2, pkm1, pkm2.fmove, Context.weather);
 	var CDmg1 = damage(pkm1, pkm2, pkm1.cmove, Context.weather), CDmg2 = damage(pkm2, pkm1, pkm2.cmove, Context.weather);
 	var FDur1 = pkm1.fmove.duration/1000, FDur2 = pkm2.fmove.duration/1000;

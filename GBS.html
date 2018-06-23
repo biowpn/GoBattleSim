@@ -683,10 +683,10 @@
 	
 	<table id='breakpointCalculator-output'>
 		<thead>
-			<th>Attacker</th><th>Move</th><th>Defender</th><th>Final Damage</th><th>Final Breakpoint</th><th>Other Breakpoints</th>
+			<th>Attacker</th><th>Move</th><th>Boss</th><th>Final Damage</th><th>Breakpoints</th><th>Dust to Final BP</th><th>Candy to Final BP</th>
 		</thead>
 		<tfoot>
-			<th></th><th></th><th></th><th></th><th></th><th></th>
+			<th></th><th></th><th></th><th></th><th></th><th></th><th></th>
 		</tfoot>
 		<tbody>
 		</tbody>
@@ -710,7 +710,7 @@ const DEFAULT_SUMMARY_TABLE_METRICS = {battle_result:'Outcome', duration:'Time',
 // For quick start wizard configurations
 const DEFAULT_ATTACKER_INPUT_MIN = {
 	copies: 6,
-	species: "*rating3~",
+	name: "*rating3~",
 	level: 40,
 	atkiv: 15,
 	defiv: 15,
@@ -814,7 +814,7 @@ $( "#moveEditFormOpener" ).click(function() {
 });
 autocompleteMoveEditForm();
 $( "#moveEditForm" ).on('dialogclose', function(event) {
-	send_feedback('', false, 'moveEditForm-feedback');
+	sendFeedback('', false, 'moveEditForm-feedback');
 });
 
 
@@ -828,7 +828,7 @@ $( "#pokemonEditFormOpener" ).click(function() {
 });
 autocompletePokemonEditForm();
 $( "#pokemonEditForm" ).on('dialogclose', function(event) {
-	send_feedback('', false, 'pokemonEditForm-feedback');
+	sendFeedback('', false, 'pokemonEditForm-feedback');
 });
 
 var moveEditFormPokeTypeSelect = document.getElementById('moveEditForm-pokeType');
@@ -853,7 +853,7 @@ $( "#parameterEditFormOpener" ).click(function() {
 	$( "#parameterEditForm" ).dialog( "open" );
 });
 $( "#parameterEditForm" ).on('dialogclose', function(event) {
-	send_feedback('', false, 'parameterEditForm-feedback');
+	sendFeedback('', false, 'parameterEditForm-feedback');
 });
 
 var parameterTable = document.getElementById('parameterEditForm-Table');
@@ -874,7 +874,7 @@ $( "#userEditFormOpener" ).click(function() {
 	$( "#userEditForm" ).dialog( "open" );
 });
 $( "#userEditForm" ).on('dialogclose', function(event) {
-	send_feedback('', false, 'userEditForm-feedback');
+	sendFeedback('', false, 'userEditForm-feedback');
 });
 
 
@@ -1009,14 +1009,14 @@ function main(args){
 			setTimeout(function(){main(args);}, 100);
 			return;
 		}
-		send_feedback_dialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Simulating...");
+		sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Simulating...");
 	}
 	initMasterSummaryTableMetrics();
 	
 	date = new Date();
 	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations started");
 	
-	var tempResults = iterBranchHandler(userInput);
+	var tempResults = iterBranch(userInput, [0,0,0,0,0]);
 	tempResults.forEach(function(sim){
 		if (sim)
 			simResults.push(sim);
@@ -1035,7 +1035,7 @@ function main(args){
 		DialogStack.pop().dialog('close');
 	}
 	if (!(args && args.noDisplay)){
-		send_feedback(currentJobSize + " sims have been performed", true);
+		sendFeedback(currentJobSize + " sims have been performed", true);
 		displayMasterSummaryTable();
 		setTimeout(function(){
 			document.getElementById('ui-mastersummarytable').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});

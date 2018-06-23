@@ -15,10 +15,6 @@ const MAX_NUM_OF_PLAYERS = 20;
 
 var Data = {
 	BattleSettings: {
-		'goodFriendAttackBonusMultiplier': 1.05, 
-		'greatFriendAttackBonusMultiplier': 1.1, 
-		'ultraFriendAttackBonusMultiplier': 1.15, 
-		'bestFriendAttackBonusMultiplier': 1.2,
 		'sameTypeAttackBonusMultiplier': 1.2,
 		'maximumEnergy': 100, 
 		'energyDeltaPerHealthLost': 0.5, 
@@ -42,29 +38,29 @@ var Data = {
 	
 	FriendSettings: [
 		{
-			'name': "normal",
-			'label': "Friend",
-			'multiplier': 1
+			'name': "none",
+			'label': "",
+			'multiplier': 1.0
 		},
 		{
 			'name': "good",
-			'label': "Good Friend",
-			'multiplier': 1.05
+			'label': "Good Friend (1.03x)",
+			'multiplier': 1.03
 		},
 		{
 			'name': "great",
-			'label': "Great Friend",
-			'multiplier': 1.1
+			'label': "Great Friend (1.05x)",
+			'multiplier': 1.05
 		},
 		{
 			'name': "ultra",
-			'label': "Ultra Friend",
-			'multiplier': 1.15
+			'label': "Ultra Friend (1.07x)",
+			'multiplier': 1.07
 		},
 		{
 			'name': "best",
-			'label': "Best Friend",
-			'multiplier': 1.2
+			'label': "Best Friend (1.1x)",
+			'multiplier': 1.1
 		},
 	],
 	
@@ -162,104 +158,50 @@ function sortDatabase(database){
 
 function getEntryIndex(name, database){	
 	// If entry with the name doesn't exist, return -1
-	return _getEntryIndex(name, database, 0, database.length - 1);	
+	return binarySearch(name, database, 0, database.length, function(db, idx, matched){
+		return matched ? idx : -1;
+	});	
 }
 
 function getEntry(name, database){
 	// If entry with the name doesn't exist, return null
-	return _getEntry(name, database, 0, database.length - 1);	
+	return binarySearch(name, database, 0, database.length, function(db, idx, matched){
+		return matched ? db[idx] : null;
+	});
 }
 
 function insertEntry(entry, database){
 	// If entry with the name already exists, replaces the existing entry
-	_insertEntry(entry, database, 0, database.length - 1);
-}
-
-function updateEntry(entry, database){
-	// If entry with the name doesn't exist, insert the new entry
-	_updateEntry(entry, database, 0, database.length - 1);
+	return binarySearch(entry.name, database, 0, database.length, function(db, idx, matched){
+		if (matched)
+			db[idx] = entry;
+		else
+			db.splice(idx, 0, entry);
+	});
 }
 
 function removeEntry(name, database){
 	// Returns the entry to be removed
 	// If entry with the name doesn't exist, return null
-	return _removeEntry(name, database, 0, database.length - 1);
+	return binarySearch(name, database, 0, database.length, function(db, idx, matched){
+		if (matched)
+			return db.splice(idx, 1)[0];
+	});
 }
 
-
-
-function _getEntryIndex(name, database, start, end){
-	if (start > end){
-		return -1;
+function binarySearch(name_key, database, start, end, callback){
+	if (start == end){
+		return callback(database, start, false);
 	}
-	var middle = Math.round((start + end)/2);
-	if (name == database[middle].name){
-		return middle;
-	}else if (name < database[middle].name){
-		return _getEntryIndex(name, database, start, middle - 1);
-	}else{
-		return _getEntryIndex(name, database, middle + 1, end);
-	}
+	var mid = Math.floor((start + end)/2);
+	if (name_key == database[mid].name)
+		return callback(database, mid, true);
+	else if (name_key < database[mid].name)
+		return binarySearch(name_key, database, start, mid, callback);
+	else
+		return binarySearch(name_key, database, mid + 1, end, callback);
 }
 
-function _getEntry(name, database, start, end){
-	if (start > end){
-		return null;
-	}
-	var middle = Math.round((start + end)/2);
-	if (name == database[middle].name){
-		return database[middle];
-	}else if (name < database[middle].name){
-		return _getEntry(name, database, start, middle - 1);
-	}else{
-		return _getEntry(name, database, middle + 1, end);
-	}
-}
-
-function _insertEntry(entry, database, start, end){
-	if (start > end){
-		database.splice(start, 0, entry);
-		return;
-	}
-	var middle = Math.round((start + end)/2);
-	if (entry.name == database[middle].name){ 
-		// Key (name) must be unique. Replace instead
-		database[middle] = entry;
-	}else if (entry.name < database[middle].name){
-		_insertEntry(entry, database, start, middle - 1);
-	}else{
-		_insertEntry(entry, database, middle + 1, end);
-	}
-}
-
-function _updateEntry(entry, database, start, end){
-	if (start > end){
-		database.splice(start, 1, entry);
-		return;
-	}
-	var middle = Math.round((start + end)/2);
-	if (entry.name == database[middle].name){
-		database[middle] = entry;
-	}else if (entry.name < database[middle].name){
-		_updateEntry(entry, database, start, middle - 1);
-	}else{
-		_updateEntry(entry, database, middle + 1, end);
-	}
-}
-
-function _removeEntry(name, database, start, end){
-	if (start > end){
-		return null;
-	}
-	var middle = Math.round((start + end)/2);
-	if (name == database[middle].name){
-		return database.splice(middle, 1)[0];
-	}else if (name < database[middle].name){
-		return _removeEntry(name, database, start, middle - 1);
-	}else{
-		return _removeEntry(name, database, middle + 1, end);
-	}
-}
 
 
 /*
@@ -276,7 +218,7 @@ function getPokemonIcon(kwargs){
 		var dex = kwargs.dex.toString();
 		while (dex.length < 3)
 			dex = '0' + dex;
-		return "https://pokemongo.gamepress.gg/assets/img/sprites/" + dex + "MS.png";
+		return "https://pokemongo.gamepress.gg/assets/img/sprites/" + dex + "MS.png?new";
 	}else{
 		return getPokemonIcon({dex: 0});
 	}
@@ -297,9 +239,6 @@ function getTypeIcon(kwargs){
 }
 
 function getFriendMultiplier(friend){
-	// for now
-	return Data.BattleSettings[friend + "AttackBonusMultiplier"] || 1;
-	
 	for (var i = 0; i < Data.FriendSettings.length; i++){
 		if (Data.FriendSettings[i].name == friend){
 			return Data.FriendSettings[i].multiplier;
@@ -308,6 +247,23 @@ function getFriendMultiplier(friend){
 	return 1;
 }
 
+function calculateLevelUpCost(startLevel, endLevel){
+	var hasStarted = false, hasEnded = false;
+	var cost = {
+		'stardust': 0,
+		'candy': 0
+	};
+	for (var i = 0; i < Data.LevelSettings.length; i++){
+		var levelSetting = Data.LevelSettings[i];
+		hasStarted = hasStarted || (levelSetting.name == startLevel);
+		hasEnded = hasEnded || (levelSetting.name == endLevel);
+		if (hasStarted && !hasEnded){
+			cost.stardust += levelSetting.stardust;
+			cost.candy += levelSetting.candy;
+		}
+	}
+	return cost;
+}
 
 
 
@@ -421,7 +377,7 @@ function parseUserPokebox(data){
 			console.log(data[i]);
 			continue;
 		}
-		copyAllInfo(pkm, species);
+		leftMerge(pkm, species);
 		pkm.box_index = i;
 		pkm.level = calculateLevelByCP(pkm, pkm.cp);
 		if (!pkm.level){
@@ -455,22 +411,6 @@ function fetchLevelData(oncomplete){
 					"candy": parseInt(data[i].field_candy_cost)
 				});
 			}
-		},
-		complete: function(jqXHR, textStatus){
-			oncomplete();
-		}
-	});
-}
-
-
-// Get evolution data, # deprecated
-function fetchEvolutionData(oncomplete){
-	oncomplete = oncomplete || function(){return;};
-	
-	$.ajax({ 
-		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/data.json?new', 
-		dataType: 'json', 
-		success: function(data){
 		},
 		complete: function(jqXHR, textStatus){
 			oncomplete();
@@ -553,7 +493,6 @@ function fetchSpeciesFormData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({ 
-		// url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pokemon_forms_data.json?new',
 		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json?new',
 		dataType: 'json', 
 		success: function(data){
@@ -717,6 +656,8 @@ function fetchLocalData(){
 		}
 		// Removing the deprecated "index" attribute
 		delete LocalData.PokemonClipboard.index;
+		delete LocalData.PokemonClipboard.fmove_index;
+		delete LocalData.PokemonClipboard.cmove_index;
 		LocalData.Pokemon.forEach(function(pkm){
 			delete pkm.box_index;
 			delete pkm.index;

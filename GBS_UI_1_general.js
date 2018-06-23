@@ -39,92 +39,41 @@ function toTitleCase(str){
     return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
-function copyAllInfo(obj_to, obj_from, minimized){
-	if (minimized){
-		['species','copies','level','atkiv','defiv','stmiv','fmove','cmove','dodge'].forEach(function(attr){
-			obj_to[attr] = obj_from[attr];
+function leftMerge(objL, objR, attrs){
+	if (attrs){
+		attrs.forEach(function(attr){
+			objL[attr] = objR[attr];
 		});
+			
 	}else{
-		for (var attr in obj_from)
-			obj_to[attr] = obj_from[attr];
+		for (var attr in objR)
+			objL[attr] = objR[attr];
 	}
+}
+
+// https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript/901144#901144
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
 function jsonToURI(json){ return encodeURIComponent(JSON.stringify(json)); }
 
 function uriToJSON(urijson){ return JSON.parse(decodeURIComponent(urijson)); }
 
-function exportConfigToUrl(cfg){
-	var cfg_min = {
-		atkrSettings: [], 
-		dfdrSettings: {},
-		generalSettings: JSON.parse(JSON.stringify(cfg.generalSettings))
-	};
-	for (var i = 0; i < cfg.atkrSettings.length; i++){
-		cfg_min.atkrSettings.push({
-			party_list: []
-		});
-		if (cfg.atkrSettings[i].friend){
-			cfg_min.atkrSettings[i].friend = cfg.atkrSettings[i].friend;
-		}
-		for (var j = 0; j < cfg.atkrSettings[i].party_list.length; j++){
-			cfg_min.atkrSettings[i].party_list.push({
-				pokemon_list: []
-			});
-			if (cfg.atkrSettings[i].party_list[j].revive_strategy)
-				cfg_min.atkrSettings[i].party_list[j].revive_strategy = cfg.atkrSettings[i].party_list[j].revive_strategy;
-			for (var k = 0; k < cfg.atkrSettings[i].party_list[j].pokemon_list.length; k++){
-				var pkm_min = {};
-				copyAllInfo(pkm_min, cfg.atkrSettings[i].party_list[j].pokemon_list[k], true);
-				for (var attr in pkm_min){
-					if (pkm_min[attr] == DEFAULT_ATTACKER_INPUT_MIN[attr])
-						delete pkm_min[attr];
-				}
-				cfg_min.atkrSettings[i].party_list[j].pokemon_list.push(pkm_min);
-			}
-		}
-	}
-	copyAllInfo(cfg_min.dfdrSettings, cfg.dfdrSettings, true);
-	cfg_min.dfdrSettings.raid_tier = cfg.dfdrSettings.raid_tier;
-	delete cfg_min.dfdrSettings.copies;
-	delete cfg_min.dfdrSettings.dodge;
-	if (cfg_min.dfdrSettings.raid_tier > 0){
-		delete cfg_min.dfdrSettings.level;
-		delete cfg_min.dfdrSettings.atkiv;
-		delete cfg_min.dfdrSettings.defiv;
-		delete cfg_min.dfdrSettings.stmiv;
-	}
-	
-	delete cfg_min.generalSettings.logStyle;
-	for (var attr in cfg_min.generalSettings){
-		if (cfg_min.generalSettings[attr] == DEFAULT_GENERAL_SETTING_INPUT_MIN[attr])
-			delete cfg_min.generalSettings[attr];
-	}
-	
-	return jsonToURI(cfg_min);
-}
 
-function parseConfigFromUrl(url){
-	var cfg = uriToJSON(url.split('?')[1]);
-	for (var i = 0; i < cfg.atkrSettings.length; i++){
-		for (var j = 0; j < cfg.atkrSettings[i].party_list.length; j++){
-			cfg.atkrSettings[i].party_list[j].revive_strategy = cfg.atkrSettings[i].party_list[j].revive_strategy || false;
-			for (var k = 0; k < cfg.atkrSettings[i].party_list[j].pokemon_list.length; k++){
-				var pkm = cfg.atkrSettings[i].party_list[j].pokemon_list[k];
-				for (var attr in DEFAULT_ATTACKER_INPUT_MIN){
-					if (!pkm.hasOwnProperty(attr))
-						pkm[attr] = DEFAULT_ATTACKER_INPUT_MIN[attr];
-				}
-			}
-		}
-	}
-	for (var attr in DEFAULT_GENERAL_SETTING_INPUT_MIN){
-		if (!cfg.generalSettings.hasOwnProperty(attr))
-			cfg.generalSettings[attr] = DEFAULT_GENERAL_SETTING_INPUT_MIN[attr];
-	}
-	return cfg;
-}
 
+function Predicate(pd){
+	if (typeof pd == typeof "")
+		return createComplexPredicate(pd);
+	else
+		return pd;
+}
 
 function parseNumericalRange(str){
 	if (!isNaN(parseFloat(str))){
@@ -300,18 +249,9 @@ function createComplexPredicate(expression){
 		return function(obj){return true;}
 }
 
-function universalGetter(expression, Space){
-	var entries = [];
-	pred = createComplexPredicate(expression);
-	for (var i = 0; i < Space.length; i++){
-		if (pred(Space[i])){
-			entries.push(Space[i]);
-		}
-	}
-	return entries;
-}
 
-function getPokemonSpeciesOptions(userIndex){
+
+function getPokemonOptions(userIndex){
 	var speciesOptions = [];
 	if (0 <= userIndex && userIndex < Data.Users.length){
 		var userBox = Data.Users[userIndex].box;
@@ -363,7 +303,7 @@ function autocompletePokemonNodeSpecies(speciesInput){
 			}
 			var searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term), matches = [];
 			try{
-				matches = universalGetter(searchStr, getPokemonSpeciesOptions(user_idx));
+				matches = getPokemonOptions(user_idx).filter(createComplexPredicate(searchStr));
 			}catch(err){
 			}
 			response(matches);
@@ -399,7 +339,7 @@ function autocompletePokemonNodeSpecies(speciesInput){
 				this.setAttribute('style', 'background-image: url(' + getPokemonIcon({index: idx}) + ')');
 			}
 		}
-	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_pokemon_item;
+	}).autocomplete( "instance" )._renderItem = _renderAutocompletePokemonItem;
 	
 	// speciesInput.onfocus = function(){$(this).autocomplete("search", "");} // This line of cope is causing page to freeze
 }
@@ -423,7 +363,7 @@ function autocompletePokemonNodeMoves(moveInput){
 			if (searchStr == '' && idx >= 0) //special case
 				searchStr = 'current,legacy,exclusive';
 			try{
-				matches = universalGetter(searchStr, (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves));
+				matches = (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves).filter(Predicate(searchStr));
 			}catch(err){matches = [];}
 			response(matches);
 		},
@@ -440,7 +380,7 @@ function autocompletePokemonNodeMoves(moveInput){
 				this.setAttribute('style', 'background-image: url(' + getTypeIcon({mtype: moveType, index: idx}) + ')');
 			}
 		}
-	}).autocomplete( "instance" )._renderItem = manual_render_autocomplete_move_item;
+	}).autocomplete( "instance" )._renderItem = _renderAutocompleteMoveItem;
 	
 	moveInput.onfocus = function(){$(this).autocomplete("search", "");};
 }
@@ -469,17 +409,17 @@ function addFilterToFooter(table){
 }
 
 
-function send_feedback(msg, appending, feedbackDivId){
-	var feedbackSection = document.getElementById(feedbackDivId || "feedback_message");
-	if (feedbackSection){
+function sendFeedback(msg, appending, feedbackElementId){
+	var feedbackEl = document.getElementById(feedbackElementId || "feedback_message");
+	if (feedbackEl){
 		if (appending){
-			feedbackSection.innerHTML += '<p>' + msg + '</p>';
+			feedbackEl.innerHTML += '<p>' + msg + '</p>';
 		}else
-			feedbackSection.innerHTML = '<p>' + msg + '</p>';
+			feedbackEl.innerHTML = '<p>' + msg + '</p>';
 	}
 }
 
-function send_feedback_dialog(msg, dialogTitle){
+function sendFeedbackDialog(msg, dialogTitle){
 	var d = $(createElement('div', msg, {
 		title: dialogTitle || document.title
 	})).dialog({
@@ -502,13 +442,13 @@ function createIconLabelDiv2(iconURL, label, iconClass){
 	return "<div class='input-with-icon " + iconClass + "' style='background-image: url(" + iconURL + ")'>" + label + "</div>";
 }
 
-function manual_render_autocomplete_pokemon_item(ul, item){
+function _renderAutocompletePokemonItem(ul, item){
     return $( "<li>" )
         .append( "<div>" + createIconLabelDiv(item.icon, item.label, 'apitem-pokemon-icon') + "</div>" )
         .appendTo( ul );
 }
 
-function manual_render_autocomplete_move_item(ul, item){
+function _renderAutocompleteMoveItem(ul, item){
     return $( "<li>" )
 		.append( "<div>" + createIconLabelDiv(item.icon, item.label, 'apitem-move-icon') + "</div>" )
         .appendTo( ul );
