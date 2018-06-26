@@ -272,8 +272,8 @@ function applyContext(){
 	
 	Context.enemy = new Pokemon({
 		index: d_index,
-		fmove_index: d_fmove_index,
-		cmove_index: d_cmove_index,
+		fmove: d_fmove_index,
+		cmove: d_cmove_index,
 		level: 40,
 		atkiv: DEFAULT_IVs[0],
 		defiv: DEFAULT_IVs[1],
@@ -396,9 +396,16 @@ function requestSpreadsheet(startover){
 	
 	sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Calculating...");
 	setTimeout(function(){
-		calculationMethod();
-		while (DialogStack.length){
-			DialogStack.pop().dialog('close');
+		try{
+			calculationMethod();
+			while (DialogStack.length){
+				DialogStack.pop().dialog('close');
+			}
+		}catch(err){
+			while (DialogStack.length){
+				DialogStack.pop().dialog('close');
+			}
+			sendFeedbackDialog("Oops, an issue occurred: " + err.toString());
 		}
 	}, 50);
 }

@@ -642,7 +642,7 @@
 </div>
 
 
-<div id='breakpointCalculator' title="Breakpoint Calculator">
+<div id='breakpointCalculator' title="Batch Breakpoint Calculator">
 	<table id='breakpointCalculator-input'>
 		<colgroup><col width='50%'><col width='50%'></colgroup>
 		<tr>
@@ -653,25 +653,33 @@
 			<td><input id='ui-species_0' placeholder='Attacker' value='$' class='input-with-icon species-input-with-icon'></input></td>
 			<td><input id='ui-species_boss' placeholder='Defender' value='%5' class='input-with-icon species-input-with-icon'></input></td>
 		</tr>
-	</table>
-	<table id='breakpointCalculator-input2'>
-		<colgroup><col width='25%'><col width='25%'><col width='50%'></colgroup>
+
 		<tr>
-			<th>Weather</th>
-			<th>Friend</th>
+			<th>Default Attack IV</th>
 			<th>Raid Tier</th>
 		</tr>
 		<tr>
 			<td>
-				<select id="breakpointCalculator-weather">
+				<select id="breakpointCalculator-atkiv">
 				</select>
 			</td>
+			<td>
+				<select id="breakpointCalculator-raidTier">
+				</select>
+			</td>
+		</tr>
+		
+		<tr>
+			<th>Friend</th>
+			<th>Weather</th>
+		</tr>
+		<tr>
 			<td>
 				<select id="breakpointCalculator-friend">
 				</select>
 			</td>
 			<td>
-				<select id="breakpointCalculator-raidTier">
+				<select id="breakpointCalculator-weather">
 				</select>
 			</td>
 		</tr>
@@ -914,6 +922,12 @@ $("#breakpointCalculator-output_filter").hide();
 
 autocompletePokemonNodeSpecies(document.getElementById('ui-species_0'));
 autocompletePokemonNodeSpecies(document.getElementById('ui-species_boss'));
+
+var bpc_defaultAtkIv = document.getElementById('breakpointCalculator-atkiv');
+for (var i = 0; i < 16; i++){
+	bpc_defaultAtkIv.appendChild(createElement('option', i, {value: i}));
+}
+bpc_defaultAtkIv.value = 15;
 
 var bpc_weather = document.getElementById('breakpointCalculator-weather');
 Data.WeatherSettings.forEach(function(weatherSetting){

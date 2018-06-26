@@ -39,27 +39,27 @@ var Data = {
 	FriendSettings: [
 		{
 			'name': "none",
-			'label': "",
+			'label': "Lv.0 Non-Friend",
 			'multiplier': 1.0
 		},
 		{
 			'name': "good",
-			'label': "Good Friend (1.03x)",
+			'label': "Lv.1 Good Friend",
 			'multiplier': 1.03
 		},
 		{
 			'name': "great",
-			'label': "Great Friend (1.05x)",
+			'label': "Lv.2 Great Friend",
 			'multiplier': 1.05
 		},
 		{
 			'name': "ultra",
-			'label': "Ultra Friend (1.07x)",
+			'label': "Lv.3 Ultra Friend",
 			'multiplier': 1.07
 		},
 		{
 			'name': "best",
-			'label': "Best Friend (1.1x)",
+			'label': "Lv.4 Best Friend",
 			'multiplier': 1.1
 		},
 	],
@@ -554,7 +554,7 @@ function fetchUserData(userid, oncomplete, init){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({
-		url: '/user-pokemon-json-list?_format=json&new&uid_raw=' + userid,
+		url: 'https://pokemongo.gamepress.gg/user-pokemon-json-list?_format=json&new&uid_raw=' + userid,
 		dataType: 'json',
 		success: function(data){
 			var user = {
@@ -578,7 +578,7 @@ function fetchUserTeamData(userid, oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({
-		url: '/user-pokemon-team?_format=json&uid=' + userid,
+		url: 'https://pokemongo.gamepress.gg/user-pokemon-team?_format=json&uid=' + userid,
 		dataType: 'json',
 		success: function(data){
 			var user = null;
@@ -592,6 +592,8 @@ function fetchUserTeamData(userid, oncomplete){
 					var party_raw = data[i];
 					var party = {
 						name: party_raw.title,
+						label: party_raw.title,
+						isLocal: false,
 						pokemon_list: []
 					};
 					var team_nids = party_raw.team_nids.split(',');
@@ -605,6 +607,7 @@ function fetchUserTeamData(userid, oncomplete){
 					}
 					user.parties.push(party);
 				}
+				sortDatabase(user.parties);
 			}
 		},
 		complete: function(){
@@ -640,8 +643,11 @@ function fetchLocalData(){
 				LocalData.BattleParties = [];
 				var battleParties = JSON.parse(localStorage.PARTIES_LOCAL);
 				for (var name in battleParties){
-					battleParties[name].name = name;
-					insertEntry(battleParties[name], LocalData.BattleParties);
+					var party = battleParties[name];
+					party.name = name;
+					party.label = name;
+					party.isLocal = true;
+					insertEntry(party, LocalData.BattleParties);
 				}
 				delete localStorage.PARTIES_LOCAL;
 			}
@@ -669,6 +675,8 @@ function fetchLocalData(){
 			delete move.index;
 		});
 		LocalData.BattleParties.forEach(function(party){
+			party.isLocal = true;
+			party.label = party.label || party.name;
 			party.pokemon_list.forEach(function(pkm){
 				delete pkm.index;
 				delete pkm.box_index;

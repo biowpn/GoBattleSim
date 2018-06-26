@@ -147,24 +147,20 @@ function createPartyNode(){
 				for (var i = 0; i < Data.Users[playerIdx].parties.length; i++){
 					var party = Data.Users[playerIdx].parties[i];
 					if (party.name.includes(request.term)){
-						matches.push({
-							label: party.name, partyConfig: party, isLocal: false
-						});
+						matches.push(party);
 					}
 				}
 			}
 			for (var i = 0; i < LocalData.BattleParties.length; i++){
 				var party = LocalData.BattleParties[i];
 				if (party.name.includes(request.term)){
-					matches.push({
-						label: '[Local] ' + party.name, partyConfig: party, isLocal: true
-					});
+					matches.push(party);
 				}
 			}
 			response(matches);
 		},
 		select : function(event, ui) {
-			writePartyNode($('#ui-party_' + this.id.split('_')[1])[0], ui.item.partyConfig);
+			writePartyNode($('#ui-party_' + this.id.split('_')[1])[0], ui.item);
 			relabelAll();
 		}
 	});
@@ -187,13 +183,12 @@ function createPartyNode(){
 	});
 	savePartyButton.onclick = function(){
 		var partyAddress = this.id.split('_')[1], partyName = $('#party-name_' + partyAddress)[0].value;
-		if (partyName.substring(0,7) == '[Local]')
-			partyName = partyName.substring(8);
 		if (partyName.length > 0){
 			var party = parsePartyNode($('#ui-party_' + partyAddress)[0]);
 			party.name = partyName;
 			insertEntry(party, LocalData.BattleParties);
-			sendFeedbackDialog('Party "' + partyName + '" has been saved!');
+			saveLocalData();
+			sendFeedbackDialog('Local party "' + partyName + '" has been saved!');
 		}
 	}
 	controlButtonDiv.appendChild(savePartyButton);
@@ -479,6 +474,7 @@ function parseAttackerNode(node){
 		atkiv: row2.children[3].children[0].value.trim(),
 		fmove: row3.children[0].children[0].value.trim().toLowerCase(),
 		cmove: row3.children[1].children[0].value.trim().toLowerCase(),
+		dodge: row3.children[2].children[0].value,
 		copies: parseInt(row1.children[1].children[0].value) || 1,
 		raid_tier: 0
 	};

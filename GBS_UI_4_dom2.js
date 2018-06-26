@@ -459,29 +459,47 @@ function breakpointCalculatorSubmit(){
 	breakpointCalculatorTable.clear();
 	
 	for (var i = 0; i < attackers.length; i++){
-		try{
-			var atkr = new Pokemon(attackers[i]);
-		}catch(err){
-			continue;
-		}
-		atkr.fab = getFriendMultiplier(friend);
-		
-		for (var j = 0; j < defenders.length; j++){
-			var dfdr = new Pokemon({
-				name: defenders[j].name,
-				raid_tier: raidTier
+
+		var atkrs = [];
+		var atkr_copy = JSON.parse(JSON.stringify(attackers[i]));
+		if (atkr_copy.box_index < 0){
+			var atkiv_default = parseInt($('#breakpointCalculator-atkiv').val());
+			atkr_copy.fastMoves.concat(atkr_copy.fastMoves_legacy).concat(atkr_copy.fastMoves_exclusive).forEach(function(move){
+				atkrs.push(new Pokemon({
+					species: atkr_copy,
+					level: 40,
+					atkiv: atkiv_default,
+					defiv: 15,
+					stmiv: 15,
+					fmove: move
+				}));
 			});
-			var bp_res = calculateBreakpoints(atkr, dfdr, atkr.fmove, weather);
-			var powerup_cost = calculateLevelUpCost(atkr.level, bp_res.breakpoints[0]);
-			breakpointCalculatorTable.row.add([
-				createIconLabelDiv2(atkr.icon, atkr.nickname, 'species-input-with-icon'),
-				createIconLabelDiv2(atkr.fmove.icon, atkr.fmove.label, 'move-input-with-icon'),
-				createIconLabelDiv2(dfdr.icon, dfdr.label, 'species-input-with-icon'),
-				bp_res.finalDamage,
-				bp_res.breakpoints.slice(0, 3).join(", "),
-				powerup_cost.stardust,
-				powerup_cost.candy
-			]);
+		}else{
+			atkrs.push(new Pokemon(atkr_copy));
+		}
+
+		
+		for (var j = 0; j < atkrs.length; j++){
+			var atkr = atkrs[j];
+			atkr.fab = getFriendMultiplier(friend);
+		
+			for (var k = 0; k < defenders.length; k++){
+				var dfdr = new Pokemon({
+					name: defenders[k].name,
+					raid_tier: raidTier
+				});
+				var bp_res = calculateBreakpoints(atkr, dfdr, atkr.fmove, weather);
+				var powerup_cost = calculateLevelUpCost(atkr.level, bp_res.breakpoints[0]);
+				breakpointCalculatorTable.row.add([
+					createIconLabelDiv2(atkr.icon, atkr.nickname || atkr.label, 'species-input-with-icon'),
+					createIconLabelDiv2(atkr.fmove.icon, atkr.fmove.label, 'move-input-with-icon'),
+					createIconLabelDiv2(dfdr.icon, dfdr.label, 'species-input-with-icon'),
+					bp_res.finalDamage,
+					bp_res.breakpoints.slice(0, 3).join(", "),
+					powerup_cost.stardust,
+					powerup_cost.candy
+				]);
+			}
 		}
 	}
 	
