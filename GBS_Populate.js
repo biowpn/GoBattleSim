@@ -97,15 +97,13 @@ var Data = {
 	ChargedMoves: [],
 	
 	MoveEffects: [],
-	MoveEffectSubroutines: [],
 	
 	LevelSettings: [],
 	
 	IndividualValues: [],
 	
-	Users: [],
+	Users: []
 	
-	Mods: []
 };
 
 
@@ -362,7 +360,7 @@ function parseUserPokebox(data){
 		var pkm = {
 			species : data[i].species.toLowerCase(),
 			cp: parseInt(data[i].cp),
-			level: 0,
+			level: parseFloat(data[i].level),
 			stmiv: parseInt(data[i].sta || data[i].stmiv || 0),
 			atkiv: parseInt(data[i].atk || data[i].atkiv || 0),
 			defiv: parseInt(data[i].def || data[i].defiv || 0),
@@ -379,7 +377,6 @@ function parseUserPokebox(data){
 		}
 		leftMerge(pkm, species);
 		pkm.box_index = i;
-		pkm.level = calculateLevelByCP(pkm, pkm.cp);
 		if (!pkm.level){
 			console.log("[Error] When importing User Pokemon: invalid level");
 			console.log(data[i]);
@@ -460,7 +457,7 @@ function fetchSpeciesData(oncomplete){
 				var pkm = {
 					dex : parseInt(data[i].number),
 					box_index : -1,
-					name : data[i].title_1.toLowerCase(),
+					name : data[i].title_1.toLowerCase().replace("&#039;", "'"),
 					pokeType1 : parsePokemonTypeFromString(data[i].field_pokemon_type).pokeType1,
 					pokeType2 : parsePokemonTypeFromString(data[i].field_pokemon_type).pokeType2,
 					baseAtk : parseInt(data[i].atk),
@@ -475,7 +472,7 @@ function fetchSpeciesData(oncomplete){
 					marker_1: '',
 					image: data[i].uri,
 					icon: getPokemonIcon({dex: data[i].number}),
-					label: data[i].title_1
+					label: data[i].title_1.replace("&#039;", "'")
 				};
 				Data.Pokemon.push(pkm);
 			}
@@ -747,6 +744,7 @@ function fetchAll(oncomplete, isInit){
 function fetchAll_then(onfinish){
 	if (FETCHED_STATUS == FETCHED_STATUS_PASS){
 		handleSpeciesDatabase(Data.Pokemon);
+		handleSpeciesDatabase(Data.PokemonForms);
 		var modifiedCtrl = manuallyModifyData(Data);
 		
 		Data.Pokemon = mergeDatabase(Data.Pokemon, LocalData.Pokemon);
@@ -789,20 +787,17 @@ function populateAll(dataReady){
 				console.log('[GamePress Staff Recognized]');
 			}
 			
-			Data.Pokemon.forEach(function(pkm){
-				pkm.icon = getPokemonIcon({name: pkm.name}) || pkm.icon;
-			});
-			
-			var mod_tbody = document.getElementById('mod_tbody');
-			if (mod_tbody){
-				mod_tbody.innerHTML = '';
-				for (var i = 0; i < Data.Mods.length; i++){
-					mod_tbody.appendChild(createRow([
-						Data.Mods[i].name,
-						"<input type='checkbox' id='mod_checkbox_" + i + "'>"
-					]));
+			Data.PokemonForms.forEach(function(pkm){
+				var pkm2 = getEntry(pkm.name, Data.Pokemon);
+				if (pkm2){
+					pkm2.icon = pkm.icon;
+				}else{
+					pkm = JSON.parse(JSON.stringify(pkm));
+					pkm.fastMoves = [];
+					pkm.chargedMoves = [];
+					insertEntry(pkm, Data.Pokemon);
 				}
-			}
+			});
 			
 			dataReady();
 		}, true);

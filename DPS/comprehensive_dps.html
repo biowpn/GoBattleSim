@@ -146,13 +146,21 @@
 </div>
 
 
+
 <table>
-	<colgroup><col width='100%'></colgroup>
+	<colgroup><col width='25%'><col width='50%'><col width='25%'></colgroup>
 	<tr>
 		<td>
-		<div id='ui-use-box'><label style='width:100%; font-size:16px;'>Use Pokemon from GamePress Box<input type='checkbox' id='ui-use-box-checkbox'></label></div>
+			<div id='ui-swapDiscount'><label style='width:100%; font-size:16px;'>Swap Discount<input type='checkbox' id='ui-swapDiscount-checkbox'></label></div>
+		</td>
+		<td>
+			<div id='ui-use-box'><label style='width:100%; font-size:16px;'>Use Pokemon from GamePress Box<input type='checkbox' id='ui-use-box-checkbox'></label></div>
+		</td>
+		<td>
+			<button class='player_button' id='refresher'><i class="fa fa-refresh" aria-hidden="true"></i> Refresh</button>
 		</td>
 	</tr>
+	
 </table>
 
 <table>
@@ -195,15 +203,10 @@
 				<button class='player_button' id='moveEditFormOpener'>Move</button>
 				<button class='player_button' id='pokemonEditFormOpener'>Species</button>
 				<button class='player_button' id='modEditFormOpener'>Mods</button>
-				<button class='player_button' id='refresher'>Refresh</button>
 			</div>
 		</td>
 	</tr>
 </table>
-
-<br>
-<br>
-
 
 <table>
 	<colgroup><col width='100%'></colgroup>
@@ -215,92 +218,34 @@
 	</tr>
 </table>
 
-
-
 <table id='ranking_table' style='width:100%;'>
-<thead></thead>
-<tfoot></tfoot>
-<tbody></tbody>
+	<thead></thead>
+	<tfoot></tfoot>
+	<tbody></tbody>
 </table>
 
 
 <script>
 
-// Use Pokemon from Box
+$( "#ui-swapDiscount" ).controlgroup();
+$( "#ui-swapDiscount-checkbox" ).change(function(){
+	Context.swapDiscount = this.checked ? "on" : "off";
+	requestSpreadsheet(true);
+});
+
 $( "#ui-use-box" ).controlgroup();
 $( "#ui-use-box-checkbox" ).change(function(){
 	requestSpreadsheet(true);
 });
 
-// Sub Menu initialization
-var SubMenuContainers = document.getElementsByClassName('sub-menu-container');
-for (var i = 0; i < SubMenuContainers.length; i++){
-	var container = SubMenuContainers[i];
-	container.children[0].onclick = function(){
-		$(this.parentNode.children[1]).slideToggle('fast');
-		var subMenus = document.getElementsByClassName('sub-menu');
-		for (var j = 0; j < subMenus.length; j++){
-			if (subMenus[j].id != this.parentNode.children[1].id){
-				$(subMenus[j]).hide();
-			}
-		}
-	}
-	for (var j = 0; j < container.children[1].children.length; j++){
-		$( container.children[1].children[j] ).click(function(){
-			$(this.parentNode).hide();
-		});
-	}
-	$(container.children[1]).menu();
-	$(container.children[1]).hide();
-}
-
-
-// Move Edit Form
-$( "#moveEditForm" ).dialog({ 
-	autoOpen: false,
-	width: 600
-});
-$( "#moveEditFormOpener" ).click(function() {
-	$( "#moveEditForm" ).dialog( "open" );
-});
-autocompleteMoveEditForm();
-$( "#moveEditFormOpener" ).on('dialogclose', function(event) {
-	sendFeedback('', false, 'moveEditForm-feedback');
+$( "#refresher" ).change(function(){
+	requestSpreadsheet(true);
 });
 
-// Species Edit Form
-$( "#pokemonEditForm" ).dialog({ 
-	autoOpen: false,
-	width: 600
-});
-$( "#pokemonEditFormOpener" ).click(function() {
-	$( "#pokemonEditForm" ).dialog( "open" );
-});
-autocompletePokemonEditForm();
-$( "#pokemonEditForm" ).on('dialogclose', function(event) {
-	sendFeedback('', false, 'pokemonEditForm-feedback');
-});
-
-var moveEditFormPokeTypeSelect = document.getElementById('moveEditForm-pokeType');
-var pokemonEditFormPokeType1Select = document.getElementById('pokemonEditForm-pokeType1');
-var pokemonEditFormPokeType2Select = document.getElementById('pokemonEditForm-pokeType2');
-for (var type in Data.TypeEffectiveness){
-	moveEditFormPokeTypeSelect.appendChild(createElement('option', toTitleCase(type), {value : type}));
-	pokemonEditFormPokeType1Select.appendChild(createElement('option', toTitleCase(type), {value : type}));
-	pokemonEditFormPokeType2Select.appendChild(createElement('option', toTitleCase(type), {value : type}));
-}
-pokemonEditFormPokeType1Select.appendChild(createElement('option', 'None', {value : 'none'}));
-pokemonEditFormPokeType2Select.appendChild(createElement('option', 'None', {value : 'none'}));
-
-
-// Mod Edit Form
-$( "#modEditForm" ).dialog({
-	autoOpen: false,
-	width: 600
-});
-$( "#modEditFormOpener" ).click(function() {
-	$( "#modEditForm" ).dialog( "open" );
-});
+dropdownMenuInit();
+moveEditFormInit();
+pokemonEditFormInit();
+modEditFormInit();
 
 // Refresh button
 $ ( "#refresher" ).click(function(){

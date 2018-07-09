@@ -39,16 +39,6 @@ function calculateCP(pkm){
 	return Math.max(10, Math.floor((pkm.baseAtk+pkm.atkiv)*Math.sqrt((pkm.baseDef+pkm.defiv)*(pkm.baseStm+pkm.stmiv))*pkm.cpm*pkm.cpm/10));
 }
 
-function calculateLevelByCP(pkm, CP, exact){
-	var pkm_copy = JSON.parse(JSON.stringify(pkm));
-	for (var i = 0; i < Data.LevelSettings.length; i++){
-		pkm_copy.cpm = Data.LevelSettings[i].cpm;
-		if (calculateCP(pkm_copy) == CP || (!exact && calculateCP(pkm_copy) > CP))
-			return Data.LevelSettings[i].name;
-	}
-	return '';
-}
-
 function calculateBreakpoints(dmg_giver, dmg_taker, move, weather){
 	var breakpoints = [], lastDamage = 0, thisDamage = 0;
 	var atkr = new Pokemon(dmg_giver);
@@ -84,7 +74,7 @@ function Move(m, mtype){
 
 	if (this.effect_name){
 		this.effect = getEntry(this.effect_name, Data.MoveEffects);
-		this.effect.sub = getEntry(this.effect.sub_name, Data.MoveEffectSubroutines).sub;
+		this.effect.sub = getEntry(this.effect.sub_name, Core.MoveEffectSubroutines).sub;
 	}
 }
 
@@ -1063,3 +1053,52 @@ function atkr_choose_2(state){
 		return res;
 	}
 }
+
+
+// Move Effects
+var Core = {
+	"MoveEffectSubroutines": [
+		{
+			"name": "hp_draining",
+			"sub": function(kwargs){
+				kwargs.world.tline.enqueue({
+					name: EVENT_TYPE.MoveEffect, t: kwargs.t + kwargs.move.dws, subject: kwargs.pkm, hurtEvent: kwargs.hurtEvent,
+					action: function(e){
+						var pkm = e.subject;
+						e.value = Math.ceil(e.hurtEvent.dmg * kwargs.parameters.multiplier);
+						e.text = '(+' + e.value + ' HP)';
+						pkm.HP = Math.min(pkm.maxHP, pkm.HP + e.value);
+					}
+				});
+			}
+		},
+		{
+			"name": "stat_modification",
+			"sub": function(kwargs){
+				if (Math.random() < kwargs.parameters.prob){
+					for (var i = 0; i < kwargs.parameters.targets.length; i++){
+						var subj = kwargs[kwargs.parameters.targets[i]], stat = kwargs.parameters.stats[i];
+						if (!subj[stat+'_stage'])
+							subj[stat+'_stage'] = 0;
+						subj[stat+'_stage'] = Math.min(10, Math.max(-10, subj[stat+'_stage'] + kwargs.parameters.stage_deltas[i]));
+						subj[stat] = (subj['base'+stat] + subj[stat.toLowerCase()+'iv']) * subj.cpm * (1 + subj[stat+'_stage'] * 0.01);
+					}
+				}
+			}
+		},
+		{
+			"name": "transform",
+			"sub": function(kwargs){
+				pkm = kwargs.pkm;
+				pkm_hurt = kwargs.pkm_hurt;
+				pkm.baseAtk = pkm_hurt.baseAtk;
+				pkm.baseDef = pkm_hurt.baseDef;
+				pkm.pokeType1 = pkm_hurt.pokeType1;
+				pkm.pokeType2 = pkm_hurt.pokeType2;
+				pkm.fmove = new Move(pkm_hurt.fmove);
+				pkm.cmove = new Move(pkm_hurt.cmove);
+				pkm.initCurrentStats();
+			}
+		}
+	]
+};

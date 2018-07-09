@@ -186,6 +186,8 @@ function createPartyNode(){
 		if (partyName.length > 0){
 			var party = parsePartyNode($('#ui-party_' + partyAddress)[0]);
 			party.name = partyName;
+			party.label = partyName;
+			party.isLocal = true;
 			insertEntry(party, LocalData.BattleParties);
 			saveLocalData();
 			sendFeedbackDialog('Local party "' + partyName + '" has been saved!');
@@ -200,8 +202,6 @@ function createPartyNode(){
 		var partyAddress = this.id.split('_')[1];
 		var partyNodeToRemove = document.getElementById('ui-party_' + partyAddress);
 		var partyName = document.getElementById('party-name_' + partyAddress).value;
-		if (partyName.substring(0,7) == '[Local]')
-			partyName = partyName.substring(8);
 		var askForConfirm = getEntryIndex(partyName, LocalData.BattleParties) >= 0;
 		if (partyNodeToRemove.parentNode.children.length > 1){
 			partyNodeToRemove.parentNode.removeChild(partyNodeToRemove);
@@ -210,7 +210,7 @@ function createPartyNode(){
 			sendFeedbackDialog("Cannot remove the only party of the player.");
 		}
 		if (askForConfirm){
-			var removePartyDialog = createElement('div', 'Do you want to remove party "' + partyName + '" from saved parties?');
+			var removePartyDialog = createElement('div', 'Do you want to remove local party "' + partyName + '"?');
 			$(removePartyDialog).dialog({
 				buttons: [{
 					text: "Yes",
@@ -219,6 +219,7 @@ function createPartyNode(){
 						removeEntry(partyName, LocalData.BattleParties);
 						saveLocalData();
 						$(this).dialog("close");
+						sendFeedbackDialog('Local party "' + partyName + '" has been removed.');
 					}
 				},{
 					text: "No",
@@ -747,9 +748,10 @@ function createMasterSummaryTable(){
 	return table;
 }
 
-function createPlayerStatisticsString(playerStat){
+function createPlayerStatisticsString(playerStat, duration){
 	var pString = "Player " + playerStat.player_code;
 	pString += ", TDO: " + playerStat.tdo + "(" + playerStat.tdo_percentage + "%)";
+	pString += ", DPS: " + Math.round(playerStat.tdo / duration * 100)/100;
 	pString += ", rejoined " + playerStat.num_rejoin + " time" + (playerStat.num_rejoin > 1 ? 's' : '');
 	return pString;
 }
@@ -812,7 +814,7 @@ function displayDetail(i){
 	var output = simResults[i].output;
 	var fbSection = document.getElementById("feedback_table1");
 	for (var i = 0; i < output.pokemonStats.length - 1; i++){
-		fbSection.appendChild(createElement('h4',createPlayerStatisticsString(output.playerStats[i]), 
+		fbSection.appendChild(createElement('h4',createPlayerStatisticsString(output.playerStats[i], output.generalStat.duration - Data.BattleSettings.arenaEntryLagMs/1000), 
 			{style: 'background:' + HSL_COLORS[i%HSL_COLORS.length][0]}));
 		var playerDiv = document.createElement('div');
 		playerDiv.id = 'ui-playerstat-' + i;
@@ -879,25 +881,21 @@ function createBattleLogTable(log, playerCount){
 	
 	var sameTimeEvents = [];
 	for (var i = 0; i < log.length; i++){
-		var rawEntry = log[i];
-		for (var attr in rawEntry){
-			var entry = rawEntry[attr];
+		var rowEntry = log[i], rowData = [];
+		attrs.forEach(function(attr){
+			var entry = rowEntry[attr] || {type: 'text', text: ''};
 			if (entry.type == 'pokemon'){
 				var pkmInfo = getEntry(entry.name, Data.Pokemon);
-				rawEntry[attr] = createIconLabelDiv(pkmInfo.icon, entry.nickname, 'apitem-pokemon-icon');
+				rowData.push(createIconLabelDiv(pkmInfo.icon, entry.nickname, 'apitem-pokemon-icon'));
 			}else if (entry.type == 'fmove'){
 				var moveInfo = getEntry(entry.name, Data.FastMoves);
-				rawEntry[attr] = createIconLabelDiv(moveInfo.icon, moveInfo.label, 'apitem-move-icon');
+				rowData.push(createIconLabelDiv(moveInfo.icon, moveInfo.label, 'apitem-move-icon'));
 			}else if (entry.type == 'cmove'){
 				var moveInfo = getEntry(entry.name, Data.ChargedMoves);
-				rawEntry[attr] = createIconLabelDiv(moveInfo.icon, moveInfo.label, 'apitem-move-icon');
+				rowData.push(createIconLabelDiv(moveInfo.icon, moveInfo.label, 'apitem-move-icon'));
 			}else{ // entry.type == 'text'
-				rawEntry[attr] = entry.text;
+				rowData.push(entry.text);
 			}
-		}
-		var rowData = [];
-		attrs.forEach(function(a){
-			rowData.push(rawEntry[a]);
 		});
 		var row = createRow(rowData);
 		for (var k = 0; k < row.children.length - 2; k++){

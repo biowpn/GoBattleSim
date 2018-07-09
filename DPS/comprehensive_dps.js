@@ -20,21 +20,29 @@ var ConfigurableAttributes = [
 	{'elementId': "searchInput", 'qsField': "qs", 'defaultValue': ''},
 	{'qsField': "by", defaultValue: "DPS"},
 	{'qsField': "order", defaultValue: "desc"},
+	{'qsField': "swpdsct", defaultValue: "off"},
 ];
 
 var Context = {
 	weather: DEFAULT_WEATHER,
 	enemy: {},
-	generic_enemy_bool: false
+	isEnemyNeutral: false,
+	swapDiscount: 'off'
 };
 
 var ALL_COMBINATIONS = [];
 
 
-Pokemon.prototype.calculateDPS = function(x, y){
-	// x is the energy left; y is the enemy DPS
-	var FDmg = damage2(this, Context.enemy, this.fmove, Context.weather);
-	var CDmg = damage2(this, Context.enemy, this.cmove, Context.weather);
+Pokemon.prototype.calculateDPS = function(kwargs){
+	var x = kwargs.x, y = kwargs.y;
+	if (x == undefined || y == undefined){
+		var intakeProfile = this.calculateDPSIntake(kwargs);
+		x = (x == undefined ? intakeProfile.x : x);
+		y = (y == undefined ? intakeProfile.y : y);
+	}
+	
+	var FDmg = damage2(this, kwargs.enemy, this.fmove, kwargs.weather);
+	var CDmg = damage2(this, kwargs.enemy, this.cmove, kwargs.weather);
 	var FDur = this.fmove.duration/1000;
 	var CDur = this.cmove.duration/1000;
 	var CDWS = this.cmove.dws/1000;
@@ -64,29 +72,33 @@ Pokemon.prototype.calculateDPS = function(x, y){
 		this.tdo = this.dps * this.st;
 	}
 	
+	if (kwargs.swapDiscount == 'on'){
+		this.dps = this.dps * (this.st / (this.st + Data.BattleSettings.swapDurationMs/1000));
+	}
+	
 	return this.dps;
 }
 
 
-Pokemon.prototype.calculateDPSIntake = function(atkr){
-	if (Context.generic_enemy_bool){
+Pokemon.prototype.calculateDPSIntake = function(kwargs){
+	if (kwargs.isEnemyNeutral){
 		return {
-			dps: 900 / atkr.Def,
-			extra_energy_wasted: 0
+			x: -this.cmove.energyDelta * 0.5 + this.fmove.energyDelta * 0.5,
+			y: 900 / this.Def
 		};
 	}else{
-		var FDmg = damage2(this, atkr, this.fmove, Context.weather);
-		var CDmg = damage2(this, atkr, this.cmove, Context.weather);
-		var FDur = this.fmove.duration/1000 + 2;
-		var CDur = this.cmove.duration/1000 + 2;
-		var FE = this.fmove.energyDelta;
-		var CE = -this.cmove.energyDelta;
+		var FDmg = damage2(kwargs.enemy, this, kwargs.enemy.fmove, Context.weather);
+		var CDmg = damage2(kwargs.enemy, this, kwargs.enemy.cmove, Context.weather);
+		var FDur = kwargs.enemy.fmove.duration/1000 + 2;
+		var CDur = kwargs.enemy.cmove.duration/1000 + 2;
+		var FE = kwargs.enemy.fmove.energyDelta;
+		var CE = -kwargs.enemy.cmove.energyDelta;
 		
 		var n = Math.max(1, 3 * CE / 100);
 		
 		return {
-			dps: (n * FDmg + CDmg)/(n * FDur + CDur),
-			extra_energy_wasted:  0.5 * (n * FDmg + CDmg)/(n + 1)
+			x:  -this.cmove.energyDelta * 0.5 + this.fmove.energyDelta * 0.5 + 0.5 * (n * FDmg + CDmg)/(n + 1),
+			y: (n * FDmg + CDmg)/(n * FDur + CDur)
 		};
 	}
 }
@@ -109,8 +121,6 @@ function damage2(dmg_giver, dmg_taker, move, weather){
 
 
 
-
-
 function setConfigFromUrl(url){
 	if (url.includes('?')){
 		var cfg = {};
@@ -118,18 +128,29 @@ function setConfigFromUrl(url){
 			cfg[info.qsField] = getParameterByName(info.qsField, url) || info.defaultValue;
 			$('#' + info.elementId).val(cfg[info.qsField] || info.defaultValue);
 			if (info.iconGetter){
-				console.log(info.iconGetter({name: cfg[info.qsField], mtype: info.elementId[0]}));
 				$('#' + info.elementId).attr('style', "background-image: url(" + info.iconGetter({name: cfg[info.qsField], mtype: info.elementId[0]}) + ")");
 			}
 			if (info.databaseName){
 				$('#' + info.elementId).attr('index', getEntryIndex(cfg[info.qsField].toLowerCase(), Data[info.databaseName]));
 			}
-		});		
+		});
+		if (cfg['pkm'] && cfg['type1'] == 'none' && cfg['type2'] == 'none'){
+			var pkm = getEntry(cfg['pkm'].toLowerCase(), Data.Pokemon);
+			if (pkm){
+				$('#d-pokeType1').val(pkm.pokeType1);
+				$('#d-pokeType2').val(pkm.pokeType2);
+			}
+		}
 		if (cfg['by'] || cfg['order']){
 			var col_idx = colHeaders.indexOf(cfg['by'] || 'DPS');
 			if (col_idx >= 0){
 				Table.order([col_idx, cfg['order'] || 'desc']);
 			}
+		}
+		if (cfg['swpdsct'] == 'on'){
+			Context.swapDiscount = "on";
+			$( "#ui-swapDiscount-checkbox" ).attr("checked", true);
+			$( "#ui-swapDiscount-checkbox" ).checkboxradio( "refresh" );
 		}
 	}
 }
@@ -143,6 +164,7 @@ function setUrlFromConfig(){
 		cfg['by'] = sortBy[0];
 		cfg['order'] = sortBy[1];
 	}
+	cfg['swpdsct'] = Context.swapDiscount;
 	ConfigurableAttributes.forEach(function(info){
 		var val = info.elementId ? $('#' + info.elementId).val() : cfg[info.qsField];
 		if (val == info.defaultValue){
@@ -261,12 +283,12 @@ function applicationInit(){
 function applyContext(){
 	Context.weather = document.getElementById('weather').value;
 	
-	Context.generic_enemy_bool = false;
+	Context.isEnemyNeutral = false;
 	var d_index = getEntryIndex($('#ui-species_boss').val().trim().toLowerCase(), Data.Pokemon);
 	var d_fmove_index = getEntryIndex($('#fmove_boss').val().trim().toLowerCase(), Data.FastMoves);
 	var d_cmove_index = getEntryIndex($('#cmove_boss').val().trim().toLowerCase(), Data.ChargedMoves);
 	if (d_index < 0 || d_fmove_index < 0 || d_cmove_index < 0){
-		Context.generic_enemy_bool = true;
+		Context.isEnemyNeutral = true;
 		d_index = d_fmove_index = d_cmove_index = 0;
 	}
 	
@@ -283,7 +305,7 @@ function applyContext(){
 	Context.enemy.pokeType1 = document.getElementById('d-pokeType1').value;
 	Context.enemy.pokeType2 = document.getElementById('d-pokeType2').value;
 	
-	if (Context.generic_enemy_bool){
+	if (Context.isEnemyNeutral){
 		Context.enemy.Def = DEFAULT_ENEMY_CURRENT_DEFENSE;
 	}
 	
@@ -327,9 +349,7 @@ function generateSpreadsheet(pokemonCollection){
 					'raid_tier': 0
 				});
 				pkm.cp = calculateCP(pkm);
-				var dfdrDmg = Context.enemy.calculateDPSIntake(pkm);
-
-				pkm.calculateDPS(-pkm.cmove.energyDelta * 0.5 + pkm.fmove.energyDelta * 0.5 + dfdrDmg.extra_energy_wasted, dfdrDmg.dps);
+				pkm.calculateDPS(Context);
 				
 				Table.row.add([
 					createIconLabelDiv2(pkm.icon, p.nickname || pkm.label, 'species-input-with-icon'), 
@@ -356,8 +376,7 @@ function updateSpreadsheet(){
 	var i = 0;
 	Table.data().each(function(row){
 		var pkm = ALL_COMBINATIONS[i];
-		var dfdrDmg = Context.enemy.calculateDPSIntake(pkm);
-		pkm.calculateDPS( -pkm.cmove.energyDelta * 0.5 + pkm.fmove.energyDelta * 0.5 + dfdrDmg.extra_energy_wasted, dfdrDmg.dps );
+		pkm.calculateDPS(Context);
 		row[3] = Math.round(pkm.dps * 1000) / 1000;
 		row[4] = Math.round(pkm.tdo * 10) / 10;
 		row[5] = Math.round(pkm.dps * pkm.tdo * 10) / 10;
@@ -448,7 +467,9 @@ function generateSpectrum(pkm, settings){
 	for (var x = X_min; x < X_max; x += X_step){
 		var row = [];
 		for (var y = Y_min; y < Y_max; y += Y_step){
-			row.push(pkm.calculateDPS(x, y));
+			row.push(pkm.calculateDPS({
+				'x': x, 'y': y, 'enemy': Context.enemy, 'weather': Context.weather, 'swapDiscount': Context.swapDiscount
+			}));
 		}
 		DPS_spectrum.push(row);
 	}
@@ -475,7 +496,11 @@ function calculateDefender(){
 			DPS_dict[type2 + ',' + type1] = 0;
 			for (var k = 0; k < ALL_COMBINATIONS.length; k++){
 				var pkm = ALL_COMBINATIONS[k];
-				pkm.calculateDPS( -pkm.cmove.energyDelta * 0.5 + pkm.fmove.energyDelta * 0.5, 400 / pkm.Def );
+				pkm.calculateDPS({
+					'y': 400 / pkm.Def,
+					'enemy': Context.enemy,
+					'weather': Context.weather
+				});
 				if (pkm.dps > DPS_dict[type1 + ',' + type2]){
 					DPS_dict[type1 + ',' + type2] = pkm.dps;
 					DPS_dict[type2 + ',' + type1] = pkm.dps;
