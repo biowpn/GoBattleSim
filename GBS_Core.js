@@ -610,7 +610,7 @@ World.prototype.nextHurtEventOf = function(pkm){
 
 
 // Gym Defender/Raid Boss strategy
-World.prototype.defenderChoose = function (pkm, t, current_move){
+World.prototype.defenderChoose = function(pkm, t, current_move){
 	// A defender decides the next action (at t + current_move.duration + delay) now (at t)
 
 	var next_move = pkm.fmove;
@@ -633,13 +633,13 @@ World.prototype.defenderChoose = function (pkm, t, current_move){
 
 
 // Gym Defender or Raid Boss moves at the start of a battle
-World.prototype.defenderChooseInitial = function (dfdr, t){
+World.prototype.defenderChooseInitial = function(dfdr, t){
 	this.defenderUsesMove(dfdr, dfdr.fmove, t);
 	this.defenderChoose(dfdr, t - dfdr.fmove.duration, dfdr.fmove);
 }
 
 // Check if any of the player is still in game
-World.prototype.isAnyPlayerActive = function (){
+World.prototype.isAnyPlayerActive = function(){
 	for (var i = 0; i < this.playersArr.length; i++){
 		var pkm = this.playersArr[i].active_pkm;
 		if (pkm && pkm.HP > 0){
@@ -650,8 +650,7 @@ World.prototype.isAnyPlayerActive = function (){
 }
 
 
-// TODO: Main function for simulating a battle
-World.prototype.battle = function (){
+World.prototype.battle = function(){
 	var t = Data.BattleSettings.arenaEntryLagMs;
 	var elog = [];
 	var dfdr = this.dfdr;
@@ -786,7 +785,7 @@ World.prototype.battle = function (){
 World.prototype.appendToLog = function(events){
 	var numPlayer = this.playersArr.length;
 	// Correspond to Enter, AtkrHurt, DfdrHurt, AtkrDogde, and move effect event
-	var rowData = [[],[],[],[],[]];
+	var rowData = [{},{},{},{},{}];
 	var nonEmpty = [false, false, false, false, false];
 	var dfdrHurt_totalDmg = 0;
 	for (var i = 0; i < rowData.length; i++){
@@ -864,10 +863,10 @@ World.prototype.appendToLog = function(events){
 // Return the statistis and battle log
 World.prototype.getStatistics = function(){
 	// The information package include four parts:
-	var general_stat = [];	// 1. General statistics (time, winner, etc)
+	var general_stat = {};	// 1. General statistics (time, winner, etc)
 	var player_stats = [];	// 2. Players performance statistics
 	var pokemon_stats = [];	// 3. Individual Pokemon performance statistics, including the defender
-	var battle_log = [];	// 4. Battle log (if number of team <= 3, will generate style 2 log)
+	var battle_log = [];	// 4. Battle log
 	
 	general_stat['duration'] = Math.round(this.battle_length/100)/10;
 	general_stat['total_deaths'] = 0;

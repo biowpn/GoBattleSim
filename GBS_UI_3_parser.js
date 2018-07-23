@@ -22,10 +22,10 @@ function getPokemonConfig(cfg, address){
 }
 
 
-function iterBranch2(cfg, address, attr, pred, universe, start){
+function iterBranch2(cfg, address, attr, exmatch, universe, start){
 	var pkmInfo = getPokemonConfig(cfg, address);
 	var expressionStr = pkmInfo[attr].toString();
-	if (pred(expressionStr, universe) >= 0){ // Exact Match
+	if (exmatch(expressionStr, universe) >= 0){
 		return [];
 	}
 	
@@ -58,7 +58,7 @@ function iterBranch2(cfg, address, attr, pred, universe, start){
 			expressionStr = expressionStr.slice(1).trim();
 		expressionStr = expressionStr || expressionStr_default;
 		
-		var matches = universe.filter(Predicate(expressionStr));
+		var matches = universe.filter(Predicate(expressionStr.toString()));
 		if (matches.length == 0){
 			sendFeedback(address + '.' + attr + " {" + expressionStr + "}: No match", true);
 			return [0];
@@ -71,7 +71,11 @@ function iterBranch2(cfg, address, attr, pred, universe, start){
 			var cfg_copy = JSON.parse(JSON.stringify(cfg));
 			var pkmConfig = getPokemonConfig(cfg_copy, address);
 			if (input_type == 0){
-				leftMerge(pkmConfig, matches[i]);
+				for(var attr in matches[i]){
+					if (!pkmConfig[attr] || attr == 'name'){
+						pkmConfig[attr] = matches[i][attr];
+					}
+				}
 			}else if (input_type == 1){
 				pkmConfig[attr] = matches[i].value;
 			}else if (input_type == 2){
@@ -285,4 +289,62 @@ function averageSims(sims){
 		input: sims[0].input,
 		output: averageOutputs(outputsToAverage)
 	};
+}
+
+
+function applicationInit(){
+	addPlayerNode();
+	document.getElementById("ui-defenderinputbody").innerHTML = "";
+	document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
+	document.getElementById("simPerConfig").value = 1;
+	populateQuickStartWizardBossList('current');
+
+	if (window.location.href.includes('?')){
+		writeUserInput(parseConfigFromUrl(window.location.href));
+		goBattleSim();
+	}
+	if (!LocalData.QuickStartWizardNoShow && !window.location.href.includes('?'))
+		$( "#quickStartWizard" ).dialog( "open" );
+}
+
+function requestSimulation(args){
+	sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Simulating...");
+	
+	setTimeout(function(){
+		goBattleSim(args);
+		sendFeedback(currentJobSize + " sims have been performed", true);
+		setTimeout(function(){
+			while (DialogStack.length){
+				DialogStack.pop().dialog('close');
+			}
+			document.getElementById('ui-mastersummarytable').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+		}, 100);
+	}, 100);
+}
+
+function goBattleSim(args){
+	var userInput = readUserInput();
+	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
+	
+	initMasterSummaryTableMetrics();
+	date = new Date();
+	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations started");
+	
+	
+	var tempResults = iterBranch(userInput, [0,0,0,0,0]);
+	tempResults.forEach(function(sim){
+		if (sim)
+			simResults.push(sim);
+	});
+	
+	date = new Date();
+	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations completed");
+	
+	if (args && args.sortBy){
+		simResults.sort(function(a,b){
+			return b.output.generalStat[args.sortBy] - a.output.generalStat[args.sortBy];
+		});
+	}
+
+	displayMasterSummaryTable();
 }

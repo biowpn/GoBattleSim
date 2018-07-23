@@ -333,7 +333,7 @@
 <p></p>
 </div>
 
-<button onclick="main()" id="GoButton">Go</button>
+<button onclick="requestSimulation()" id="GoButton">Go</button>
 
 
 <h2>Feedback</h2>
@@ -803,62 +803,6 @@ breakpointCalculatorInit();
 QuickStartWizardInit();
 
 
-// Final preparation
-function applicationInit(){
-	if (window.location.href.includes('?')){
-		writeUserInput(parseConfigFromUrl(window.location.href));
-		main();
-	}
-	populateQuickStartWizardBossList('current');
-	if (!LocalData.QuickStartWizardNoShow && !window.location.href.includes('?'))
-		$( "#quickStartWizard" ).dialog( "open" );
-}
-
-
-function main(args){
-	var userInput = readUserInput();
-	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
-	
-	if (!(args && args.noDisplay)){
-		args = args || {};
-		if (!args.noWait){
-			args.noWait = true;
-			setTimeout(function(){main(args);}, 100);
-			return;
-		}
-		sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Simulating...");
-	}
-	initMasterSummaryTableMetrics();
-	
-	date = new Date();
-	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations started");
-	
-	var tempResults = iterBranch(userInput, [0,0,0,0,0]);
-	tempResults.forEach(function(sim){
-		if (sim)
-			simResults.push(sim);
-	});
-	
-	date = new Date();
-	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations completed");
-	
-	if (args && args.sortBy){
-		simResults.sort(function (a,b){
-			return b.output.generalStat[args.sortBy] - a.output.generalStat[args.sortBy];
-		});
-	}
-	
-	while (DialogStack.length){
-		DialogStack.pop().dialog('close');
-	}
-	if (!(args && args.noDisplay)){
-		sendFeedback(currentJobSize + " sims have been performed", true);
-		displayMasterSummaryTable();
-		setTimeout(function(){
-			document.getElementById('ui-mastersummarytable').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
-		}, 100);
-	}
-}
 
 addPlayerNode();
 document.getElementById("ui-defenderinputbody").innerHTML = "";

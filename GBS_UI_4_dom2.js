@@ -400,9 +400,6 @@ function parameterEditFormInit(){
 	$( "#parameterEditFormOpener" ).click(function() {
 		$( "#parameterEditForm" ).dialog( "open" );
 	});
-	$( "#parameterEditForm" ).on('dialogclose', function(event) {
-		sendFeedback('', false, 'parameterEditForm-feedback');
-	});
 
 	var parameterTable = document.getElementById('parameterEditForm-Table');
 	for (var attr in Data.BattleSettings){
@@ -417,14 +414,15 @@ function parameterEditFormSubmit(){
 	for (var attr in Data.BattleSettings){
 		Data.BattleSettings[attr] = parseFloat(document.getElementById('parameterEditForm-'+attr).value) || 0;
 	};
-	sendFeedback("Battle settings have been updated", false, 'parameterEditForm-feedback');
 	saveLocalData();
+	sendFeedbackDialog("Battle settings have been updated", false, 'parameterEditForm-feedback');
 }
 
 function parameterEditFormReset(){
-	LocalData.BattleSettings = [];
+	LocalData.BattleSettings = {};
+	Data.BattleSettings = JSON.parse(JSON.stringify(DefaultData.BattleSettings));
 	saveLocalData();
-	sendFeedback("Local battle settings have been erased. Refresh the page to get the default back", false, 'parameterEditForm-feedback');
+	sendFeedbackDialog("Battle settings have been reset.", false, 'parameterEditForm-feedback');
 }
 
 
@@ -674,14 +672,13 @@ function quickStartWizard_submit(){
 	}
 	
 	qsw_config.dfdrSettings.species = document.getElementById('ui-species_QSW-boss').getAttribute('name');
-	// qsw_config.dfdrSettings.index = parseInt(document.getElementById('ui-species_QSW-boss').getAttribute('index'));
 	qsw_config.dfdrSettings.raid_tier = parseInt(document.getElementById('ui-species_QSW-boss').getAttribute('raid_tier'));
 	qsw_config.dfdrSettings.fmove = document.getElementById('fmove_QSW-boss').value || '*current';
 	qsw_config.dfdrSettings.cmove = document.getElementById('cmove_QSW-boss').value || '*current';
 	
 	writeUserInput(qsw_config);
 	$( "#quickStartWizard" ).dialog( "close" );
-	main({sortBy: qsW_sort});
+	requestSimulation({sortBy: qsW_sort});
 }
 
 function quickStartWizard_dontshowup(){

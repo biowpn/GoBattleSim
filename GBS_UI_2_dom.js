@@ -72,8 +72,8 @@ function createAttackerNode(){
 		type: 'number', placeholder: 'Copies', min: 1, max: 6, value: 1
 	}));
 	tb1.children[1].children[1].children[0].onchange = function(){
-		var addrIndices = this.id.split('-');
-		var pokemonCount = countPokemonFromParty(addrIndices[2] + '-' + addrIndices[3]);
+		var addrIndices = this.id.split('_')[1].split('-');
+		var pokemonCount = countPokemonFromParty(addrIndices[0] + '-' + addrIndices[1]);
 		if (pokemonCount > MAX_NUM_POKEMON_PER_PARTY){
 			this.value -= pokemonCount - MAX_NUM_POKEMON_PER_PARTY;
 		}
@@ -330,7 +330,7 @@ function createPlayerNode(){
 }
 
 function addPlayerNode(){
-var attackerFieldBody = document.getElementById("AttackerInput").children[1];
+	var attackerFieldBody = document.getElementById("AttackerInput").children[1];
 	if (attackerFieldBody.children.length < MAX_NUM_OF_PLAYERS){
 		attackerFieldBody.appendChild(createPlayerNode());
 		relabelAll();
@@ -450,9 +450,9 @@ function createDefenderNode(){
 }
 
 function countPokemonFromParty(partyAddress){
-	var partyNodeBody = document.getElementById('ui-partybody_' + partyAddress);
+	var partyBody = document.getElementById('ui-partybody_' + partyAddress);
 	var count = 0;
-	for (var i = 0; i < partyNodeBody.children.length; i++){
+	for (var i = 0; i < partyBody.children.length; i++){
 		count += parseInt(document.getElementById('ui-copies_' + partyAddress + '-' + i).value) || 0;
 	}
 	return count;
@@ -471,8 +471,8 @@ function parseAttackerNode(node){
 		name: idx >= 0 ? Data.Pokemon[idx].name : nameInputValue,
 		level: row2.children[0].children[0].value.trim(),
 		stmiv: row2.children[1].children[0].value.trim(),
-		defiv: row2.children[2].children[0].value.trim(),
-		atkiv: row2.children[3].children[0].value.trim(),
+		atkiv: row2.children[2].children[0].value.trim(),
+		defiv: row2.children[3].children[0].value.trim(),
 		fmove: row3.children[0].children[0].value.trim().toLowerCase(),
 		cmove: row3.children[1].children[0].value.trim().toLowerCase(),
 		dodge: row3.children[2].children[0].value,

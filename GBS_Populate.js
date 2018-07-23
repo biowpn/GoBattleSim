@@ -13,7 +13,7 @@ const MAX_NUM_PARTIES_PER_PLAYER = 5;
 const MAX_NUM_OF_PLAYERS = 20;
 
 
-var Data = {
+var DefaultData = {
 	BattleSettings: {
 		'sameTypeAttackBonusMultiplier': 1.2,
 		'maximumEnergy': 100, 
@@ -116,6 +116,8 @@ var LocalData = {
 	QuickStartWizardNoShow: 0,
 	PokemonClipboard: 0
 };
+
+var Data = JSON.parse(JSON.stringify(DefaultData));
 
 
 
@@ -753,6 +755,7 @@ function fetchAll_then(onfinish){
 		Data.Users.forEach(function(user){
 			user.box = parseUserPokebox(user.box);
 		});
+		leftMerge(Data.BattleSettings, LocalData.BattleSettings);
 		
 		if (onfinish)
 			onfinish();
