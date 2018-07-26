@@ -148,22 +148,6 @@
 
 
 <table>
-	<colgroup><col width='25%'><col width='50%'><col width='25%'></colgroup>
-	<tr>
-		<td>
-			<div id='ui-swapDiscount'><label style='width:100%; font-size:16px;'>Swap Discount<input type='checkbox' id='ui-swapDiscount-checkbox'></label></div>
-		</td>
-		<td>
-			<div id='ui-use-box'><label style='width:100%; font-size:16px;'>Use Pokemon from GamePress Box<input type='checkbox' id='ui-use-box-checkbox'></label></div>
-		</td>
-		<td>
-			<button class='player_button' id='refresher'><i class="fa fa-refresh" aria-hidden="true"></i> Refresh</button>
-		</td>
-	</tr>
-	
-</table>
-
-<table>
 	<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
 	<tr>
 		<th>Enemy Species</th>
@@ -209,6 +193,24 @@
 </table>
 
 <table>
+	<colgroup><col width='25%'><col width='25%'><col width='25%'><col width='25%'></colgroup>
+	<tr>
+		<td>
+			<div id='ui-swapDiscount' style='width:100%;'><label style='width:100%;font-size:16px;'>Swap Discount<input type='checkbox' id='ui-swapDiscount-checkbox'></label></div>
+		</td>
+		<td>
+			<div id='ui-use-box' style='width:100%;'><label style='width:100%;font-size:16px;'>My Pokemon<input type='checkbox' id='ui-use-box-checkbox'></label></div>
+		</td>
+		<td>
+			<div id='ui-uniqueSpecies' style='width:100%;'><label style='width:100%;font-size:16px;'>Best<input type='checkbox' id='ui-uniqueSpecies-checkbox'></label></div>
+		</td>
+		<td>
+			<button class='player_button' id='refresher'><i class="fa fa-refresh" aria-hidden="true"></i> Refresh</button>
+		</td>
+	</tr>
+</table>
+
+<table>
 	<colgroup><col width='100%'></colgroup>
 	<tr>
 		<th>Search</th>
@@ -230,12 +232,18 @@
 $( "#ui-swapDiscount" ).controlgroup();
 $( "#ui-swapDiscount-checkbox" ).change(function(){
 	Context.swapDiscount = this.checked ? "on" : "off";
-	requestSpreadsheet(true);
+	requestSpreadsheet(false);
 });
 
 $( "#ui-use-box" ).controlgroup();
 $( "#ui-use-box-checkbox" ).change(function(){
 	requestSpreadsheet(true);
+});
+
+$( "#ui-uniqueSpecies" ).controlgroup();
+$( "#ui-uniqueSpecies-checkbox" ).change(function(){
+	uniqueSpecies = this.checked;
+	$("#ranking_table").DataTable().draw();
 });
 
 $( "#refresher" ).change(function(){

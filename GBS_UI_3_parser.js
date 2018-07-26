@@ -60,7 +60,7 @@ function iterBranch2(cfg, address, attr, exmatch, universe, start){
 		
 		var matches = universe.filter(Predicate(expressionStr.toString()));
 		if (matches.length == 0){
-			sendFeedback(address + '.' + attr + " {" + expressionStr + "}: No match", true);
+			// sendFeedback(address + '.' + attr + " {" + expressionStr + "}: No match", true);
 			return [0];
 		}
 		

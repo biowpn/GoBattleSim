@@ -321,11 +321,11 @@ function generateSpreadsheet(pokemonCollection){
 	
 	for (var i = 0; i < pokemonCollection.length; i++){
 		var p = pokemonCollection[i];
-		
+		var bestPkm = null;
+
 		var fastMoves_all = p.fmove ? [p.fmove] : p.fastMoves.concat(p.fastMoves_legacy).concat(p.fastMoves_exclusive);
 		var chargedMoves_all = p.cmove ? [p.cmove] : p.chargedMoves.concat(p.chargedMoves_legacy).concat(p.chargedMoves_exclusive);
 		for (var j = 0; j < fastMoves_all.length; j++){
-			
 			var fmove = getEntry(fastMoves_all[j], Data.FastMoves);
 			if (!fmove){
 				console.log("Move not found: " + fastMoves_all[j]);
@@ -351,6 +351,19 @@ function generateSpreadsheet(pokemonCollection){
 				pkm.cp = calculateCP(pkm);
 				pkm.calculateDPS(Context);
 				
+				if (bestPkm == null){
+					bestPkm = pkm;
+					pkm.best = true;
+				}else{
+					if (pkm.dps > bestPkm.dps){
+						bestPkm.best = false;
+						pkm.best = true;
+						bestPkm = pkm;
+					}else{
+						pkm.best = false;
+					}
+				}
+				
 				Table.row.add([
 					createIconLabelDiv2(pkm.icon, p.nickname || pkm.label, 'species-input-with-icon'), 
 					createIconLabelDiv2(pkm.fmove.icon, pkm.fmove.label, 'move-input-with-icon'), 
@@ -372,14 +385,31 @@ function generateSpreadsheet(pokemonCollection){
 
 function updateSpreadsheet(){
 	applyContext();
+	var bestEachSpecies = {};
 	
 	var i = 0;
 	Table.data().each(function(row){
 		var pkm = ALL_COMBINATIONS[i];
+		
 		pkm.calculateDPS(Context);
 		row[3] = Math.round(pkm.dps * 1000) / 1000;
 		row[4] = Math.round(pkm.tdo * 10) / 10;
 		row[5] = Math.round(pkm.dps * pkm.tdo * 10) / 10;
+
+		var curBest = bestEachSpecies[pkm.name];
+		if (curBest){
+			if (pkm.dps > curBest.dps){
+				curBest.best = false;
+				bestEachSpecies[pkm.name] = pkm;
+				pkm.best = true;
+			}else{
+				pkm.best = false;
+			}
+		}else{
+			pkm.best = true;
+			bestEachSpecies[pkm.name] = pkm;
+		}
+		
 		i++;
 	});
 	
@@ -391,6 +421,8 @@ function updateSpreadsheet(){
 
 function requestSpreadsheet(startover){
 	calculationMethod = function(){};
+	uniqueSpecies = document.getElementById('ui-uniqueSpecies-checkbox').checked;
+	
 	if (startover){
 		var pokebox_checkbox = document.getElementById('ui-use-box-checkbox');
 		if (pokebox_checkbox.checked){
@@ -426,12 +458,14 @@ function requestSpreadsheet(startover){
 			}
 			sendFeedbackDialog("Oops, an issue occurred: " + err.toString());
 		}
+		
 	}, 50);
 }
 
 
 var lastKeyUpTime = 0;
 pred = function(obj){return true;}
+
 function search_trigger(){
 	lastKeyUpTime = Date.now();
 	setTimeout(function(){
@@ -442,12 +476,18 @@ function search_trigger(){
 	}, 600);
 }
 
+var uniqueSpecies = false;
+
 $.fn.dataTable.ext.search.push(
-    function( settings, searchData, index, rowData, counter ) {
+    function(settings, searchData, index, rowData, counter){
 		var pkm = ALL_COMBINATIONS[index];
-		var res = true;
-		try{ res = pred(pkm);} catch(err){ res = true; }
-		return res;
+		var selected = true;
+		try{ 
+			selected = pred(pkm) && (!uniqueSpecies || pkm.best);
+		}catch(err){ 
+			selected = true; 
+		}
+		return selected;
     }
 );
 
@@ -462,7 +502,7 @@ $.fn.dataTable.ext.search.push(
 function generateSpectrum(pkm, settings){
 	settings = settings || {};
 	var X_min = settings.X_min || 0, X_max = settings.X_max || 100, X_num = settings.X_num || 100, X_step = (X_max - X_min) / X_num;
-	var Y_min = settings.Y_min || 0, Y_max = settings.Y_max || 1500/pkm.Def, Y_num = settings.Y_step || 100, Y_step = (Y_max - Y_min) / Y_num;
+	var Y_min = settings.Y_min || 0, Y_max = settings.Y_max || 1500/pkm.Def, Y_num = settings.Y_num || 100, Y_step = (Y_max - Y_min) / Y_num;
 	var DPS_spectrum = [];
 	for (var x = X_min; x < X_max; x += X_step){
 		var row = [];

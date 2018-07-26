@@ -664,11 +664,18 @@ function quickStartWizard_submit(){
 		numPlayer--;
 	}
 	var pkmSource = document.getElementById('quickStartWizard-pokemonSource').value;
+	var pkm = qsw_config.atkrSettings[0].party_list[0].pokemon_list[0];
 	if (pkmSource == '$'){
-		qsw_config.atkrSettings[0].party_list[0].pokemon_list[0].species = '*$';
+		pkm.name = "*$";
+		pkm.fmove = "";
+		pkm.cmove = "";
+		pkm.level = "";
+		pkm.atkiv = "";
+		pkm.defiv = "";
+		pkm.stmiv = "";
 	}else{
-		qsw_config.atkrSettings[0].party_list[0].pokemon_list[0].species = '*rating3~ & !$';
-		qsw_config.atkrSettings[0].party_list[0].pokemon_list[0].level = parseInt(pkmSource);
+		pkm.name = "*rating3~ & !$";
+		pkm.level = parseInt(pkmSource);
 	}
 	
 	qsw_config.dfdrSettings.species = document.getElementById('ui-species_QSW-boss').getAttribute('name');
@@ -734,6 +741,7 @@ function breakpointCalculatorSubmit(){
 	var friend = $("#breakpointCalculator-friend").val();
 	var raidTier = $("#breakpointCalculator-raidTier").val();
 	
+	var breakpointCalculatorTable = $( "#breakpointCalculator-output" ).DataTable();
 	breakpointCalculatorTable.clear();
 	
 	for (var i = 0; i < attackers.length; i++){
