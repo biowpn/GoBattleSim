@@ -112,6 +112,7 @@ function dropdownMenuInit(){
 
 
 function moveEditFormInit(){
+	$( "#moveEditForm" ).attr("style", "visibility: show;");
 	$( "#moveEditForm" ).dialog({ 
 		autoOpen: false,
 		width: 600
@@ -127,7 +128,7 @@ function moveEditFormInit(){
 		source: function(request, response){
 			var matches = [];
 			try{
-				matches = Data[$('#moveEditForm-moveType').val()].filter(Predicate(request.term));
+				matches = Data[$('#moveEditForm-moveType').val() + "Moves"].filter(Predicate(request.term));
 			}catch(err){}
 			response(matches);
 		},
@@ -155,7 +156,8 @@ function moveEditFormInit(){
 }
 
 function moveEditFormSubmit(){
-	var moveDatabaseName = document.getElementById('moveEditForm-moveType').value;
+	var movePrefix = document.getElementById('moveEditForm-moveType').value;
+	var moveDatabaseName = movePrefix + "Moves";
 	var moveName = document.getElementById('moveEditForm-name').value.trim().toLowerCase();
 	
 	if (moveName == '')
@@ -163,7 +165,7 @@ function moveEditFormSubmit(){
 	
 	var move = {
 		name: moveName,
-		moveType: moveDatabaseName[0].toLowerCase(),
+		moveType: movePrefix.toLowerCase(),
 		power: parseInt(document.getElementById('moveEditForm-power').value),
 		pokeType: document.getElementById('moveEditForm-pokeType').value.toLowerCase(),
 		energyDelta: (moveDatabaseName[0].toLowerCase() == 'f' ? 1 : -1) * Math.abs(parseInt(document.getElementById('moveEditForm-energyDelta').value)),
@@ -210,7 +212,8 @@ function moveEditFormReset(){
 }
 
 function moveEditFormDelete(){
-	var moveDatabaseName = $('#moveEditForm-moveType').val();
+	var movePrefix = $('#moveEditForm-moveType').val();
+	var moveDatabaseName = movePrefix + "Moves";
 	var moveName = document.getElementById('moveEditForm-name').value.trim().toLowerCase();
 	
 	if (removeEntry(moveName, Data[moveDatabaseName]) && removeEntry(moveName, LocalData[moveDatabaseName])){
@@ -222,6 +225,7 @@ function moveEditFormDelete(){
 
 
 function pokemonEditFormInit(){
+	$( "#pokemonEditForm" ).attr("style", "visibility: show;");
 	$( "#pokemonEditForm" ).dialog({
 		autoOpen: false,
 		width: 600
@@ -392,6 +396,7 @@ function pokemonEditFormDelete(){
 
 
 function parameterEditFormInit(){
+	$( "#parameterEditForm" ).attr("style", "visibility: show;");
 	$( "#parameterEditForm" ).dialog({ 
 		autoOpen: false,
 		width: 600,
@@ -428,6 +433,7 @@ function parameterEditFormReset(){
 
 
 function userEditFormInit(){
+	$( "#userEditForm" ).attr("style", "visibility: show;");
 	$( "#userEditForm" ).dialog({ 
 		autoOpen: false,
 		width: 600
@@ -535,6 +541,7 @@ function boxEditFormSubmit(userIndex){
 
 
 function modEditFormInit(){
+	
 	var mod_tbody = document.getElementById('mod_tbody');
 	if (mod_tbody){
 		mod_tbody.innerHTML = '';
@@ -545,7 +552,7 @@ function modEditFormInit(){
 			]));
 		}
 	}
-			
+	$( "#modEditForm" ).attr("style", "visibility: show;");
 	$( "#modEditForm" ).dialog({ 
 		autoOpen: false,
 		width: 600
@@ -573,20 +580,20 @@ function QuickStartWizardInit(){
 	$('#quickStartWizardOpener').click(function() {
 		$( "#quickStartWizard" ).dialog( "open" );
 	});
-
-	$("#quickStartWizard").dialog({ 
+	$( "#quickStartWizard" ).attr("style", "visibility: show;");
+	$( "#quickStartWizard" ).dialog({ 
 		autoOpen: false,
 		width: 600,
 		height: 700,
 		buttons: [{
 			text: 'GO',
 			style: 'width: 40%; float: left;',
-			click: quickStartWizard_submit
+			click: quickStartWizardSubmit
 			
 		},{
 			text: "Don't show Up Again",
 			style: 'width: 40%; float: right;',
-			click: quickStartWizard_dontshowup
+			click: quickStartWizardNoShowUp
 		}]
 	});
 
@@ -603,7 +610,7 @@ function QuickStartWizardInit(){
 	$('#cmove_QSW-boss').autocomplete( "option", "appendTo", "#quickStartWizard" );
 }
 
-function quickStartWizard_moves(value){
+function quickStartWizardSetMoves(value){
 	if (value == 'spec'){
 		document.getElementById('tabs-3').setAttribute('style', 'width: 100%; height: 200px');
 		$('#quickStartWizard-movesTable').show();
@@ -655,7 +662,7 @@ function populateQuickStartWizardBossList(tag){
 	$( listObj ).menu('refresh');
 }
 
-function quickStartWizard_submit(){
+function quickStartWizardSubmit(){
 	simResults = [];
 	var qsw_config = JSON.parse(JSON.stringify(QUICK_START_WIZARD_CONFIG_1));
 	var numPlayer = parseInt($('#quickStartWizard-numPlayer').val());
@@ -688,7 +695,7 @@ function quickStartWizard_submit(){
 	requestSimulation({sortBy: qsW_sort});
 }
 
-function quickStartWizard_dontshowup(){
+function quickStartWizardNoShowUp(){
 	localStorage.setItem('QUICK_START_WIZARD_NO_SHOW', '1');
 	LocalData.QuickStartWizardNoShow = 1;
 	saveLocalData();
@@ -698,6 +705,7 @@ function quickStartWizard_dontshowup(){
 
 
 function breakpointCalculatorInit(){
+	$( "#breakpointCalculator" ).attr("style", "visibility: show;");
 	$( "#breakpointCalculator" ).dialog({ 
 		autoOpen: false,
 		width: 800
@@ -745,10 +753,11 @@ function breakpointCalculatorSubmit(){
 	breakpointCalculatorTable.clear();
 	
 	for (var i = 0; i < attackers.length; i++){
-
 		var atkrs = [];
 		var atkr_copy = JSON.parse(JSON.stringify(attackers[i]));
-		if (atkr_copy.box_index < 0){
+		if (atkr_copy.box_index >= 0){
+			atkrs.push(new Pokemon(atkr_copy));			
+		}else{
 			var atkiv_default = parseInt($('#breakpointCalculator-atkiv').val());
 			atkr_copy.fastMoves.concat(atkr_copy.fastMoves_legacy).concat(atkr_copy.fastMoves_exclusive).forEach(function(move){
 				atkrs.push(new Pokemon({
@@ -760,11 +769,8 @@ function breakpointCalculatorSubmit(){
 					fmove: move
 				}));
 			});
-		}else{
-			atkrs.push(new Pokemon(atkr_copy));
 		}
 
-		
 		for (var j = 0; j < atkrs.length; j++){
 			var atkr = atkrs[j];
 			atkr.fab = getFriendMultiplier(friend);
@@ -794,4 +800,99 @@ function breakpointCalculatorSubmit(){
 	$.fn.dataTable.ext.search.pop();
 	
 	addFilterToFooter(breakpointCalculatorTable);
+}
+
+
+function MVLTableInit(){
+	$( "#MVLTable" ).attr("style", "visibility: show;");
+	$( "#MVLTable" ).dialog({ 
+		autoOpen: false,
+		width: 600
+	});
+	$( "#MVLTableOpener" ).click(function() {
+		$( "#MVLTable" ).dialog( "open" );
+	});
+}
+
+function MVLTableSubmit(){
+	sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Simulating...");
+	
+	setTimeout(function(){
+		try{
+			MVLTableCalculate();
+		}catch(err){
+			sendFeedbackDialog("Oops, something went wrong! Make sure all input are valid. If the error persists, better call bio");
+		}
+		while (DialogStack.length){
+			DialogStack.pop().dialog('close');
+		}
+	}, 100);
+}
+
+function MVLTableCalculate(){
+	var baseConfig = readUserInput();
+	var basePlayer = baseConfig.atkrSettings[0];
+	var numPlayer = parseInt(document.getElementById("MVLTable-numPlayer").value);
+	if (!(numPlayer > 0)){
+		sendFeedbackDialog("How many players we're talking about?");
+		return;
+	}
+	
+	baseConfig.atkrSettings = [];
+	for (var i = 0; i < numPlayer; i++){
+		baseConfig.atkrSettings.push(basePlayer);
+	}
+	baseConfig.generalSettings.aggregation = 'avrg';
+	
+	var winRates = [];
+	for (var i = 0; i < Data.LevelSettings.length; i++){
+		winRates.push(-1);
+	}
+	var dataRow = [baseConfig.generalSettings.weather];
+	
+	for (var i = 0; i < Data.FriendSettings.length; i++){
+		basePlayer.friend = Data.FriendSettings[i].name;
+		var curWinRate = 0, lower = 0, upper = Data.LevelSettings.length - 1, mid;
+		if (numPlayer == 1 && i == 0 || numPlayer > 1 && i > 0){
+			while (upper >= lower){
+				mid = Math.floor((lower + upper)/2);
+				curWinRate = getWinRate(Data.LevelSettings[mid].name, baseConfig);
+				winRates[mid] = curWinRate;
+				console.log(Data.FriendSettings[i].name + "," + Data.LevelSettings[mid].name, ":", curWinRate);
+				if (curWinRate >= 60){	
+					upper = mid - 1;
+				}else{
+					lower = mid + 1;
+				}
+			}
+			for (var j = 0; j < winRates.length; j++){
+				if (winRates[j] >= 60){
+					dataRow.push(Data.LevelSettings[j].name);
+					break;
+				}else if (j == winRates.length - 1){
+					dataRow.push(Data.LevelSettings[j].name + "*");
+				}
+			}
+		}else{
+			dataRow.push("");
+		}
+	}
+	document.getElementById("MVLTable-table").children[1].appendChild(createRow(dataRow));
+}
+
+function MVLTableClear(){
+	document.getElementById("MVLTable-table").children[1].innerHTML = "";
+}
+
+function getWinRate(level, cfg){
+	for (var i = 0; i < cfg.atkrSettings.length; i++){
+		for (var j = 0; j < cfg.atkrSettings[i].party_list.length; j++){
+			for (var k = 0; k < cfg.atkrSettings[i].party_list[j].pokemon_list.length; k++){
+				cfg.atkrSettings[i].party_list[j].pokemon_list[k].level = level;
+			}
+		}
+	}
+	var resCol = [];
+	runSim(cfg, resCol);
+	return parseFloat(resCol[0].output.generalStat.battle_result);
 }

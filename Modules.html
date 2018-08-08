@@ -1,0 +1,381 @@
+
+
+<div id='moveEditForm' title="Add/Edit Move" style="visibility: hidden;">
+	<table>
+		<tr>
+			<th>Move Category</th> 
+			<td><select id='moveEditForm-moveType'>
+				<option value='Fast'>Fast</option>
+				<option value='Charged'>Charged</option>
+			</select></td>
+		</tr>
+		<tr>
+			<th>Move Name</th> 
+			<td><input type='text' id='moveEditForm-name' class='input-with-icon move-input-with-icon'></td>
+		</tr>
+		<tr>
+			<th>Move Typing</th> 
+			<td><select id='moveEditForm-pokeType'></select></td>
+		</tr>
+		<tr>
+			<th>Power</th> 
+			<td><input type='number' id='moveEditForm-power'></td>
+		</tr>
+		<tr>
+			<th>EnergyDelta</th> 
+			<td><input type='number' id='moveEditForm-energyDelta'></td>
+		</tr>
+		<tr>
+			<th>Duration (in seconds)</th> 
+			<td><input type='number' id='moveEditForm-duration'></td>
+		</tr>
+		<tr>
+			<th>Damage Window (in seconds)</th> 
+			<td><input type='number' id='moveEditForm-dws'></td>
+		</tr>
+	</table>
+	<br>
+	
+	<table> 
+		<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
+		<tr>
+			<td><button onclick='moveEditFormSubmit()' id='moveEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+			<td><button onclick='moveEditFormDelete()' id='moveEditForm-delete'><i class="fa fa-trash" aria-hidden="true"></i> Delete</button></td>
+			<td><button onclick='moveEditFormReset()' id='moveEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
+		</tr>
+	</table>
+	
+	<div id='moveEditForm-feedback'>
+	</div>
+</div>
+
+<div id='pokemonEditForm' title="Add/Edit Pokemon" style="visibility: hidden;">
+	<table>
+		<tr>
+			<th>Pokemon Name</th> 
+			<td><input type='text' id='pokemonEditForm-name' class='input-with-icon species-input-with-icon'></td>
+		</tr>
+		<tr>
+			<th>Pokemon Typing 1</th> 
+			<td><select id='pokemonEditForm-pokeType1'></select></td>
+		</tr>
+		<tr>
+			<th>Pokemon Typing 2</th> 
+			<td><select id='pokemonEditForm-pokeType2'></select></td>
+		</tr>
+		<tr>
+			<th>Base Attack</th> 
+			<td><input type='number' id='pokemonEditForm-baseAtk'></td>
+		</tr>
+		<tr>
+			<th>Base Defense</th> 
+			<td><input type='number' id='pokemonEditForm-baseDef'></td>
+		</tr>
+		<tr>
+			<th>Base Stamina</th> 
+			<td><input type='number' id='pokemonEditForm-baseStm'></td>
+		</tr>
+		<tr>
+			<th>Fast Move Pool</th> 
+			<td><input type='text' id='pokemonEditForm-fmoves'></td>
+		</tr>
+		<tr>
+			<th>Charged Move Pool</th> 
+			<td><input type='text' id='pokemonEditForm-cmoves'></td>
+		</tr>
+
+	</table>
+	<br>
+	
+	
+	<table> 
+		<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
+		<tr>
+			<td><button onclick='pokemonEditFormSubmit()' id='pokemonEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+			<td><button onclick='pokemonEditFormDelete()' id='pokemonEditForm-delete'><i class="fa fa-trash" aria-hidden="true"></i> Delete</button></td>
+			<td><button onclick='pokemonEditFormReset()' id='pokemonEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
+		</tr>
+	</table>
+	
+	<div id='pokemonEditForm-feedback'>
+	</div>
+</div>
+
+<div id='modEditForm' title="Edit Mods" style="visibility: hidden;">
+	<table id='modEditForm-Table'>
+		<thead>
+			<tr>
+				<th>Mod Name</th>
+				<th>Applied</th>
+			</tr>
+		</thead>
+		<tbody id='mod_tbody'>
+
+		</tbody>
+	</table>
+	<br>
+	<table> 
+		<colgroup><col width='100%'></colgroup>
+		<tr>
+			<td><button onclick='modEditFormSubmit()' id='modForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+		</tr>
+	</table>
+	
+	<div id='modEditForm-feedback'>
+	</div>
+</div>
+
+<div id='userEditForm' title="Add/Edit User" style="visibility: hidden;">
+	<h4>List of Users</h4>
+	<table id='userEditForm-userTable'>
+		<thead>
+			<tr> <th>Player No.</th> <th>UserID</th> <th>PokeBox Length</th> <th>Action</th> </tr>
+		</thead>
+		<tbody>
+		
+		</tbody>
+	</table>
+	
+	<br>
+	<input type='text' id='userEditForm-userID-1' placeholder='userID To Add/Remove'></input>
+	<table><colgroup><col width=50%><col width=50%></colgroup>
+		<tr>
+			<td><button onclick='userEditFormAddUser()'><i class="fa fa-user-plus" aria-hidden="true"></i> Add User</button></td>
+			<td><button onclick='userEditFormRemoveUser()'><i class="fa fa-user-times" aria-hidden="true"></i> Remove User</button></td>
+		</tr>
+	</table>
+	
+	<div id='userEditForm-feedback'>
+	</div>
+</div>
+
+<div id='boxEditForm' title="Manage Pokebox" style="visibility: hidden;">
+	<h4 id='boxEditForm-title'>User: </h4>
+	<table id='boxEditForm-pokemonTable'>
+		<thead>
+			<tr>
+				<th>#</th>
+				<th><img src='https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png'></img></th>
+				<th>Type1</th>
+				<th>Type2</th>
+				<th>Nickname</th>
+				<th>CP</th>
+				<th>Level</th>
+				<th>HP IV</th>
+				<th>Atk IV</th>
+				<th>Def IV</th>
+				<th>Fast Move</th>
+				<th>Charged Move</th>
+			</tr>
+		</thead>
+		<tbody>
+		
+		</tbody>
+	</table>
+	<br>
+	<button onclick='boxEditFormSubmit()' id='boxEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button>
+	
+	<div id='boxEditForm-feedback'>
+	</div>
+</div>
+
+<div id='parameterEditForm' title="Edit Battle Settings" style="visibility: hidden;">
+	<table id='parameterEditForm-Table'>
+		<thead>
+			<tr>
+				<th>Paramater</th>
+				<th>Value</th>
+			</tr>
+		</thead>
+		<tbody>
+
+		</tbody>
+	</table>
+	<br>
+	<table> 
+		<colgroup><col width='50%'><col width='50%'></colgroup>
+		<tr>
+			<td><button onclick='parameterEditFormSubmit()' id='parameterEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+			<td><button onclick='parameterEditFormReset()' id='parameterEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
+		</tr>
+	</table>
+	
+	<div id='parameterEditForm-feedback'>
+	</div>
+</div>
+
+<div id="quickStartWizard" title="Welcome to GoBattleSim - Quick Start" style="visibility: hidden;">
+	<div id='quickStartWizard-tabs'>
+
+		<div id='tabs-1' style='height: 100px'>
+			<h4>1. Solo or Group fight?</h4>
+			<table>
+				<colgroup><col width='50%'><col width='50%'></colgroup>
+				<tr>
+					<td><input type='number' id='quickStartWizard-numPlayer' min='1' placeholder='number of players'></input></td>
+					<td><select id='quickStartWizard-pokemonSource' style='color: white'>
+						<option value='$'>From My Box</option>
+						<option value='30'>Generic Level 30</option>
+						<option value='40'>Generic Level 40</option>
+					</select></td>
+				</tr>
+			</table>
+			
+			<i>You can add other GamePressers' PokeBox <b><a onclick='udpateUserTable();$("#userEditForm").dialog("open");' style="cursor: pointer;">here</a></b></i>
+		</div>
+		
+		
+		<div id='tabs-2' style='width: 100%; height: 220px'>
+			<h4>2. Which Raid Boss?</h4>
+			
+			<div id='quickStartWizard-raidbosstags' style='width:100%; height:60px'>
+				<input type="radio" id="bossTag1" name='boss-tag' onclick='populateQuickStartWizardBossList("current")' checked>
+				<label for="bossTag1">Current</label>
+				<input type="radio" id="bossTag2" name='boss-tag' onclick='populateQuickStartWizardBossList("legacy")'>
+				<label for="bossTag2">Legacy</label>
+				<input type="radio" id="bossTag3" name='boss-tag' onclick='populateQuickStartWizardBossList("future")'>
+				<label for="bossTag3">Future</label>
+				<input type="radio" id="bossTag4" name='boss-tag' onclick='populateQuickStartWizardBossList("special")'>
+				<label for="bossTag4">Special</label>
+			</div>
+			
+			<div style='width: 100%; height: 100px'>
+				<span style='width:50%; float:left; display: inline-block'>
+					<ul style='width:60%; float:top' id="quickStartWizard-raidbosslist" >
+					</ul>
+				</span>
+				<span style='width:50%; float:right; display: inline-block'>
+					<img id='ui-species_QSW-boss' style='width:160px; height:160px' name='latios' index='-1' raid_tier='5'
+						src='https://pokemongo.gamepress.gg/sites/pokemongo/files/2017-08/381_0.png'></img>
+				</span>
+
+			</div>
+			
+			
+		</div>
+		
+		<div id='tabs-3' style='width: 100%; height: 100px'>
+			<h4>3. Which Move set?</h4>
+			
+			<div id='quickStartWizard-moves'>
+				<input type="radio" id="quickStartWizard-moves-enum" name='qsW-moves' value="enum" onclick='quickStartWizardSetMoves(this.value)' checked>
+				<label for="quickStartWizard-moves-enum">List All</label>
+				<input type="radio" id="quickStartWizard-moves-avrg" name='qsW-moves' value="avrg" onclick='quickStartWizardSetMoves(this.value)'>
+				<label for="quickStartWizard-moves-avrg">Average All</label>
+				<input type="radio" id="quickStartWizard-moves-spec" name='qsW-moves' value="spec" onclick='quickStartWizardSetMoves(this.value)'>
+				<label for="quickStartWizard-moves-spec">Specify One</label>
+			</div>
+			
+			<table id='quickStartWizard-movesTable'>
+			<colgroup><col width='50%'><col width='50%'></colgroup>
+			<tr>
+				<td><input id='fmove_QSW-boss' placeholder='Fast Move' class='input-with-icon move-input-with-icon'></input></td>
+				<td><input id='cmove_QSW-boss' placeholder='Charged Move' class='input-with-icon move-input-with-icon'></input></td>
+			</tr>
+			</table>
+		</div>
+		
+		<div id='tabs-4' style='width: 100%; height: 100px'>
+			<h4>4. Sort the result by?</h4>
+			
+			<div id='quickStartWizard-sortBy'>
+				<input type="radio" id="quickStartWizard-sortBy-dps" name='qsW_sort' value="dps" onclick='qsW_sort="dps";' checked >
+				<label for="quickStartWizard-sortBy-dps">DPS</label>
+				<input type="radio" id="quickStartWizard-sortBy-tdo" name='qsW_sort' value="tdo" onclick='qsW_sort="tdo";'>
+				<label for="quickStartWizard-sortBy-tdo">TDO</label>
+			</div>
+		</div>
+		
+	</div>
+</div>
+
+<div id='breakpointCalculator' title="Batch Breakpoint Calculator" style="visibility: hidden;">
+	<table id='breakpointCalculator-input'>
+		<colgroup><col width='50%'><col width='50%'></colgroup>
+		<tr>
+			<th>Attacker</th>
+			<th>Defender</th>
+		</tr>
+		<tr>
+			<td><input id='ui-species_0' placeholder='Attacker' value='$' class='input-with-icon species-input-with-icon'></input></td>
+			<td><input id='ui-species_boss' placeholder='Defender' value='%5' class='input-with-icon species-input-with-icon'></input></td>
+		</tr>
+
+		<tr>
+			<th>Default Attack IV</th>
+			<th>Raid Tier</th>
+		</tr>
+		<tr>
+			<td>
+				<select id="breakpointCalculator-atkiv">
+				</select>
+			</td>
+			<td>
+				<select id="breakpointCalculator-raidTier">
+				</select>
+			</td>
+		</tr>
+		
+		<tr>
+			<th>Friend</th>
+			<th>Weather</th>
+		</tr>
+		<tr>
+			<td>
+				<select id="breakpointCalculator-friend">
+				</select>
+			</td>
+			<td>
+				<select id="breakpointCalculator-weather">
+				</select>
+			</td>
+		</tr>
+	</table>
+	
+	<br>
+	<button onclick='breakpointCalculatorSubmit()' id='breakpointCalculator-submit'>Calculate</button>
+	<br>
+	
+	<table id='breakpointCalculator-output'>
+		<thead>
+			<th>Attacker</th><th>Move</th><th>Boss</th><th>Final Damage</th><th>Breakpoints</th><th>Dust to Final BP</th><th>Candy to Final BP</th>
+		</thead>
+		<tfoot>
+			<th></th><th></th><th></th><th></th><th></th><th></th><th></th>
+		</tfoot>
+		<tbody>
+		</tbody>
+	</table>
+
+</div>
+
+
+<div id='MVLTable' title="Minimum Viable Level Table" style="visibility: hidden;">
+	
+	<table id="MVLTable-table">
+		<thead>
+			<th>Weather</th><th>None</th><th>Good</th><th>Great</th><th>Ultra</th><th>Best</th>
+		</thead>
+		<tbody>
+
+		</tbody>
+	</table>
+	
+	<br>
+	
+	<div>
+		<input id="MVLTable-numPlayer" placeholder="Number of Players"></input>
+	</div>
+	
+	<table>
+		<colgroup>
+			<col width="50%"><col width="50%">
+		</colgroup>
+		<tr>
+			<td><button onclick="MVLTableSubmit();">Generate</button></td>
+			<td><button onclick="MVLTableClear();">Clear</button></td>
+		</tr>
+	</table>
+
+</div>
+

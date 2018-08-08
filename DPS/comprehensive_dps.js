@@ -379,7 +379,7 @@ function generateSpreadsheet(pokemonCollection){
 		}
 	}
 	console.log(Date() + ": All DPS calculated");
-	pred = createComplexPredicate($('#searchInput').val());
+	pred = Predicate($('#searchInput').val());
 	$("#ranking_table").DataTable().draw();
 }
 
@@ -415,7 +415,7 @@ function updateSpreadsheet(){
 	
 	console.log(Date() + ": All DPS re-calculated");
 	Table.rows().invalidate();
-	pred = createComplexPredicate($('#searchInput').val());
+	pred = Predicate($('#searchInput').val());
 	$("#ranking_table").DataTable().draw();
 }
 
@@ -470,7 +470,7 @@ function search_trigger(){
 	lastKeyUpTime = Date.now();
 	setTimeout(function(){
 		if (Date.now() - lastKeyUpTime >= 600){
-			pred = createComplexPredicate($('#searchInput').val());
+			pred = Predicate($('#searchInput').val());
 			$("#ranking_table").DataTable().draw();
 		}
 	}, 600);

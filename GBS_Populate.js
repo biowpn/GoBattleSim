@@ -4,6 +4,8 @@
 var FETCHED_STATUS = 0;
 var FETCHED_STATUS_PASS = 5;
 
+var isGamePressStaff = false;
+
 /* 
  *	PART I(a): GAME DATA
  */
@@ -423,7 +425,7 @@ function fetchRaidBossList(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({ 
-		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/raid-boss-list.json?new', 
+		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/raid-boss-list.json?v2', 
 		dataType: 'json', 
 		success: function(data){
 			Data.RaidBosses = [];
@@ -451,7 +453,7 @@ function fetchSpeciesData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({ 
-		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pokemon-data-full.json?new',
+		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pokemon-data-full.json?v2',
 		dataType: 'json', 
 		success: function(data){
 			Data.Pokemon = [];
@@ -492,7 +494,7 @@ function fetchSpeciesFormData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({ 
-		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json?new',
+		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json?v2',
 		dataType: 'json', 
 		success: function(data){
 			Data.PokemonForms = [];
@@ -514,7 +516,7 @@ function fetchMoveData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({
-		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/move-data-full.json?new',
+		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/move-data-full.json?v2',
 		dataType: 'json', 
 		success: function(data){
 			Data.FastMoves = [];
@@ -530,11 +532,11 @@ function fetchMoveData(oncomplete){
 					icon: getTypeIcon({pokeType: data[i].move_type})
 				};
 				if (data[i].move_category == "Fast Move"){
-					move.moveType = 'f';
+					move.moveType = 'fast';
 					move.energyDelta = Math.abs(parseInt(data[i].energy_gain));
 					Data.FastMoves.push(move);
 				}else{
-					move.moveType = 'c';
+					move.moveType = 'charged';
 					move.energyDelta = -Math.abs(parseInt(data[i].energy_cost));
 					Data.ChargedMoves.push(move);
 				}
@@ -668,9 +670,11 @@ function fetchLocalData(){
 			delete pkm.index;
 		});
 		LocalData.FastMoves.forEach(function(move){
+			move.moveType = "fast";
 			delete move.index;
 		});
 		LocalData.ChargedMoves.forEach(function(move){
+			move.moveType = "charged";
 			delete move.index;
 		});
 		LocalData.BattleParties.forEach(function(party){
@@ -779,7 +783,6 @@ function populateAll(dataReady){
 		fetchLocalData(LocalData);
 
 		fetchAll(function(){
-			var isGamePressStaff = false;
 			try{
 				if (drupalSettings.ajaxPageState.libraries.includes('admin_toolbar')){
 					isGamePressStaff = true;

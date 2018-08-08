@@ -63,8 +63,7 @@ function calculateBreakpoints(dmg_giver, dmg_taker, move, weather){
 
 /* Class <Move> */
 // constructor
-function Move(m, mtype){
-	var moveDatabase = (mtype == 'f' ? Data.FastMoves : Data.ChargedMoves);
+function Move(m, moveDatabase){
 	if (typeof m == typeof 0 && m >= 0)
 		leftMerge(this, moveDatabase[m]);
 	else if (typeof m == typeof "")
@@ -112,9 +111,9 @@ function Pokemon(cfg){
 	leftMerge(this, speciesData);
 	
 
-	this.fmove = new Move(cfg.fmove, 'f');
+	this.fmove = new Move(cfg.fmove, Data.FastMoves);
 	this.fmove_name = this.fmove.name;
-	this.cmove = new Move(cfg.cmove, 'c');
+	this.cmove = new Move(cfg.cmove, Data.ChargedMoves);
 	this.cmove_name = this.cmove.name;
 	
 	this.nickname = cfg.nickname || "";
@@ -152,8 +151,8 @@ Pokemon.prototype.exportState = function(){
 Pokemon.prototype.init = function(constructorCalled){
 	if (!constructorCalled){
 		leftMerge(this, getEntry(this.name, Data.Pokemon));
-		this.fmove = new Move(this.fmove_name, 'f');
-		this.cmove = new Move(this.cmove_name, 'c');
+		this.fmove = new Move(this.fmove_name, Data.FastMoves);
+		this.cmove = new Move(this.cmove_name, Data.ChargedMoves);
 	}
 	
 	this.initCurrentStats();
@@ -226,7 +225,7 @@ Pokemon.prototype.takeDamage = function(dmg){
 // Keeping record of tdo for performance analysis
 Pokemon.prototype.attributeDamage = function(dmg, mType){
 	this.tdo += dmg;
-	if (mType == 'f'){
+	if (mType == 'fast'){
 		this.tdo_fmove += dmg;
 		this.n_fmoves += 1;
 		this.n_addtional_fmoves += 1;
@@ -504,7 +503,7 @@ World.prototype.init = function(){
 
 // Player's Pokemon uses a move
 World.prototype.attackerUsesMove = function(pkm, pkm_hurt, move, t){
-	t += move.moveType == 'f' ? Data.BattleSettings.fastMoveLagMs : Data.BattleSettings.chargedMoveLagMs;
+	t += Data.BattleSettings[move.moveType + "MoveLagMs"];
 	var energyDeltaEvent = {
 		name: EVENT_TYPE.EnergyDelta, t: t + move.dws, subject: pkm, energyDelta: move.energyDelta
 	};
@@ -821,7 +820,7 @@ World.prototype.appendToLog = function(events){
 					'text': e.subject.HP + '(-' + e.dmg + ')'
 				};
 				rowData[1].dfdr = {
-					'type': e.move.moveType + 'move', 
+					'type': e.move.moveType + 'Move', 
 					'name': e.move.name
 				};
 			}else{ // dfdrHurt
@@ -832,7 +831,7 @@ World.prototype.appendToLog = function(events){
 					'text': e.subject.HP
 				}; 
 				rowData[2][e.object.playerCode] = {
-					'type': e.move.moveType + 'move', 
+					'type': e.move.moveType + 'Move', 
 					'name': e.move.name
 				};
 			}
@@ -967,7 +966,7 @@ function atkr_choose_1(state){
 	var weather = state.weather;
 	var dodge_bug = state.dodge_bug;
 	
-	if (t < hurtEvent.t && hurtEvent.move.moveType == 'c' && !this.has_dodged_next_attack){
+	if (t < hurtEvent.t && hurtEvent.move.moveType == 'charged' && !this.has_dodged_next_attack){
 		this.has_dodged_next_attack = true;
 		
 		var timeTillHurt = hurtEvent.t - t;
@@ -1024,7 +1023,7 @@ function atkr_choose_2(state){
 		var opt_strat = strategyMaxDmg(timeTillHurt, this.energy, fDmg, this.fmove.energyDelta, 
 					this.fmove.duration + Data.BattleSettings.fastMoveLagMs, cDmg, this.cmove.energyDelta, this.cmove.duration + Data.BattleSettings.chargedMoveLagMs);
 		var res = opt_strat[2];
-		if (hurtEvent.move.moveType == 'f') { // Case 1a: A fast move has been announced
+		if (hurtEvent.move.moveType == 'fast') { // Case 1a: A fast move has been announced
 			if (this.HP > dodgedDmg){ // Only dodge when necessary
 				res.push(Math.max(0, timeTillHurt - opt_strat[1] - Data.BattleSettings.dodgeWindowMs + Data.BattleSettings.dodgeSwipeMs)); // wait until dodge window open
 				res.push('d');

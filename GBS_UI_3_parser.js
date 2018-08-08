@@ -14,41 +14,53 @@ function getPokemonConfig(cfg, address){
 	if (address == 'd')
 		return cfg['dfdrSettings'];
 	else{
-		// indices start from 1 in address
 		var arr = address.split('-');
-		var i = parseInt(arr[0])-1, j = parseInt(arr[1])-1, k = parseInt(arr[2])-1;
+		var i = parseInt(arr[0])-1, j = parseInt(arr[1])-1, k = parseInt(arr[2])-1; // indices start from 1 in address
 		return cfg['atkrSettings'][i].party_list[j].pokemon_list[k];
+	}
+}
+
+function getPokemonInstance(pkm, address){
+	if (pkm.box_index >= 0){
+		var arr = address.split('-');
+		var playerIdx = parseInt(arr[0]) - 1;
+		if (0 <= playerIdx && playerIdx < Data.Users.length){
+			return Data.Users[playerIdx].box[pkm.box_index];
+		}else{
+			return getEntry(pkm.name.toLowerCase(), Data.Pokemon);
+		}
+	}else{
+		return getEntry(pkm.name.toLowerCase(), Data.Pokemon);
 	}
 }
 
 
 function iterBranch2(cfg, address, attr, exmatch, universe, start){
-	var pkmInfo = getPokemonConfig(cfg, address);
-	var expressionStr = pkmInfo[attr].toString();
+	var pkm = getPokemonConfig(cfg, address);
+	var expressionStr = pkm[attr].toString();
 	if (exmatch(expressionStr, universe) >= 0){
 		return [];
 	}
 	
 	var expressionStr_default = '', input_type = 0;
 	if (attr == 'name'){
-		expressionStr_default = 'latios';
 		input_type = 0;
+		expressionStr_default = 'latios';
 	}else if (['level', 'atkiv', 'defiv', 'stmiv'].includes(attr)){
 		input_type = 1;
 		expressionStr_default = universe[universe.length - 1].value;
 	}else if (attr == 'fmove' || attr == 'cmove'){
 		input_type = 2;
 		expressionStr_default = 'current, legacy, exclusive';
-		markMoveDatabase(attr[0], getEntryIndex(pkmInfo.name.toLowerCase(), Data.Pokemon));
 	}
 
-	if (expressionStr[0] == '='){// Dynamic Assignment Operator
+	if (expressionStr[0] == '='){// Dynamic Paster
 		try{
-			var pkmConfig = getPokemonConfig(cfg, expressionStr.slice(1));
-			pkmInfo[attr] = pkmConfig[attr];
+			var pkmSrc = getPokemonConfig(cfg, expressionStr.slice(1));
+			pkm[attr] = pkmSrc[attr];
 			return [];
 		}catch(err){
-			sendFeedback(address + '.' + attr + ": Invalid address for Dynamic Assignment", true);
+			sendFeedback(address + '.' + attr + ": Invalid address for Dynamic Paster", true);
 			return [0];
 		}
 	}else{ // Logical Expression
@@ -56,9 +68,9 @@ function iterBranch2(cfg, address, attr, exmatch, universe, start){
 		var selector = expressionStr[0];
 		if (SELECTORS.includes(selector))
 			expressionStr = expressionStr.slice(1).trim();
-		expressionStr = expressionStr || expressionStr_default;
+		expressionStr = (expressionStr || expressionStr_default).toString();
 		
-		var matches = universe.filter(Predicate(expressionStr.toString()));
+		var matches = universe.filter(Predicate(expressionStr, getPokemonInstance(pkm, address), attr));
 		if (matches.length == 0){
 			// sendFeedback(address + '.' + attr + " {" + expressionStr + "}: No match", true);
 			return [0];
@@ -69,17 +81,17 @@ function iterBranch2(cfg, address, attr, exmatch, universe, start){
 
 		for (var i = 0; i < matches.length; i++){
 			var cfg_copy = JSON.parse(JSON.stringify(cfg));
-			var pkmConfig = getPokemonConfig(cfg_copy, address);
+			var pkm = getPokemonConfig(cfg_copy, address);
 			if (input_type == 0){
 				for(var attr in matches[i]){
-					if (!pkmConfig[attr] || attr == 'name'){
-						pkmConfig[attr] = matches[i][attr];
+					if (!pkm[attr] || attr == "name"){
+						pkm[attr] = matches[i][attr];
 					}
 				}
 			}else if (input_type == 1){
-				pkmConfig[attr] = matches[i].value;
+				pkm[attr] = matches[i].value;
 			}else if (input_type == 2){
-				pkmConfig[attr] = matches[i].name;
+				pkm[attr] = matches[i].name;
 			}
 			
 			var tempResults = iterBranch(cfg_copy, start.slice(0, 4).concat([start[4] + 1]));
@@ -91,14 +103,14 @@ function iterBranch2(cfg, address, attr, exmatch, universe, start){
 		if (selector == '?'){
 			if (branches.length % matches.length == 0){
 				var numSimsPerBranch = Math.round(branches.length / matches.length);
-				var branches_post_avrg = [];
+				var branches2 = [];
 				for (var i = 0; i < numSimsPerBranch; i++){
 					var simsToAverage = [];
 					for (var j = 0; j < matches.length; j++)
 						simsToAverage.push(branches[i + j * numSimsPerBranch]);
-					branches_post_avrg.push(averageSims(simsToAverage));
+					branches2.push(averageSims(simsToAverage));
 				}
-				branches = branches_post_avrg;
+				branches = branches2;
 			}else{			
 				branches = [averageSims(branches)];
 			}
@@ -192,9 +204,9 @@ function runSim(cfg, resCollector){
 	}
 	currentJobSize += numSimRun;
 	
-	if (cfg['generalSettings']['reportType'] == 'avrg')
+	if (cfg['generalSettings']['aggregation'] == 'avrg')
 		resCollector.push({input: cfg, output: averageOutputs(interResults)});
-	else if (cfg['generalSettings']['reportType'] == 'enum'){
+	else if (cfg['generalSettings']['aggregation'] == 'enum'){
 		for (var i = 0; i < interResults.length; i++)
 			resCollector.push({input: cfg, output: interResults[i]});
 	}
@@ -311,14 +323,21 @@ function requestSimulation(args){
 	sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Simulating...");
 	
 	setTimeout(function(){
-		goBattleSim(args);
-		sendFeedback(currentJobSize + " sims have been performed", true);
-		setTimeout(function(){
+		try{
+			goBattleSim(args);
+			sendFeedback(currentJobSize + " sims have been performed", true);
+			setTimeout(function(){
+				document.getElementById('ui-mastersummarytable').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+			}, 100);
 			while (DialogStack.length){
 				DialogStack.pop().dialog('close');
 			}
-			document.getElementById('ui-mastersummarytable').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
-		}, 100);
+		}catch(err){
+			while (DialogStack.length){
+				DialogStack.pop().dialog('close');
+			}
+			sendFeedbackDialog("Oops, something went wrong!");
+		}
 	}, 100);
 }
 

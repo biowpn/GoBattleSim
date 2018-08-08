@@ -68,9 +68,9 @@ function uriToJSON(urijson){ return JSON.parse(decodeURIComponent(urijson)); }
 
 
 
-function Predicate(pd){
+function Predicate(pd, parent, attr){
 	if (typeof pd == typeof "")
-		return createComplexPredicate(pd);
+		return createComplexPredicate(pd, parent, attr);
 	else
 		return pd;
 }
@@ -87,15 +87,17 @@ function parseNumericalRange(str){
 	return ['', str];
 }
 
-function createSimplePredicate(str){
+function createSimplePredicate(str, parent, attr){
 	str = str.trim();
 	
 	var numericalParameters = parseNumericalRange(str.toLowerCase());
 	if (numericalParameters[0] != ''){ // Match numerical attributes
 		var bounds = numericalParameters[1].split((numericalParameters[1].includes('~') ? '~' : '-'));
-		const attr = numericalParameters[0], LBound = parseFloat(bounds[0]) || -1000000, UBound = parseFloat(bounds[bounds.length-1]) || 1000000;
+		const num_attr = numericalParameters[0], 
+			LBound = parseFloat(bounds[0]) || parseFloat(parent[attr]) || -1000000, 
+			UBound = parseFloat(bounds[bounds.length-1]) || parseFloat(parent[attr]) || 1000000;
 		return function(obj){
-			return LBound <= obj[attr] && obj[attr] <= UBound;
+			return LBound <= obj[num_attr] && obj[num_attr] <= UBound;
 		};
 	}else if (Data.TypeEffectiveness.hasOwnProperty(str.toLowerCase()) || str.toLowerCase() == 'none'){ // Match types
 		const str_const = str.toLowerCase();
@@ -145,15 +147,25 @@ function createSimplePredicate(str){
 		};
 	}else if (str[0] == '>'){ // Cutomized expression
 		const str_const = str.slice(1);
-		return function(obj){
+		return function(obj, parent){
 			return eval(str_const);
+		};
+	}else if (str.toLowerCase() == "current"){ // Current Move
+		return function(obj){
+			return parent[obj.moveType + "Moves"].includes(obj.name);
+		};
+	}else if (str.toLowerCase() == "legacy"){ // Legacy Move
+		return function(obj){
+			return parent[obj.moveType + "Moves_legacy"].includes(obj.name);
+		};
+	}else if (str.toLowerCase() == "exclusive"){ // Exclusive Move
+		return function(obj){
+			return parent[obj.moveType + "Moves_exclusive"].includes(obj.name);
 		};
 	}else{ // Match name/nickname/species
 		const str_const = str.toLowerCase();
 		return function(obj){
 			if (obj.name && obj.name.includes(str_const))
-				return true;
-			if (obj.marker && obj.marker.includes(str_const))
 				return true;
 			return obj.label && obj.label.toLowerCase().includes(str_const);
 		}
@@ -191,7 +203,7 @@ function parseNextToken(expression){
 	};
 }
 
-function createComplexPredicate(expression){
+function createComplexPredicate(expression, parent, attr){
 	var tokensArr = [], stack = [];
 	expression = expression.trim();
 	
@@ -239,7 +251,7 @@ function createComplexPredicate(expression){
 				});
 			}
 		}else{
-			stack.push(createSimplePredicate(token));
+			stack.push(createSimplePredicate(token, parent, attr));
 		}
 	}
 	
@@ -264,24 +276,6 @@ function getPokemonOptions(userIndex){
 	return speciesOptions.concat(Data.Pokemon);
 }
 
-function markMoveDatabase(moveType, species_idx){
-	var prefix = (moveType == 'f' ? 'fast' : 'charged');
-	var pkm = Data.Pokemon[species_idx];
-	Data[toTitleCase(prefix) + 'Moves'].forEach(function(move){
-		move.marker = 'all';
-		if(pkm){
-			if (move.pokeType == pkm.pokeType1 || move.pokeType == pkm.pokeType2)
-				move.marker += ' stab';
-			if (pkm[prefix + 'Moves'].includes(move.name))
-				move.marker += ' current';
-			if (pkm[prefix + 'Moves_legacy'].includes(move.name))
-				move.marker += ' legacy';
-			if (pkm[prefix + 'Moves_exclusive'].includes(move.name))
-				move.marker += ' exclusive';
-		}
-	});
-}
-
 
 function autocompletePokemonNodeSpecies(speciesInput){
 	$( speciesInput ).autocomplete({
@@ -303,7 +297,7 @@ function autocompletePokemonNodeSpecies(speciesInput){
 			}
 			var searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term), matches = [];
 			try{
-				matches = getPokemonOptions(user_idx).filter(createComplexPredicate(searchStr));
+				matches = getPokemonOptions(user_idx).filter(Predicate(searchStr));
 			}catch(err){
 			}
 			response(matches);
@@ -320,9 +314,11 @@ function autocompletePokemonNodeSpecies(speciesInput){
 						writeDefenderNode(thisPokemonNode, Data.Users[0].box[pkmInfo.box_index]);
 					}
 				}catch(err){}
+				this.setAttribute('box_index', pkmInfo.box_index);
+			}else{
+				this.removeAttribute('box_index');
 			}
 			this.setAttribute('index', getEntryIndex(pkmInfo.name, Data.Pokemon));
-			this.setAttribute('box_index', pkmInfo.box_index);
 			this.setAttribute('style', 'background-image: url(' + pkmInfo.icon + ')');
 			if (thisAddress == 'd' && $("#battleMode").val() == 'raid'){
 				var pkm = Data.Pokemon[this.getAttribute("index")];
@@ -335,7 +331,7 @@ function autocompletePokemonNodeSpecies(speciesInput){
 			if (!ui.item){ // Change not due to selecting an item from menu
 				var idx = getEntryIndex(this.value.toLowerCase(), Data.Pokemon);
 				this.setAttribute('index', idx);
-				this.setAttribute('box_index', -1);
+				this.removeAttribute('box_index');
 				this.setAttribute('style', 'background-image: url(' + getPokemonIcon({index: idx}) + ')');
 			}
 		}
@@ -359,12 +355,12 @@ function autocompletePokemonNodeMoves(moveInput){
 			}
 			var idx = parseInt($('#ui-species_' + address)[0].getAttribute('index'));
 			var searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term), matches = [];
-			markMoveDatabase(moveType, idx);
 			if (searchStr == '' && idx >= 0) //special case
-				searchStr = 'current,legacy,exclusive';
+				searchStr = 'current, legacy, exclusive';
 			try{
-				matches = (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves).filter(Predicate(searchStr));
-			}catch(err){matches = [];}
+				matches = (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves).filter(Predicate(searchStr, Data.Pokemon[idx], moveType + "move"));
+			}catch(err){
+			}
 			response(matches);
 		},
 		select : function(event, ui) {
