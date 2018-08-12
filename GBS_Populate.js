@@ -460,7 +460,6 @@ function fetchSpeciesData(oncomplete){
 			for(var i = 0; i < data.length; i++){
 				var pkm = {
 					dex : parseInt(data[i].number),
-					box_index : -1,
 					name : data[i].title_1.toLowerCase().replace("&#039;", "'"),
 					pokeType1 : parsePokemonTypeFromString(data[i].field_pokemon_type).pokeType1,
 					pokeType2 : parsePokemonTypeFromString(data[i].field_pokemon_type).pokeType2,

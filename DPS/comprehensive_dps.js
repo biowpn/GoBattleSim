@@ -313,6 +313,10 @@ function applyContext(){
 }
 
 
+function createIconLabelSpan(icon, label, cls){
+	return '<span class="input-with-icon ' + cls + '" style="background-image: url(' + icon + ')">' + label + '</span>';
+}
+
 
 function generateSpreadsheet(pokemonCollection){
 	ALL_COMBINATIONS = [];
@@ -365,9 +369,9 @@ function generateSpreadsheet(pokemonCollection){
 				}
 				
 				Table.row.add([
-					createIconLabelDiv2(pkm.icon, p.nickname || pkm.label, 'species-input-with-icon'), 
-					createIconLabelDiv2(pkm.fmove.icon, pkm.fmove.label, 'move-input-with-icon'), 
-					createIconLabelDiv2(pkm.cmove.icon, pkm.cmove.label, 'move-input-with-icon'), 
+					createIconLabelSpan(pkm.icon, p.nickname || pkm.label, 'species-input-with-icon'), 
+					createIconLabelSpan(pkm.fmove.icon, pkm.fmove.label, 'move-input-with-icon'), 
+					createIconLabelSpan(pkm.cmove.icon, pkm.cmove.label, 'move-input-with-icon'), 
 					Math.round(pkm.dps * 1000) / 1000, 
 					Math.round(pkm.tdo * 10) / 10,
 					Math.round(pkm.dps * pkm.tdo * 10) / 10,
@@ -379,7 +383,7 @@ function generateSpreadsheet(pokemonCollection){
 		}
 	}
 	console.log(Date() + ": All DPS calculated");
-	pred = Predicate($('#searchInput').val());
+	pred = createComplexPredicate($('#searchInput').val());
 	$("#ranking_table").DataTable().draw();
 }
 
@@ -415,7 +419,7 @@ function updateSpreadsheet(){
 	
 	console.log(Date() + ": All DPS re-calculated");
 	Table.rows().invalidate();
-	pred = Predicate($('#searchInput').val());
+	pred = createComplexPredicate($('#searchInput').val());
 	$("#ranking_table").DataTable().draw();
 }
 
@@ -463,6 +467,48 @@ function requestSpreadsheet(startover){
 }
 
 
+function getSpreadsheetContentText(){
+	var content = [];
+	var data = Table.rows().data();
+	for (var i = 0; i < data.length; i++){
+		let rowText = [];
+		for (var j = 0; j < data[i].length; j++){
+			rowText.push(createElement("div", data[i][j]).innerText);
+		}
+		content.push(rowText);
+	}
+	return content;
+}
+
+function copySpreadsheetToClipboard(){
+	let copyStr = "Pokemon\tFast Move\tCharged Move\tDPS\tTDO\tDPS*TDO\tCP\n";
+	var content = getSpreadsheetContentText();
+	for (var i = 0; i < content.length; i++){
+		copyStr += content[i].join("\t") + "\n";
+	}
+	copyToClipboard(copyStr);
+	sendFeedbackDialog("Spreadsheet has been copied to clipboard");
+}
+
+function exportSpreadsheetToCSV(){
+	let csvContent = "data:text/csv;charset=utf-8,";
+	csvContent += "Pokemon,Fast Move,Charged Move,DPS,TDO,DPS*TDO,CP" + "\r\n";
+	var content = getSpreadsheetContentText();
+	for (var i = 0; i < content.length; i++){
+		csvContent += content[i].join(",") + "\r\n";
+	}
+
+	var encodedUri = encodeURI(csvContent);
+	var link = document.createElement("a");
+	link.setAttribute("href", encodedUri);
+	link.setAttribute("download", "comprehensive_dps.csv");
+	link.innerHTML= "Click Here to download";
+	document.body.appendChild(link);
+	link.click();
+}
+
+
+
 var lastKeyUpTime = 0;
 pred = function(obj){return true;}
 
@@ -470,7 +516,7 @@ function search_trigger(){
 	lastKeyUpTime = Date.now();
 	setTimeout(function(){
 		if (Date.now() - lastKeyUpTime >= 600){
-			pred = Predicate($('#searchInput').val());
+			pred = createComplexPredicate($('#searchInput').val());
 			$("#ranking_table").DataTable().draw();
 		}
 	}, 600);
