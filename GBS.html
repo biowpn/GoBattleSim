@@ -48,6 +48,7 @@
 		padding-left: 40px !important;
 		background-repeat: no-repeat;
 		text-align: start;
+		padding: inherit;
 	}
 	.species-input-with-icon{
 		background-size: 30px 30px;
@@ -347,7 +348,13 @@
 <div id="feedback_table1"></div>
 <div id="feedback_table2"></div>
 
-
+<table>
+<colgroup><col width="50%"><col width="50%"></colgroup>
+<tr>
+<td><button class="player_button" id="copy-button-clipboard" onclick="">Copy to Clipboard</button></td>
+<td><button class="player_button" id="copy-button-csv" onclick="">Export To CSV</button></td>
+</tr>
+</table>
 
 <script>
 
@@ -436,6 +443,7 @@ Data.WeatherSettings.forEach(function(weatherSetting){
 
 dropdownMenuInit();
 
+/*
 moveEditFormInit();
 pokemonEditFormInit();
 parameterEditFormInit();
@@ -444,6 +452,7 @@ userEditFormInit();
 breakpointCalculatorInit();
 MVLTableInit();
 QuickStartWizardInit();
+*/
 
 populateAll(applicationInit);
 

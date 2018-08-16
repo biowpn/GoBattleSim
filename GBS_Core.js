@@ -124,7 +124,7 @@ function Pokemon(cfg){
 	this.stmiv = parseInt(cfg.stmiv);
 	this.level = parseFloat(cfg.level);
 	
-	this.atkr_choose = window['atkr_choose_' + cfg.dodge] || atkr_choose_0;
+	this.choose = window['attackerChoose' + cfg.dodge] || attacherChoose0;
 	
 	this.immortal = false;
 	this.playerCode = cfg.player_code;
@@ -677,11 +677,11 @@ World.prototype.battle = function(){
 		
 		// 1. First process the event
 		if (e.name == EVENT_TYPE.AtkrFree){
-			var actions = e.subject.atkr_choose({
+			var actions = e.subject.choose({
 				t: t,
 				dfdr: dfdr,
 				weather: this.weather,
-				dodge_bug: this.dodgebug,
+				dodge_bug: this.dodge_bug,
 				projected_atkrHurtEvent: this.projected_atkrHurtEvent
 			});
 			this.enqueueActions(e.subject, dfdr, t, actions);
@@ -950,7 +950,7 @@ function strategyMaxDmg(T, initE, fDmg, fE, fDur, cDmg, cE, cDur){
 // like ['f', 'c', 100, 'd'] <- means use a FMove, then a Cmove, then wait for 100s and finally dodge
 
 // 0. No dodging
-function atkr_choose_0(state){
+function attacherChoose0(state){
 	if (this.energy + this.cmove.energyDelta >= 0){
 		return ['c'];
 	}else{
@@ -959,7 +959,7 @@ function atkr_choose_0(state){
 }
 
 // 1. Agressive dodge charged
-function atkr_choose_1(state){
+function attackerChoose1(state){
 	var t = state.t;
 	var dfdr = state.dfdr;
 	var hurtEvent = state.projected_atkrHurtEvent;
@@ -1005,7 +1005,7 @@ function atkr_choose_1(state){
 }
 
 // 2. Conservative dodge all
-function atkr_choose_2(state){
+function attackerChoose2(state){
 	var t = state.t;
 	var dfdr = state.dfdr;
 	var hurtEvent = state.projected_atkrHurtEvent;

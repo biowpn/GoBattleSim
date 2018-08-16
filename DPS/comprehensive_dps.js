@@ -313,11 +313,6 @@ function applyContext(){
 }
 
 
-function createIconLabelSpan(icon, label, cls){
-	return '<span class="input-with-icon ' + cls + '" style="background-image: url(' + icon + ')">' + label + '</span>';
-}
-
-
 function generateSpreadsheet(pokemonCollection){
 	ALL_COMBINATIONS = [];
 	Table.clear();

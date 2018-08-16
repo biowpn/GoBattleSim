@@ -21,7 +21,7 @@ function getPokemonConfig(cfg, address){
 }
 
 function getPokemonInstance(pkm, address){
-	if (pkm.box_index >= 0){
+	if (typeof pkm.box_index == typeof 0){
 		var arr = address.split('-');
 		var playerIdx = parseInt(arr[0]) - 1;
 		if (0 <= playerIdx && playerIdx < Data.Users.length){
@@ -70,7 +70,11 @@ function iterBranch2(cfg, address, attr, exmatch, universe, start){
 			expressionStr = expressionStr.slice(1).trim();
 		expressionStr = (expressionStr || expressionStr_default).toString();
 		
-		var matches = universe.filter(Predicate(expressionStr, getPokemonInstance(pkm, address), attr));
+		var pkmInstance = getPokemonInstance(pkm, address);
+		if (!pkmInstance){
+			console.log([cfg, address, attr, exmatch, universe, start]);
+		}
+		var matches = universe.filter(Predicate(expressionStr, pkmInstance, attr));
 		if (matches.length == 0){
 			// sendFeedback(address + '.' + attr + " {" + expressionStr + "}: No match", true);
 			return [0];

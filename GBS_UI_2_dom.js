@@ -624,7 +624,7 @@ function writeDefenderNode(node, pkmConfig){
 	var row3 = node.children[1].children[2].children[1];
 
 	var species_idx = pkmConfig.hasOwnProperty('index') ? pkmConfig.index : getEntryIndex((pkmConfig.name || pkmConfig.species || "").toLowerCase(), Data.Pokemon);
-	row1.children[0].children[0].value = species_idx >= 0 ? Data.Pokemon[species_idx].label : toTitleCase(pkmConfig.name || pkmConfig.species);
+	row1.children[0].children[0].value = species_idx >= 0 ? Data.Pokemon[species_idx].label : toTitleCase(pkmConfig.name || pkmConfig.species || "");
 	row1.children[0].children[0].setAttribute('index', species_idx);
 	if (pkmConfig.box_index >= 0){
 		row1.children[0].children[0].setAttribute('box_index', pkmConfig.box_index);
@@ -731,13 +731,13 @@ function createMasterSummaryTable(){
 				var pkmInfo = getPokemonConfig(sim.input, m.split('.')[0]), attr = m.split('.')[1];
 				if (attr == 'name'){
 					var pkmData = getEntry(pkmInfo.name, Data.Pokemon);
-					row.push(createIconLabelDiv2(pkmInfo.icon || pkmData.icon, pkmInfo.label || pkmData.label, 'species-input-with-icon'));
+					row.push(createIconLabelSpan(pkmInfo.icon || pkmData.icon, pkmInfo.label || pkmData.label, 'species-input-with-icon'));
 				}else if (attr == 'fmove'){
 					var moveData = getEntry(pkmInfo.fmove, Data.FastMoves);
-					row.push(createIconLabelDiv2(moveData.icon, moveData.label, 'move-input-with-icon'));
+					row.push(createIconLabelSpan(moveData.icon, moveData.label, 'move-input-with-icon'));
 				}else if (attr == 'cmove'){
 					var moveData = getEntry(pkmInfo.cmove, Data.ChargedMoves);
-					row.push(createIconLabelDiv2(moveData.icon, moveData.label, 'move-input-with-icon'));
+					row.push(createIconLabelSpan(moveData.icon, moveData.label, 'move-input-with-icon'));
 				}else{
 					row.push(pkmInfo[attr]);
 				}
@@ -798,6 +798,9 @@ function displayMasterSummaryTable(){
 	});
 	
 	addFilterToFooter(table);
+	
+	document.getElementById("copy-button-clipboard").setAttribute("onclick", "copyTableToClipboard('ui-mastersummarytable')");
+	document.getElementById("copy-button-csv").setAttribute("onclick", "exportTableToCSV('ui-mastersummarytable', 'GoBattleSim_result.csv')");
 }
 
 function displayDetail(i){
@@ -867,6 +870,9 @@ function displayDetail(i){
 		collapsible: true,
 		heightStyle: 'content'
 	});
+	
+	document.getElementById("copy-button-clipboard").setAttribute("onclick", "copyTableToClipboard('ui-log-table')");
+	document.getElementById("copy-button-csv").setAttribute("onclick", "exportTableToCSV('ui-log-table', 'GoBattleSim_log.csv')");
 }
 
 function createBattleLogTable(log, playerCount){
@@ -890,13 +896,13 @@ function createBattleLogTable(log, playerCount){
 			var entry = rowEntry[attr] || {type: 'text', text: ''};
 			if (entry.type == 'pokemon'){
 				var pkmInfo = getEntry(entry.name, Data.Pokemon);
-				rowData.push(createIconLabelDiv(pkmInfo.icon, entry.nickname, 'apitem-pokemon-icon'));
-			}else if (entry.type == 'fmove'){
+				rowData.push(createIconLabelSpan(pkmInfo.icon, entry.nickname, 'species-input-with-icon'));
+			}else if (entry.type == 'fastMove'){
 				var moveInfo = getEntry(entry.name, Data.FastMoves);
-				rowData.push(createIconLabelDiv(moveInfo.icon, moveInfo.label, 'apitem-move-icon'));
-			}else if (entry.type == 'cmove'){
+				rowData.push(createIconLabelSpan(moveInfo.icon, moveInfo.label, 'move-input-with-icon'));
+			}else if (entry.type == 'chargedMove'){
 				var moveInfo = getEntry(entry.name, Data.ChargedMoves);
-				rowData.push(createIconLabelDiv(moveInfo.icon, moveInfo.label, 'apitem-move-icon'));
+				rowData.push(createIconLabelSpan(moveInfo.icon, moveInfo.label, 'move-input-with-icon'));
 			}else{ // entry.type == 'text'
 				rowData.push(entry.text);
 			}

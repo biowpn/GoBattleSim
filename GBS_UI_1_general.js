@@ -147,7 +147,7 @@ function createSimplePredicate(str, parent, attr){
 		};
 	}else if (str[0] == '>'){ // Cutomized expression
 		const str_const = str.slice(1);
-		return function(obj, parent){
+		return function(obj){
 			return eval(str_const);
 		};
 	}else if (str.toLowerCase() == "current"){ // Current Move
@@ -269,7 +269,7 @@ function getPokemonOptions(userIndex){
 		var userBox = Data.Users[userIndex].box;
 		for (var i = 0; i < userBox.length; i++){
 			userBox[i].box_index = i;
-			userBox[i].label = '$ ' + userBox[i].nickname;
+			userBox[i].label = userBox[i].nickname;
 			speciesOptions.push(userBox[i]);
 		}
 	}
@@ -296,10 +296,7 @@ function autocompletePokemonNodeSpecies(speciesInput){
 				}
 			}
 			var searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term), matches = [];
-			try{
-				matches = getPokemonOptions(user_idx).filter(Predicate(searchStr));
-			}catch(err){
-			}
+			matches = getPokemonOptions(user_idx).filter(Predicate(searchStr));
 			response(matches);
 		},
 		select : function(event, ui){
@@ -357,10 +354,7 @@ function autocompletePokemonNodeMoves(moveInput){
 			var searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term), matches = [];
 			if (searchStr == '' && idx >= 0) //special case
 				searchStr = 'current, legacy, exclusive';
-			try{
-				matches = (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves).filter(Predicate(searchStr, Data.Pokemon[idx], moveType + "move"));
-			}catch(err){
-			}
+			matches = (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves).filter(Predicate(searchStr, Data.Pokemon[idx], moveType + "move"));
 			response(matches);
 		},
 		select : function(event, ui) {
@@ -429,13 +423,58 @@ function sendFeedbackDialog(msg, dialogTitle){
 	return d;
 }
 
+function getTableContent(dt){
+	var content = [];
+	var hrow = dt.table().header().children[0];
+	let r = [];
+	for (var i = 0; i < hrow.children.length; i++){
+		r.push(hrow.children[i].innerText.trim());
+	}
+	content.push(r);
+	var data = dt.rows().data();
+	for (var i = 0; i < data.length; i++){
+		let r = [];
+		for (var j = 0; j < data[i].length; j++){
+			r.push(createElement("div", data[i][j]).innerText.trim());
+		}
+		content.push(r);
+	}
+	return content;
+}
+
+
+function copyTableToClipboard(elementId){
+	var copyStr = "";
+	var content = getTableContent($("#" + elementId).DataTable());
+	for (var i = 0; i < content.length; i++){
+		copyStr += content[i].join("\t") + "\n";
+	}
+	copyToClipboard(copyStr);
+	sendFeedbackDialog("Table has been copied to clipboard");
+}
+
+function exportTableToCSV(elementId, filename){
+	filename = filename || "table.csv";
+	let csvStr = "data:text/csv;charset=utf-8,";
+	var content = getTableContent($("#" + elementId).DataTable());
+	for (var i = 0; i < content.length; i++){
+		csvStr += content[i].join(",") + "\r\n";
+	}
+	var encodedUri = encodeURI(csvStr);
+	var link = document.createElement("a");
+	link.setAttribute("href", encodedUri);
+	link.setAttribute("download", filename);
+	link.innerHTML= "Click Here to download";
+	document.body.appendChild(link);
+	link.click();
+}
 
 function createIconLabelDiv(iconURL, label, iconClass){
 	return "<div><span class='" + iconClass + "'>" + "<img src='"+iconURL+"'></img></span><span class='apitem-label'>" + label + "</span></div>";
 }
 
-function createIconLabelDiv2(iconURL, label, iconClass){
-	return "<div class='input-with-icon " + iconClass + "' style='background-image: url(" + iconURL + ")'>" + label + "</div>";
+function createIconLabelSpan(icon, label, cls){
+	return '<span class="input-with-icon ' + cls + '" style="background-image: url(' + icon + ')">' + label + '</span>';
 }
 
 function _renderAutocompletePokemonItem(ul, item){

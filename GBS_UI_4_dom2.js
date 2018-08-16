@@ -508,17 +508,17 @@ function udpateBoxTable(userIndex){
 		var fmove = getEntry(box[i].fmove, Data.FastMoves), cmove = getEntry(box[i].cmove, Data.ChargedMoves);
 		boxEditFormTable.row.add([
 			i+1,
-			createIconLabelDiv2(box[i].icon, box[i].label, 'species-input-with-icon'),
-			createIconLabelDiv2(getTypeIcon({pokeType: box[i].pokeType1}), toTitleCase(box[i].pokeType1), 'move-input-with-icon'),
-			createIconLabelDiv2(getTypeIcon({pokeType: box[i].pokeType2}), toTitleCase(box[i].pokeType2), 'move-input-with-icon'),
+			createIconLabelSpan(box[i].icon, box[i].label, 'species-input-with-icon'),
+			createIconLabelSpan(getTypeIcon({pokeType: box[i].pokeType1}), toTitleCase(box[i].pokeType1), 'move-input-with-icon'),
+			createIconLabelSpan(getTypeIcon({pokeType: box[i].pokeType2}), toTitleCase(box[i].pokeType2), 'move-input-with-icon'),
 			box[i].nickname,
 			box[i].cp,
 			box[i].level,
 			box[i].stmiv,
 			box[i].atkiv,
 			box[i].defiv,
-			createIconLabelDiv2(fmove.icon, fmove.label, 'move-input-with-icon'),
-			createIconLabelDiv2(cmove.icon, cmove.label, 'move-input-with-icon')
+			createIconLabelSpan(fmove.icon, fmove.label, 'move-input-with-icon'),
+			createIconLabelSpan(cmove.icon, cmove.label, 'move-input-with-icon')
 		]);
 	}
 	boxEditFormTable.columns.adjust().draw();
@@ -783,9 +783,9 @@ function breakpointCalculatorSubmit(){
 				var bp_res = calculateBreakpoints(atkr, dfdr, atkr.fmove, weather);
 				var powerup_cost = calculateLevelUpCost(atkr.level, bp_res.breakpoints[0]);
 				breakpointCalculatorTable.row.add([
-					createIconLabelDiv2(atkr.icon, atkr.nickname || atkr.label, 'species-input-with-icon'),
-					createIconLabelDiv2(atkr.fmove.icon, atkr.fmove.label, 'move-input-with-icon'),
-					createIconLabelDiv2(dfdr.icon, dfdr.label, 'species-input-with-icon'),
+					createIconLabelSpan(atkr.icon, atkr.nickname || atkr.label, 'species-input-with-icon'),
+					createIconLabelSpan(atkr.fmove.icon, atkr.fmove.label, 'move-input-with-icon'),
+					createIconLabelSpan(dfdr.icon, dfdr.label, 'species-input-with-icon'),
 					bp_res.finalDamage,
 					bp_res.breakpoints.slice(0, 3).join(", "),
 					powerup_cost.stardust,

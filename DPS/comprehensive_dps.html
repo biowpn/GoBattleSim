@@ -19,8 +19,6 @@
 
 
 
-
-
 <table>
 	<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
 	<tr>
@@ -99,6 +97,15 @@
 	<tfoot></tfoot>
 	<tbody></tbody>
 </table>
+
+<table>
+<colgroup><col width="50%"><col width="50%"></colgroup>
+<tr>
+<td><button class="player_button" onclick="copyTableToClipboard('ranking_table')">Copy to Clipboard</button></td>
+<td><button class="player_button" onclick="exportTableToCSV('ranking_table', 'comprehensive_dps.csv')">Export To CSV</button></td>
+</tr>
+</table>
+
 
 
 <script>
