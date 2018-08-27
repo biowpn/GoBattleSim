@@ -77,16 +77,6 @@ function Move(m, moveDatabase){
 	}
 }
 
-Move.prototype.exportState = function(){
-	return {
-		'name': this.name,
-		'pokeType': this.pokeType,
-		'power': this.power,
-		'energyDelta': this.energyDelta,
-		'duration': this.duration,
-		'dws': this.dws
-	};
-}
 
 
 /* End of Class Move */
@@ -96,7 +86,7 @@ Move.prototype.exportState = function(){
 /* Class <Pokemon> */
 // constructor
 function Pokemon(cfg){
-	this.id = Math.round(1000000 * Math.random());
+	this.id = round(1000000 * Math.random());
 	
 	var speciesData = {};
 	if (typeof cfg.index == typeof 0 && cfg.index >= 0)
@@ -133,20 +123,6 @@ function Pokemon(cfg){
 	this.init(true);
 }
 
-Pokemon.prototype.exportState = function(){
-	return {
-		'name': this.name,
-		'pokeType1': this.pokeType1,
-		'pokeType2': this.pokeType2,
-		'Atk': this.Atk,
-		'Def': this.Def,
-		'Stm': this.Stm,
-		'maxHP': this.maxHP,
-		'fmove': this.fmove.exportState(),
-		'cmove': this.cmove.exportState(),
-		'dodge': this.dodge
-	};
-}
 
 Pokemon.prototype.init = function(constructorCalled){
 	if (!constructorCalled){
@@ -157,31 +133,32 @@ Pokemon.prototype.init = function(constructorCalled){
 	
 	this.initCurrentStats();
 	
-	this.has_dodged_next_attack = false;
+	this.hasDodged = false;
 	this.active = false;
-	this.time_enter_ms = 0;
-	this.time_leave_ms = 0;
-	this.total_time_active_ms = 0;
-	this.num_deaths = 0;
+	
+	this.timeEnterMs = 0;
+	this.timeLeaveMs = 0;
+	this.activeDurationMs = 0;
+	this.numOfDeaths = 0;
 	this.tdo = 0;
-	this.tdo_fmove = 0;
-	this.total_energy_overcharged = 0;
-	this.n_fmoves = 0;
-	this.n_cmoves = 0;
-	this.n_addtional_fmoves = 0;
+	this.totalFastMoveDamageOutput = 0;
+	this.totalEnergyOvercharged = 0;
+	this.numOfFastMoveHits = 0;
+	this.numOfChargedMoveHits = 0;
+	this.numOfAdditionalFastMoveHits = 0;
 	
 	this.heal();
 }
 
 Pokemon.prototype.initCurrentStats = function(){
 	if (!this.raidTier){ // attacker
-		this.cpm = Data.LevelSettings[Math.round(2*this.level - 2)].cpm;
+		this.cpm = Data.LevelSettings[round(2*this.level - 2)].cpm;
 		this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
 		this.Def = (this.baseDef + this.defiv) * this.cpm;
 		this.Stm = (this.baseStm + this.stmiv) * this.cpm;
 		this.maxHP = Math.floor(this.Stm);
 	}else if (this.raidTier < 0){ // gym defender
-		this.cpm = Data.LevelSettings[Math.round(2*this.level - 2)].cpm;
+		this.cpm = Data.LevelSettings[round(2*this.level - 2)].cpm;
 		this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
 		this.Def = (this.baseDef + this.defiv) * this.cpm;
 		this.Stm = (this.baseStm + this.stmiv) * this.cpm;
@@ -206,7 +183,7 @@ Pokemon.prototype.heal = function(){
 Pokemon.prototype.gainEnergy = function(energyDelta){
 	this.energy += energyDelta;
 	if (this.energy > Data.BattleSettings.maximumEnergy){
-		this.total_energy_overcharged += this.energy - Data.BattleSettings.maximumEnergy;
+		this.totalEnergyOvercharged += this.energy - Data.BattleSettings.maximumEnergy;
 		this.energy = Data.BattleSettings.maximumEnergy;
 	}
 }
@@ -215,23 +192,23 @@ Pokemon.prototype.gainEnergy = function(energyDelta){
 Pokemon.prototype.takeDamage = function(dmg){
 	this.HP -= dmg;
 	if (this.HP <= 0 && !this.immortal){
-		this.num_deaths++;
+		this.numOfDeaths++;
 		this.active = false;
 	}
 	this.gainEnergy(Math.ceil(dmg * Data.BattleSettings.energyDeltaPerHealthLost));
-	this.has_dodged_next_attack = false;
+	this.hasDodged = false;
 }
 
 // Keeping record of tdo for performance analysis
 Pokemon.prototype.attributeDamage = function(dmg, mType){
 	this.tdo += dmg;
 	if (mType == 'fast'){
-		this.tdo_fmove += dmg;
-		this.n_fmoves += 1;
-		this.n_addtional_fmoves += 1;
+		this.totalFastMoveDamageOutput += dmg;
+		this.numOfFastMoveHits += 1;
+		this.numOfAdditionalFastMoveHits += 1;
 	}else{
-		this.n_cmoves += 1;
-		this.n_addtional_fmoves = 0;
+		this.numOfChargedMoveHits += 1;
+		this.numOfAdditionalFastMoveHits = 0;
 	}
 }
 
@@ -240,17 +217,17 @@ Pokemon.prototype.attributeDamage = function(dmg, mType){
 Pokemon.prototype.getStatistics = function(){
 	return {
 		player_code: this.playerCode,
-		name : this.name,
-		hp : this.HP,
-		energy : this.energy,
+		name: this.name,
+		hp: this.HP,
+		energy: this.energy,
 		tdo: this.tdo,
-		tdo_fmove : this.tdo_fmove,
-		duration : Math.round(this.total_time_active_ms/100)/10,
-		dps : Math.round(this.tdo / (this.total_time_active_ms/1000)*100)/100,
-		teo : this.total_energy_overcharged,
-		n_fmoves : this.n_fmoves,
-		n_cmoves : this.n_cmoves,
-		n_addtional_fmoves : this.n_addtional_fmoves
+		tdo_fmove: this.totalFastMoveDamageOutput,
+		duration: this.activeDurationMs/1000,
+		dps: this.tdo / (this.activeDurationMs/1000),
+		totalEnergyOvercharged: this.totalEnergyOvercharged,
+		numOfFastMoveHits: this.numOfFastMoveHits,
+		numOfChargedMoveHits: this.numOfChargedMoveHits,
+		numOfAdditionalFastMoveHits: this.numOfAdditionalFastMoveHits
 	};
 }
 /* End of Class <Pokemon> */
@@ -263,42 +240,33 @@ function Party(cfg){
 	this.revive_strategy = cfg.revive_strategy;
 	this.fab = cfg.fab || 1;
 	
-	this.pokemonArr = [];
+	this.pokemon = [];
 	for (var k = 0; k < cfg.pokemon_list.length; k++){
 		cfg.pokemon_list[k].player_code = this.playerCode;
 		cfg.pokemon_list[k].fab = this.fab;
 		for (var r = 0; r < cfg.pokemon_list[k].copies; r++){
-			this.pokemonArr.push(new Pokemon(cfg.pokemon_list[k]));
+			this.pokemon.push(new Pokemon(cfg.pokemon_list[k]));
 		}
 	}
 	
 	this.init();
 }
 
-Party.prototype.exportState = function(){
-	var state = {
-		'revive_strategy': this.revive_strategy,
-		'pokemon_list': []
-	};
-	for (var i = 0; i < this.pokemonArr.length; i++)
-		state.pokemon_list.push(this.pokemonArr[i].exportState());
-	return state;
-}
 
 Party.prototype.init = function(){
-	this.pokemonArr.forEach(function(pkm){
+	this.pokemon.forEach(function(pkm){
 		pkm.init();
 	});
 	this.active_idx = 0;
-	this.active_pkm = this.pokemonArr[0];
+	this.active_pkm = this.pokemon[0];
 }
 
 
 // Switch the active Pokemon to the next Pokemon in the party
 // Returns true if successful. Otherwise sets active_pkm to null
 Party.prototype.sendNextPokemonUp = function (){
-	if (++this.active_idx < this.pokemonArr.length){
-		this.active_pkm = this.pokemonArr[this.active_idx];
+	if (++this.active_idx < this.pokemon.length){
+		this.active_pkm = this.pokemon[this.active_idx];
 		return true;
 	}else{
 		this.active_idx = -1;
@@ -309,24 +277,24 @@ Party.prototype.sendNextPokemonUp = function (){
 
 // Fully heal each fainted Pokemon, sets the active_pkm to the first one
 Party.prototype.heal = function (){
-	for (var i = 0; i < this.pokemonArr.length; i++){
-		this.pokemonArr[i].heal();
+	for (var i = 0; i < this.pokemon.length; i++){
+		this.pokemon[i].heal();
 	}
 	this.active_idx = 0;
-	this.active_pkm = this.pokemonArr[0];
+	this.active_pkm = this.pokemon[0];
 }
 
 // Return the performance statistics of the team
 Party.prototype.getStatistics = function(){
-	var sum_tdo = 0, sum_num_deaths = 0;
-	for (var i = 0; i < this.pokemonArr.length; i++){
-		sum_tdo += this.pokemonArr[i].tdo;
-		sum_num_deaths += this.pokemonArr[i].num_deaths;
+	var sum_tdo = 0, sum_numOfDeaths = 0;
+	for (var i = 0; i < this.pokemon.length; i++){
+		sum_tdo += this.pokemon[i].tdo;
+		sum_numOfDeaths += this.pokemon[i].numOfDeaths;
 	}
 	
 	return {
-		tdo : sum_tdo,
-		num_deaths : sum_num_deaths
+		tdo: sum_tdo,
+		numOfDeaths: sum_numOfDeaths
 	};
 }
 /* End of Class <Party> */
@@ -337,30 +305,21 @@ function Player(cfg){
 	this.playerCode = cfg.player_code;
 	this.fab = getFriendMultiplier(cfg.friend);
 	
-	this.partiesArr = [];
+	this.parties = [];
 	for (var j = 0; j < cfg.party_list.length; j++){
 		cfg.party_list[j].player_code = this.playerCode;
 		cfg.party_list[j].fab = this.fab;
-		this.partiesArr.push(new Party(cfg.party_list[j]));
+		this.parties.push(new Party(cfg.party_list[j]));
 	}
 	this.init();
 }
 
-Player.prototype.exportState = function(){
-	var state = {
-		'party_list': []
-	};
-	for (var i = 0; i < this.partiesArr.length; i++)
-		state.party_list.push(this.partiesArr[i].exportState());
-	return state;
-}
-
 Player.prototype.init = function(){
-	this.partiesArr.forEach(function(party){
+	this.parties.forEach(function(party){
 		party.init();
 	});
 	this.active_idx = 0;
-	this.active_pkm = this.partiesArr[0].active_pkm;
+	this.active_pkm = this.parties[0].active_pkm;
 	this.num_rejoin = 0;
 }
 
@@ -368,7 +327,7 @@ Player.prototype.init = function(){
 // Return -1 if this player is done.
 Player.prototype.sendNextPokemonUp = function(){
 	var timeBeforeActive = 0;
-	var current_party = this.partiesArr[this.active_idx];
+	var current_party = this.parties[this.active_idx];
 	if (current_party.sendNextPokemonUp()){ // Current party has next active Pokemon up
 		this.active_pkm = current_party.active_pkm;
 		timeBeforeActive = Data.BattleSettings.swapDurationMs;
@@ -377,11 +336,11 @@ Player.prototype.sendNextPokemonUp = function(){
 		if (current_party.revive_strategy == true){ // Revive currently party
 			current_party.heal();
 			this.active_pkm = current_party.active_pkm;
-			timeBeforeActive += Data.BattleSettings.itemMenuAnimationTimeMs +  current_party.pokemonArr.length * Data.BattleSettings.maxReviveTimePerPokemonMs;
+			timeBeforeActive += Data.BattleSettings.itemMenuAnimationTimeMs +  current_party.pokemon.length * Data.BattleSettings.maxReviveTimePerPokemonMs;
 			this.num_rejoin++;
 		}else{ // Try to switch to the next line-up, no need to revive
-			if (++this.active_idx < this.partiesArr.length){
-				this.active_pkm = this.partiesArr[this.active_idx].active_pkm;
+			if (++this.active_idx < this.parties.length){
+				this.active_pkm = this.parties[this.active_idx].active_pkm;
 				this.num_rejoin++;
 			}else{ // Too bad, this player is out of game!
 				this.active_idx = -1;
@@ -395,19 +354,19 @@ Player.prototype.sendNextPokemonUp = function(){
 
 
 Player.prototype.getStatistics = function(total_players_tdo){
-	var sum_tdo = 0, sum_num_deaths = 0;
-	for (var i = 0; i < this.partiesArr.length; i++){
-		var party_stat = this.partiesArr[i].getStatistics();
+	var sum_tdo = 0, sum_numOfDeaths = 0;
+	for (var i = 0; i < this.parties.length; i++){
+		var party_stat = this.parties[i].getStatistics();
 		sum_tdo += party_stat.tdo;
-		sum_num_deaths += party_stat.num_deaths;
+		sum_numOfDeaths += party_stat.numOfDeaths;
 	}
 	
 	return {
 		player_code : this.playerCode,
 		tdo : sum_tdo,
-		tdo_percentage : Math.round(sum_tdo/total_players_tdo*100*10)/10,
+		tdo_percentage : sum_tdo/total_players_tdo * 100,
 		num_rejoin : this.num_rejoin,
-		num_deaths : sum_num_deaths
+		numOfDeaths : sum_numOfDeaths
 	};
 }
 
@@ -415,18 +374,47 @@ Player.prototype.getStatistics = function(total_players_tdo){
 /* End of Class <Player> */
 
 /* Class <Timeline> */
+// A heap-like data structure
 // constructor
 function Timeline(){
 	this.list = [];
 }
 
-// Insert a new event and the timeline remains sorted
-Timeline.prototype.enqueue = function (e){
-	var i = 0;
-	while(i < this.list.length && e.t > this.list[i].t){
-		i++;
+Timeline.prototype.insert = function(e){
+	this.list.push(e);
+	var i = this.list.length-1, j;
+	while ((j = Math.floor((i-1)/2)) >= 0){
+		if (this.list[j].t > this.list[i].t){
+			let temp = this.list[i];
+			this.list[i] = this.list[j];
+			this.list[j] = temp;
+		}else{
+			break;
+		}
+		i = j;
 	}
-	this.list.splice(i, 0, e);
+}
+
+Timeline.prototype.extract_min = function(){
+	var min_e = this.list[0], i = 0, j;
+	this.list[0] = this.list[this.list.length-1];
+	this.list.pop();
+	while ((j = 2*i + 1) < this.list.length){
+		if (j+1 < this.list.length && this.list[j+1].t < this.list[j].t){
+			m = j+1;
+		}else{
+			m = j;
+		}
+		if (this.list[i].t > this.list[m].t){
+			let temp = this.list[i];
+			this.list[i] = this.list[m];
+			this.list[m] = temp;
+		}else{
+			break;
+		}
+		i = m;
+	}
+	return min_e;
 }
 
 
@@ -440,27 +428,27 @@ function World(cfg){
 	// Set up general
 	this.raid_tier = cfg['dfdrSettings']['raid_tier'];
 	if (this.raid_tier == -1)
-		this.timelimit_ms = Data.BattleSettings.timelimitGymMs;
+		this.timelimit = Data.BattleSettings.timelimitGymMs;
 	else if (this.raid_tier < 5)
-		this.timelimit_ms = Data.BattleSettings.timelimitRaidMs;
+		this.timelimit = Data.BattleSettings.timelimitRaidMs;
 	else
-		this.timelimit_ms = Data.BattleSettings.timelimitLegendaryRaidMs;
+		this.timelimit = Data.BattleSettings.timelimitLegendaryRaidMs;
 	this.weather = cfg['generalSettings']['weather'] || "EXTREME";
-	this.log_style = cfg['generalSettings']['logStyle'] || 0;
-	this.dodge_bug = cfg['generalSettings']['dodgeBug'] || 0;
-	this.immortal_defender = cfg['generalSettings']['immortalDefender'] || 0;
+	this.hasLog = cfg['generalSettings']['logStyle'] || 0;
+	this.dodgeBugActive = cfg['generalSettings']['dodgeBug'] || 0;
+	this.isDefenderImmortal = cfg['generalSettings']['immortalDefender'] || 0;
 	
 	// Set up players
-	this.playersArr = [];
+	this.players = [];
 	for (var i = 0; i < cfg['atkrSettings'].length; i++)
-		this.playersArr.push(new Player(cfg['atkrSettings'][i]));
+		this.players.push(new Player(cfg['atkrSettings'][i]));
 	
 	// Set up defender
 	this.dfdr = new Pokemon(cfg['dfdrSettings']);
-	if (this.immortal_defender){
+	if (this.isDefenderImmortal){
 		this.dfdr.immortal = true;
-		this.playersArr.forEach(function(player){
-			player.partiesArr.forEach(function(party){
+		this.players.forEach(function(player){
+			player.parties.forEach(function(party){
 				party.revive_strategy = false;
 			});
 		});
@@ -469,35 +457,18 @@ function World(cfg){
 	this.init();
 }
 
-World.prototype.exportState = function(){
-	var state = {
-		'atkrSettings': [],
-		'dfdrSettings': this.dfdr.exportState(),
-		'generalSettings': {
-			'timelimit_ms': this.timelimit_ms,
-			'weather': this.weather,
-			'dodgeBug': this.dodgeBug,
-			'immortalDefender': this.immortalDefender
-		},
-		'battleSettings': JSON.parse(JSON.stringify(Data.BattleSettings))
-	};
-	for (var i = 0; i < this.playersArr.length; i++)
-		state.atkrSettings.push(this.playersArr[i].exportState());
-	
-	return state;
-}
 
 World.prototype.init = function(){
-	this.playersArr.forEach(function(player){
+	this.players.forEach(function(player){
 		player.init();
 	});
 	this.dfdr.init();
 	
-	this.tline = new Timeline();
-	this.isAnyPlayerActive_bool = true;
-	this.any_attacker_fainted_bool = false;
-	this.projected_atkrHurtEvent = null;
-	this.battle_length = 0;
+	this.timeline = new Timeline();
+	this.anyPlayerActive = true;
+	this.anyAttackerFainted = false;
+	this.projectedAttackerHurtEvent = null;
+	this.battleDuration = 0;
 	this.log = [];
 }
 
@@ -507,13 +478,13 @@ World.prototype.attackerUsesMove = function(pkm, pkm_hurt, move, t){
 	var energyDeltaEvent = {
 		name: EVENT_TYPE.EnergyDelta, t: t + move.dws, subject: pkm, energyDelta: move.energyDelta
 	};
-	this.tline.enqueue(energyDeltaEvent);
+	this.timeline.insert(energyDeltaEvent);
 	
 	var dmg = damage(pkm, pkm_hurt, move, this.weather);
 	var hurtEvent = {
 		name: EVENT_TYPE.Hurt, t: t + move.dws, subject: pkm_hurt, object: pkm, move: move, dmg: dmg
 	};
-	this.tline.enqueue(hurtEvent);
+	this.timeline.insert(hurtEvent);
 	
 	if (move.effect){
 		move.effect.sub({
@@ -534,16 +505,16 @@ World.prototype.defenderUsesMove = function(pkm, move, t){
 	var energyDeltaEvent = {
 		name: EVENT_TYPE.EnergyDelta, t: t + move.dws, subject: pkm, energyDelta: move.energyDelta
 	};
-	this.tline.enqueue(energyDeltaEvent);
+	this.timeline.insert(energyDeltaEvent);
 	
-	for (var i = 0; i < this.playersArr.length; i++){
-		var pkm_hurt = this.playersArr[i].active_pkm;
+	for (var i = 0; i < this.players.length; i++){
+		var pkm_hurt = this.players[i].active_pkm;
 		if (pkm_hurt && pkm_hurt.active){
 			var dmg = damage(pkm, pkm_hurt, move, this.weather);
 			var hurtEvent = {
 				name: EVENT_TYPE.Hurt, t: t + move.dws, subject: pkm_hurt, object: pkm, move: move, dmg: dmg
 			};
-			this.tline.enqueue(hurtEvent);
+			this.timeline.insert(hurtEvent);
 			if (move.effect){
 				move.effect.sub({
 					"world": this,
@@ -558,7 +529,7 @@ World.prototype.defenderUsesMove = function(pkm, move, t){
 			}
 		}
 	}
-	this.projected_atkrHurtEvent = {name: EVENT_TYPE.Hurt, t: t + move.dws, object: pkm, move: move};
+	this.projectedAttackerHurtEvent = {name: EVENT_TYPE.Hurt, t: t + move.dws, object: pkm, move: move};
 }
 
 
@@ -569,39 +540,39 @@ World.prototype.enqueueActions = function(pkm, pkm_hurt, t, actions){
 	var tFree = t;
 	for (var i = 0; i < actions.length; i++){
 		if (actions[i] == 'f'){ // Use fast move
-			this.tline.enqueue({
+			this.timeline.insert({
 				name: EVENT_TYPE.Announce, t: tFree, subject: pkm, object: pkm_hurt, move: pkm.fmove
 			});
 			tFree += pkm.fmove.duration + Data.BattleSettings.fastMoveLagMs;
 		}else if (actions[i] == 'c'){ // Use charge move if energy is enough
 			if (pkm.energy + pkm.cmove.energyDelta >= 0){
-				this.tline.enqueue({
+				this.timeline.insert({
 					name: EVENT_TYPE.Announce, t: tFree, subject: pkm, object: pkm_hurt, move: pkm.cmove
 				});
 				tFree += pkm.cmove.duration + Data.BattleSettings.chargedMoveLagMs;
 			}else{ // insufficient energy, use fmove instead
-				this.tline.enqueue({
+				this.timeline.insert({
 					name: EVENT_TYPE.Announce, t: tFree, subject: pkm, object: pkm_hurt, move: pkm.fmove
 				});
 				tFree += pkm.fmove.duration + Data.BattleSettings.fastMoveLagMs;
 			}
 		}else if (actions[i] == 'd'){ // dodge
-			this.tline.enqueue({
+			this.timeline.insert({
 				name: EVENT_TYPE.Dodge, t: tFree, subject: pkm
 			});
 			tFree += Data.BattleSettings.dodgeDurationMs;
 		}else // wait
 			tFree += actions[i];
 	}
-	this.tline.enqueue({
+	this.timeline.insert({
 		name: EVENT_TYPE.AtkrFree, t: tFree, subject: pkm
 	});
 }
 
 // Finds and returns the next Hurt event of a specified Pokemon
 World.prototype.nextHurtEventOf = function(pkm){
-	for (var i = 0; i < this.tline.list.length; i++){
-		var thisEvent = this.tline.list[i];
+	for (var i = 0; i < this.timeline.list.length; i++){
+		var thisEvent = this.timeline.list[i];
 		if (thisEvent.name == EVENT_TYPE.Hurt && thisEvent.subject.id == pkm.id)
 			return thisEvent;
 	}
@@ -620,12 +591,12 @@ World.prototype.defenderChoose = function(pkm, t, current_move){
 		next_move = pkm.cmove;
 	}
 	// Add the defender delay
-	next_t += 1500 + Math.round(1000 * Math.random());
+	next_t += 1500 + round(1000 * Math.random());
 	
-	this.tline.enqueue({
+	this.timeline.insert({
 		name: EVENT_TYPE.DfdrFree, t: next_t, subject: pkm, move: next_move
 	});
-	this.tline.enqueue({
+	this.timeline.insert({
 		name: EVENT_TYPE.Announce, t: next_t, subject: pkm, move: next_move
 	});
 }
@@ -638,9 +609,9 @@ World.prototype.defenderChooseInitial = function(dfdr, t){
 }
 
 // Check if any of the player is still in game
-World.prototype.isAnyPlayerActive = function(){
-	for (var i = 0; i < this.playersArr.length; i++){
-		var pkm = this.playersArr[i].active_pkm;
+World.prototype.checkAnyPlayerActive = function(){
+	for (var i = 0; i < this.players.length; i++){
+		var pkm = this.players[i].active_pkm;
 		if (pkm && pkm.HP > 0){
 			return true;
 		}
@@ -654,25 +625,25 @@ World.prototype.battle = function(){
 	var elog = [];
 	var dfdr = this.dfdr;
 	
-	for (var i = 0; i < this.playersArr.length; i++){
-		var atkr = this.playersArr[i].active_pkm;
+	for (var i = 0; i < this.players.length; i++){
+		var atkr = this.players[i].active_pkm;
 		if (atkr)
 			atkr.active = true;
-		this.tline.enqueue({
+		this.timeline.insert({
 			name: EVENT_TYPE.Enter, t: t, subject: atkr
 		});
 	}
 	
-	this.tline.enqueue({
+	this.timeline.insert({
 		name: EVENT_TYPE.Enter, t: t, subject: dfdr
 	});
 	this.defenderChooseInitial(dfdr, t);
 	dfdr.active = true;
 
-	while (dfdr.active && this.isAnyPlayerActive_bool){
-		var e = this.tline.list.shift();
+	while (dfdr.active && this.anyPlayerActive){
+		var e = this.timeline.extract_min();
 		t = e.t;
-		if (t >= this.timelimit_ms - Data.BattleSettings.arenaEarlyTerminationMs && !this.immortal_defender)
+		if (t >= this.timelimit - Data.BattleSettings.arenaEarlyTerminationMs && !this.isDefenderImmortal)
 			break;
 		
 		// 1. First process the event
@@ -681,8 +652,8 @@ World.prototype.battle = function(){
 				t: t,
 				dfdr: dfdr,
 				weather: this.weather,
-				dodge_bug: this.dodge_bug,
-				projected_atkrHurtEvent: this.projected_atkrHurtEvent
+				dodgeBugActive: this.dodgeBugActive,
+				projectedAttackerHurtEvent: this.projectedAttackerHurtEvent
 			});
 			this.enqueueActions(e.subject, dfdr, t, actions);
 		}else if (e.name == EVENT_TYPE.DfdrFree){
@@ -690,19 +661,19 @@ World.prototype.battle = function(){
 		}else if (e.name == EVENT_TYPE.Hurt){
 			if (e.subject.active && e.object.active){
 				e.subject.takeDamage(e.dmg);
-				e.subject.has_dodged_next_attack = false;
+				e.subject.hasDodged = false;
 				if (e.subject.HP <= 0 && e.subject.raidTier == 0)
-					this.any_attacker_fainted_bool = true;
+					this.anyAttackerFainted = true;
 				e.object.attributeDamage(e.dmg, e.move.moveType);
 				elog.push(e);
 			}
 		}else if (e.name == EVENT_TYPE.EnergyDelta){
 			e.subject.gainEnergy(e.energyDelta);
 		}else if (e.name == EVENT_TYPE.Enter){
-			e.subject.time_enter_ms = t;
+			e.subject.timeEnterMs = t;
 			e.subject.active = true;
 			if (e.subject.raidTier == 0) // Atkr
-				this.tline.enqueue({
+				this.timeline.insert({
 					name: EVENT_TYPE.AtkrFree, t: t + 100, subject: e.subject
 				});
 			elog.push(e);
@@ -724,57 +695,57 @@ World.prototype.battle = function(){
 		}
 		
 		// 2. Check if some attacker fainted
-		if (this.any_attacker_fainted_bool){
-			for (var i = 0; i < this.playersArr.length; i++){
-				var this_player = this.playersArr[i], old_pkm = this.playersArr[i].active_pkm;
+		if (this.anyAttackerFainted){
+			for (var i = 0; i < this.players.length; i++){
+				var this_player = this.players[i], old_pkm = this.players[i].active_pkm;
 				if (old_pkm && old_pkm.HP <= 0){
-					for (var j = 0; j < this.tline.list.length; j++){
-						var thisEvent =  this.tline.list[j];
+					for (var j = 0; j < this.timeline.list.length; j++){
+						var thisEvent =  this.timeline.list[j];
 						if (thisEvent.name == EVENT_TYPE.AtkrFree && thisEvent.subject.id == old_pkm.id)
-							this.tline.list.splice(j--, 1);
+							this.timeline.list.splice(j--, 1);
 					}
-					old_pkm.time_leave_ms = t;
-					old_pkm.total_time_active_ms += t - old_pkm.time_enter_ms;
+					old_pkm.timeLeaveMs = t;
+					old_pkm.activeDurationMs += t - old_pkm.timeEnterMs;
 					var delay = this_player.sendNextPokemonUp(); // Ask for sending another attacker
 					if (this_player.active_pkm)
-						this.tline.enqueue({
+						this.timeline.insert({
 							name: EVENT_TYPE.Enter, t: t + delay, subject: this_player.active_pkm
 						});
 				}
 			}
-			this.any_attacker_fainted_bool = false;
-			this.isAnyPlayerActive_bool = this.isAnyPlayerActive();
+			this.anyAttackerFainted = false;
+			this.anyPlayerActive = this.checkAnyPlayerActive();
 		}
 		
 		// 3. Check if the defender fainted
 		if (!dfdr.active){
-			dfdr.time_leave_ms = t;
-			dfdr.total_time_active_ms += t - dfdr.time_enter_ms;
+			dfdr.timeLeaveMs = t;
+			dfdr.activeDurationMs += t - dfdr.timeEnterMs;
 		}
 		
 		// 4. Process the next event if it's at the same time before deciding whether the battle has ended
-		if (this.tline.list.length > 0 && t == this.tline.list[0].t)
+		if (this.timeline.list.length > 0 && t == this.timeline.list[0].t)
 			continue;
-		if (this.log_style && elog.length > 0)
+		if (this.hasLog && elog.length > 0)
 			this.appendToLog(elog);
 		elog = [];
 	}
 	
 	// Battle has ended, some leftovers
-	if (this.log_style && elog.length > 0)
+	if (this.hasLog && elog.length > 0)
 		this.appendToLog(elog);
 		
-	this.battle_length = t;
-	for (var i = 0; i < this.playersArr.length; i++){
-		var pkm = this.playersArr[i].active_pkm;
+	this.battleDuration = t;
+	for (var i = 0; i < this.players.length; i++){
+		var pkm = this.players[i].active_pkm;
 		if (pkm && pkm.active){
-			pkm.time_leave_ms = t;
-			pkm.total_time_active_ms += t - pkm.time_enter_ms;
+			pkm.timeLeaveMs = t;
+			pkm.activeDurationMs += t - pkm.timeEnterMs;
 		}
 	}
 	if (dfdr.active){
-		dfdr.time_leave_ms = t;
-		dfdr.total_time_active_ms += t - dfdr.time_enter_ms;
+		dfdr.timeLeaveMs = t;
+		dfdr.activeDurationMs += t - dfdr.timeEnterMs;
 	}
 }
 
@@ -782,7 +753,7 @@ World.prototype.battle = function(){
 // Add events of the same time to battle log
 // Format: [time] [team 1 pokemon] ... [team n pokemon] [defender]
 World.prototype.appendToLog = function(events){
-	var numPlayer = this.playersArr.length;
+	var numPlayer = this.players.length;
 	// Correspond to Enter, AtkrHurt, DfdrHurt, AtkrDogde, and move effect event
 	var rowData = [{},{},{},{},{}];
 	var nonEmpty = [false, false, false, false, false];
@@ -790,7 +761,7 @@ World.prototype.appendToLog = function(events){
 	for (var i = 0; i < rowData.length; i++){
 		rowData[i].t = {
 			'type': 'text',
-			'text': Math.round((events[0]).t/10)/100
+			'text': round(events[0].t, 2)
 		};
 		rowData[i].dfdr = {
 			'type': 'text',
@@ -867,24 +838,24 @@ World.prototype.getStatistics = function(){
 	var pokemon_stats = [];	// 3. Individual Pokemon performance statistics, including the defender
 	var battle_log = [];	// 4. Battle log
 	
-	general_stat['duration'] = Math.round(this.battle_length/100)/10;
-	general_stat['total_deaths'] = 0;
+	general_stat['duration'] = this.battleDuration/1000;
+	general_stat['numOfDeaths'] = 0;
 	general_stat['battle_result'] = this.dfdr.active ? "Lose" : "Win";
 	
 	general_stat['tdo'] = this.dfdr.maxHP - this.dfdr.HP;
-	general_stat['tdo_percent'] = Math.round(general_stat['tdo'] / this.dfdr.maxHP *1000)/10;
-	general_stat['dps'] = Math.round(general_stat['tdo'] / (this.battle_length/1000) *100)/100;
+	general_stat['tdo_percent'] = general_stat['tdo'] / this.dfdr.maxHP * 100;
+	general_stat['dps'] = general_stat['tdo'] / (this.battleDuration/1000);
 	
-	for (var i = 0; i < this.playersArr.length; i++){
-		var player = this.playersArr[i];
+	for (var i = 0; i < this.players.length; i++){
+		var player = this.players[i];
 		var ts = player.getStatistics(general_stat['tdo']);
-		general_stat['total_deaths'] += ts['num_deaths'];
+		general_stat['numOfDeaths'] += ts['numOfDeaths'];
 		player_stats.push(ts);
 		pokemon_stats.push([]);
-		for (var j = 0; j < player.partiesArr.length; j++){
+		for (var j = 0; j < player.parties.length; j++){
 			pokemon_stats[i].push([]);
-			for (var k = 0; k < player.partiesArr[j].pokemonArr.length; k++)
-				pokemon_stats[i][j].push(player.partiesArr[j].pokemonArr[k].getStatistics());
+			for (var k = 0; k < player.parties[j].pokemon.length; k++)
+				pokemon_stats[i][j].push(player.parties[j].pokemon[k].getStatistics());
 		}
 	}
 	pokemon_stats.push(this.dfdr.getStatistics());
@@ -958,20 +929,20 @@ function attacherChoose0(state){
 	}
 }
 
-// 1. Agressive dodge charged
+// 1. Aggressive dodge charged
 function attackerChoose1(state){
 	var t = state.t;
 	var dfdr = state.dfdr;
-	var hurtEvent = state.projected_atkrHurtEvent;
+	var hurtEvent = state.projectedAttackerHurtEvent;
 	var weather = state.weather;
-	var dodge_bug = state.dodge_bug;
+	var dodgeBugActive = state.dodgeBugActive;
 	
-	if (t < hurtEvent.t && hurtEvent.move.moveType == 'charged' && !this.has_dodged_next_attack){
-		this.has_dodged_next_attack = true;
+	if (t < hurtEvent.t && hurtEvent.move.moveType == 'charged' && !this.hasDodged){
+		this.hasDodged = true;
 		
 		var timeTillHurt = hurtEvent.t - t;
 		var undodgedDmg = damage(hurtEvent.object, this, hurtEvent.move, weather);
-		var dodgedDmg = dodge_bug ? undodgedDmg : Math.floor(undodgedDmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent));
+		var dodgedDmg = dodgeBugActive ? undodgedDmg : Math.floor(undodgedDmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent));
 		var fDmg = damage(this, dfdr, this.fmove, weather);
 		var cDmg = damage(this, dfdr, this.cmove, weather);
 
@@ -1008,18 +979,18 @@ function attackerChoose1(state){
 function attackerChoose2(state){
 	var t = state.t;
 	var dfdr = state.dfdr;
-	var hurtEvent = state.projected_atkrHurtEvent;
+	var hurtEvent = state.projectedAttackerHurtEvent;
 	var weather = state.weather;
-	var dodge_bug = state.dodge_bug;
+	var dodgeBugActive = state.dodgeBugActive;
 	
 	var fDmg = damage(this, dfdr, this.fmove, weather);
 	var cDmg = damage(this, dfdr, this.cmove, weather);
 	
-	if (t < hurtEvent.t && !this.has_dodged_next_attack){ // Case 1: A new attack has been announced and has not been dodged
-		this.has_dodged_next_attack = true; // prevent double dodging
+	if (t < hurtEvent.t && !this.hasDodged){ // Case 1: A new attack has been announced and has not been dodged
+		this.hasDodged = true; // prevent double dodging
 		var timeTillHurt = hurtEvent.t - t - Data.BattleSettings.dodgeSwipeMs;
 		var undodgedDmg = damage(hurtEvent.object, this, hurtEvent.move, weather);
-		var dodgedDmg = dodge_bug ? undodgedDmg : Math.floor(undodgedDmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent));
+		var dodgedDmg = dodgeBugActive ? undodgedDmg : Math.floor(undodgedDmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent));
 		var opt_strat = strategyMaxDmg(timeTillHurt, this.energy, fDmg, this.fmove.energyDelta, 
 					this.fmove.duration + Data.BattleSettings.fastMoveLagMs, cDmg, this.cmove.energyDelta, this.cmove.duration + Data.BattleSettings.chargedMoveLagMs);
 		var res = opt_strat[2];
@@ -1059,7 +1030,7 @@ var Core = {
 		{
 			"name": "hp_draining",
 			"sub": function(kwargs){
-				kwargs.world.tline.enqueue({
+				kwargs.world.timeline.insert({
 					name: EVENT_TYPE.MoveEffect, t: kwargs.t + kwargs.move.dws, subject: kwargs.pkm, hurtEvent: kwargs.hurtEvent,
 					action: function(e){
 						var pkm = e.subject;

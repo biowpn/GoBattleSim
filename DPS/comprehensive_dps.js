@@ -336,7 +336,6 @@ function generateSpreadsheet(pokemonCollection){
 					console.log("Move not found: " + chargedMoves_all[k]);
 					continue;
 				}
-				
 				var pkm = new Pokemon({
 					'species': p,
 					'fmove': fmove,
@@ -362,17 +361,15 @@ function generateSpreadsheet(pokemonCollection){
 						pkm.best = false;
 					}
 				}
-				
 				Table.row.add([
 					createIconLabelSpan(pkm.icon, p.nickname || pkm.label, 'species-input-with-icon'), 
 					createIconLabelSpan(pkm.fmove.icon, pkm.fmove.label, 'move-input-with-icon'), 
 					createIconLabelSpan(pkm.cmove.icon, pkm.cmove.label, 'move-input-with-icon'), 
-					Math.round(pkm.dps * 1000) / 1000, 
-					Math.round(pkm.tdo * 10) / 10,
-					Math.round(pkm.dps * pkm.tdo * 10) / 10,
+					round(pkm.dps, 3), 
+					round(pkm.tdo, 1),
+					round(pkm.dps * pkm.tdo, 1),
 					pkm.cp
 				]);
-				
 				ALL_COMBINATIONS.push(pkm);
 			}
 		}
@@ -385,16 +382,13 @@ function generateSpreadsheet(pokemonCollection){
 function updateSpreadsheet(){
 	applyContext();
 	var bestEachSpecies = {};
-	
 	var i = 0;
 	Table.data().each(function(row){
 		var pkm = ALL_COMBINATIONS[i];
-		
 		pkm.calculateDPS(Context);
-		row[3] = Math.round(pkm.dps * 1000) / 1000;
-		row[4] = Math.round(pkm.tdo * 10) / 10;
-		row[5] = Math.round(pkm.dps * pkm.tdo * 10) / 10;
-
+		row[3] = round(pkm.dps, 3);
+		row[4] = round(pkm.tdo, 1);
+		row[5] = round(pkm.dps * pkm.tdo, 1);
 		var curBest = bestEachSpecies[pkm.name];
 		if (curBest){
 			if (pkm.dps > curBest.dps){
@@ -408,7 +402,6 @@ function updateSpreadsheet(){
 			pkm.best = true;
 			bestEachSpecies[pkm.name] = pkm;
 		}
-		
 		i++;
 	});
 	
@@ -459,47 +452,6 @@ function requestSpreadsheet(startover){
 		}
 		
 	}, 50);
-}
-
-
-function getSpreadsheetContentText(){
-	var content = [];
-	var data = Table.rows().data();
-	for (var i = 0; i < data.length; i++){
-		let rowText = [];
-		for (var j = 0; j < data[i].length; j++){
-			rowText.push(createElement("div", data[i][j]).innerText);
-		}
-		content.push(rowText);
-	}
-	return content;
-}
-
-function copySpreadsheetToClipboard(){
-	let copyStr = "Pokemon\tFast Move\tCharged Move\tDPS\tTDO\tDPS*TDO\tCP\n";
-	var content = getSpreadsheetContentText();
-	for (var i = 0; i < content.length; i++){
-		copyStr += content[i].join("\t") + "\n";
-	}
-	copyToClipboard(copyStr);
-	sendFeedbackDialog("Spreadsheet has been copied to clipboard");
-}
-
-function exportSpreadsheetToCSV(){
-	let csvContent = "data:text/csv;charset=utf-8,";
-	csvContent += "Pokemon,Fast Move,Charged Move,DPS,TDO,DPS*TDO,CP" + "\r\n";
-	var content = getSpreadsheetContentText();
-	for (var i = 0; i < content.length; i++){
-		csvContent += content[i].join(",") + "\r\n";
-	}
-
-	var encodedUri = encodeURI(csvContent);
-	var link = document.createElement("a");
-	link.setAttribute("href", encodedUri);
-	link.setAttribute("download", "comprehensive_dps.csv");
-	link.innerHTML= "Click Here to download";
-	document.body.appendChild(link);
-	link.click();
 }
 
 
@@ -610,16 +562,3 @@ function calculateDefender(){
 	copy(str.trim());
 }
 
-
-// PVP Outcome
-function calculatePVP(pkm1, pkm2){
-	var FDmg1 = damage(pkm1, pkm2, pkm1.fmove, Context.weather), FDmg2 = damage(pkm2, pkm1, pkm2.fmove, Context.weather);
-	var CDmg1 = damage(pkm1, pkm2, pkm1.cmove, Context.weather), CDmg2 = damage(pkm2, pkm1, pkm2.cmove, Context.weather);
-	var FDur1 = pkm1.fmove.duration/1000, FDur2 = pkm2.fmove.duration/1000;
-	var CDur1 = pkm1.cmove.duration/1000, CDur2 = pkm2.cmove.duration/1000;
-	var FE1 = pkm1.fmove.energyDelta, FE2 = pkm2.fmove.energyDelta;
-	var CE1 = -pkm1.cmove.energyDelta, CE2 = -pkm2.cmove.energyDelta;
-	var HP1 = pkm1.Stm, HP2 = pkm2.Stm;
-	
-	// TODO
-}

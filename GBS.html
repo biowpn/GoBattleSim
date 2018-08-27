@@ -365,12 +365,12 @@ const HSL_COLORS = [
 	['hsl(120, 60%, 90%)','hsl(120, 60%, 70%)','hsl(120, 60%, 50%)']
 ];
 
-const DEFAULT_SUMMARY_TABLE_METRICS = {battle_result:'Outcome', duration:'Time', tdo_percent:'TDO%', dps:'DPS', total_deaths:'#Death'};
+const DEFAULT_SUMMARY_TABLE_METRICS = {battle_result:'Outcome', duration:'Time', tdo_percent:'TDO%', dps:'DPS', numOfDeaths:'#Death'};
 
 // For quick start wizard configurations
 const DEFAULT_ATTACKER_INPUT_MIN = {
 	copies: 6,
-	name: "*rating3~",
+	name: "*rating3~5",
 	level: 40,
 	atkiv: 15,
 	defiv: 15,
@@ -443,7 +443,6 @@ Data.WeatherSettings.forEach(function(weatherSetting){
 
 dropdownMenuInit();
 
-/*
 moveEditFormInit();
 pokemonEditFormInit();
 parameterEditFormInit();
@@ -452,7 +451,6 @@ userEditFormInit();
 breakpointCalculatorInit();
 MVLTableInit();
 QuickStartWizardInit();
-*/
 
 populateAll(applicationInit);
 

@@ -14,6 +14,10 @@ var acceptedNumericalAttributes = [
 
 var DialogStack = [];
 
+function round(value, numDigits){
+	var multiplier = Math.pow(10, parseInt(numDigits) || 0);
+	return Math.round(value * multiplier) / multiplier;
+}
 
 function createElement(type, innerHTML, attrsAndValues){
 	var e = document.createElement(type);

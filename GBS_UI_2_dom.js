@@ -743,8 +743,14 @@ function createMasterSummaryTable(){
 				}
 			}else if (m == 'weather'){
 				row.push(sim.input.generalSettings.weather);
-			}else
-				row.push(sim.output.generalStat[m]);
+			}else{
+				let cellData = sim.output.generalStat[m];
+				if (typeof cellData == typeof 0){
+					row.push(round(cellData, 2));
+				}else{
+					row.push(cellData);
+				}
+			}
 		}
 		row.push("<a onclick='displayDetail("+i+")' style='cursor: pointer'><i class='fa fa-info-circle' aria-hidden='true'></i></a>");
 		table.children[2].appendChild(createRow(row, "td"));
@@ -755,7 +761,7 @@ function createMasterSummaryTable(){
 function createPlayerStatisticsString(playerStat, duration){
 	var pString = "Player " + playerStat.player_code;
 	pString += ", TDO: " + playerStat.tdo + "(" + playerStat.tdo_percentage + "%)";
-	pString += ", DPS: " + Math.round(playerStat.tdo / duration * 100)/100;
+	pString += ", DPS: " + round(playerStat.tdo / duration, 2);
 	pString += ", rejoined " + playerStat.num_rejoin + " time" + (playerStat.num_rejoin > 1 ? 's' : '');
 	return pString;
 }
@@ -766,8 +772,15 @@ function createPokemonStatisticsTable(pokemonStats){
 								"HP", "Energy", "TDO", "Duration", "DPS", "Detail"], 'th'));
 	for (var i = 0; i < pokemonStats.length; i++){
 		var ps = pokemonStats[i];
-		var row = createRow(["<img src='" + getPokemonIcon({name: ps.name}) + "' class='apitem-pokemon-icon'></img>", 
-			ps.hp, ps.energy, ps.tdo, ps.duration, ps.dps, "<a style='cursor: pointer'><i class='fa fa-info-circle' aria-hidden='true'></i></a>"], 'td');
+		var row = createRow([
+			"<img src='" + getPokemonIcon({name: ps.name}) + "' class='apitem-pokemon-icon'></img>", 
+			ps.hp, 
+			ps.energy, 
+			ps.tdo, 
+			round(ps.duration, 2), 
+			round(ps.dps, 2), 
+			"<a style='cursor: pointer'><i class='fa fa-info-circle' aria-hidden='true'></i></a>"], 
+		'td');
 		
 		const ps_const = JSON.parse(JSON.stringify(ps));
 		row.children[row.children.length - 1].children[0].onclick = function(){

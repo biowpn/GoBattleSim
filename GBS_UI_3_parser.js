@@ -1,6 +1,5 @@
 /* GBS_UI_3_parser.js */
 
-
 function initMasterSummaryTableMetrics(){
 	currentJobSize = 0;
 }
@@ -106,7 +105,7 @@ function iterBranch2(cfg, address, attr, exmatch, universe, start){
 		
 		if (selector == '?'){
 			if (branches.length % matches.length == 0){
-				var numSimsPerBranch = Math.round(branches.length / matches.length);
+				var numSimsPerBranch = round(branches.length / matches.length);
 				var branches2 = [];
 				for (var i = 0; i < numSimsPerBranch; i++){
 					var simsToAverage = [];
@@ -221,7 +220,7 @@ function averageOutputs(results){
 	var avrgR = JSON.parse(JSON.stringify(results[0])), numResults = results.length, numPlayer = results[0].playerStats.length;
 	
 	// These are the metrics to sum and average
-	var generalStat_attrs = ['duration', 'tdo_percent', 'tdo', 'total_deaths'];
+	var generalStat_attrs = ['duration', 'tdo_percent', 'tdo', 'numOfDeaths'];
 	var playerStats_attrs = ['tdo', 'tdo_percentage', 'num_rejoin'];
 	var pokemonStats_attrs = [], pokemonStats_attrs_excluded = ['player_code', 'index', 'name', 'dps'];
 	for (var attr in avrgR.pokemonStats[0][0][0]){
@@ -268,30 +267,30 @@ function averageOutputs(results){
 	}
 	
 	// 3. Divide and get the results
-	avrgR.generalStat.battle_result = Math.round(avrgR.generalStat.battle_result/numResults*10000)/100 + "%";
-	avrgR.generalStat.dps = Math.round(avrgR.generalStat.tdo/avrgR.generalStat.duration*100)/100;
+	avrgR.generalStat.battle_result = round(avrgR.generalStat.battle_result/numResults*100, 2) + "%";
+	avrgR.generalStat.dps = round(avrgR.generalStat.tdo/avrgR.generalStat.duration, 2);
 	generalStat_attrs.forEach(function(attr){
-		avrgR.generalStat[attr] = Math.round(avrgR.generalStat[attr]/numResults*100)/100;
+		avrgR.generalStat[attr] = round(avrgR.generalStat[attr]/numResults, 2);
 	});
 	for (var j = 0; j < numPlayer; j++){
 		playerStats_attrs.forEach(function(attr){
-			avrgR.playerStats[j][attr] = Math.round(avrgR.playerStats[j][attr]/numResults*100)/100;
+			avrgR.playerStats[j][attr] = round(avrgR.playerStats[j][attr]/numResults, 2);
 		});
 	}
 	for (var j = 0; j < numPlayer; j++){
 		for (var k = 0; k < result.pokemonStats[j].length; k++){
 			for (var p = 0; p < result.pokemonStats[j][k].length; p++){
 				pokemonStats_attrs.forEach(function(attr){
-					avrgR.pokemonStats[j][k][p][attr] = Math.round(avrgR.pokemonStats[j][k][p][attr]/numResults*100)/100;
+					avrgR.pokemonStats[j][k][p][attr] = round(avrgR.pokemonStats[j][k][p][attr]/numResults, 2);
 				});
-				avrgR.pokemonStats[j][k][p].dps = Math.round(avrgR.pokemonStats[j][k][p].tdo/avrgR.pokemonStats[j][k][p].duration*100)/100;
+				avrgR.pokemonStats[j][k][p].dps = round(avrgR.pokemonStats[j][k][p].tdo/avrgR.pokemonStats[j][k][p].duration, 2);
 			}
 		}
 	}
 	pokemonStats_attrs.forEach(function(attr){
-		avrgR.pokemonStats[numPlayer][attr] = Math.round(avrgR.pokemonStats[numPlayer][attr]/numResults*100)/100;
+		avrgR.pokemonStats[numPlayer][attr] = round(avrgR.pokemonStats[numPlayer][attr]/numResults, 2);
 	});
-	avrgR.pokemonStats[numPlayer].dps = Math.round(avrgR.pokemonStats[numPlayer].tdo/avrgR.pokemonStats[numPlayer].duration*100)/100;
+	avrgR.pokemonStats[numPlayer].dps = round(avrgR.pokemonStats[numPlayer].tdo/avrgR.pokemonStats[numPlayer].duration, 2);
 	
 	avrgR.battleLog = [];
 	return avrgR;
