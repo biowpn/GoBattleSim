@@ -137,14 +137,13 @@ function parsePokemonTypeFromString(S){
 }
 
 function parseMovesFromString(S){
-	var moveNames = [];
-	var L = S.split(",");
-	for (var i = 0; i < L.length; i++){
-		var name = L[i].trim().toLowerCase();
+	var moves = [];
+	for (name of S.split(",")){
+		name = name.trim();
 		if (name.length > 0)
-			moveNames.push(name);
+			moves.push(name.toLowerCase());
 	}
-	return moveNames;
+	return moves;
 }
 
 
@@ -322,7 +321,7 @@ function handleSpeciesDatabase(pokemonDataBase){
 		var pkm = pokemonDataBase[i];
 		
 		delete pkm['index'];
-		
+		delete pkm['marker_1'];
 		// Handle move pools
 		pkm.fastMoves = pkm.fastMoves || [];
 		pkm.chargedMoves = pkm.chargedMoves || [];
@@ -338,22 +337,21 @@ function handleSpeciesDatabase(pokemonDataBase){
 					pkm.chargedMoves_exclusive.push(move);
 			});
 			delete pkm.exclusiveMoves;
+		}else{
+			pkm.chargedMoves_exclusive = pkm.chargedMoves_exclusive.filter(x => !pkm.fastMoves_exclusive.includes(x));
 		}
-		
-		// Handle boss markers
-		pkm.marker_1 = '';
-		for (var j = 0; j < Data.RaidBosses.length; j++){
-			var boss = Data.RaidBosses[j];
+		// Raid markers
+		pkm.raidMarker = '';
+		for (boss of Data.RaidBosses){
 			if (boss.name == pkm.name){
-				pkm.marker_1 += boss.tier;
-				pkm.marker_1 += (boss.future || boss.legacy || boss.special) ? '' : ' current';
-				pkm.marker_1 += boss.future ? ' future' : '';
-				pkm.marker_1 += boss.legacy ? ' legacy' : '';
-				pkm.marker_1 += boss.special ? ' special' : '';
+				pkm.raidMarker += boss.tier;
+				pkm.raidMarker += (boss.future || boss.legacy || boss.special) ? '' : ' current';
+				pkm.raidMarker += boss.future ? ' future' : '';
+				pkm.raidMarker += boss.legacy ? ' legacy' : '';
+				pkm.raidMarker += boss.special ? ' special' : '';
 				break;
 			}
 		}
-		
 	}
 }
 
@@ -362,7 +360,7 @@ function parseUserPokebox(data){
 	var box = [];
 	for (var i = 0; i < data.length; i++){
 		var pkm = {
-			species : data[i].species.toLowerCase(),
+			name: data[i].species.toLowerCase(),
 			cp: parseInt(data[i].cp),
 			level: parseFloat(data[i].level),
 			stmiv: parseInt(data[i].sta || data[i].stmiv || 0),
@@ -373,7 +371,7 @@ function parseUserPokebox(data){
 			nickname : data[i].nickname,
 			nid: data[i].nid
 		};
-		var species = getEntry(pkm.species, Data.Pokemon), fmove = getEntry(pkm.fmove, Data.FastMoves), cmove = getEntry(pkm.cmove, Data.ChargedMoves);
+		var species = getEntry(pkm.name, Data.Pokemon), fmove = getEntry(pkm.fmove, Data.FastMoves), cmove = getEntry(pkm.cmove, Data.ChargedMoves);
 		if (!species || !fmove || !cmove){
 			console.log("[Error] When importing User Pokemon: species/moves not in database");
 			console.log(data[i]);
@@ -381,11 +379,6 @@ function parseUserPokebox(data){
 		}
 		leftMerge(pkm, species);
 		pkm.box_index = i;
-		if (!pkm.level){
-			console.log("[Error] When importing User Pokemon: invalid level");
-			console.log(data[i]);
-			continue;
-		}
 		box.push(pkm);
 	}
 	return box;
@@ -459,23 +452,26 @@ function fetchSpeciesData(oncomplete){
 			Data.Pokemon = [];
 			for(var i = 0; i < data.length; i++){
 				var pkm = {
-					dex : parseInt(data[i].number),
-					name : data[i].title_1.toLowerCase().replace("&#039;", "'"),
-					pokeType1 : parsePokemonTypeFromString(data[i].field_pokemon_type).pokeType1,
-					pokeType2 : parsePokemonTypeFromString(data[i].field_pokemon_type).pokeType2,
-					baseAtk : parseInt(data[i].atk),
-					baseDef : parseInt(data[i].def),
-					baseStm : parseInt(data[i].sta),
-					fastMoves : parseMovesFromString(data[i].field_primary_moves),
-					chargedMoves : parseMovesFromString(data[i].field_secondary_moves),
-					fastMoves_legacy : parseMovesFromString(data[i].field_legacy_quick_moves),
-					chargedMoves_legacy : parseMovesFromString(data[i].field_legacy_charge_moves),
-					exclusiveMoves : parseMovesFromString(data[i].exclusive_moves),
-					rating : parseFloat(data[i].rating) || 0,
-					marker_1: '',
+					dex: parseInt(data[i].number),
+					name: data[i].title_1.toLowerCase().replace("&#039;", "'"),
+					pokeType1: parsePokemonTypeFromString(data[i].field_pokemon_type).pokeType1,
+					pokeType2: parsePokemonTypeFromString(data[i].field_pokemon_type).pokeType2,
+					baseAtk: parseInt(data[i].atk),
+					baseDef: parseInt(data[i].def),
+					baseStm: parseInt(data[i].sta),
+					fastMoves: parseMovesFromString(data[i].field_primary_moves),
+					chargedMoves: parseMovesFromString(data[i].field_secondary_moves),
+					fastMoves_legacy: parseMovesFromString(data[i].field_legacy_quick_moves),
+					chargedMoves_legacy: parseMovesFromString(data[i].field_legacy_charge_moves),
+					fastMoves_exclusive: parseMovesFromString(data[i].quick_exclusive_moves),
+					chargedMoves_exclusive: parseMovesFromString(data[i].exclusive_moves),
+					rating: parseFloat(data[i].rating) || 0,
+					raidMarker: '',
+					nid: data[i].nid,
 					image: data[i].uri,
 					icon: getPokemonIcon({dex: data[i].number}),
-					label: data[i].title_1.replace("&#039;", "'")
+					label: data[i].title_1.replace("&#039;", "'"),
+					evolutions: parseMovesFromString(data[i].field_evolutions),
 				};
 				Data.Pokemon.push(pkm);
 			}
@@ -496,10 +492,7 @@ function fetchSpeciesFormData(oncomplete){
 		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json?v2',
 		dataType: 'json', 
 		success: function(data){
-			Data.PokemonForms = [];
-			for(var i = 0; i < data.length; i++){
-				Data.PokemonForms.push(data[i]);
-			}
+			Data.PokemonForms = data;
 			sortDatabase(Data.PokemonForms);
 		},
 		complete: function(jqXHR, textStatus){
@@ -594,13 +587,13 @@ function fetchUserTeamData(userid, oncomplete){
 						name: party_raw.title,
 						label: party_raw.title,
 						isLocal: false,
-						pokemon_list: []
+						pokemon: []
 					};
 					var team_nids = party_raw.team_nids.split(',');
 					for (var j = 0; j < team_nids.length; j++){
 						for (var k = 0; k < user.box.length; k++){
 							if (user.box[k].nid == team_nids[j].trim()){
-								party.pokemon_list.push(user.box[k]);
+								party.pokemon.push(user.box[k]);
 								break;
 							}
 						}
@@ -679,7 +672,7 @@ function fetchLocalData(){
 		LocalData.BattleParties.forEach(function(party){
 			party.isLocal = true;
 			party.label = party.label || party.name;
-			party.pokemon_list.forEach(function(pkm){
+			party.pokemon.forEach(function(pkm){
 				delete pkm.index;
 				delete pkm.box_index;
 				delete pkm.fmove_index;

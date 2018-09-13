@@ -633,7 +633,7 @@ function populateQuickStartWizardBossList(tag){
 		1: [], 2: [], 3:[], 4:[], 5:[]
 	};
 	bosses.forEach(function(boss){
-		bosses_by_tier[parseInt(boss.marker_1.split(' ')[0])].push(boss);
+		bosses_by_tier[parseInt(boss.raidMarker.split(' ')[0])].push(boss);
 	});
 
 	var listObj = document.getElementById('quickStartWizard-raidbosslist');
@@ -649,7 +649,7 @@ function populateQuickStartWizardBossList(tag){
 					var imgObj = document.getElementById('ui-species_QSW-boss'), idx = this.getAttribute('index');
 					imgObj.setAttribute('name', Data.Pokemon[idx].name);
 					imgObj.setAttribute('index', idx);
-					imgObj.setAttribute('raid_tier', tier);
+					imgObj.setAttribute('raidTier', tier);
 					imgObj.setAttribute('src', Data.Pokemon[idx].image);
 					$( '#quickStartWizard-raidbosslist' ).menu( "collapseAll", null, true );
 				};
@@ -671,7 +671,7 @@ function quickStartWizardSubmit(){
 		numPlayer--;
 	}
 	var pkmSource = document.getElementById('quickStartWizard-pokemonSource').value;
-	var pkm = qsw_config.atkrSettings[0].party_list[0].pokemon_list[0];
+	var pkm = qsw_config.atkrSettings[0].parties[0].pokemon[0];
 	if (pkmSource == '$'){
 		pkm.name = "*$";
 		pkm.fmove = "";
@@ -685,8 +685,8 @@ function quickStartWizardSubmit(){
 		pkm.level = parseInt(pkmSource);
 	}
 	
-	qsw_config.dfdrSettings.species = document.getElementById('ui-species_QSW-boss').getAttribute('name');
-	qsw_config.dfdrSettings.raid_tier = parseInt(document.getElementById('ui-species_QSW-boss').getAttribute('raid_tier'));
+	qsw_config.dfdrSettings.name = document.getElementById('ui-species_QSW-boss').getAttribute('name');
+	qsw_config.dfdrSettings.raidTier = parseInt(document.getElementById('ui-species_QSW-boss').getAttribute('raidTier'));
 	qsw_config.dfdrSettings.fmove = document.getElementById('fmove_QSW-boss').value || '*current';
 	qsw_config.dfdrSettings.cmove = document.getElementById('cmove_QSW-boss').value || '*current';
 	
@@ -742,6 +742,23 @@ function breakpointCalculatorInit(){
 	bpc_raidTier.value = 5;
 }
 
+function calculateBreakpoints(dmgGiver, dmgReceiver, move, weather){
+	let breakpoints = [], lastDamage = 0, thisDamage = 0;
+	let atkr = new Pokemon(dmgGiver);
+	for (var i = 0; i < Data.LevelSettings.length; i++){
+		atkr.Atk = (atkr.baseAtk + atkr.atkiv) * Data.LevelSettings[i].cpm;
+		thisDamage = damage(atkr, dmgReceiver, move, weather);
+		if (thisDamage != lastDamage){
+			breakpoints.unshift(Data.LevelSettings[i].value);
+			lastDamage = thisDamage;
+		}
+	}
+	return {
+		"breakpoints": breakpoints,
+		"finalDamage": thisDamage
+	};
+}
+
 function breakpointCalculatorSubmit(){
 	var attackers = getPokemonOptions(0).filter(Predicate($("#ui-species_0").val()));
 	var defenders = Data.Pokemon.filter(Predicate($("#ui-species_boss").val()));
@@ -758,27 +775,22 @@ function breakpointCalculatorSubmit(){
 		if (atkr_copy.box_index >= 0){
 			atkrs.push(new Pokemon(atkr_copy));			
 		}else{
-			var atkiv_default = parseInt($('#breakpointCalculator-atkiv').val());
-			atkr_copy.fastMoves.concat(atkr_copy.fastMoves_legacy).concat(atkr_copy.fastMoves_exclusive).forEach(function(move){
-				atkrs.push(new Pokemon({
-					species: atkr_copy,
-					level: 40,
-					atkiv: atkiv_default,
-					defiv: 15,
-					stmiv: 15,
-					fmove: move
-				}));
-			});
+			atkr_copy.level = 40;
+			atkr_copy.atkiv = parseInt($('#breakpointCalculator-atkiv').val());
+			atkr_copy.defiv = 15;
+			atkr_copy.stmiv = 15;
+			for (let move of atkr_copy.fastMoves.concat(atkr_copy.fastMoves_legacy).concat(atkr_copy.fastMoves_exclusive)){
+				atkr_copy.fmove = move;
+				atkrs.push(new Pokemon(atkr_copy));
+			}
 		}
-
 		for (var j = 0; j < atkrs.length; j++){
 			var atkr = atkrs[j];
 			atkr.fab = getFriendMultiplier(friend);
-		
 			for (var k = 0; k < defenders.length; k++){
 				var dfdr = new Pokemon({
 					name: defenders[k].name,
-					raid_tier: raidTier
+					raidTier: raidTier
 				});
 				var bp_res = calculateBreakpoints(atkr, dfdr, atkr.fmove, weather);
 				var powerup_cost = calculateLevelUpCost(atkr.level, bp_res.breakpoints[0]);
@@ -847,7 +859,7 @@ function MVLTableCalculate(){
 	for (var i = 0; i < numPlayer; i++){
 		baseConfig.atkrSettings.push(basePlayer);
 	}
-	baseConfig.generalSettings.aggregation = 'avrg';
+	baseConfig.general.aggregation = 'avrg';
 	
 	var movesets = [];
 	if (document.getElementById("MVLTable-enumMovesets").checked){
@@ -870,7 +882,7 @@ function MVLTableCalculate(){
 		baseConfig.dfdrSettings.fmove = movesets[i][0];
 		baseConfig.dfdrSettings.cmove = movesets[i][1];
 		var rowDict = {
-			"weather": baseConfig.generalSettings.weather,
+			"weather": baseConfig.general.weather,
 			"fmove": baseConfig.dfdrSettings.fmove,
 			"cmove": baseConfig.dfdrSettings.cmove
 		};
@@ -917,9 +929,9 @@ function MVLTableClear(){
 
 function getWinRate(level, cfg){
 	for (var i = 0; i < cfg.atkrSettings.length; i++){
-		for (var j = 0; j < cfg.atkrSettings[i].party_list.length; j++){
-			for (var k = 0; k < cfg.atkrSettings[i].party_list[j].pokemon_list.length; k++){
-				cfg.atkrSettings[i].party_list[j].pokemon_list[k].level = level;
+		for (var j = 0; j < cfg.atkrSettings[i].parties.length; j++){
+			for (var k = 0; k < cfg.atkrSettings[i].parties[j].pokemon.length; k++){
+				cfg.atkrSettings[i].parties[j].pokemon[k].level = level;
 			}
 		}
 	}

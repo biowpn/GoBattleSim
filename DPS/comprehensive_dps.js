@@ -300,7 +300,7 @@ function applyContext(){
 		atkiv: DEFAULT_IVs[0],
 		defiv: DEFAULT_IVs[1],
 		stmiv: DEFAULT_IVs[2],
-		raid_tier: 0
+		raidTier: 0
 	});
 	Context.enemy.pokeType1 = document.getElementById('d-pokeType1').value;
 	Context.enemy.pokeType2 = document.getElementById('d-pokeType2').value;
@@ -336,16 +336,14 @@ function generateSpreadsheet(pokemonCollection){
 					console.log("Move not found: " + chargedMoves_all[k]);
 					continue;
 				}
-				var pkm = new Pokemon({
-					'species': p,
-					'fmove': fmove,
-					'cmove': cmove,
-					'level': p.level || DEFAULT_LEVEL,
-					'atkiv': typeof p.atkiv == typeof 0 ? p.atkiv : DEFAULT_IVs[0],
-					'defiv': typeof p.defiv == typeof 0 ? p.defiv : DEFAULT_IVs[1],
-					'stmiv': typeof p.stmiv == typeof 0 ? p.stmiv : DEFAULT_IVs[2],
-					'raid_tier': 0
-				});
+				var p2 = JSON.parse(JSON.stringify(p));
+				p2.fmove = fmove;
+				p2.cmove = cmove;
+				p2.level = p.level || DEFAULT_LEVEL;
+				p2.atkiv = typeof p.atkiv == typeof 0 ? p.atkiv : DEFAULT_IVs[0];
+				p2.defiv = typeof p.defiv == typeof 0 ? p.defiv : DEFAULT_IVs[1];
+				p2.stmiv = typeof p.stmiv == typeof 0 ? p.stmiv : DEFAULT_IVs[2];
+				var pkm = new Pokemon(p2);
 				pkm.cp = calculateCP(pkm);
 				pkm.calculateDPS(Context);
 				

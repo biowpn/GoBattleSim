@@ -1,5 +1,15 @@
 /* GBS_UI_2_dom.js */
 
+var FieldnamesConversion = {
+	"species": "name",
+	"raid_tier": "raidTier",
+	"pokemon_list": "pokemon",
+	"party_list": "parties",
+	"player_list": "players",
+	"revive_strategy": "revive",
+	"generalSettings": "general"
+};
+
 function createAttackerNode(){
 	var pokemonNode = createElement('div', '', {class: 'section-body section-pokemon-node'});
 	pokemonNode.appendChild(document.createElement('div'));
@@ -104,9 +114,9 @@ function createAttackerNode(){
 	tb3.children[1].children[1].appendChild(cmoveInput);
 
 	stratSelect = createElement('select', '');
-	stratSelect.appendChild(createElement('option', 'No Dodge', {value: 0}));
-	stratSelect.appendChild(createElement('option', 'Dodge Charged', {value: 1}));
-	stratSelect.appendChild(createElement('option', 'Dodge All', {value: 2}));
+	stratSelect.appendChild(createElement('option', 'No Dodge', {value: "attackerStrategy0"}));
+	stratSelect.appendChild(createElement('option', 'Dodge Charged', {value: "attackerStrategy1"}));
+	stratSelect.appendChild(createElement('option', 'Dodge All', {value: "attackerStrategy2"}));
 	tb3.children[1].children[2].appendChild(stratSelect);
 	
 	pokemonNode.children[1].appendChild(tb1);
@@ -475,31 +485,31 @@ function parseAttackerNode(node){
 		defiv: row2.children[3].children[0].value.trim(),
 		fmove: row3.children[0].children[0].value.trim().toLowerCase(),
 		cmove: row3.children[1].children[0].value.trim().toLowerCase(),
-		dodge: row3.children[2].children[0].value,
+		strategy: row3.children[2].children[0].value,
 		copies: parseInt(row1.children[1].children[0].value) || 1,
-		raid_tier: 0
+		role: "a"
 	};
 	return pkm_cfg;
 }
 
 function parsePartyNode(node){
-	var party_cfg = {
+	var party = {
 		name: node.children[0].children[1].value,
-		revive_strategy: node.children[2].children[0].children[2].checked,
-		pokemon_list: []
+		revive: node.children[2].children[0].children[2].checked,
+		pokemon: []
 	};
 	for (var k = 0; k < node.children[1].children.length; k++)
-		party_cfg.pokemon_list.push(parseAttackerNode(node.children[1].children[k]));
-	return party_cfg;
+		party.pokemon.push(parseAttackerNode(node.children[1].children[k]));
+	return party;
 }
 
 function parsePlayerNode(node){
 	var player_cfg = {
 		friend: node.children[0].children[1].value,
-		party_list: []
+		parties: []
 	};
 	for (var j = 0; j < node.children[1].children.length; j++)
-		player_cfg.party_list.push(parsePartyNode(node.children[1].children[j]));
+		player_cfg.parties.push(parsePartyNode(node.children[1].children[j]));
 	return player_cfg;
 }
 
@@ -526,9 +536,10 @@ function parseDefenderNode(node){
 		pkm_cfg['stmiv'] = row2.children[1].children[0].value.trim();
 		pkm_cfg['atkiv'] = row2.children[2].children[0].value.trim();
 		pkm_cfg['defiv'] = row2.children[3].children[0].value.trim();
-		pkm_cfg['raid_tier'] = -1;
+		pkm_cfg['role'] = "gd";
 	}else{
-		pkm_cfg['raid_tier'] = parseInt(document.getElementById("raidTier").value);
+		pkm_cfg['role'] = "rb";
+		pkm_cfg['raidTier'] = parseInt(document.getElementById("raidTier").value);
 	}
 	return pkm_cfg;
 }
@@ -542,16 +553,16 @@ function readUserInput(){
 	gSettings['dodgeBug'] = parseInt(document.getElementById("dodgeBug").value);
 	gSettings['simPerConfig'] = Math.max(1, parseInt(document.getElementById("simPerConfig").value));
 	gSettings['aggregation'] = document.getElementById("aggregation").value;
-	gSettings['logStyle'] = (gSettings['aggregation'] == 'avrg' ? 0 : 1);
+	gSettings['hasLog'] = (gSettings['aggregation'] == 'avrg' ? 0 : 1);
 
 	
 	// 2. Attacker Settings
-	var player_list = [];
+	var players = [];
 	var playerNodes = document.getElementById("AttackerInput").children[1].children;
 	for (var i = 0; i < playerNodes.length; i++){
 		var player_cfg = parsePlayerNode(playerNodes[i]);
-		player_cfg.player_code = i + 1;
-		player_list.push(player_cfg);
+		player_cfg.index = i + 1;
+		players.push(player_cfg);
 	}
 	
 	// 3. Defender Settings
@@ -559,8 +570,8 @@ function readUserInput(){
 	var dfdr_info = parseDefenderNode(defenderNode);
 	
 	return {
-		generalSettings : gSettings,
-		atkrSettings : player_list,
+		general : gSettings,
+		atkrSettings : players,
 		dfdrSettings : dfdr_info
 	};
 }
@@ -571,8 +582,8 @@ function writeAttackerNode(node, pkmConfig){
 	var row2 = node.children[1].children[1].children[1];
 	var row3 = node.children[1].children[2].children[1];
 
-	var species_idx = getEntryIndex((pkmConfig.name || pkmConfig.species || "").toLowerCase(), Data.Pokemon);
-	row1.children[0].children[0].value = species_idx >= 0 ? Data.Pokemon[species_idx].label : toTitleCase(pkmConfig.name || pkmConfig.species || "");
+	var species_idx = getEntryIndex(pkmConfig.name.toLowerCase(), Data.Pokemon);
+	row1.children[0].children[0].value = species_idx >= 0 ? Data.Pokemon[species_idx].label : toTitleCase(pkmConfig.name);
 	row1.children[0].children[0].setAttribute('index', species_idx);
 	if (pkmConfig.box_index >= 0){
 		row1.children[0].children[0].setAttribute('box_index', pkmConfig.box_index);
@@ -600,21 +611,21 @@ function writeAttackerNode(node, pkmConfig){
 function writePartyNode(node, partyConfig){
 	node.children[0].children[1].value = partyConfig.name || node.children[0].children[1].value;
 	node.children[1].innerHTML = "";
-	for (var k = 0; k < partyConfig.pokemon_list.length; k++){
+	for (var k = 0; k < partyConfig.pokemon.length; k++){
 		var pokemonNode = createAttackerNode();
-		writeAttackerNode(pokemonNode, partyConfig.pokemon_list[k]);
+		writeAttackerNode(pokemonNode, partyConfig.pokemon[k]);
 		node.children[1].appendChild(pokemonNode);
 	}
-	node.children[2].children[0].children[2].checked = partyConfig.revive_strategy;
+	node.children[2].children[0].children[2].checked = partyConfig.revive;
 	$(node.children[2]).controlgroup('refresh');
 }
 
 function writePlayerNode(node, playerConfig){
 	node.children[0].children[1].value = playerConfig.friend || "none";
 	node.children[1].innerHTML = "";
-	for (var j = 0; j < playerConfig.party_list.length; j++){
+	for (var j = 0; j < playerConfig.parties.length; j++){
 		var partyNode = createPartyNode();
-		writePartyNode(partyNode, playerConfig.party_list[j]);
+		writePartyNode(partyNode, playerConfig.parties[j]);
 		node.children[1].appendChild(partyNode);
 	}
 }
@@ -623,8 +634,8 @@ function writeDefenderNode(node, pkmConfig){
 	var row1 = node.children[1].children[0].children[1];
 	var row3 = node.children[1].children[2].children[1];
 
-	var species_idx = pkmConfig.hasOwnProperty('index') ? pkmConfig.index : getEntryIndex((pkmConfig.name || pkmConfig.species || "").toLowerCase(), Data.Pokemon);
-	row1.children[0].children[0].value = species_idx >= 0 ? Data.Pokemon[species_idx].label : toTitleCase(pkmConfig.name || pkmConfig.species || "");
+	var species_idx = pkmConfig.hasOwnProperty('index') ? pkmConfig.index : getEntryIndex(pkmConfig.name.toLowerCase(), Data.Pokemon);
+	row1.children[0].children[0].value = species_idx >= 0 ? Data.Pokemon[species_idx].label : toTitleCase(pkmConfig.name);
 	row1.children[0].children[0].setAttribute('index', species_idx);
 	if (pkmConfig.box_index >= 0){
 		row1.children[0].children[0].setAttribute('box_index', pkmConfig.box_index);
@@ -660,7 +671,7 @@ function writeDefenderNode(node, pkmConfig){
 			raidSelection.appendChild(createElement('option', Data.RaidTierSettings[i].label, {value: Data.RaidTierSettings[i].name}));
 		}
 		tb2.children[1].children[0].appendChild(raidSelection);
-		tb2.children[1].children[0].children[0].value = pkmConfig['raid_tier'] || 5;
+		tb2.children[1].children[0].children[0].value = pkmConfig['raidTier'] || 5;
 	}
 }
 
@@ -669,18 +680,18 @@ function updateDefenderNode(mode){
 	var curDefenderConfig = parseDefenderNode(defenderNode);
 	if (mode == 'raid'){
 		var pkm = Data.Pokemon[curDefenderConfig.index];
-		if (pkm && pkm.marker_1){
-			curDefenderConfig.raid_tier = parseInt(pkm.marker_1.split(" ")[0]) || 5;
+		if (pkm && pkm.raidMarker){
+			curDefenderConfig.raidTier = parseInt(pkm.raidMarker.split(" ")[0]) || 5;
 		}
 	}else if (mode == 'gym'){
-		curDefenderConfig.raid_tier = -1;
+		curDefenderConfig.raidTier = -1;
 	}
 	writeDefenderNode(defenderNode, curDefenderConfig);
 }
 
 function writeUserInput(cfg){
-	for (var attr in cfg['generalSettings']){
-		$("#" + attr).val(cfg['generalSettings'][attr]);
+	for (var attr in cfg['general']){
+		$("#" + attr).val(cfg['general'][attr]);
 	}
 	
 	var attackerFieldBody = document.getElementById("AttackerInput").children[1];
@@ -742,7 +753,7 @@ function createMasterSummaryTable(){
 					row.push(pkmInfo[attr]);
 				}
 			}else if (m == 'weather'){
-				row.push(sim.input.generalSettings.weather);
+				row.push(sim.input.general.weather);
 			}else{
 				let cellData = sim.output.generalStat[m];
 				if (typeof cellData == typeof 0){
@@ -934,47 +945,47 @@ function exportConfigToUrl(cfg){
 	var cfg_min = {
 		atkrSettings: [], 
 		dfdrSettings: {},
-		generalSettings: JSON.parse(JSON.stringify(cfg.generalSettings))
+		general: JSON.parse(JSON.stringify(cfg.general))
 	};
 	for (var i = 0; i < cfg.atkrSettings.length; i++){
 		cfg_min.atkrSettings.push({
-			party_list: []
+			parties: []
 		});
 		if (cfg.atkrSettings[i].friend){
 			cfg_min.atkrSettings[i].friend = cfg.atkrSettings[i].friend;
 		}
-		for (var j = 0; j < cfg.atkrSettings[i].party_list.length; j++){
-			cfg_min.atkrSettings[i].party_list.push({
-				pokemon_list: []
+		for (var j = 0; j < cfg.atkrSettings[i].parties.length; j++){
+			cfg_min.atkrSettings[i].parties.push({
+				pokemon: []
 			});
-			if (cfg.atkrSettings[i].party_list[j].revive_strategy)
-				cfg_min.atkrSettings[i].party_list[j].revive_strategy = cfg.atkrSettings[i].party_list[j].revive_strategy;
-			for (var k = 0; k < cfg.atkrSettings[i].party_list[j].pokemon_list.length; k++){
+			if (cfg.atkrSettings[i].parties[j].revive)
+				cfg_min.atkrSettings[i].parties[j].revive = cfg.atkrSettings[i].parties[j].revive;
+			for (var k = 0; k < cfg.atkrSettings[i].parties[j].pokemon.length; k++){
 				var pkm_min = {};
-				leftMerge(pkm_min, cfg.atkrSettings[i].party_list[j].pokemon_list[k], pkm_min_attributes);
+				leftMerge(pkm_min, cfg.atkrSettings[i].parties[j].pokemon[k], pkm_min_attributes);
 				for (var attr in pkm_min){
 					if (pkm_min[attr] == DEFAULT_ATTACKER_INPUT_MIN[attr])
 						delete pkm_min[attr];
 				}
-				cfg_min.atkrSettings[i].party_list[j].pokemon_list.push(pkm_min);
+				cfg_min.atkrSettings[i].parties[j].pokemon.push(pkm_min);
 			}
 		}
 	}
 	leftMerge(cfg_min.dfdrSettings, cfg.dfdrSettings, pkm_min_attributes);
-	cfg_min.dfdrSettings.raid_tier = cfg.dfdrSettings.raid_tier;
+	cfg_min.dfdrSettings.raidTier = cfg.dfdrSettings.raidTier;
 	delete cfg_min.dfdrSettings.copies;
 	delete cfg_min.dfdrSettings.dodge;
-	if (cfg_min.dfdrSettings.raid_tier > 0){
+	if (cfg_min.dfdrSettings.raidTier > 0){
 		delete cfg_min.dfdrSettings.level;
 		delete cfg_min.dfdrSettings.atkiv;
 		delete cfg_min.dfdrSettings.defiv;
 		delete cfg_min.dfdrSettings.stmiv;
 	}
 	
-	delete cfg_min.generalSettings.logStyle;
-	for (var attr in cfg_min.generalSettings){
-		if (cfg_min.generalSettings[attr] == DEFAULT_GENERAL_SETTING_INPUT_MIN[attr])
-			delete cfg_min.generalSettings[attr];
+	delete cfg_min.general.hasLog;
+	for (var attr in cfg_min.general){
+		if (cfg_min.general[attr] == DEFAULT_GENERAL_SETTING_INPUT_MIN[attr])
+			delete cfg_min.general[attr];
 	}
 	
 	return jsonToURI(cfg_min);
@@ -982,11 +993,17 @@ function exportConfigToUrl(cfg){
 
 function parseConfigFromUrl(url){
 	var cfg = uriToJSON(url.split('?')[1]);
+	for (var attr in FieldnamesConversion){
+		if (cfg.hasOwnProperty(attr)){
+			cfg[FieldnamesConversion[attr]] = cfg[attr];
+			delete cfg[attr];
+		}
+	}
 	for (var i = 0; i < cfg.atkrSettings.length; i++){
-		for (var j = 0; j < cfg.atkrSettings[i].party_list.length; j++){
-			cfg.atkrSettings[i].party_list[j].revive_strategy = cfg.atkrSettings[i].party_list[j].revive_strategy || false;
-			for (var k = 0; k < cfg.atkrSettings[i].party_list[j].pokemon_list.length; k++){
-				var pkm = cfg.atkrSettings[i].party_list[j].pokemon_list[k];
+		for (var j = 0; j < cfg.atkrSettings[i].parties.length; j++){
+			cfg.atkrSettings[i].parties[j].revive = cfg.atkrSettings[i].parties[j].revive || false;
+			for (var k = 0; k < cfg.atkrSettings[i].parties[j].pokemon.length; k++){
+				var pkm = cfg.atkrSettings[i].parties[j].pokemon[k];
 				for (var attr in DEFAULT_ATTACKER_INPUT_MIN){
 					if (!pkm.hasOwnProperty(attr))
 						pkm[attr] = DEFAULT_ATTACKER_INPUT_MIN[attr];
@@ -999,8 +1016,8 @@ function parseConfigFromUrl(url){
 		}
 	}
 	for (var attr in DEFAULT_GENERAL_SETTING_INPUT_MIN){
-		if (!cfg.generalSettings.hasOwnProperty(attr))
-			cfg.generalSettings[attr] = DEFAULT_GENERAL_SETTING_INPUT_MIN[attr];
+		if (!cfg.general.hasOwnProperty(attr))
+			cfg.general[attr] = DEFAULT_GENERAL_SETTING_INPUT_MIN[attr];
 	}
 	return cfg;
 }

@@ -282,7 +282,7 @@
 
 
 
-<div id="GeneralSettings">
+<div id="general">
 	<h2>General Settings</h2>
 	<table>
 	<col width=20%><col width=20%><col width=20%><col width=20%><col width=20%>
@@ -391,25 +391,25 @@ const DEFAULT_GENERAL_SETTING_INPUT_MIN = {
 
 
 const QUICK_START_WIZARD_CONFIG_1 = {
-	generalSettings : DEFAULT_GENERAL_SETTING_INPUT_MIN,
+	general : DEFAULT_GENERAL_SETTING_INPUT_MIN,
 	atkrSettings : [{
-		party_list : [{
-			revive_strategy : true,
-			pokemon_list: [DEFAULT_ATTACKER_INPUT_MIN]
+		parties : [{
+			revive : true,
+			pokemon: [DEFAULT_ATTACKER_INPUT_MIN]
 		}]
 	}],
 	dfdrSettings : {
 		species: "machamp",
 		fmove: "*current",
 		cmove: "*current",
-		raid_tier: 3
+		raidTier: 3
 	}
 };
 
 const QUICK_START_WIZARD_CLONE_PLAYER = {
-	party_list : [{
-		revive_strategy : true,
-		pokemon_list: [{
+	parties : [{
+		revive : true,
+		pokemon: [{
 			copies: 6,
 			species: "=1-1-1",
 			level: "=1-1-1",

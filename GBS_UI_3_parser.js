@@ -15,7 +15,7 @@ function getPokemonConfig(cfg, address){
 	else{
 		var arr = address.split('-');
 		var i = parseInt(arr[0])-1, j = parseInt(arr[1])-1, k = parseInt(arr[2])-1; // indices start from 1 in address
-		return cfg['atkrSettings'][i].party_list[j].pokemon_list[k];
+		return cfg['atkrSettings'][i].parties[j].pokemon[k];
 	}
 }
 
@@ -172,8 +172,8 @@ function iterBranch(cfg, start){
 	var branches = [];
 	if (start[0] == 0){
 		for (var i = start[1]; i < cfg['atkrSettings'].length; i++){
-			for (var j = start[2]; j < cfg['atkrSettings'][i].party_list.length; j++){
-				for (var k = start[3]; k < cfg['atkrSettings'][i].party_list[j].pokemon_list.length; k++){
+			for (var j = start[2]; j < cfg['atkrSettings'][i].parties.length; j++){
+				for (var k = start[3]; k < cfg['atkrSettings'][i].parties[j].pokemon.length; k++){
 					branches = iterBranch1(cfg, (i+1)+'-'+(j+1)+'-'+(k+1), [start[0], i, j, k, start[4]]);
 					if (branches.length)
 						return branches;
@@ -198,7 +198,7 @@ function iterBranch(cfg, start){
 
 function runSim(cfg, resCollector){	
 	var app_world = new World(cfg);
-	var numSimRun = parseInt(cfg['generalSettings']['simPerConfig']);
+	var numSimRun = parseInt(cfg['general']['simPerConfig']);
 	var interResults = [];
 	for (var i = 0; i < numSimRun; i++){
 		app_world.init();
@@ -207,9 +207,9 @@ function runSim(cfg, resCollector){
 	}
 	currentJobSize += numSimRun;
 	
-	if (cfg['generalSettings']['aggregation'] == 'avrg')
+	if (cfg['general']['aggregation'] == 'avrg')
 		resCollector.push({input: cfg, output: averageOutputs(interResults)});
-	else if (cfg['generalSettings']['aggregation'] == 'enum'){
+	else if (cfg['general']['aggregation'] == 'enum'){
 		for (var i = 0; i < interResults.length; i++)
 			resCollector.push({input: cfg, output: interResults[i]});
 	}
