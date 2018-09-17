@@ -63,11 +63,9 @@ Pokemon.prototype.calculateDPS = function(kwargs){
 	this.tdo = this.dps * this.st;
 	
 	if (this.dps > CDPS){
-		//console.log("Violation of Comp DPS Axiom: OVERflow: " + this.name + "," + this.fmove.name + "," + this.cmove.name);
 		this.dps = CDPS;
 		this.tdo = this.dps * this.st;
 	}else if (this.dps < FDPS){
-		//console.log("Violation of Comp DPS Axiom: UNDERflow: " + this.name + "," + this.fmove.name + "," + this.cmove.name);
 		this.dps = FDPS;
 		this.tdo = this.dps * this.st;
 	}

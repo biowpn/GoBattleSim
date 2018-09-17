@@ -28,6 +28,27 @@ function createElement(type, innerHTML, attrsAndValues){
 	return e;
 }
 
+function searchParent(node, predicate){
+	while (node.parentNode){
+		node = node.parentNode;
+		if (predicate(node)){
+			return node;
+		}
+	}
+}
+
+function searchChild(node, predicate){
+	if (predicate(node)){
+		return node;
+	}
+	for (let child of node.children){
+		let searchResult = searchChild(child, predicate);
+		if (searchResult){
+			return searchResult;
+		}
+	}
+}
+
 function createRow(rowData, type){
 	type = type || "td";
 	var row = document.createElement("tr");
@@ -113,7 +134,7 @@ function createSimplePredicate(str, parent, attr){
 		if (str.substring(0,3) == '<f>'){
 			const str_const = str.slice(3).trim();
 			return function(obj){
-				var fmove = Data.FastMoves[obj.fmove_index] || (typeof obj.fmove == typeof "" ? getEntry(obj.fmove, Data.FastMoves) : obj.fmove);
+				var fmove = (typeof obj.fmove == typeof "" ? getEntry(obj.fmove, Data.FastMoves) : obj.fmove);
 				if (fmove){
 					return fmove.name.includes(str_const) || fmove.pokeType == str_const;
 				}
@@ -122,7 +143,7 @@ function createSimplePredicate(str, parent, attr){
 		}else if (str.substring(0,3) == '<c>'){
 			const str_const = str.slice(3).trim();
 			return function(obj){
-				var cmove = Data.ChargedMoves[obj.cmove_index] || (typeof obj.cmove == typeof "" ? getEntry(obj.cmove, Data.ChargedMoves) : obj.cmove);
+				var cmove = (typeof obj.cmove == typeof "" ? getEntry(obj.cmove, Data.ChargedMoves) : obj.cmove);
 				if (cmove){
 					return cmove.name.includes(str_const) || cmove.pokeType == str_const;
 				}
@@ -297,52 +318,24 @@ function autocompletePokemonNodeSpecies(speciesInput){
 		delay : 200,
 		source : function(request, response){
 			var user_idx = 0;
-			for (var i = 0; i < this.bindings.length; i++){
-				if (this.bindings[i].id && this.bindings[i].id.includes('species_')){
-					thisAddress = this.bindings[i].id.split('_')[1];
-					user_idx = parseInt(thisAddress.split('-')[0]);
-					if (thisAddress == 'd'){
-						user_idx = 0;
-					}else if (isNaN(user_idx)){
-						user_idx = -1;
-					}
-					break;
-				}
-			}
+			// TODO: Dynamically bind user ID to player node
 			var searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term), matches = [];
 			matches = getPokemonOptions(user_idx).filter(Predicate(searchStr));
 			response(matches);
 		},
 		select : function(event, ui){
-			var pkmInfo = ui.item, thisAddress = this.id.split('_')[1];
+			var pkmInfo = ui.item;
+			ui.item.value = ui.item.name;
 			if (pkmInfo.box_index >= 0){
-				var thisPokemonNode = document.getElementById('ui-pokemon_' + thisAddress);
-				var user_idx = parseInt(thisAddress.split('-')[0]);
-				try{
-					if (!isNaN(user_idx)){
-						writeAttackerNode(thisPokemonNode, Data.Users[user_idx].box[pkmInfo.box_index]);
-					}else if (thisAddress == 'd'){
-						writeDefenderNode(thisPokemonNode, Data.Users[0].box[pkmInfo.box_index]);
-					}
-				}catch(err){}
-				this.setAttribute('box_index', pkmInfo.box_index);
-			}else{
-				this.removeAttribute('box_index');
+				let pokemonNode = searchParent(this, x => x.getAttribute("name") == "pokemon");
+				write(pokemonNode, pkmInfo);
 			}
-			this.setAttribute('index', getEntryIndex(pkmInfo.name, Data.Pokemon));
 			this.setAttribute('style', 'background-image: url(' + pkmInfo.icon + ')');
-			if (thisAddress == 'd' && $("#battleMode").val() == 'raid'){
-				var pkm = Data.Pokemon[this.getAttribute("index")];
-				if (pkm && pkm.raidMarker){
-					$( "#raidTier" ).val(parseInt(pkm.raidMarker.split(" ")[0]) || 5);
-				}
-			}
+			// TODO: Set raid tier
 		},
-		change : function (event, ui){
+		change : function(event, ui){
 			if (!ui.item){ // Change not due to selecting an item from menu
-				var idx = getEntryIndex(this.value.toLowerCase(), Data.Pokemon);
-				this.setAttribute('index', idx);
-				this.removeAttribute('box_index');
+				let idx = getEntryIndex(this.value.toLowerCase(), Data.Pokemon);
 				this.setAttribute('style', 'background-image: url(' + getPokemonIcon({index: idx}) + ')');
 			}
 		}
@@ -356,31 +349,33 @@ function autocompletePokemonNodeMoves(moveInput){
 		minLength : 0,
 		delay : 0,
 		source: function(request, response){
-			var moveType = '', address = '';
+			let moveType = '', moveNode = null;
 			for (var i = 0; i < this.bindings.length; i++){
-				if (this.bindings[i].id && this.bindings[i].id.includes('move_')){
-					moveType = this.bindings[i].id[0];
-					address = this.bindings[i].id.split('_')[1];
-					break;
+				if (this.bindings[i].name == "pokemon-fmove"){
+					moveType = "f";
+					moveNode = this.bindings[i];
+				}else if (this.bindings[i].name == "pokemon-cmove"){
+					moveType = "c";
+					moveNode = this.bindings[i];
 				}
 			}
-			var idx = parseInt($('#ui-species_' + address)[0].getAttribute('index'));
-			var searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term), matches = [];
-			if (searchStr == '' && idx >= 0) //special case
+			let pokemonNode = searchParent(moveNode, x => x.getAttribute("name") == "pokemon");
+			let nameNode = searchChild(pokemonNode, x => x.getAttribute("name") == "pokemon-name");
+			let pokemonInstance = getEntry(nameNode.value.trim().toLowerCase(), Data.Pokemon);
+			let searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term), matches = [];
+			if (searchStr == '' && pokemonInstance){ //special case
 				searchStr = 'current, legacy, exclusive';
-			matches = (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves).filter(Predicate(searchStr, Data.Pokemon[idx], moveType + "move"));
+			}
+			matches = (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves).filter(Predicate(searchStr, pokemonInstance, moveType + "move"));
 			response(matches);
 		},
 		select : function(event, ui) {
-			var moveType = this.id[0];
-			this.setAttribute('index', getEntryIndex(ui.item.name.toLowerCase(), (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves)));
 			this.setAttribute('style', 'background-image: url(' + ui.item.icon + ')');
 		},
 		change : function(event, ui) {
 			if (!ui.item){ // Change not due to selecting an item from menu
-				var moveType = this.id[0];
-				var idx = getEntryIndex(this.value, (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves));
-				this.setAttribute('index', idx);
+				let moveType = this.name.split('-')[1][0];
+				let idx = getEntryIndex(this.value, (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves));
 				this.setAttribute('style', 'background-image: url(' + getTypeIcon({mtype: moveType, index: idx}) + ')');
 			}
 		}
@@ -441,8 +436,8 @@ function getTableContent(dt){
 	var content = [];
 	var hrow = dt.table().header().children[0];
 	let r = [];
-	for (var i = 0; i < hrow.children.length; i++){
-		r.push(hrow.children[i].innerText.trim());
+	for (let child of hrow.children){
+		r.push(child.innerText.trim());
 	}
 	content.push(r);
 	var data = dt.rows().data();

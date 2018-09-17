@@ -1,5 +1,6 @@
 /* GBS_UI_3_parser.js */
 
+
 function initMasterSummaryTableMetrics(){
 	currentJobSize = 0;
 }
@@ -8,211 +9,158 @@ function createNewMetric(metric, nameDisplayed){
 	MasterSummaryTableMetrics[metric] = nameDisplayed || metric;
 }
 
-
 function getPokemonConfig(cfg, address){
-	if (address == 'd')
-		return cfg['dfdrSettings'];
-	else{
-		var arr = address.split('-');
-		var i = parseInt(arr[0])-1, j = parseInt(arr[1])-1, k = parseInt(arr[2])-1; // indices start from 1 in address
-		return cfg['atkrSettings'][i].parties[j].pokemon[k];
-	}
-}
-
-function getPokemonInstance(pkm, address){
-	if (typeof pkm.box_index == typeof 0){
-		var arr = address.split('-');
-		var playerIdx = parseInt(arr[0]) - 1;
-		if (0 <= playerIdx && playerIdx < Data.Users.length){
-			return Data.Users[playerIdx].box[pkm.box_index];
-		}else{
-			return getEntry(pkm.name.toLowerCase(), Data.Pokemon);
-		}
-	}else{
-		return getEntry(pkm.name.toLowerCase(), Data.Pokemon);
-	}
+	var arr = address.split('-');
+	var i = parseInt(arr[0])-1, j = parseInt(arr[1])-1, k = parseInt(arr[2])-1; // indices start from 1 in address
+	return cfg.players[i].parties[j].pokemon[k];
 }
 
 
-function iterBranch2(cfg, address, attr, exmatch, universe, start){
-	var pkm = getPokemonConfig(cfg, address);
-	var expressionStr = pkm[attr].toString();
-	if (exmatch(expressionStr, universe) >= 0){
-		return [];
-	}
-	
-	var expressionStr_default = '', input_type = 0;
-	if (attr == 'name'){
-		input_type = 0;
-		expressionStr_default = 'latios';
-	}else if (['level', 'atkiv', 'defiv', 'stmiv'].includes(attr)){
-		input_type = 1;
-		expressionStr_default = universe[universe.length - 1].value;
-	}else if (attr == 'fmove' || attr == 'cmove'){
-		input_type = 2;
-		expressionStr_default = 'current, legacy, exclusive';
-	}
-
-	if (expressionStr[0] == '='){// Dynamic Paster
-		try{
-			var pkmSrc = getPokemonConfig(cfg, expressionStr.slice(1));
-			pkm[attr] = pkmSrc[attr];
-			return [];
-		}catch(err){
-			sendFeedback(address + '.' + attr + ": Invalid address for Dynamic Paster", true);
-			return [0];
-		}
-	}else{ // Logical Expression
-		var branches = [];
-		var selector = expressionStr[0];
-		if (SELECTORS.includes(selector))
-			expressionStr = expressionStr.slice(1).trim();
-		expressionStr = (expressionStr || expressionStr_default).toString();
-		
-		var pkmInstance = getPokemonInstance(pkm, address);
-		if (!pkmInstance){
-			console.log([cfg, address, attr, exmatch, universe, start]);
-		}
-		var matches = universe.filter(Predicate(expressionStr, pkmInstance, attr));
-		if (matches.length == 0){
-			// sendFeedback(address + '.' + attr + " {" + expressionStr + "}: No match", true);
-			return [0];
-		}
-		
-		if (selector != '?')
-			createNewMetric('*' + address + '.' + attr);
-
-		for (var i = 0; i < matches.length; i++){
-			var cfg_copy = JSON.parse(JSON.stringify(cfg));
-			var pkm = getPokemonConfig(cfg_copy, address);
-			if (input_type == 0){
-				for(var attr in matches[i]){
-					if (!pkm[attr] || attr == "name"){
-						pkm[attr] = matches[i][attr];
+function batchSim(cfg, start){
+	for (var i = start[0]; i < cfg.players.length; i++){
+		let player = cfg.players[i];
+		for (var j = start[1]; j < player.parties.length; j++){
+			let party = player.parties[j];
+			for (var k = start[2]; k < party.pokemon.length; k++){
+				let pokemon = party.pokemon[k];
+				let address = (i+1) + "-" + (j+1) + "-" + (k+1);
+				let pokemonInstance;
+				if (pokemon.box_index >= 0){
+					pokemonInstance = Data.Users[i % Data.Users.length].box[pokemon.box_index];
+				}else{
+					pokemonInstance = getEntry(pokemon.name.trim().toLowerCase(), Data.Pokemon);
+				}
+				
+				var attributesEnumeration = [
+					{
+						name: "name",
+						matcher: x => getEntryIndex(x, Data.Pokemon),
+						database: a => getPokemonOptions(parseInt(a[0]) - 1),
+						default: "latios"
+					},{
+						name: "level",
+						matcher: parseFloat,
+						database: a => Data.LevelSettings,
+						default: "40"
+					},{
+						name: "atkiv",
+						matcher: parseInt,
+						database: a => Data.IndividualValues,
+						default: "15"
+					},{
+						name: "defiv",
+						matcher: parseInt,
+						database: a => Data.IndividualValues,
+						default: "15"
+					},{
+						name: "stmiv",
+						matcher: parseInt,
+						database: a => Data.IndividualValues,
+						default: "15"
+					},{
+						name: "fmove",
+						matcher: getEntryIndex,
+						database: a => Data.FastMoves,
+						default: "current, legacy, exclusive"
+					},{
+						name: "cmove",
+						matcher: getEntryIndex,
+						database: a => Data.ChargedMoves,
+						default: "current, legacy, exclusive"
 					}
-				}
-			}else if (input_type == 1){
-				pkm[attr] = matches[i].value;
-			}else if (input_type == 2){
-				pkm[attr] = matches[i].name;
-			}
-			
-			var tempResults = iterBranch(cfg_copy, start.slice(0, 4).concat([start[4] + 1]));
-			tempResults.forEach(function(sim){
-				branches.push(sim);
-			});
-		}
-		
-		if (selector == '?'){
-			if (branches.length % matches.length == 0){
-				var numSimsPerBranch = round(branches.length / matches.length);
-				var branches2 = [];
-				for (var i = 0; i < numSimsPerBranch; i++){
-					var simsToAverage = [];
-					for (var j = 0; j < matches.length; j++)
-						simsToAverage.push(branches[i + j * numSimsPerBranch]);
-					branches2.push(averageSims(simsToAverage));
-				}
-				branches = branches2;
-			}else{			
-				branches = [averageSims(branches)];
-			}
-		}
-		
-		return branches;
-	}
-}
-
-function iterBranch1(cfg, address, start){
-	var branches = [];
-	
-	if (start[4] == 0){
-		branches = iterBranch2(cfg, address, 'name', x => getEntryIndex(x, Data.Pokemon), getPokemonOptions(parseInt(address.split('-')[0]) - 1), start);
-		if (branches.length) return branches;
-		start[4]++;
-	}
-	if (start[4] == 1){
-		branches = iterBranch2(cfg, address, 'level', parseFloat, Data.LevelSettings, start);
-		if (branches.length) return branches;
-		start[4]++;
-	}
-	if (start[4] == 2){
-		branches = iterBranch2(cfg, address, 'atkiv', parseInt, Data.IndividualValues, start);
-		if (branches.length) return branches;
-		start[4]++;
-	}
-	if (start[4] == 3){
-		branches = iterBranch2(cfg, address, 'defiv', parseInt, Data.IndividualValues, start);
-		if (branches.length) return branches;
-		start[4]++;
-	}
-	if (start[4] == 4){
-		branches = iterBranch2(cfg, address, 'stmiv', parseInt, Data.IndividualValues, start);
-		if (branches.length) return branches;
-		start[4]++;
-	}
-	if (start[4] == 5){
-		branches = iterBranch2(cfg, address, 'fmove', getEntryIndex, Data.FastMoves, start);
-		if (branches.length) return branches;
-		start[4]++;
-	}
-	if (start[4] == 6){
-		branches = iterBranch2(cfg, address, 'cmove', getEntryIndex, Data.ChargedMoves, start);
-		if (branches.length) return branches;
-		start[4]++;
-	}
-	
-	return branches;
-}
-
-function iterBranch(cfg, start){
-	if (!cfg)
-		return [];
-
-	var branches = [];
-	if (start[0] == 0){
-		for (var i = start[1]; i < cfg['atkrSettings'].length; i++){
-			for (var j = start[2]; j < cfg['atkrSettings'][i].parties.length; j++){
-				for (var k = start[3]; k < cfg['atkrSettings'][i].parties[j].pokemon.length; k++){
-					branches = iterBranch1(cfg, (i+1)+'-'+(j+1)+'-'+(k+1), [start[0], i, j, k, start[4]]);
-					if (branches.length)
+				];
+				
+				for (var m = start[3]; m < attributesEnumeration.length; m++){
+					let attr = attributesEnumeration[m];
+					let database = attr.database([i, j, k, m]);
+					let expression = pokemon[attr.name].toString();
+					if (attr.matcher(expression, database) >= 0){
+						continue;
+					}
+					if (expression[0] == '='){// Dynamic Paster
+						try{
+							var pokemonSrc = getPokemonConfig(cfg, expression.slice(1));
+							pokemon[attr.name] = pokemonSrc[attr.name];
+							continue;
+						}catch(err){
+							sendFeedback(address + '.' + attr.name + ": Invalid Dynamic Paster", true);
+							return [];
+						}
+					}else{ // Logical Expression
+						let branches = [];
+						let selector = expression[0];
+						if (SELECTORS.includes(selector)){
+							expression = expression.slice(1).trim();
+						}
+						expression = (expression || attr.default).toString();
+						let matches = database.filter(Predicate(expression, pokemonInstance, attr.name));
+						if (matches.length == 0){
+							return [];
+						}
+						if (selector != '?'){
+							createNewMetric('*' + address + '.' + attr.name);
+						}
+						for (let match of matches){
+							let value_copy = pokemon[attr.name];
+							pokemon[attr.name] = match.name;
+							if (attr.name == "name" && match.box_index >= 0){
+								pokemonInstance = Data.Users[i % Data.Users.length].box[pokemon.box_index];
+								pokemon.level = pokemon.level || pokemonInstance.level;
+								pokemon.atkiv = pokemon.atkiv || pokemonInstance.atkiv;
+								pokemon.defiv = pokemon.defiv || pokemonInstance.defiv;
+								pokemon.stmiv = pokemon.stmiv || pokemonInstance.stmiv;
+								pokemon.fmove = pokemon.fmove || pokemonInstance.fmove;
+								pokemon.cmove = pokemon.cmove || pokemonInstance.cmove;
+							}
+							branches = branches.concat(batchSim(cfg, [i, j, k, m+1]));
+							cfg.players[i].parties[j].pokemon[k][attr.name] = value_copy;
+						}
+						if (selector == '?'){ // Averaging
+							if (branches.length % matches.length == 0){
+								let numSimsPerBranch = round(branches.length / matches.length);
+								let branches2 = [];
+								for (var p = 0; p < numSimsPerBranch; p++){
+									let simsToAverage = [];
+									for (var q = 0; q < matches.length; q++){
+										simsToAverage.push(branches[p + q * numSimsPerBranch]);
+									}
+									branches2.push(averageSims(simsToAverage));
+								}
+								branches = branches2;
+							}else{			
+								branches = [averageSims(branches)];
+							}
+						}
 						return branches;
-					start[4] = 0;
+					}	
 				}
 			}
 		}
-		start[0]++;
 	}
-	if (start[0] == 1){
-		branches = iterBranch1(cfg, 'd', start);
-		if (branches.length)
-			return branches;
-		start[0]++;
-	}
-	
-	runSim(cfg, branches);
-	return branches;
+	return runSim(JSON.parse(JSON.stringify(cfg)));
 }
 
-
-
-function runSim(cfg, resCollector){	
+// Simulate a specific configuration
+function runSim(cfg){
 	var app_world = new World(cfg);
-	var numSimRun = parseInt(cfg['general']['simPerConfig']);
-	var interResults = [];
-	for (var i = 0; i < numSimRun; i++){
+	let simPerConfig = parseInt(cfg.general.simPerConfig);
+	let interResults = [];
+	for (var i = 0; i < simPerConfig; i++){
 		app_world.init();
 		app_world.battle();
 		interResults.push(app_world.getStatistics());
 	}
-	currentJobSize += numSimRun;
+	currentJobSize += simPerConfig;
 	
-	if (cfg['general']['aggregation'] == 'avrg')
-		resCollector.push({input: cfg, output: averageOutputs(interResults)});
-	else if (cfg['general']['aggregation'] == 'enum'){
-		for (var i = 0; i < interResults.length; i++)
-			resCollector.push({input: cfg, output: interResults[i]});
+	let sims = [];
+	if (cfg.general.aggregation == "avrg"){
+		sims = [{input: cfg, output: averageOutputs(interResults)}];
+	}else if (cfg.general.aggregation == "enum"){
+		for (let res of interResults){
+			sims.push({input: cfg, output: res});
+		}
 	}
+	return sims;
 }
 
 
@@ -222,11 +170,11 @@ function averageOutputs(results){
 	// These are the metrics to sum and average
 	var generalStat_attrs = ['duration', 'tdo_percent', 'tdo', 'numOfDeaths'];
 	var playerStats_attrs = ['tdo', 'tdo_percentage', 'num_rejoin'];
-	var pokemonStats_attrs = [], pokemonStats_attrs_excluded = ['player_code', 'index', 'name', 'dps'];
+	var pokemonStats_attrs = [], pokemonStats_attrs_excluded = ['name', 'dps'];
 	for (var attr in avrgR.pokemonStats[0][0][0]){
 		if (!pokemonStats_attrs_excluded.includes(attr))
 			pokemonStats_attrs.push(attr);
-	};
+	}
 	
 	// 1. Initialize everything to 0
 	avrgR['generalStat']['battle_result'] = 0;
@@ -254,7 +202,7 @@ function averageOutputs(results){
 		for (var j = 0; j < numPlayer; j++){
 			playerStats_attrs.forEach(function(attr){ avrgR.playerStats[j][attr] += result.playerStats[j][attr]; });
 		}
-		// pokemonStats, excluding defender first
+		// pokemonStats
 		for (var j = 0; j < numPlayer; j++){
 			for (var k = 0; k < result.pokemonStats[j].length; k++){
 				for (var p = 0; p < result.pokemonStats[j][k].length; p++){
@@ -262,8 +210,6 @@ function averageOutputs(results){
 				}
 			}
 		}
-		// pokemonStats, defender
-		pokemonStats_attrs.forEach(function(attr){avrgR.pokemonStats[numPlayer - 1][attr] += result.pokemonStats[numPlayer - 1][attr];});
 	}
 	
 	// 3. Divide and get the results
@@ -287,10 +233,6 @@ function averageOutputs(results){
 			}
 		}
 	}
-	pokemonStats_attrs.forEach(function(attr){
-		avrgR.pokemonStats[numPlayer][attr] = round(avrgR.pokemonStats[numPlayer][attr]/numResults, 2);
-	});
-	avrgR.pokemonStats[numPlayer].dps = round(avrgR.pokemonStats[numPlayer].tdo/avrgR.pokemonStats[numPlayer].duration, 2);
 	
 	avrgR.battleLog = [];
 	return avrgR;
@@ -308,26 +250,31 @@ function averageSims(sims){
 
 
 function applicationInit(){
+	var playersNode = searchChild(document.getElementById("input"), x => x.getAttribute("name") == "input-players");
+	$ (playersNode).sortable({axis: 'y'});
 	addPlayerNode();
-	document.getElementById("ui-defenderinputbody").innerHTML = "";
-	document.getElementById("ui-defenderinputbody").appendChild(createDefenderNode());
-	document.getElementById("simPerConfig").value = 1;
-	populateQuickStartWizardBossList('current');
+	addPlayerNode();
+	write(playersNode.children[1], {team: "1", parties: [{pokemon: [{role: "rb"}]}]});
+	relabel();
+	try{
+		populateQuickStartWizardBossList('current');
+	}catch{
+	}
 
 	if (window.location.href.includes('?')){
-		writeUserInput(parseConfigFromUrl(window.location.href));
-		goBattleSim();
+		write(document.getElementById("input"), parseConfigFromUrl(window.location.href));
+		GoBattleSim();
 	}
-	if (!LocalData.QuickStartWizardNoShow && !window.location.href.includes('?'))
+	if (!LocalData.QuickStartWizardNoShow && !window.location.href.includes('?')){
 		$( "#quickStartWizard" ).dialog( "open" );
+	}
 }
 
 function requestSimulation(args){
 	sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Simulating...");
-	
 	setTimeout(function(){
 		try{
-			goBattleSim(args);
+			GoBattleSim(args);
 			sendFeedback(currentJobSize + " sims have been performed", true);
 			setTimeout(function(){
 				document.getElementById('ui-mastersummarytable').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
@@ -344,20 +291,16 @@ function requestSimulation(args){
 	}, 100);
 }
 
-function goBattleSim(args){
-	var userInput = readUserInput();
+function GoBattleSim(args){
+	var userInput = read();
 	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
 	
 	initMasterSummaryTableMetrics();
 	date = new Date();
 	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations started");
 	
-	
-	var tempResults = iterBranch(userInput, [0,0,0,0,0]);
-	tempResults.forEach(function(sim){
-		if (sim)
-			simResults.push(sim);
-	});
+	userInput.hasLog = true;
+	simResults = simResults.concat(batchSim(userInput, [0,0,0,0]));
 	
 	date = new Date();
 	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations completed");

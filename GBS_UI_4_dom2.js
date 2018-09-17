@@ -68,25 +68,6 @@ var Mods = [
 ];
 
 
-function recalculateIndex(className){
-	// When the database has changed in structure (insertion/deletion), call this method
-	var elements = document.getElementsByClassName(className || "input-with-icon");
-	for (var i = 0; i < elements.length; i++){
-		var e = elements[i];
-		if (!e.id || !e.getAttribute("index")){
-			continue;
-		}
-		if (e.id.includes("species")){
-			e.setAttribute("index", getEntryIndex(e.value.trim().toLowerCase(), Data.Pokemon));
-			// TODO: More handling for Box Pokemon
-		}else if (e.id.includes("fmove")){
-			e.setAttribute("index", getEntryIndex(e.value.trim().toLowerCase(), Data.FastMoves));
-		}else if (e.id.includes("cmove")){
-			e.setAttribute("index", getEntryIndex(e.value.trim().toLowerCase(), Data.ChargedMoves));
-		}
-	}
-}
-
 function dropdownMenuInit(){
 	var SubMenuContainers = document.getElementsByClassName('sub-menu-container');
 	for (var i = 0; i < SubMenuContainers.length; i++){
@@ -100,8 +81,8 @@ function dropdownMenuInit(){
 				}
 			}
 		}
-		for (var j = 0; j < container.children[1].children.length; j++){
-			$( container.children[1].children[j] ).click(function(){
+		for (let child of container.children[1].children){
+			$( child ).click(function(){
 				$(this.parentNode).hide();
 			});
 		}
@@ -183,7 +164,6 @@ function moveEditFormSubmit(){
 		move.label = toTitleCase(moveName);
 		move.icon = "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + move.pokeType + ".png";
 		insertEntry(move, Data[moveDatabaseName]);
-		recalculateIndex();
 		sendFeedback('Move: ' + toTitleCase(moveName) + ' has been added.', false, 'moveEditForm-feedback');
 	}
 	
@@ -198,7 +178,6 @@ function moveEditFormReset(){
 	Data.ChargedMoves = [];
 	sendFeedback("Connecting to server...", true, 'moveEditForm-feedback');
 	fetchMoveData(function(){
-		recalculateIndex();
 		sendFeedback("Latest Move Data have been fetched", true, 'moveEditForm-feedback');
 		['FastMoves', 'ChargedMoves'].forEach(function(moveDatabaseName){
 			for (var i = 0; i < LocalData[moveDatabaseName].length; i++){
@@ -217,7 +196,6 @@ function moveEditFormDelete(){
 	var moveName = document.getElementById('moveEditForm-name').value.trim().toLowerCase();
 	
 	if (removeEntry(moveName, Data[moveDatabaseName]) && removeEntry(moveName, LocalData[moveDatabaseName])){
-		recalculateIndex();
 		saveLocalData();
 		sendFeedback("Move: " + moveName + " has been removed", false, 'moveEditForm-feedback');
 	}
@@ -359,7 +337,6 @@ function pokemonEditFormSubmit(){
 		pkm.label = toTitleCase(pokemonName);
 		pkm.rating = 0;
 		insertEntry(pkm, Data.Pokemon);
-		recalculateIndex();
 		sendFeedback('Pokemon: ' + toTitleCase(pokemonName) + ' has been added.', false, 'pokemonEditForm-feedback');
 	}
 
@@ -373,7 +350,6 @@ function pokemonEditFormReset(){
 	fetchSpeciesData(function(){
 		handleSpeciesDatabase(Data.Pokemon);
 		manuallyModifyData(Data);
-		recalculateIndex();
 		for (var i = 0; i < LocalData.Pokemon.length; i++){
 			if (getEntry(LocalData.Pokemon[i].name, Data.Pokemon)){
 				LocalData.Pokemon.splice(i--, 1);
@@ -388,7 +364,6 @@ function pokemonEditFormDelete(){
 	var pokemonName = document.getElementById('pokemonEditForm-name').value.trim().toLowerCase();
 	
 	if (removeEntry(pokemonName, Data.Pokemon) && removeEntry(pokemonName, LocalData.Pokemon)){
-		recalculateIndex();
 		saveLocalData();
 		sendFeedback("Pokemon: " + pokemonName + " has been removed", false, 'pokemonEditForm-feedback');
 	}
@@ -477,7 +452,6 @@ function userEditFormRemoveUser(){
 	}
 	if (userIdxToRemove >= 0){
 		Data.Users.splice(userIdxToRemove, 1);
-		relabelAll();
 		udpateUserTable();
 		sendFeedback("Successfully removed user " + userID, false, 'userEditForm-feedback');
 	}else{
@@ -535,13 +509,11 @@ function boxEditFormSubmit(userIndex){
 		newBox[i] = Data.Users[userIndex].box[parseInt(data[i][0]) - 1];
 	}
 	Data.Users[userIndex].box = newBox;
-	relabelAll();
 	sendFeedback("Box order has been saved", false, 'boxEditForm-feedback');
 }
 
 
 function modEditFormInit(){
-	
 	var mod_tbody = document.getElementById('mod_tbody');
 	if (mod_tbody){
 		mod_tbody.innerHTML = '';
@@ -690,7 +662,7 @@ function quickStartWizardSubmit(){
 	qsw_config.dfdrSettings.fmove = document.getElementById('fmove_QSW-boss').value || '*current';
 	qsw_config.dfdrSettings.cmove = document.getElementById('cmove_QSW-boss').value || '*current';
 	
-	writeUserInput(qsw_config);
+	write(document.getElementById("input"), qsw_config);
 	$( "#quickStartWizard" ).dialog( "close" );
 	requestSimulation({sortBy: qsW_sort});
 }
@@ -848,7 +820,7 @@ function MVLTableSubmit(){
 }
 
 function MVLTableCalculate(){
-	var baseConfig = readUserInput();
+	var baseConfig = read();
 	var basePlayer = baseConfig.atkrSettings[0];
 	var numPlayer = parseInt($("#MVLTable-numPlayer").val());
 	if (!(numPlayer > 0)){

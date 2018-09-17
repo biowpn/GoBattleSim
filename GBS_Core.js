@@ -96,7 +96,7 @@ function Pokemon(cfg){
 	if (isNaN(this.cpm)){
 		this.cpm = 0;
 		for (let level of Data.LevelSettings){
-			if (this.level == level.name || this.level == level.value）{
+			if (this.level == level.name || this.level == level.value){
 				this.cpm = level.cpm;
 				break;
 			}
@@ -119,10 +119,6 @@ Pokemon.prototype.init = function(){
 	this.numOfDeaths = 0;
 	this.tdo = 0;
 	this.tdoFast = 0;
-	this.totalEnergyOvercharged = 0;
-	this.numOfFastMoveHits = 0;
-	this.numOfChargedMoveHits = 0;
-	this.numOfAdditionalFastMoveHits = 0;
 	
 	this.heal();
 }
@@ -177,11 +173,6 @@ Pokemon.prototype.attributeDamage = function(dmg, moveType){
 	this.tdo += dmg;
 	if (moveType == 'fast'){
 		this.tdoFast += dmg;
-		this.numOfFastMoveHits += 1;
-		this.numOfAdditionalFastMoveHits += 1;
-	}else{
-		this.numOfChargedMoveHits += 1;
-		this.numOfAdditionalFastMoveHits = 0;
 	}
 }
 
@@ -192,13 +183,9 @@ Pokemon.prototype.getStatistics = function(){
 		hp: this.HP,
 		energy: this.energy,
 		tdo: this.tdo,
-		tdo_fmove: this.tdoFast,
+		tdoFast: this.tdoFast,
 		duration: this.activeDurationMs/1000,
-		dps: this.tdo / (this.activeDurationMs/1000),
-		totalEnergyOvercharged: this.totalEnergyOvercharged,
-		numOfFastMoveHits: this.numOfFastMoveHits,
-		numOfChargedMoveHits: this.numOfChargedMoveHits,
-		numOfAdditionalFastMoveHits: this.numOfAdditionalFastMoveHits
+		dps: this.tdo / (this.activeDurationMs/1000)
 	};
 }
 /* End of Class <Pokemon> */
@@ -214,10 +201,11 @@ function Party(cfg){
 	this.pokemon = [];
 	for (let pokemon of cfg.pokemon){
 		pokemon.fab = this.fab;
-		for (var r = 0; r < cfg.pokemon[k].copies; r++){
+		for (var r = 0; r < pokemon.copies; r++){
 			this.pokemon.push(new Pokemon(pokemon));
 		}
 	}
+	this.headingPokemonIndex = 0;
 	this.heal();
 }
 
@@ -267,24 +255,26 @@ Party.prototype.getStatistics = function(){
 
 // constructor
 function Player(cfg){
+	this.index = cfg.index;
 	this.fab = getFriendMultiplier(cfg.friend);
 	this.team = cfg.team;
 	this.rivals = [];
 	this.parties = [];
-	for (party of cfg.parties){
+	for (let party of cfg.parties){
 		party.fab = this.fab;
 		this.parties.push(new Party(party));
 	}
-	for (party of this.parties){
+	for (let party of this.parties){
 		for (pokemon of party.pokemon){
 			pokemon.master = this;
 		}
 	}
+	this.headingPartyIndex = 0;
 }
 
 
 Player.prototype.init = function(){
-	for (var i = 0; i < this.parties.length; i++){
+	for (let party of this.parties){
 		party.init();
 	}
 	this.headingPartyIndex = 0;
@@ -319,7 +309,7 @@ Player.prototype.selectNextParty = function(){
 }
 
 
-Player.prototype.getStatistics = function(total_players_tdo){
+Player.prototype.getStatistics = function(){
 	let sum_tdo = 0, sum_numOfDeaths = 0;
 	for (let party of this.parties){
 		let party_stat = party.getStatistics();
@@ -327,8 +317,8 @@ Player.prototype.getStatistics = function(total_players_tdo){
 		sum_numOfDeaths += party_stat.numOfDeaths;
 	}
 	return {
+		name: "Player " + (this.index + 1),
 		tdo: sum_tdo,
-		tdo_percentage: sum_tdo/total_players_tdo * 100,
 		numOfDeaths: sum_numOfDeaths
 	};
 }
@@ -393,42 +383,45 @@ Timeline.prototype.extract_min = function(){
 // constructor
 function World(cfg){
 	// Configure general parameters
-	this.battleMode = cfg.general.battleMode;
-	if (this.battleMode == "gym"){
-		this.timelimit = Data.BattleSettings.timelimitGymMs;
-	}else if (this.battleMode == "raid"){
-		if (cfg.raidTier <= 4){
-			this.timelimit = Data.BattleSettings.timelimitRaidMs;
-		}else{
-			this.timelimit = Data.BattleSettings.timelimitLegendaryRaidMs;
-		}
+	this.timelimit = parseInt(cfg.timelimit);
+	if (!timelimit > 0){
+		this.timelimit = -1;
 	}
-	this.weather = cfg.general.weather || "EXTREME";
-	this.hasLog = cfg.general.logStyle || false;
-	this.dodgeBugActive = cfg.general.dodgeBug || false;
-	this.isDefenderImmortal = cfg.general.immortalDefender || false;
+	this.weather = cfg.weather || "EXTREME";
+	this.hasLog = cfg.hasLog || false;
+	this.dodgeBugActive = cfg.dodgeBug || false;
 	
 	// Configure players
 	this.players = [];
 	for (let player of cfg.players){
 		this.players.push(new Player(player));
 	}
-	
-	// Give each Pokemon a unique ID for later comparison purpose
-	let id = 0;
-	for (player of cfg.players){
-		for (party of player.parties){
-			for (pokemon of party.pokemon){
-				pokemon.id = id++;
+	// Configure matchups
+	for (let player of this.players){
+		for (let player2 of this.players){
+			if (player2.team != player.team){ // If you are not in my team, then you are my enemy!
+				player.rivals.push(player2);
 			}
 		}
 	}
-	
-	// Nullify revive strategy if defender is set immortal
-	if (this.isDefenderImmortal){
-		for (player in this.players){
-			for (party in player.parties){
-				party.revive = false;
+	// Give each player an index for battle log usage
+	// Give each Pokemon a unique ID for later comparison purpose
+	let pokemon_id = 0, player_index = 0;
+	for (player of this.players){
+		player.index = player_index++;
+		for (party of player.parties){
+			for (pokemon of party.pokemon){
+				pokemon.id = pokemon_id++;
+			}
+		}
+	}
+	// Nullify revive strategy if unlimited time
+	if (this.timelimit < 0){
+		for (let player of this.players){
+			if (player.team == "0"){
+				for (let party of player.parties){
+					party.revive = false;
+				}
 			}
 		}
 	}
@@ -437,16 +430,14 @@ function World(cfg){
 	this.log = [];
 }
 
-
 World.prototype.init = function(){
-	for(player in this.players){
+	for (let player of this.players){
 		player.init();
 	}
 	this.timeline = new Timeline();
 	this.battleDuration = 0;
 	this.log = [];
 }
-
 
 // A Pokemon uses an attack
 World.prototype.pokemonUseAttack = function(pkm, move, t){
@@ -473,6 +464,9 @@ World.prototype.pokemonUseAttack = function(pkm, move, t){
 // Register events to timeline based on the action performed by a Pokemon
 // Returns the time when the Pokemon will be free again
 World.prototype.registerAction = function(pkm, t, action){
+	if (!action){
+		action = {};
+	}
 	t += action.delay || 0;
 	if (action.name == 'fast'){ // Use fast move
 		if (pkm.role == "a"){ // Add lag for human player's Pokemon
@@ -513,7 +507,7 @@ World.prototype.registerAction = function(pkm, t, action){
 }
 
 // Check if any of the player is still in game
-World.prototype.checkTeamDefeated = function(team){
+World.prototype.isTeamDefeated = function(team){
 	for (let player of this.players){
 		if (player.team == team){
 			let pokemon = player.head();
@@ -532,21 +526,18 @@ World.prototype.battle = function(){
 	let defeatedTeam = "";
 	let faintedPokemon = null;
 	
+	t += Data.BattleSettings.arenaEntryLagMs;
+	this.timelimit -= Data.BattleSettings.arenaEarlyTerminationMs;
+	
 	for (let player of this.players){
 		this.timeline.insert({
 			name: EVENT_TYPE.Enter, t: t, subject: player.head()
 		});
 	}
-	
-	t += Data.BattleSettings.arenaEntryLagMs;
-	this.timelimit -= Data.BattleSettings.arenaEarlyTerminationMs;
 
-	while (!defeatedTeam){
+	while (!defeatedTeam && (t < this.timelimit || this.timelimit < 0)){
 		let e = this.timeline.extract_min();
 		t = e.t;
-		if (t >= this.timelimit && !this.isDefenderImmortal){
-			break;
-		}
 		
 		// 1. First process the event
 		if (e.name == EVENT_TYPE.Free){
@@ -554,7 +545,6 @@ World.prototype.battle = function(){
 				let currentAction = e.subject.buffedAction;
 				let tFree = this.registerAction(e.subject, t, currentAction);
 				e.subject.buffedAction = e.subject.choose({
-					subject: e.subject,
 					t: t,
 					tFree: tFree,
 					currentAction: currentAction,
@@ -565,10 +555,10 @@ World.prototype.battle = function(){
 		}else if (e.name == EVENT_TYPE.Hurt){
 			if (e.subject.active && e.object.active){
 				e.subject.takeDamage(e.dmg);
-				e.subject.hasDodged = false;
-				if (e.subject.HP <= 0){
+				e.subject.incomingHurtEvent = null;
+				if (e.subject.HP <= 0 && !e.subject.immortal){
 					faintedPokemon = e.subject;
-					e.active = false;
+					e.subject.active = false;
 				}
 				e.object.attributeDamage(e.dmg, e.move.moveType);
 				elog.push(e);
@@ -616,11 +606,11 @@ World.prototype.battle = function(){
 			}else if (player.selectNextParty()){ // Select next Party and re-lobby
 				this.timeline.insert({
 					name: EVENT_TYPE.Enter, 
-					t: t + Data.BattleSettings.itemMenuAnimationTimeMs + party.pokemon.length * Data.BattleSettings.maxReviveTimePerPokemonMs,
+					t: t + Data.BattleSettings.rejoinDurationMs,
 					subject: player.head()
 				});
 			}else{ // This player is done. Check if his team is defeated
-				if (this.checkTeamDefeated(player.team)){
+				if (this.isTeamDefeated(player.team)){
 					defeatedTeam = player.team;
 				}
 			}
@@ -628,11 +618,12 @@ World.prototype.battle = function(){
 		}
 		
 		// 3. Process the next event if it's at the same time before deciding whether the battle has ended
-		if (this.timeline.list.length > 0 && t == this.timeline.list[0].t)
+		if (this.timeline.list.length > 0 && t == this.timeline.list[0].t){
 			continue;
-		if (this.hasLog && elog.length > 0)
+		}else if (this.hasLog && elog.length > 0){
 			this.appendToLog(elog);
-		elog = [];
+			elog = [];
+		}
 	}
 	
 	// Battle has ended, some leftovers
@@ -642,122 +633,131 @@ World.prototype.battle = function(){
 	
 	this.battleDuration = t;
 	for (let player of this.players){
-		var pkm = player.head();
+		let pkm = player.head();
 		if (pkm && pkm.active){
 			pkm.timeLeaveMs = t;
 			pkm.activeDurationMs += t - pkm.timeEnterMs;
 		}
 	}
-
 }
 
 // Add events of the same time to battle log
 World.prototype.appendToLog = function(events){
-	let logData = {
-		t: round(events[0].t, 2)
+	let logEntry = {
+		t: round(events[0].t / 1000, 2),
+		events: new Array(this.players.length)
 	};
 	for (let e of events){
 		if (e.name == EVENT_TYPE.Enter){
-			logData[e.subject.master.index] = {
+			logEntry.events[e.subject.master.index] = {
 				type: 'pokemon',
 				eventType: EVENT_TYPE.Enter,
 				name: e.subject.name,
 				nickname: e.subject.nickname
 			};
 		}else if (e.name == EVENT_TYPE.Hurt){
-			if (!logData[e.subject.master.index] || logData[e.subject.master.index].eventType != EVENT_TYPE.Hurt){
-				logData[e.subject.master.index] = {
+			if (!logEntry.events[e.subject.master.index] || logEntry.events[e.subject.master.index].eventType != EVENT_TYPE.Hurt){
+				logEntry.events[e.subject.master.index] = {
 					type: 'text',
 					eventType: EVENT_TYPE.Hurt,
 					text: e.subject.HP,
 					value: 0
 				};
 			}
-			logData[e.subject.master.index].value += e.dmg;
-			logData[e.object.master.index] = {
+			logEntry.events[e.subject.master.index].value += e.dmg;
+			logEntry.events[e.object.master.index] = {
 				type: e.move.moveType + 'Move', 
 				name: e.move.name
 			};
 		}else if (e.name == EVENT_TYPE.Dodge){
-			logData[e.subject.master.index] = {
+			logEntry.events[e.subject.master.index] = {
 				type: 'text',
 				text: 'Dodge'
 			};
 		}else if (e.name == EVENT_TYPE.MoveEffect){
-			logData[e.subject.master.index] = {
+			logEntry.events[e.subject.master.index] = {
 				type: 'text', 
 				text: e.text
 			};
 		}
 	}
-	for (var subjIndex in logData){
-		if (logData[subjIndex].eventType == EVENT_TYPE.Hurt){
-			logData[subjIndex].text += "(-" + logData[subjIndex].value + ")";
+	for (let e of logEntry.events){
+		if (e && e.eventType == EVENT_TYPE.Hurt){
+			e.text += "(-" + e.value + ")";
 		}
 	}
-	this.log.push(logData);
+	this.log.push(logEntry);
+}
+
+World.prototype.getBattleResult = function(){
+	return this.isTeamDefeated("1") ? "Win" : "Lose";
 }
 
 // Return the statistis and battle log
 World.prototype.getStatistics = function(){
 	let general_stat = {};
 	let player_stats = [];
-	let pokemon_stats = [];	
-	let battle_log = [];
+	let pokemon_stats = [];
 	
 	general_stat['duration'] = this.battleDuration/1000;
+	general_stat['battle_result'] = this.getBattleResult();
+	let sumTDO =0, sumMaxHP = 0;
 	general_stat['numOfDeaths'] = 0;
-	general_stat['battle_result'] = this.dfdr.active ? "Lose" : "Win";
-	
-	general_stat['tdo'] = this.dfdr.maxHP - this.dfdr.HP;
-	general_stat['tdo_percent'] = general_stat['tdo'] / this.dfdr.maxHP * 100;
-	general_stat['dps'] = general_stat['tdo'] / (this.battleDuration/1000);
-	
 	for (let player of this.players){
-		let ts = player.getStatistics(general_stat['tdo']);
-		general_stat['numOfDeaths'] += ts['numOfDeaths'];
-		player_stats.push(ts);
-		pokemon_stats.push([]);
-		for (let party of player.parties){
-			pokemon_stats[i].push([]);
-			for (var k = 0; k < player.parties[j].pokemon.length; k++){
-				pokemon_stats[i][j].push(player.parties[j].pokemon[k].getStatistics());
-			}
+		let ts = player.getStatistics();
+		if (player.team == "0"){
+			general_stat['numOfDeaths'] += ts['numOfDeaths'];
 		}
+		player_stats.push(ts);
+		let playerStat = [];
+		for (let party of player.parties){
+			let partyStat = [];
+			for (let pokemon of party.pokemon){
+				partyStat.push(pokemon.getStatistics());
+				if (player.team == "0"){
+					sumTDO += pokemon.tdo;
+				}else{
+					sumMaxHP += pokemon.maxHP;
+				}
+			}
+			playerStat.push(partyStat);
+		}
+		pokemon_stats.push(playerStat);
 	}
-	pokemon_stats.push(this.dfdr.getStatistics());
+	
+	general_stat['tdo'] = sumTDO;
+	general_stat['tdo_percent'] = sumTDO / sumMaxHP * 100;
+	general_stat['dps'] = sumTDO / (this.battleDuration/1000);
 	
 	return {
-		generalStat : general_stat,
-		playerStats : player_stats,
-		pokemonStats : pokemon_stats,
-		battleLog : this.log
+		generalStat: general_stat,
+		playerStats: player_stats,
+		pokemonStats: pokemon_stats,
+		battleLog: this.log
 	};	
 }
-
-
 /* End of Class <World> */
 
 
 
-
-// Player strategy
-// These functions are called when control is asking for the next action
+// Strategies: these functions are called when control is asking for the next action.
 // They should return an action object with the following attributes:
 // - name: "fast", "charge", "dodge", "switch"
 // - delay: in milliseconds
-// - address (for "switch" action only): [@party index, @pokemon index]
+// - address* (for "switch" action only): [@party index, @pokemon index]
 
 
 // Gym Defender/Raid Boss strategy
 function defenderStrategy(state){
 	let projectedEnergyDelta = 0;
+	let defenderDelay = 800;
 	if (state.currentAction){
 		if (state.currentAction.name == "fast"){
 			projectedEnergyDelta = this.fmove.energyDelta;
 		}else if (state.currentAction.name == "charged"){
 			projectedEnergyDelta = this.cmove.energyDelta;
 		}
+		defenderDelay = 1500 + round(1000 * Math.random()) // Add the defender delay;
 	}
 	if (this.energy + projectedEnergyDelta + this.cmove.energyDelta >= 0 && Math.random() <= 0.5){
 		actionName = "charged";
@@ -766,7 +766,7 @@ function defenderStrategy(state){
 	}
 	return {
 		name: actionName,
-		delay: 1500 + round(1000 * Math.random()) // Add the defender delay
+		delay: defenderDelay
 	};
 }
 
@@ -775,7 +775,6 @@ function defenderStrategy(state){
 
 // 0. No dodging
 function attackerStrategy0(state){
-	this = state.subject;
 	let projectedEnergyDelta = 0;
 	if (state.currentAction){
 		if (state.currentAction.name == "fast"){
@@ -793,43 +792,60 @@ function attackerStrategy0(state){
 
 // 1. Aggressive dodge charged
 function attackerStrategy1(state){
-	this = state.subject;
-	let t = state.t;
-	let tFree = state.tFree;
+	if (state.t < state.tFree){
+		return;
+	}
 	let hurtEvent = this.incomingHurtEvent;
 	if (hurtEvent && hurtEvent.move.moveType == "charged" && !this.hasDodged){
-		let undodgedDmg = damage(hurtEvent.object, this, hurtEvent.move, state.weather);
+		let undodgedDmg = hurtEvent.dmg;
 		let dodgedDmg = Math.max(1, Math.floor(undodgedDmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent)));
 		if (state.dodgeBugActive){
 			dodgedDmg = undodgedDmg;
 		}
 		if (dodgedDmg < this.HP){
-			let timeTillHurt = hurtEvent.t - tFree;
-			this.hasDodged = true;
-			if (timeTillHurt > this.fmove.duration + Data.BattleSettings.fastMoveLagMs + Data.BattleSettings.dodgeSwipeMs){
+			let timeTillHurt = hurtEvent.t - state.tFree;
+			if (timeTillHurt > this.cmove.duration + Data.BattleSettings.chargedMoveLagMs + Data.BattleSettings.dodgeSwipeMs){
+				// Fit in another charge move
+				return {name: "charged", delay: 0};
+			}else if (timeTillHurt > this.fmove.duration + Data.BattleSettings.fastMoveLagMs + Data.BattleSettings.dodgeSwipeMs){
 				// Fit in another fast move
 				return {name: "fast", delay: 0};
 			}else if (timeTillHurt < Data.BattleSettings.dodgeWindowMs + Data.BattleSettings.dodgeSwipeMs){
 				// Dodge window open, just directly dodge
+				this.hasDodged = true;
 				return {name: "dodge", delay: 0};
 			}else{
 				// Dodge window not open, but can't fit in a fast move, so delay a little while and then dodge
+				this.hasDodged = true;
 				return {
 					name: "dodge",
-					delay: timeTillHurt - Data.BattleSettings.dodgeWindowMs - Data.BattleSettings.dodgeSwipeMs;
+					delay: timeTillHurt - Data.BattleSettings.dodgeWindowMs - Data.BattleSettings.dodgeSwipeMs
 				};
 			}
 		}
 	}
-	return attackerStrategy0(state);
+	// AttackerStrategy0
+	let projectedEnergyDelta = 0;
+	if (state.currentAction){
+		if (state.currentAction.name == "fast"){
+			projectedEnergyDelta = this.fmove.energyDelta;
+		}else if (state.currentAction.name == "charged"){
+			projectedEnergyDelta = this.cmove.energyDelta;
+		}
+	}
+	if (this.energy + projectedEnergyDelta + this.cmove.energyDelta >= 0){
+		return {name: "charged", delay: 0};
+	}else{
+		return {name: "fast", delay: 0};
+	}
 }
 
 // 2. Conservative dodge all
 function attackerStrategy2(state){
-	this = state.subject;
 	let t = state.t;
 	let tFree = state.tFree;
 	let hurtEvent = this.incomingHurtEvent;
+	// TODO
 	if (hurtEvent && !this.hasDodged){
 
 	}else if (this.hasDodged){
@@ -837,7 +853,20 @@ function attackerStrategy2(state){
 	}else{
 		
 	}
-
+	// AttackerStrategy0
+	let projectedEnergyDelta = 0;
+	if (state.currentAction){
+		if (state.currentAction.name == "fast"){
+			projectedEnergyDelta = this.fmove.energyDelta;
+		}else if (state.currentAction.name == "charged"){
+			projectedEnergyDelta = this.cmove.energyDelta;
+		}
+	}
+	if (this.energy + projectedEnergyDelta + this.cmove.energyDelta >= 0){
+		return {name: "charged", delay: 0};
+	}else{
+		return {name: "fast", delay: 0};
+	}
 }
 
 

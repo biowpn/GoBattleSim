@@ -25,7 +25,7 @@ var DefaultData = {
 		'dodgeDamageReductionPercent': 0.75, 
 		'weatherAttackBonusMultiplier': 1.2,
 		'dodgeWindowMs': 700,
-		'dodgeSwipeMs': 300,
+		'dodgeSwipeMs': 200,
 		'arenaEntryLagMs': 3000,
 		'arenaEarlyTerminationMs': 3000,
 		'fastMoveLagMs': 25,
@@ -360,7 +360,7 @@ function parseUserPokebox(data){
 	var box = [];
 	for (var i = 0; i < data.length; i++){
 		var pkm = {
-			name: data[i].species.toLowerCase(),
+			name: (data[i].species || data[i].name).toLowerCase(),
 			cp: parseInt(data[i].cp),
 			level: parseFloat(data[i].level),
 			stmiv: parseInt(data[i].sta || data[i].stmiv || 0),

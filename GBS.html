@@ -22,7 +22,7 @@
 		width: 100%;
 		margin-bottom: 0px;
 	}
-	div#ui-attackerinputbody h4 {
+	div#players-input h4 {
 		background: white;
 		padding: 8px;
 		margin: 10px 0px 0px 0px;
@@ -243,8 +243,8 @@
 				<button class='sub-menu-opener'><i class="fa fa-question" aria-hidden="true"></i> Help</button>
 				<div class='sub-menu'>
 					<button class='player_button' id='quickStartWizardOpener'>Quick Start</button>
-					<button class='player_button' onclick="window.open('https://pokemongo.gamepress.gg/comprehensive-guide-gobattlesim', '_blank')">User Manual</button>
-					<button class='player_button' onclick="window.open('https://pokemongo.gamepress.gg/gobattlesim-and-comprehensive-dps-spreadsheet-change-log', '_blank')">Change Log</button>
+					<button class='player_button' onclick="window.open('https://pokemongo.gamepress.gg/comprehensive-guide-GoBattleSim', '_blank')">User Manual</button>
+					<button class='player_button' onclick="window.open('https://pokemongo.gamepress.gg/GoBattleSim-and-comprehensive-dps-spreadsheet-change-log', '_blank')">Change Log</button>
 				</div>
 			</td>
 			
@@ -254,88 +254,60 @@
 
 
 
-<div id="AttackerInput">
-	<div id="ui-attackerinputhead">
-		<h2>Attacker Settings</h2>
-		<button id='ui-addplayerbutton' class='player_button' onclick="addPlayerNode()"><i class="fa fa-user-plus" aria-hidden="true"></i> Add Player</button>
+<div id="input">
+
+	<h2>Player Settings</h2>
+	<button id='input.addPlayer' class='player_button' onclick="addPlayerNode()"><i class="fa fa-user-plus" aria-hidden="true"></i> Add Player</button>
+	
+	<div name="input-players">
 	</div>
 	
-	<div id="ui-attackerinputbody">
-	</div>
-	
-	<div id="ui-attackerinputtail">
-	</div>
-</div>
-
-
-<div id="DefenderInput">
-	<div id="ui-defenderinputhead">
-		<h2>Defender Settings</h2>
-	</div>
-	
-	<div id="ui-defenderinputbody">
-	</div>
-	
-	<div id="ui-defenderinputtail">
-	</div>
-</div>
-
-
-
-<div id="general">
 	<h2>General Settings</h2>
-	<table>
-	<col width=20%><col width=20%><col width=20%><col width=20%><col width=20%>
-	<tr>
-		<th>Mode</th>
-		<td><select id="battleMode" onchange="updateDefenderNode(this.value)">
-				<option value="gym">Gym</option>
-				<option value="raid" selected="selected">Raid</option>
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<th>Immortal Defender</th>
-		<td><select id="immortalDefender">
-				<option value="0">No</option>
-				<option value="1">Yes</option>
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<th>Weather</th>
-		<td>
-			<select id="weather">
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<th>Dodge Bug</th>
-		<td>
-			<select id="dodgeBug">
-				<option value="0">Absent</option>
-				<option value="1">Present</option>
-			</select>
-		</td>
-	</tr>
-	<tr>
-		<th>Repeat</th>
-		<td>
-			<input id="simPerConfig" type="number" min="1">
-		</td>
-	</tr>
-	<tr>
-		<th>Aggregation</th>
-		<td>
-			<select id="aggregation">
-				<option value="enum">Enumerate</option>
-				<option value="avrg">Average</option>
-			</select>
-		</td>
-	</tr>
-	</table>
-
+	
+	<div>
+		<table>
+		<colgroup><col width=50%><col width=50%></colgroup>
+		<tr>
+			<th>Time Limit</th>
+			<td>
+				<select name="input-timelimit" ></select>
+			</td>
+		</tr>
+		<tr>
+			<th>Weather</th>
+			<td>
+				<select name="input-weather"></select>
+			</td>
+		</tr>
+		<tr>
+			<th>Dodge Bug</th>
+			<td>
+				<select name="input-dodgeBugActive">
+					<option value="0">Absent</option>
+					<option value="1">Present</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<th>Repeat</th>
+			<td>
+				<input name="input-simPerConfig" type="number" min="1">
+			</td>
+		</tr>
+		<tr>
+			<th>Aggregation</th>
+			<td>
+				<select name="input-aggregation">
+					<option value="enum">Enumerate</option>
+					<option value="avrg">Average</option>
+				</select>
+			</td>
+		</tr>
+		</table>
+	</div>
 </div>
+
+
 
 <button onclick="requestSimulation()" id="GoButton">Go</button>
 
@@ -383,7 +355,7 @@ const DEFAULT_ATTACKER_INPUT_MIN = {
 const DEFAULT_GENERAL_SETTING_INPUT_MIN = {
 	battleMode: "raid", 
 	weather: "EXTREME",
-	immortalDefender: 0,
+	unlimitedTime: 0,
 	dodgeBug: 0,
 	simPerConfig : 1,
 	aggregation : "enum"
@@ -392,18 +364,26 @@ const DEFAULT_GENERAL_SETTING_INPUT_MIN = {
 
 const QUICK_START_WIZARD_CONFIG_1 = {
 	general : DEFAULT_GENERAL_SETTING_INPUT_MIN,
-	atkrSettings : [{
-		parties : [{
-			revive : true,
-			pokemon: [DEFAULT_ATTACKER_INPUT_MIN]
-		}]
-	}],
-	dfdrSettings : {
-		species: "machamp",
-		fmove: "*current",
-		cmove: "*current",
-		raidTier: 3
-	}
+	players : [
+		{
+			team: "1",
+			parties : [{
+				revive : true,
+				pokemon: [DEFAULT_ATTACKER_INPUT_MIN]
+			}]
+		}, {
+			team: "0",
+			parties : [{
+				revive : false,
+				pokemon: [{
+					species: "machamp",
+					fmove: "*current",
+					cmove: "*current",
+					raidTier: 3
+				}]
+			}]
+		}
+	]
 };
 
 const QUICK_START_WIZARD_CLONE_PLAYER = {
@@ -435,14 +415,21 @@ $("#removePartyDialog").dialog({
 	modal: true
 });
 
-var gs_weather = document.getElementById('weather');
-Data.WeatherSettings.forEach(function(weatherSetting){
+var gs_weather = searchChild(document.getElementById("input"), x => x.getAttribute("name") == "input-weather");
+for (let weatherSetting of Data.WeatherSettings){
 	gs_weather.appendChild(createElement('option', weatherSetting.label, {value: weatherSetting.name}));
-});
+}
+
+var gs_timelimit = searchChild(document.getElementById("input"), x => x.getAttribute("name") == "input-timelimit");
+for (var setting in Data.BattleSettings){
+	if (setting.toLowerCase().includes("timelimit")){
+		gs_timelimit.appendChild(createElement('option', setting, {value: Data.BattleSettings[setting]}));
+	}
+}
 
 
 dropdownMenuInit();
-
+/*
 moveEditFormInit();
 pokemonEditFormInit();
 parameterEditFormInit();
@@ -451,6 +438,7 @@ userEditFormInit();
 breakpointCalculatorInit();
 MVLTableInit();
 QuickStartWizardInit();
+*/
 
 populateAll(applicationInit);
 
