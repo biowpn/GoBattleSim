@@ -831,7 +831,7 @@ function MVLTableCalculate(){
 	for (var i = 0; i < numPlayer; i++){
 		baseConfig.atkrSettings.push(basePlayer);
 	}
-	baseConfig.general.aggregation = 'avrg';
+	baseConfig.aggregation = 'avrg';
 	
 	var movesets = [];
 	if (document.getElementById("MVLTable-enumMovesets").checked){
@@ -854,9 +854,9 @@ function MVLTableCalculate(){
 		baseConfig.dfdrSettings.fmove = movesets[i][0];
 		baseConfig.dfdrSettings.cmove = movesets[i][1];
 		var rowDict = {
-			"weather": baseConfig.general.weather,
-			"fmove": baseConfig.dfdrSettings.fmove,
-			"cmove": baseConfig.dfdrSettings.cmove
+			"weather": baseConfig.weather,
+			"fmove": movesets[i][0],
+			"cmove": movesets[i][1]
 		};
 		for (var j = 0; j < friends.length; j++){
 			basePlayer.friend = friends[j];

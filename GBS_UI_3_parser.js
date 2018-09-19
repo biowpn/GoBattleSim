@@ -73,7 +73,7 @@ function batchSim(cfg, start){
 				for (var m = start[3]; m < attributesEnumeration.length; m++){
 					let attr = attributesEnumeration[m];
 					let database = attr.database([i, j, k, m]);
-					let expression = pokemon[attr.name].toString();
+					let expression = (pokemon[attr.name] || attr.default).toString().toLowerCase();
 					if (attr.matcher(expression, database) >= 0){
 						continue;
 					}
@@ -143,7 +143,7 @@ function batchSim(cfg, start){
 // Simulate a specific configuration
 function runSim(cfg){
 	var app_world = new World(cfg);
-	let simPerConfig = parseInt(cfg.general.simPerConfig);
+	let simPerConfig = parseInt(cfg.simPerConfig) || 1;
 	let interResults = [];
 	for (var i = 0; i < simPerConfig; i++){
 		app_world.init();
@@ -153,9 +153,9 @@ function runSim(cfg){
 	currentJobSize += simPerConfig;
 	
 	let sims = [];
-	if (cfg.general.aggregation == "avrg"){
+	if (cfg.aggregation == "avrg"){
 		sims = [{input: cfg, output: averageOutputs(interResults)}];
-	}else if (cfg.general.aggregation == "enum"){
+	}else if (cfg.aggregation == "enum"){
 		for (let res of interResults){
 			sims.push({input: cfg, output: res});
 		}
@@ -250,31 +250,32 @@ function averageSims(sims){
 
 
 function applicationInit(){
-	var playersNode = searchChild(document.getElementById("input"), x => x.getAttribute("name") == "input-players");
-	$ (playersNode).sortable({axis: 'y'});
+	var playersNode = $$$(document.getElementById("input")).child("input-players").node;
+	$(playersNode).sortable({axis: 'y'});
 	addPlayerNode();
 	addPlayerNode();
 	write(playersNode.children[1], {team: "1", parties: [{pokemon: [{role: "rb"}]}]});
-	relabel();
+	
 	try{
 		populateQuickStartWizardBossList('current');
 	}catch{
 	}
 
 	if (window.location.href.includes('?')){
-		write(document.getElementById("input"), parseConfigFromUrl(window.location.href));
-		GoBattleSim();
+		write(document.getElementById("input"), parseConfigFromURL(window.location.href));
 	}
 	if (!LocalData.QuickStartWizardNoShow && !window.location.href.includes('?')){
 		$( "#quickStartWizard" ).dialog( "open" );
 	}
+	formatting(playersNode);
+	relabel();
 }
 
-function requestSimulation(args){
+function requestSimulation(){
 	sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Simulating...");
 	setTimeout(function(){
 		try{
-			GoBattleSim(args);
+			GoBattleSim();
 			sendFeedback(currentJobSize + " sims have been performed", true);
 			setTimeout(function(){
 				document.getElementById('ui-mastersummarytable').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
@@ -291,25 +292,35 @@ function requestSimulation(args){
 	}, 100);
 }
 
-function GoBattleSim(args){
+function GoBattleSim(){
 	var userInput = read();
-	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToUrl(userInput));
+	
+	// Pre-processing configuration
+	for (let player of userInput.players){
+		for (let party of player.parties){
+			for (let pokemon of party.pokemon){
+				if (pokemon.role == "rb"){
+					delete pokemon.atkiv;
+					delete pokemon.defiv;
+					delete pokemon.stmiv;
+					delete pokemon.level;
+				}else{
+					delete pokemon.raidTier;
+				}
+			}
+		}
+	}
+	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfigToURL(userInput));
+	userInput.hasLog = true;
 	
 	initMasterSummaryTableMetrics();
 	date = new Date();
 	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations started");
 	
-	userInput.hasLog = true;
 	simResults = simResults.concat(batchSim(userInput, [0,0,0,0]));
 	
 	date = new Date();
 	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations completed");
-	
-	if (args && args.sortBy){
-		simResults.sort(function(a,b){
-			return b.output.generalStat[args.sortBy] - a.output.generalStat[args.sortBy];
-		});
-	}
 
 	displayMasterSummaryTable();
 }

@@ -268,9 +268,19 @@
 		<table>
 		<colgroup><col width=50%><col width=50%></colgroup>
 		<tr>
+			<th>Battle Mode</th>
+			<td>
+				<select name="input-battleMode">
+					<option value="raid">Raid</option>
+					<option value="gym">Gym</option>
+					<option value="pvp">PVP</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
 			<th>Time Limit</th>
 			<td>
-				<select name="input-timelimit" ></select>
+				<select name="input-timelimit"></select>
 			</td>
 		</tr>
 		<tr>
@@ -415,12 +425,12 @@ $("#removePartyDialog").dialog({
 	modal: true
 });
 
-var gs_weather = searchChild(document.getElementById("input"), x => x.getAttribute("name") == "input-weather");
+var gs_weather = $$$(document.getElementById("input")).child("input-weather").node;
 for (let weatherSetting of Data.WeatherSettings){
 	gs_weather.appendChild(createElement('option', weatherSetting.label, {value: weatherSetting.name}));
 }
 
-var gs_timelimit = searchChild(document.getElementById("input"), x => x.getAttribute("name") == "input-timelimit");
+var gs_timelimit = $$$(document.getElementById("input")).child("input-timelimit").node;
 for (var setting in Data.BattleSettings){
 	if (setting.toLowerCase().includes("timelimit")){
 		gs_timelimit.appendChild(createElement('option', setting, {value: Data.BattleSettings[setting]}));

@@ -4,6 +4,11 @@
  *	PART I: SIMULATOR SETTINGS
  */
 
+const MAX_NUM_POKEMON_PER_PARTY = 6;
+const MAX_NUM_PARTIES_PER_PLAYER = 5;
+const MAX_NUM_OF_PLAYERS = 21;
+const MAX_BATTLE_DURATION_MS = 3600000;
+
 const EVENT_TYPE = {
 	Free: 0,
 	Hurt: 1,
@@ -57,7 +62,6 @@ function Move(m, moveDatabase){
 	}
 	// TODO: Move Effects
 }
-
 /* End of Class Move */
 
 
@@ -104,7 +108,7 @@ function Pokemon(cfg){
 	}
 	this.fmove = new Move(cfg.fmove, Data.FastMoves);
 	this.cmove = new Move(cfg.cmove, Data.ChargedMoves);
-	this.choose = cfg.choose || window[cfg.strategy] || attackerStrategy0;
+	this.choose = cfg.choose || window[cfg.strategy] || strat1;
 	this.init();
 }
 
@@ -322,9 +326,8 @@ Player.prototype.getStatistics = function(){
 		numOfDeaths: sum_numOfDeaths
 	};
 }
-
-
 /* End of Class <Player> */
+
 
 /* Class <Timeline> */
 // A priority queue
@@ -372,8 +375,6 @@ Timeline.prototype.extract_min = function(){
 	}
 	return e;
 }
-
-
 /* End of Class <Timeline> */
 
 
@@ -383,8 +384,9 @@ Timeline.prototype.extract_min = function(){
 // constructor
 function World(cfg){
 	// Configure general parameters
+	this.battleMode = cfg.battleMode;
 	this.timelimit = parseInt(cfg.timelimit);
-	if (!timelimit > 0){
+	if (!this.timelimit > 0){
 		this.timelimit = -1;
 	}
 	this.weather = cfg.weather || "EXTREME";
@@ -429,6 +431,7 @@ function World(cfg){
 	this.battleDuration = 0;
 	this.log = [];
 }
+
 
 World.prototype.init = function(){
 	for (let player of this.players){
@@ -497,7 +500,7 @@ World.prototype.registerAction = function(pkm, t, action){
 		});
 		t += Data.BattleSettings.dodgeDurationMs;
 	}else if (action.name == "switch"){
-		// Feature to be implemented
+		// TODO: Feature to be implemented
 	}
 	
 	this.timeline.insert({
@@ -535,11 +538,11 @@ World.prototype.battle = function(){
 		});
 	}
 
-	while (!defeatedTeam && (t < this.timelimit || this.timelimit < 0)){
+	while (!defeatedTeam && (t < this.timelimit || this.timelimit < 0) && this.battleDuration < MAX_BATTLE_DURATION_MS){
 		let e = this.timeline.extract_min();
 		t = e.t;
 		
-		// 1. First process the event
+		// Process the event
 		if (e.name == EVENT_TYPE.Free){
 			if (e.subject.active){
 				let currentAction = e.subject.buffedAction;
@@ -582,16 +585,23 @@ World.prototype.battle = function(){
 		}else if (e.name == EVENT_TYPE.Announce){
 			this.pokemonUseAttack(e.subject, e.move, t);
 		}else if (e.name == EVENT_TYPE.MoveEffect){
-			e.action(e);
-			elog.push(e);
+			// TODO
 		}
 		
-		// 2. Check if some Pokemon fainted. If so, switch the next one in
+		// Check if some Pokemon fainted and handle it
 		if (faintedPokemon){
 			let player = faintedPokemon.master;
 			let party = player.parties[player.headingPartyIndex];
 			faintedPokemon.timeLeaveMs = t;
 			faintedPokemon.activeDurationMs += t - faintedPokemon.timeEnterMs;
+			if (faintedPokemon.role == "gd" && this.battleMode == "gym"){
+				// A gym defender's fainting will reset the battle if the battle mode if "gym"
+				this.battleDuration += t;
+				for (let e of this.timeline.list){
+					e.t -= t;
+				}
+				t = 0;
+			}
 			if (player.selectNextPokemon()){ // Select next Pokemon from current party
 				this.timeline.insert({
 					name: EVENT_TYPE.Enter, t: t + Data.BattleSettings.swapDurationMs, subject: player.head()
@@ -617,7 +627,7 @@ World.prototype.battle = function(){
 			faintedPokemon = null;
 		}
 		
-		// 3. Process the next event if it's at the same time before deciding whether the battle has ended
+		// Fetch and process the next event if it's at the same time
 		if (this.timeline.list.length > 0 && t == this.timeline.list[0].t){
 			continue;
 		}else if (this.hasLog && elog.length > 0){
@@ -626,12 +636,12 @@ World.prototype.battle = function(){
 		}
 	}
 	
-	// Battle has ended, some leftovers
+	// Battle has ended, some leftovers to handle
 	if (this.hasLog && elog.length > 0){
 		this.appendToLog(elog);
 	}
 	
-	this.battleDuration = t;
+	this.battleDuration += t;
 	for (let player of this.players){
 		let pkm = player.head();
 		if (pkm && pkm.active){
@@ -689,6 +699,7 @@ World.prototype.appendToLog = function(events){
 	this.log.push(logEntry);
 }
 
+// From the perspective of team "0"
 World.prototype.getBattleResult = function(){
 	return this.isTeamDefeated("1") ? "Win" : "Lose";
 }
@@ -701,7 +712,7 @@ World.prototype.getStatistics = function(){
 	
 	general_stat['duration'] = this.battleDuration/1000;
 	general_stat['battle_result'] = this.getBattleResult();
-	let sumTDO =0, sumMaxHP = 0;
+	let sumTDO = 0, sumMaxHP = 0;
 	general_stat['numOfDeaths'] = 0;
 	for (let player of this.players){
 		let ts = player.getStatistics();
@@ -724,7 +735,6 @@ World.prototype.getStatistics = function(){
 		}
 		pokemon_stats.push(playerStat);
 	}
-	
 	general_stat['tdo'] = sumTDO;
 	general_stat['tdo_percent'] = sumTDO / sumMaxHP * 100;
 	general_stat['dps'] = sumTDO / (this.battleDuration/1000);
@@ -739,18 +749,16 @@ World.prototype.getStatistics = function(){
 /* End of Class <World> */
 
 
-
 // Strategies: these functions are called when control is asking for the next action.
 // They should return an action object with the following attributes:
 // - name: "fast", "charge", "dodge", "switch"
 // - delay: in milliseconds
 // - address* (for "switch" action only): [@party index, @pokemon index]
 
-
 // Gym Defender/Raid Boss strategy
-function defenderStrategy(state){
+function strat0(state){
 	let projectedEnergyDelta = 0;
-	let defenderDelay = 800;
+	let defenderDelay;
 	if (state.currentAction){
 		if (state.currentAction.name == "fast"){
 			projectedEnergyDelta = this.fmove.energyDelta;
@@ -758,6 +766,8 @@ function defenderStrategy(state){
 			projectedEnergyDelta = this.cmove.energyDelta;
 		}
 		defenderDelay = 1500 + round(1000 * Math.random()) // Add the defender delay;
+	}else{
+		defenderDelay = 0;
 	}
 	if (this.energy + projectedEnergyDelta + this.cmove.energyDelta >= 0 && Math.random() <= 0.5){
 		actionName = "charged";
@@ -770,11 +780,8 @@ function defenderStrategy(state){
 	};
 }
 
-
-// Attacker strategy
-
-// 0. No dodging
-function attackerStrategy0(state){
+// Attacker strategy: No dodging
+function strat1(state){
 	let projectedEnergyDelta = 0;
 	if (state.currentAction){
 		if (state.currentAction.name == "fast"){
@@ -790,8 +797,8 @@ function attackerStrategy0(state){
 	}
 }
 
-// 1. Aggressive dodge charged
-function attackerStrategy1(state){
+// Attacker strategy: Dodge Charged
+function strat2(state){
 	if (state.t < state.tFree){
 		return;
 	}
@@ -824,7 +831,7 @@ function attackerStrategy1(state){
 			}
 		}
 	}
-	// AttackerStrategy0
+	// strat1
 	let projectedEnergyDelta = 0;
 	if (state.currentAction){
 		if (state.currentAction.name == "fast"){
@@ -840,8 +847,8 @@ function attackerStrategy1(state){
 	}
 }
 
-// 2. Conservative dodge all
-function attackerStrategy2(state){
+// Attacker strategy: Dodge All
+function strat3(state){
 	let t = state.t;
 	let tFree = state.tFree;
 	let hurtEvent = this.incomingHurtEvent;
@@ -853,7 +860,7 @@ function attackerStrategy2(state){
 	}else{
 		
 	}
-	// AttackerStrategy0
+	// strat1
 	let projectedEnergyDelta = 0;
 	if (state.currentAction){
 		if (state.currentAction.name == "fast"){
@@ -870,5 +877,4 @@ function attackerStrategy2(state){
 }
 
 
-// Move Effects
-// TODO
+// TODO: Move Effects

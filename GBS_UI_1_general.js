@@ -61,6 +61,7 @@ function createRow(rowData, type){
 }
 
 function toTitleCase(str){
+	str = str || "";
     return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
 
@@ -312,8 +313,12 @@ function getPokemonOptions(userIndex){
 }
 
 
-function autocompletePokemonNodeSpecies(speciesInput){
-	$( speciesInput ).autocomplete({
+function createPokemonNameInput(){
+	var nameInput = createElement('input', '', {
+		type: 'text', placeholder: 'Species', class: 'input-with-icon species-input-with-icon', 
+		style: 'background-image: url(' + getPokemonIcon({dex: 0}) + ')', name: "pokemon-name"
+	});
+	$( nameInput ).autocomplete({
 		minLength : 0,
 		delay : 200,
 		source : function(request, response){
@@ -325,10 +330,11 @@ function autocompletePokemonNodeSpecies(speciesInput){
 		},
 		select : function(event, ui){
 			var pkmInfo = ui.item;
-			ui.item.value = ui.item.name;
+			ui.item.value = toTitleCase(ui.item.name);
 			if (pkmInfo.box_index >= 0){
-				let pokemonNode = searchParent(this, x => x.getAttribute("name") == "pokemon");
+				let pokemonNode = $$$(this).parent("pokemon").node;
 				write(pokemonNode, pkmInfo);
+				formatting(pokemonNode);
 			}
 			this.setAttribute('style', 'background-image: url(' + pkmInfo.icon + ')');
 			// TODO: Set raid tier
@@ -340,48 +346,55 @@ function autocompletePokemonNodeSpecies(speciesInput){
 			}
 		}
 	}).autocomplete( "instance" )._renderItem = _renderAutocompletePokemonItem;
-	
-	// speciesInput.onfocus = function(){$(this).autocomplete("search", "");} // This line of cope is causing page to freeze
+
+	return nameInput;
 }
 
-function autocompletePokemonNodeMoves(moveInput){
+function createPokemonMoveInput(moveType){
+	var placeholder_ = "", attr_ = "";
+	if (moveType == "fast"){
+		placeholder_ = "Fast Move";
+		attr_ = "fmove";
+	}else if (moveType == "charged"){
+		placeholder_ = "Charged Move";
+		attr_ = "cmove";
+	}
+	var moveInput = createElement('input', '', {
+		type: 'text', placeholder: placeholder_, name: "pokemon-" + attr_,
+		class: 'input-with-icon move-input-with-icon', style: 'background-image: url()'
+	});
 	$( moveInput ).autocomplete({
 		minLength : 0,
 		delay : 0,
 		source: function(request, response){
-			let moveType = '', moveNode = null;
+			let moveNode = null;
 			for (var i = 0; i < this.bindings.length; i++){
-				if (this.bindings[i].name == "pokemon-fmove"){
-					moveType = "f";
-					moveNode = this.bindings[i];
-				}else if (this.bindings[i].name == "pokemon-cmove"){
-					moveType = "c";
+				if (this.bindings[i].name == "pokemon-fmove" || this.bindings[i].name == "pokemon-cmove"){
 					moveNode = this.bindings[i];
 				}
 			}
-			let pokemonNode = searchParent(moveNode, x => x.getAttribute("name") == "pokemon");
-			let nameNode = searchChild(pokemonNode, x => x.getAttribute("name") == "pokemon-name");
-			let pokemonInstance = getEntry(nameNode.value.trim().toLowerCase(), Data.Pokemon);
+			let pokemonInstance = getEntry($$$(moveNode).parent("pokemon").child("pokemon-name").val().trim().toLowerCase(), Data.Pokemon);
 			let searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term), matches = [];
 			if (searchStr == '' && pokemonInstance){ //special case
 				searchStr = 'current, legacy, exclusive';
 			}
-			matches = (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves).filter(Predicate(searchStr, pokemonInstance, moveType + "move"));
+			matches = Data[toTitleCase(moveType) + "Moves"].filter(Predicate(searchStr, pokemonInstance, attr_));
 			response(matches);
 		},
-		select : function(event, ui) {
+		select: function(event, ui) {
 			this.setAttribute('style', 'background-image: url(' + ui.item.icon + ')');
 		},
-		change : function(event, ui) {
+		change: function(event, ui) {
 			if (!ui.item){ // Change not due to selecting an item from menu
-				let moveType = this.name.split('-')[1][0];
-				let idx = getEntryIndex(this.value, (moveType == 'f' ? Data.FastMoves : Data.ChargedMoves));
+				let idx = getEntryIndex(this.value.trim().toLowerCase(), Data[toTitleCase(moveType) + "Moves"]);
 				this.setAttribute('style', 'background-image: url(' + getTypeIcon({mtype: moveType, index: idx}) + ')');
 			}
 		}
 	}).autocomplete( "instance" )._renderItem = _renderAutocompleteMoveItem;
 	
 	moveInput.onfocus = function(){$(this).autocomplete("search", "");};
+	
+	return moveInput;
 }
 
 
