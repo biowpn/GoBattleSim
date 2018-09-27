@@ -18,32 +18,35 @@
 </style>
 
 
+<div name="pokemon">
 
-<table>
-	<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
-	<tr>
-		<th>Enemy Species</th>
-		<th>PokeType 1</th>
-		<th>PokeType 2</th>
-	</tr>
-	<tr>
-		<td><input type='text' id='ui-species_boss' index='-1' class='input-with-icon species-input-with-icon'></input></td>
-		<td><select id='d-pokeType1' onchange='requestSpreadsheet()'></select></td>
-		<td><select id='d-pokeType2' onchange='requestSpreadsheet()'></select></td>
-	</tr>
-</table>
+	<table>
+		<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
+		<tr>
+			<th>Enemy Species</th>
+			<th>PokeType 1</th>
+			<th>PokeType 2</th>
+		</tr>
+		<tr>
+			<td><input type='text' name='pokemon-name' class='input-with-icon species-input-with-icon'></input></td>
+			<td><select name='pokemon-pokeType1' onchange='requestSpreadsheet()'></select></td>
+			<td><select name='pokemon-pokeType2' onchange='requestSpreadsheet()'></select></td>
+		</tr>
+	</table>
 
-<table>
-	<colgroup><col width='50%'><col width='50%'></colgroup>
-	<tr>
-		<th>Enemy Fast Move</th>
-		<th>Enemy Charged Move</th>
-	</tr>
-	<tr>
-		<td><input type='text' id='fmove_boss' index='-1' class='input-with-icon move-input-with-icon'></td>
-		<td><input type='text' id='cmove_boss' index='-1' class='input-with-icon move-input-with-icon'></td>
-	</tr>
-</table>
+	<table>
+		<colgroup><col width='50%'><col width='50%'></colgroup>
+		<tr>
+			<th>Enemy Fast Move</th>
+			<th>Enemy Charged Move</th>
+		</tr>
+		<tr>
+			<td><input type='text' name="pokemon-fmove" class='input-with-icon move-input-with-icon'></td>
+			<td><input type='text' name="pokemon-cmove" class='input-with-icon move-input-with-icon'></td>
+		</tr>
+	</table>
+
+</div>
 	
 <table>
 	<colgroup><col width='50%'><col width='50%'></colgroup>
@@ -99,11 +102,11 @@
 </table>
 
 <table>
-<colgroup><col width="50%"><col width="50%"></colgroup>
-<tr>
-<td><button class="player_button" onclick="copyTableToClipboard('ranking_table')">Copy to Clipboard</button></td>
-<td><button class="player_button" onclick="exportTableToCSV('ranking_table', 'comprehensive_dps.csv')">Export To CSV</button></td>
-</tr>
+	<colgroup><col width="50%"><col width="50%"></colgroup>
+	<tr>
+	<td><button class="player_button" onclick="copyTableToClipboard('ranking_table')">Copy to Clipboard</button></td>
+	<td><button class="player_button" onclick="exportTableToCSV('ranking_table', 'comprehensive_dps.csv')">Export To CSV</button></td>
+	</tr>
 </table>
 
 

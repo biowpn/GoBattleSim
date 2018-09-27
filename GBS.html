@@ -234,7 +234,6 @@
 			<td class='sub-menu-container'>
 				<button class='sub-menu-opener'><i class="fa fa-wrench" aria-hidden="true"></i> Tools</button>
 				<div class='sub-menu'>
-					<button class='player_button' id='breakpointCalculatorOpener'>Breakpoint Calc</button>
 					<button class='player_button' id='MVLTableOpener'>MVL Table</button>
 				</div>
 			</td>
@@ -242,7 +241,6 @@
 			<td class='sub-menu-container'>
 				<button class='sub-menu-opener'><i class="fa fa-question" aria-hidden="true"></i> Help</button>
 				<div class='sub-menu'>
-					<button class='player_button' id='quickStartWizardOpener'>Quick Start</button>
 					<button class='player_button' onclick="window.open('https://pokemongo.gamepress.gg/comprehensive-guide-GoBattleSim', '_blank')">User Manual</button>
 					<button class='player_button' onclick="window.open('https://pokemongo.gamepress.gg/GoBattleSim-and-comprehensive-dps-spreadsheet-change-log', '_blank')">Change Log</button>
 				</div>
@@ -338,6 +336,8 @@
 </tr>
 </table>
 
+
+
 <script>
 
 const HSL_COLORS = [
@@ -349,73 +349,8 @@ const HSL_COLORS = [
 
 const DEFAULT_SUMMARY_TABLE_METRICS = {battle_result:'Outcome', duration:'Time', tdo_percent:'TDO%', dps:'DPS', numOfDeaths:'#Death'};
 
-// For quick start wizard configurations
-const DEFAULT_ATTACKER_INPUT_MIN = {
-	copies: 6,
-	name: "*rating3~5",
-	level: 40,
-	atkiv: 15,
-	defiv: 15,
-	stmiv: 15,
-	fmove: "*",
-	cmove: "*",
-	dodge: 0
-};
-
-const DEFAULT_GENERAL_SETTING_INPUT_MIN = {
-	battleMode: "raid", 
-	weather: "EXTREME",
-	unlimitedTime: 0,
-	dodgeBug: 0,
-	simPerConfig : 1,
-	aggregation : "enum"
-};
-
-
-const QUICK_START_WIZARD_CONFIG_1 = {
-	general : DEFAULT_GENERAL_SETTING_INPUT_MIN,
-	players : [
-		{
-			team: "1",
-			parties : [{
-				revive : true,
-				pokemon: [DEFAULT_ATTACKER_INPUT_MIN]
-			}]
-		}, {
-			team: "0",
-			parties : [{
-				revive : false,
-				pokemon: [{
-					species: "machamp",
-					fmove: "*current",
-					cmove: "*current",
-					raidTier: 3
-				}]
-			}]
-		}
-	]
-};
-
-const QUICK_START_WIZARD_CLONE_PLAYER = {
-	parties : [{
-		revive : true,
-		pokemon: [{
-			copies: 6,
-			species: "=1-1-1",
-			level: "=1-1-1",
-			atkiv: "=1-1-1",
-			defiv: "=1-1-1",
-			stmiv: "=1-1-1",
-			fmove: "=1-1-1",
-			cmove: "=1-1-1",
-			dodge: 0
-		}]
-	}]
-};
-
 var simResults = [];
 var MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
-var qsW_sort = 'dps';
 var currentJobSize = 0;
 
 
@@ -425,30 +360,31 @@ $("#removePartyDialog").dialog({
 	modal: true
 });
 
-var gs_weather = $$$(document.getElementById("input")).child("input-weather").node;
+var weatherInput = $$$(document.getElementById("input")).child("input-weather").node;
 for (let weatherSetting of Data.WeatherSettings){
-	gs_weather.appendChild(createElement('option', weatherSetting.label, {value: weatherSetting.name}));
+	weatherInput.appendChild(createElement('option', weatherSetting.label, {value: weatherSetting.name}));
 }
 
-var gs_timelimit = $$$(document.getElementById("input")).child("input-timelimit").node;
+var timelimitInput = $$$(document.getElementById("input")).child("input-timelimit").node;
 for (var setting in Data.BattleSettings){
 	if (setting.toLowerCase().includes("timelimit")){
-		gs_timelimit.appendChild(createElement('option', setting, {value: Data.BattleSettings[setting]}));
+		timelimitInput.appendChild(createElement('option', setting, {value: Data.BattleSettings[setting]}));
 	}
 }
 
 
 dropdownMenuInit();
-/*
 moveEditFormInit();
 pokemonEditFormInit();
+
+/*
 parameterEditFormInit();
 modEditFormInit();
 userEditFormInit();
-breakpointCalculatorInit();
+
 MVLTableInit();
-QuickStartWizardInit();
 */
+
 
 populateAll(applicationInit);
 

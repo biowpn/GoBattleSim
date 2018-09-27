@@ -120,8 +120,8 @@ function createSimplePredicate(str, parent, attr){
 	if (numericalParameters[0] != ''){ // Match numerical attributes
 		var bounds = numericalParameters[1].split((numericalParameters[1].includes('~') ? '~' : '-'));
 		const num_attr = numericalParameters[0], 
-			LBound = parseFloat(bounds[0]) || parseFloat(parent[attr]) || -1000000, 
-			UBound = parseFloat(bounds[bounds.length-1]) || parseFloat(parent[attr]) || 1000000;
+			LBound = parseFloat(bounds[0]) || -1000000, 
+			UBound = parseFloat(bounds[bounds.length-1]) || 1000000;
 		return function(obj){
 			return LBound <= obj[num_attr] && obj[num_attr] <= UBound;
 		};
@@ -164,7 +164,7 @@ function createSimplePredicate(str, parent, attr){
 	}else if (str[0] == '$'){ // Box
 		const str_const = str.slice(1).trim();
 		return function(obj){
-			return obj.box_index >= 0 && (!str_const || obj.nickname.includes(str_const));
+			return obj.uid && (!str_const || obj.nickname.includes(str_const));
 		};
 	}else if (str[0] == '%'){ // Raid Boss
 		const str_const = str.slice(1);
@@ -299,17 +299,16 @@ function getAllEvolutions(name){
 }
 
 
-function getPokemonOptions(userIndex){
-	var speciesOptions = [];
-	if (0 <= userIndex && userIndex < Data.Users.length){
-		var userBox = Data.Users[userIndex].box;
-		for (var i = 0; i < userBox.length; i++){
-			userBox[i].box_index = i;
-			userBox[i].label = userBox[i].nickname;
-			speciesOptions.push(userBox[i]);
+function getPokemonOptions(includeUserPokemon){
+	var options = [];
+	if (includeUserPokemon){
+		for (let user of Data.Users){
+			for (let pokemon of user.box){
+				options.push(pokemon);
+			}
 		}
 	}
-	return speciesOptions.concat(Data.Pokemon);
+	return options.concat(Data.Pokemon);
 }
 
 
@@ -319,27 +318,25 @@ function createPokemonNameInput(){
 		style: 'background-image: url(' + getPokemonIcon({dex: 0}) + ')', name: "pokemon-name"
 	});
 	$( nameInput ).autocomplete({
-		minLength : 0,
-		delay : 200,
-		source : function(request, response){
-			var user_idx = 0;
-			// TODO: Dynamically bind user ID to player node
-			var searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term), matches = [];
-			matches = getPokemonOptions(user_idx).filter(Predicate(searchStr));
+		minLength: 0,
+		delay: 200,
+		source: function(request, response){
+			var searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term);
+			var matches = getPokemonOptions(true).filter(Predicate(searchStr));
 			response(matches);
 		},
-		select : function(event, ui){
+		select: function(event, ui){
 			var pkmInfo = ui.item;
 			ui.item.value = toTitleCase(ui.item.name);
-			if (pkmInfo.box_index >= 0){
+			if (pkmInfo.uid){
 				let pokemonNode = $$$(this).parent("pokemon").node;
 				write(pokemonNode, pkmInfo);
 				formatting(pokemonNode);
 			}
 			this.setAttribute('style', 'background-image: url(' + pkmInfo.icon + ')');
-			// TODO: Set raid tier
+			// TODO: Set raid tier if the Pokemon is in raid boss list
 		},
-		change : function(event, ui){
+		change: function(event, ui){
 			if (!ui.item){ // Change not due to selecting an item from menu
 				let idx = getEntryIndex(this.value.toLowerCase(), Data.Pokemon);
 				this.setAttribute('style', 'background-image: url(' + getPokemonIcon({index: idx}) + ')');

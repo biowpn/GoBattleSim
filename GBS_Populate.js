@@ -81,6 +81,7 @@ var DefaultData = {
 		{"name": "3", "label": "Tier 3", "cpm": 0.7300000190734863, "HP": 3000},
 		{"name": "4", "label": "Tier 4", "cpm": 0.7900000214576721, "HP": 7500},
 		{"name": "5", "label": "Tier 5", "cpm": 0.7900000214576721, "HP": 12500},
+		{"name": "6", "label": "Tier 6", "cpm": 0.7900000214576721, "HP": 18750}
 	],
 	
 	RaidBosses: [],
@@ -117,7 +118,6 @@ var LocalData = {
 var Data = JSON.parse(JSON.stringify(DefaultData));
 
 
-
 // To be overwritten
 if (window['manuallyModifyData'] == undefined){
 	manuallyModifyData = function(data){};
@@ -152,18 +152,34 @@ function sortDatabase(database){
 	return database;
 }
 
-function getEntryIndex(name, database){	
+function getEntryIndex(name, database, linearSearch){
 	// If entry with the name doesn't exist, return -1
-	return binarySearch(name, database, 0, database.length, function(db, idx, matched){
-		return matched ? idx : -1;
-	});	
+	if (linearSearch){
+		for (var i = 0; i < database.length; i++){
+			if (database[i].name == name)
+				return i;
+		}
+		return -1;
+	}else{
+		return binarySearch(name, database, 0, database.length, function(db, idx, matched){
+			return matched ? idx : -1;
+		});
+	}
 }
 
-function getEntry(name, database){
+function getEntry(name, database, linearSearch){
 	// If entry with the name doesn't exist, return null
-	return binarySearch(name, database, 0, database.length, function(db, idx, matched){
-		return matched ? db[idx] : null;
-	});
+	if (linearSearch){
+		for (var i = 0; i < database.length; i++){
+			if (database[i].name == name)
+				return database[i];
+		}
+		return null;
+	}else{
+		return binarySearch(name, database, 0, database.length, function(db, idx, matched){
+			return matched ? db[idx] : null;
+		});
+	}
 }
 
 function insertEntry(entry, database){
@@ -185,17 +201,17 @@ function removeEntry(name, database){
 	});
 }
 
-function binarySearch(name_key, database, start, end, callback){
+function binarySearch(name, database, start, end, callback){
 	if (start == end){
 		return callback(database, start, false);
 	}
 	var mid = Math.floor((start + end)/2);
-	if (name_key == database[mid].name)
+	if (name == database[mid].name)
 		return callback(database, mid, true);
-	else if (name_key < database[mid].name)
-		return binarySearch(name_key, database, start, mid, callback);
+	else if (name < database[mid].name)
+		return binarySearch(name, database, start, mid, callback);
 	else
-		return binarySearch(name_key, database, mid + 1, end, callback);
+		return binarySearch(name, database, mid + 1, end, callback);
 }
 
 
@@ -261,8 +277,6 @@ function calculateLevelUpCost(startLevel, endLevel){
 	return cost;
 }
 
-
-
 // Returns a new merged database
 function mergeDatabase(database1, database2, conflictSolver){
 	conflictSolver = conflictSolver || function(e1, e2){ return e2; } // simple overwriting. Pick the "right" one
@@ -317,6 +331,7 @@ function handleSpeciesDatabase(pokemonDataBase){
 		
 		delete pkm['index'];
 		delete pkm['marker_1'];
+		
 		// Handle move pools
 		pkm.fastMoves = pkm.fastMoves || [];
 		pkm.chargedMoves = pkm.chargedMoves || [];
@@ -324,17 +339,7 @@ function handleSpeciesDatabase(pokemonDataBase){
 		pkm.chargedMoves_legacy = pkm.chargedMoves_legacy || [];
 		pkm.fastMoves_exclusive = pkm.fastMoves_exclusive || [];
 		pkm.chargedMoves_exclusive = pkm.chargedMoves_exclusive || [];
-		if (pkm.exclusiveMoves){
-			pkm.exclusiveMoves.forEach(function(move){
-				if (getEntryIndex(move, Data.FastMoves) >= 0)
-					pkm.fastMoves_exclusive.push(move);
-				else if (getEntryIndex(move, Data.ChargedMoves) >= 0)
-					pkm.chargedMoves_exclusive.push(move);
-			});
-			delete pkm.exclusiveMoves;
-		}else{
-			pkm.chargedMoves_exclusive = pkm.chargedMoves_exclusive.filter(x => !pkm.fastMoves_exclusive.includes(x));
-		}
+		
 		// Raid markers
 		pkm.raidMarker = '';
 		for (boss of Data.RaidBosses){
@@ -357,23 +362,19 @@ function parseUserPokebox(data){
 		var pkm = {
 			name : (data[i].species || data[i].name).toLowerCase(),
 			cp: parseInt(data[i].cp),
-			level: parseFloat(data[i].level),
-			stmiv: parseInt(data[i].sta || data[i].stmiv || 0),
-			atkiv: parseInt(data[i].atk || data[i].atkiv || 0),
-			defiv: parseInt(data[i].def || data[i].defiv || 0),
+			level: parseFloat(data[i].level) || 1,
+			stmiv: parseInt(data[i].sta || data[i].stmiv) || 0,
+			atkiv: parseInt(data[i].atk || data[i].atkiv) || 0,
+			defiv: parseInt(data[i].def || data[i].defiv) || 0,
 			fmove: (data[i].fast_move || data[i].fmove).toLowerCase(),
 			cmove: (data[i].charge_move || data[i].cmove).toLowerCase(),
 			nickname : data[i].nickname,
-			nid: data[i].nid
+			uid: data[i].uid
 		};
-		var species = getEntry(pkm.species, Data.Pokemon), fmove = getEntry(pkm.fmove, Data.FastMoves), cmove = getEntry(pkm.cmove, Data.ChargedMoves);
+		let species = getEntry(pkm.name, Data.Pokemon);
 		leftMerge(pkm, species);
-		pkm.box_index = i;
-		if (!pkm.level){
-			console.log("[Error] When importing User Pokemon: invalid level");
-			console.log(data[i]);
-			continue;
-		}
+		pkm.nid = data[i].nid;
+		pkm.label = pkm.nickname;
 		box.push(pkm);
 	}
 	return box;
@@ -382,7 +383,7 @@ function parseUserPokebox(data){
 /* End of Helper Functions */
 
 
-// Get CPM
+// Get Level Settings
 function fetchLevelData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
@@ -406,7 +407,6 @@ function fetchLevelData(oncomplete){
 		}
 	});
 }
-
 
 // Get raid boss list
 function fetchRaidBossList(oncomplete){
@@ -434,9 +434,7 @@ function fetchRaidBossList(oncomplete){
 	});
 }
 
-
-
-// Read Pokemon Data
+// Get Pokemon Data
 function fetchSpeciesData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
@@ -459,8 +457,7 @@ function fetchSpeciesData(oncomplete){
 					fastMoves_legacy: parseMovesFromString(data[i].field_legacy_quick_moves),
 					chargedMoves_legacy: parseMovesFromString(data[i].field_legacy_charge_moves),
 					fastMoves_exclusive: parseMovesFromString(data[i].field_exclusive_quick_moves),
-					chargedMoves_exclusive: parseMovesFromString(data[i].field_exclusive_charge_moves),
-					exclusiveMoves: parseMovesFromString(data[i].exclusive_moves),
+					chargedMoves_exclusive: parseMovesFromString(data[i].charge_exclusive_moves),
 					rating: parseFloat(data[i].rating) || 0,
 					raidMarker: '',
 					nid: data[i].nid,
@@ -479,8 +476,7 @@ function fetchSpeciesData(oncomplete){
 	});
 }
 
-
-// Read Extra Pokemon form data
+// Get supplement Pokemon form data
 function fetchSpeciesFormData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
@@ -497,9 +493,7 @@ function fetchSpeciesFormData(oncomplete){
 	});
 }
 
-
-
-// Read move data
+// Get move data
 function fetchMoveData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
@@ -538,23 +532,23 @@ function fetchMoveData(oncomplete){
 	});
 }
 
-// Import User
-function fetchUserData(userid, oncomplete, init){
+// Get User Pokemon data
+function fetchUserData(userid, oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({
 		url: 'https://pokemongo.gamepress.gg/user-pokemon-json-list?_format=json&new&uid_raw=' + userid,
 		dataType: 'json',
 		success: function(data){
+			for (let pokemon of data){
+				pokemon.uid = userid;
+			}
 			var user = {
-				id: userid,
+				name: userid,
+				uid: userid,
 				box: data
 			};
-			if (!init){
-				user.box = parseUserPokebox(data);
-			}
-			Data.Users.push(user);
-			fetchUserTeamData(userid);
+			insertEntry(user, Data.Users);
 		},
 		complete: function(){
 			oncomplete();
@@ -562,7 +556,7 @@ function fetchUserData(userid, oncomplete, init){
 	});
 }
 
-// Import User Teams
+// Get user parties
 function fetchUserTeamData(userid, oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
@@ -572,10 +566,10 @@ function fetchUserTeamData(userid, oncomplete){
 		success: function(data){
 			var user = null;
 			for (var i = 0; i < Data.Users.length; i++){
-				if (Data.Users[i].id == userid)
+				if (Data.Users[i].uid == userid)
 					user = Data.Users[i];
 			}
-			if(user){
+			if (user){
 				user.parties = [];
 				for (var i = 0; i < data.length; i++){
 					var party_raw = data[i];
@@ -604,7 +598,6 @@ function fetchUserTeamData(userid, oncomplete){
 		}
 	});
 }
-
 
 // Get local data
 function fetchLocalData(){
@@ -650,41 +643,44 @@ function fetchLocalData(){
 			}
 		}
 		// Removing the deprecated "index" attribute
-		delete LocalData.PokemonClipboard.index;
-		delete LocalData.PokemonClipboard.fmove_index;
-		delete LocalData.PokemonClipboard.cmove_index;
-		LocalData.Pokemon.forEach(function(pkm){
-			delete pkm.box_index;
-			delete pkm.index;
-		});
-		LocalData.FastMoves.forEach(function(move){
+		if (LocalData.PokemonClipboard){
+			delete LocalData.PokemonClipboard.index;
+			delete LocalData.PokemonClipboard.fmove_index;
+			delete LocalData.PokemonClipboard.cmove_index;
+		}
+		for (let pokemon of LocalData.Pokemon){
+			delete pokemon.box_index;
+			delete pokemon.index;
+		}
+		for (let move of LocalData.FastMoves){
 			move.moveType = "fast";
 			delete move.index;
-		});
-		LocalData.ChargedMoves.forEach(function(move){
+		}
+		for (let move of LocalData.ChargedMoves){
 			move.moveType = "charged";
 			delete move.index;
-		});
-		LocalData.BattleParties.forEach(function(party){
+		}
+		for (let party of LocalData.BattleParties){
 			if (party.pokemon_list){
 				party.pokemon = party.pokemon_list;
 				delete party.pokemon_list;
+			}else{
+				party.pokemon = party.pokemon || [];
 			}
 			party.isLocal = true;
 			party.label = party.label || party.name;
-			party.pokemon.forEach(function(pkm){
-				delete pkm.index;
-				delete pkm.box_index;
-				delete pkm.fmove_index;
-				delete pkm.cmove_index;
-			});
-		});
-		
+			for (let pokemon of party.pokemon){
+				delete pokemon.index;
+				delete pokemon.box_index;
+				delete pokemon.fmove_index;
+				delete pokemon.cmove_index;
+			}
+		}
 		saveLocalData();
 	}
 }
 
-// Save to local data
+// Update local data
 function saveLocalData(){
 	if (localStorage){
 		localStorage.LocalData = JSON.stringify(LocalData);
@@ -700,9 +696,7 @@ function fetchAll(oncomplete, isInit){
 	
 	fetchSpeciesFormData(function(){
 		FETCHED_STATUS++;
-		fetchAll_then(function(){
-			oncomplete();
-		});
+		fetchAll_then(oncomplete);
 	});
 	
 	var currTime = new Date().getTime();
@@ -712,13 +706,13 @@ function fetchAll(oncomplete, isInit){
 		success: function(data){
 			for(var i = 0; i < data.length; i++){
 				var curr = data[i];
-				if(curr.title == "raid-boss-list-PoGO"){
+				if (curr.title == "raid-boss-list-PoGO"){
 					raidBossListURL = curr.url;
 				}
-				if(curr.title == "pokemon-data-full-en-PoGO"){
+				if (curr.title == "pokemon-data-full-en-PoGO"){
 					pokemonDataFullURL = curr.url;
 				}
-				if(curr.title == "move-data-full-PoGO"){
+				if (curr.title == "move-data-full-PoGO"){
 					moveDataFullURL = curr.url;
 				}
 			}
@@ -726,21 +720,15 @@ function fetchAll(oncomplete, isInit){
 		complete: function(jqXHR, textStatus){
 			fetchMoveData(function(){ 
 				FETCHED_STATUS++;
-				fetchAll_then(function(){
-					oncomplete();
-				});
+				fetchAll_then(oncomplete);
 			});
 			fetchRaidBossList(function(){
 				FETCHED_STATUS++;
-				fetchAll_then(function(){
-					oncomplete();
-				});
+				fetchAll_then(oncomplete);
 			});
 			fetchSpeciesData(function(){
 				FETCHED_STATUS++;
-				fetchAll_then(function(){
-					oncomplete();
-				});
+				fetchAll_then(oncomplete);
 			});
 		}
 	});
@@ -748,9 +736,7 @@ function fetchAll(oncomplete, isInit){
 	if (isInit && window['userID2'] && userID2 != '0'){
 		fetchUserData(userID2, function(){
 			FETCHED_STATUS++;
-			fetchAll_then(function(){
-				oncomplete();
-			});
+			fetchAll_then(oncomplete);
 		}, true);
 	}else{
 		FETCHED_STATUS++;
@@ -762,15 +748,28 @@ function fetchAll_then(onfinish){
 	if (FETCHED_STATUS == FETCHED_STATUS_PASS){
 		handleSpeciesDatabase(Data.Pokemon);
 		handleSpeciesDatabase(Data.PokemonForms);
-		var modifiedCtrl = manuallyModifyData(Data);
+		for (let user of Data.Users){
+			user.box = parseUserPokebox(user.box);
+			fetchUserTeamData(user.uid);
+		}
+		manuallyModifyData(Data);
 		
 		Data.Pokemon = mergeDatabase(Data.Pokemon, LocalData.Pokemon);
 		Data.FastMoves = mergeDatabase(Data.FastMoves, LocalData.FastMoves);
 		Data.ChargedMoves = mergeDatabase(Data.ChargedMoves, LocalData.ChargedMoves);
-		Data.Users.forEach(function(user){
-			user.box = parseUserPokebox(user.box);
-		});
 		leftMerge(Data.BattleSettings, LocalData.BattleSettings);
+		
+		for (let pkm of Data.PokemonForms){
+			var pkm2 = getEntry(pkm.name, Data.Pokemon);
+			if (pkm2){
+				pkm2.icon = pkm.icon;
+			}else{
+				pkm = JSON.parse(JSON.stringify(pkm));
+				pkm.fastMoves = [];
+				pkm.chargedMoves = [];
+				insertEntry(pkm, Data.Pokemon);
+			}
+		}
 		
 		if (onfinish)
 			onfinish();
@@ -780,11 +779,12 @@ function fetchAll_then(onfinish){
 function populateAll(dataReady){
 	dataReady = dataReady || function(){};
 	
-	Data.WeatherSettings.forEach(function(weatherSetting){
-		weatherSetting.boostedTypes.forEach(function(type){
-			Data.TypeEffectiveness[type]['boostedIn'] = weatherSetting.name;
-		});
-	});
+	for (let weather of Data.WeatherSettings){
+		for (let type of weather.boostedTypes){
+			Data.TypeEffectiveness[type]['boostedIn'] = weather.name;
+		}
+	}
+
 	Data.IndividualValues = [];
 	for (var i = 0; i < 16; i++){
 		Data.IndividualValues.push({value: i});
@@ -792,20 +792,6 @@ function populateAll(dataReady){
 	
 	$(document).ready(function(){
 		fetchLocalData(LocalData);
-		
-		fetchAll(function(){
-			Data.PokemonForms.forEach(function(pkm){
-				var pkm2 = getEntry(pkm.name, Data.Pokemon);
-				if (pkm2){
-					pkm2.icon = pkm.icon;
-				}else{
-					pkm = JSON.parse(JSON.stringify(pkm));
-					pkm.fastMoves = [];
-					pkm.chargedMoves = [];
-					insertEntry(pkm, Data.Pokemon);
-				}
-			});
-			dataReady();
-		}, true);
+		fetchAll(dataReady, true);
 	});
 }

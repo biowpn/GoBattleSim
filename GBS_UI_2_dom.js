@@ -34,6 +34,9 @@ function read(node){
 		let tagName = node.tagName.toLowerCase();
 		if (tagName == "input" || tagName == "select"){
 			output[attrName] = (node.type == "checkbox" ? node.checked : node.value);
+			if (node.type == "number"){
+				output[attrName] = parseFloat(output[attrName]);
+			}
 		}else{
 			let childOutputs = [];
 			for (let child of node.children){
@@ -104,9 +107,11 @@ function formatting(node){
 	let name = node.getAttribute("name");
 	if (name == "pokemon-name" || name == "pokemon-fmove" || name == "pokemon-cmove"){
 		node.value = toTitleCase(node.value);
-		if ($(node).data("ui-autocomplete")){
-			$(node).data("ui-autocomplete")._trigger("change");
-		}
+	}
+	if ($(node).data("ui-autocomplete")){
+		$(node).data("ui-autocomplete")._trigger("change");
+	}else if ($(node).data("ui-checkboxradio")){
+		$(node).button("refresh");
 	}
 	for (let child of node.children){
 		formatting(child);
@@ -205,8 +210,8 @@ function createPokemonRaidTierInput(){
 	var raidTierInput = createElement("select", "", {
 		name: "pokemon-raidTier"
 	});
-	for (var i = 1; i <= 5; i++){
-		raidTierInput.appendChild(createElement('option', "Tier " + i, {value: i}));
+	for (let raidTier of Data.RaidTierSettings){
+		raidTierInput.appendChild(createElement('option', raidTier.label, {value: raidTier.name}));
 	}
 	return raidTierInput;
 }
@@ -229,9 +234,8 @@ function createPartyNameInput(){
 		delay: 0,
 		source: function(request, response){
 			var matches = [];
-			var playerIdx = 0; // TODO: Dynamically binding user ID to player node
-			if (playerIdx >= 0 && playerIdx < Data.Users.length){
-				for (let party of Data.Users[playerIdx].parties){
+			for (let player of Data.Users){
+				for (let party of player.parties){
 					if (party.name.includes(request.term)){
 						matches.push(party);
 					}
@@ -624,10 +628,10 @@ function createMasterSummaryTable(){
 }
 
 
-function createPlayerStatisticsString(playerStat, duration){
+function createPlayerStatisticsString(playerStat){
 	var pString = playerStat.name;
 	pString += ", TDO: " + playerStat.tdo;
-	pString += ", DPS: " + round(playerStat.tdo / duration, 2);
+	pString += ", DPS: " + round(playerStat.dps, 2);
 	return pString;
 }
 
@@ -691,9 +695,10 @@ function displayDetail(i){
 	write(inputEl, simResults[i].input);
 	formatting(inputEl);
 	relabel();
+	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfig(simResults[i].input));
 
 	// Add option to go back to Master Summary
-	var b = createElement("button","Back");
+	var b = createElement("button", "Back");
 	b.onclick = function(){
 		$( "#feedback_table1" ).accordion("destroy");
 		$( "#feedback_table2" ).accordion("destroy");
@@ -705,7 +710,7 @@ function displayDetail(i){
 	var output = simResults[i].output;
 	var fbSection = document.getElementById("feedback_table1");
 	for (var i = 0; i < output.pokemonStats.length; i++){
-		fbSection.appendChild(createElement('h4',createPlayerStatisticsString(output.playerStats[i], output.generalStat.duration - Data.BattleSettings.arenaEntryLagMs/1000), 
+		fbSection.appendChild(createElement('h4', createPlayerStatisticsString(output.playerStats[i]), 
 			{style: 'background:' + HSL_COLORS[i%HSL_COLORS.length][0]}));
 		var playerDiv = document.createElement('div');
 		for (var j = 0; j < output.pokemonStats[i].length; j++){
@@ -730,10 +735,9 @@ function displayDetail(i){
 	
 	// Battle Log
 	var fbSection = document.getElementById("feedback_table2");
-	fbSection.appendChild(createElement('h3','Battle Log'));
+	fbSection.appendChild(createElement('h3', 'Battle Log'));
 	var battleLogDiv = document.createElement('div');
 	var battleLogTable = createBattleLogTable(output.battleLog);
-	battleLogTable.id = 'ui-log-table';
 	fbSection.appendChild(battleLogDiv);
 	battleLogDiv.appendChild(battleLogTable);
 	
@@ -758,8 +762,11 @@ function displayDetail(i){
 
 function createBattleLogTable(log){
 	var table = createElement('table','<thead></thead><tbody></tbody>',{
-		width:'100%', class:'display nowrap'
+		width: '100%', class: 'display nowrap', id: "ui-log-table"
 	});
+	if (!log || log.length == 0){
+		return table;
+	}
 
 	let headers = ["Time"];
 	for (var i = 0; i < log[0].events.length; i++){
@@ -787,15 +794,18 @@ function createBattleLogTable(log){
 		}
 		let row = createRow(rowData);
 		for (var k = 0; k < row.children.length - 1; k++){
-			row.children[k+1].setAttribute('style','background:' + HSL_COLORS[k%HSL_COLORS.length][0]);
+			row.children[k+1].setAttribute('style', 'background:' + HSL_COLORS[k%HSL_COLORS.length][0]);
 		}
 		table.children[1].appendChild(row, "td");
 	}
 	return table;
 }
 
+/* The following two functions are for link sharing */
 
-function exportConfigToURL(cfg){
+// Return the encoded URL based on simulation configuration
+function exportConfig(cfg){
+	// Delete redundant attributes to shorten the URL
 	let cfg_min = JSON.parse(JSON.stringify(cfg));
 	for (let player of cfg_min.players){
 		for (var attr in player){
@@ -814,6 +824,14 @@ function exportConfigToURL(cfg){
 					if (!pokemon[attr]){
 						delete pokemon[attr];
 					}
+					if (pokemon.role == "rb"){
+						delete pokemon.atkiv;
+						delete pokemon.defiv;
+						delete pokemon.stmiv;
+						delete pokemon.level;
+					}else{
+						delete pokemon.raidTier;
+					}
 				}
 			}
 		}
@@ -821,8 +839,12 @@ function exportConfigToURL(cfg){
 	return jsonToURI(cfg_min);
 }
 
-function parseConfigFromURL(url){
+// Return simulation configuration parsed from URL
+function importConfig(url){
 	var cfg = uriToJSON(url.split('?')[1]);
 	// TODO: backward compatibility
 	return cfg;
 }
+
+
+

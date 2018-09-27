@@ -97,13 +97,10 @@ function Pokemon(cfg){
 	this.stmiv = parseInt(cfg.stmiv);
 	this.level = cfg.level;
 	this.cpm = parseFloat(cfg.cpm);
-	if (isNaN(this.cpm)){
-		this.cpm = 0;
-		for (let level of Data.LevelSettings){
-			if (this.level == level.name || this.level == level.value){
-				this.cpm = level.cpm;
-				break;
-			}
+	if (isNaN(this.cpm) && this.level != undefined){
+		let levelSetting = getEntry(this.level.toString(), Data.LevelSettings, true);
+		if (levelSetting){
+			this.cpm = levelSetting.cpm;
 		}
 	}
 	this.fmove = new Move(cfg.fmove, Data.FastMoves);
@@ -134,10 +131,11 @@ Pokemon.prototype.initCurrentStats = function(){
 		this.Stm = (this.baseStm + this.stmiv) * this.cpm;
 		this.maxHP = 2 * Math.floor(this.Stm);
 	}else if (this.role == "rb") { // raid boss
-		this.cpm = getEntry(this.raidTier.toString(), Data.RaidTierSettings).cpm;
+		let raidTierSetting = getEntry(this.raidTier.toString(), Data.RaidTierSettings, true);
+		this.cpm = raidTierSetting.cpm;
 		this.Atk = (this.baseAtk + 15) * this.cpm;
 		this.Def = (this.baseDef + 15) * this.cpm;
-		this.maxHP = getEntry(this.raidTier.toString(), Data.RaidTierSettings).HP;
+		this.maxHP = raidTierSetting.HP;
 	}else{ // default, attacker
 		this.role = "a";
 		this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
@@ -313,7 +311,7 @@ Player.prototype.selectNextParty = function(){
 }
 
 
-Player.prototype.getStatistics = function(){
+Player.prototype.getStatistics = function(battleDuration){
 	let sum_tdo = 0, sum_numOfDeaths = 0;
 	for (let party of this.parties){
 		let party_stat = party.getStatistics();
@@ -323,6 +321,7 @@ Player.prototype.getStatistics = function(){
 	return {
 		name: "Player " + (this.index + 1),
 		tdo: sum_tdo,
+		dps: sum_tdo / battleDuration,
 		numOfDeaths: sum_numOfDeaths
 	};
 }
@@ -500,7 +499,7 @@ World.prototype.registerAction = function(pkm, t, action){
 		});
 		t += Data.BattleSettings.dodgeDurationMs;
 	}else if (action.name == "switch"){
-		// TODO: Feature to be implemented
+		// TODO: Switching feature to be implemented
 	}
 	
 	this.timeline.insert({
@@ -525,12 +524,13 @@ World.prototype.isTeamDefeated = function(team){
 // Function to start simulating a battle
 World.prototype.battle = function(){
 	let t = 0;
+	let timelimit = this.timelimit;
 	let elog = [];
 	let defeatedTeam = "";
 	let faintedPokemon = null;
 	
 	t += Data.BattleSettings.arenaEntryLagMs;
-	this.timelimit -= Data.BattleSettings.arenaEarlyTerminationMs;
+	timelimit -= Data.BattleSettings.arenaEarlyTerminationMs;
 	
 	for (let player of this.players){
 		this.timeline.insert({
@@ -538,7 +538,7 @@ World.prototype.battle = function(){
 		});
 	}
 
-	while (!defeatedTeam && (t < this.timelimit || this.timelimit < 0) && this.battleDuration < MAX_BATTLE_DURATION_MS){
+	while (!defeatedTeam && (t < timelimit || timelimit < 0) && this.battleDuration < MAX_BATTLE_DURATION_MS){
 		let e = this.timeline.extract_min();
 		t = e.t;
 		
@@ -585,7 +585,7 @@ World.prototype.battle = function(){
 		}else if (e.name == EVENT_TYPE.Announce){
 			this.pokemonUseAttack(e.subject, e.move, t);
 		}else if (e.name == EVENT_TYPE.MoveEffect){
-			// TODO
+			// TODO: Move Effects
 		}
 		
 		// Check if some Pokemon fainted and handle it
@@ -715,7 +715,7 @@ World.prototype.getStatistics = function(){
 	let sumTDO = 0, sumMaxHP = 0;
 	general_stat['numOfDeaths'] = 0;
 	for (let player of this.players){
-		let ts = player.getStatistics();
+		let ts = player.getStatistics(general_stat['duration']);
 		if (player.team == "0"){
 			general_stat['numOfDeaths'] += ts['numOfDeaths'];
 		}
@@ -852,7 +852,7 @@ function strat3(state){
 	let t = state.t;
 	let tFree = state.tFree;
 	let hurtEvent = this.incomingHurtEvent;
-	// TODO
+	// TODO: Dodge All
 	if (hurtEvent && !this.hasDodged){
 
 	}else if (this.hasDodged){
@@ -875,6 +875,3 @@ function strat3(state){
 		return {name: "fast", delay: 0};
 	}
 }
-
-
-// TODO: Move Effects
