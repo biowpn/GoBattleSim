@@ -430,20 +430,6 @@ function udpateBoxTable(userIndex){
 		]);
 	}
 	boxEditFormTable.columns.adjust().draw();
-	
-	const userIndex_const = userIndex;
-	document.getElementById('boxEditForm-submit').onclick = function(){
-		boxEditFormSubmit(userIndex_const);
-	}
-}
-
-function boxEditFormSubmit(userIndex){
-	var data = $( '#boxEditForm-pokemonTable' ).DataTable().rows().data(), newBox = [];
-	for (var i = 0; i < data.length; i++){
-		newBox[i] = Data.Users[userIndex].box[parseInt(data[i][0]) - 1];
-	}
-	Data.Users[userIndex].box = newBox;
-	sendFeedback("Box order has been saved", false, 'boxEditForm-feedback');
 }
 
 
@@ -498,22 +484,6 @@ function MVLTableInit(){
 	friendStartEl.value = 0;
 	friendEndEl.value = Data.FriendSettings.length - 1;
 	
-	for (let pkmType of ["attacker", "defender"]){
-		var nameInput = createPokemonNameInput();
-		document.getElementById("MVLTable-" + pkmType + "-name-td").appendChild(nameInput);
-		$( nameInput ).autocomplete( "option", "appendTo", "#MVLTable-" + pkmType + "-name-td" );
-		for (let moveType of ["fast", "charged"]){
-			let moveInput = createPokemonMoveInput(moveType);
-			document.getElementById("MVLTable-" + pkmType + "-" + moveType[0] + "move-td").appendChild(moveInput);
-			$( moveInput ).autocomplete( "option", "appendTo", "#MVLTable-" + pkmType + "-" + moveType[0] + "move-td" );
-		}
-	}
-	
-	var weatherInput = document.getElementById("MVLTable-weather");
-	for (let weatherSetting of Data.WeatherSettings){
-		weatherInput.appendChild(createElement('option', weatherSetting.label, {value: weatherSetting.name}));
-	}
-	
 }
 
 function MVLTableSubmit(){
@@ -521,56 +491,50 @@ function MVLTableSubmit(){
 	setTimeout(function(){
 		try{
 			MVLTableCalculate();
+			while (DialogStack.length){
+				DialogStack.pop().dialog('close');
+			}
 		}catch(err){
+			while (DialogStack.length){
+				DialogStack.pop().dialog('close');
+			}
 			sendFeedbackDialog("Oops, something went wrong!");
-		}
-		while (DialogStack.length){
-			DialogStack.pop().dialog('close');
 		}
 	}, 100);
 }
 
 function MVLTableCalculate(){
-	// TODO: MVL calculation engine
-	var attackerConfig = read(document.getElementById("MVLTable-attacker"));
-	var defenderConfig = read(document.getElementById("MVLTable-defender"));
-
-	var numOfPlayer = attackerConfig.numOfPlayers;
-
-	let baseConfig = {
-		players: "",
-		aggregation: "avrg"
-	};
+	var baseConfig = read();
 	baseConfig.aggregation = 'avrg';
+	baseConfig.simPerConfig = 100;
 	
-	/*
-	var movesets = [];
-	if (document.getElementById("MVLTable-enumMovesets").checked){
-		var bossSpecies = getEntry(baseConfig.dfdrSettings.name, Data.Pokemon);
-		for (var i = 0; i < bossSpecies.fastMoves.length; i++){
-			for (var j = 0; j < bossSpecies.chargedMoves.length; j++){
-				movesets.push([bossSpecies.fastMoves[i], bossSpecies.chargedMoves[j]]);
-			}
-		}
-	}else{
-		movesets.push([baseConfig.dfdrSettings.fmove, baseConfig.dfdrSettings.cmove]);
-	}
+	var configurations = batchSim(baseConfig); // Each configuration will take a row
+	
 	var friends = [], frendStart = parseInt($("#MVLTable-friendStart").val()), friendEnd = parseInt($("#MVLTable-friendEnd").val());
 	for (var i = frendStart; i <= friendEnd; i++){
 		friends.push(Data.FriendSettings[i].name);
 	}
 	
 	var data = [];
-	for (var i = 0; i < movesets.length; i++){
-		baseConfig.dfdrSettings.fmove = movesets[i][0];
-		baseConfig.dfdrSettings.cmove = movesets[i][1];
+	for (let config of configurations){
+		let defendingPlayer = null;
+		for (let player of config.players){
+			if (player.team == "1"){
+				defendingPlayer = player;
+				break;
+			}
+		}
 		var rowDict = {
-			"weather": baseConfig.weather,
-			"fmove": movesets[i][0],
-			"cmove": movesets[i][1]
+			"Weather": baseConfig.weather,
+			"Fast": defendingPlayer.parties[0].pokemon[0].fmove,
+			"Charged": defendingPlayer.parties[0].pokemon[0].cmove
 		};
-		for (var j = 0; j < friends.length; j++){
-			basePlayer.friend = friends[j];
+		for (let friendLevel of friends){
+			for (let player of config.players){
+				if (player.team == "0"){
+					player.friend = friendLevel;
+				}
+			}
 			var winRates = new Array(Data.LevelSettings.length), lower = 0, upper = Data.LevelSettings.length - 1;
 			while (upper >= lower){
 				var mid = Math.floor((lower + upper)/2);
@@ -581,10 +545,10 @@ function MVLTableCalculate(){
 					lower = mid + 1;
 				}
 			}
-			rowDict[basePlayer.friend] = Data.LevelSettings[Data.LevelSettings.length - 1].name + "*";
+			rowDict[friendLevel] = Data.LevelSettings[Data.LevelSettings.length - 1].name + "*";
 			for (var k = 0; k < winRates.length; k++){
 				if (winRates[k] >= 60){
-					rowDict[basePlayer.friend] = Data.LevelSettings[k].name;
+					rowDict[friendLevel] = Data.LevelSettings[k].name;
 					break;
 				}
 			}
@@ -592,7 +556,7 @@ function MVLTableCalculate(){
 		data.push(rowDict);
 	}
 	
-	var columns = ["weather", "fmove", "cmove"].concat(friends);
+	var columns = ["Weather", "Fast", "Charged"].concat(friends);
 	var tb = document.getElementById("MVLTable-table");
 	tb.children[0].innerHTML = "";
 	tb.children[0].appendChild(createRow(columns, "th"));
@@ -604,22 +568,20 @@ function MVLTableCalculate(){
 		}
 		tb.children[1].appendChild(createRow(rowArr));
 	}
-	*/
+	
 }
 
-function MVLTableClear(){
-	document.getElementById("MVLTable-table").children[1].innerHTML = "";
-}
 
 function getWinRate(level, cfg){
-	for (var i = 0; i < cfg.atkrSettings.length; i++){
-		for (var j = 0; j < cfg.atkrSettings[i].parties.length; j++){
-			for (var k = 0; k < cfg.atkrSettings[i].parties[j].pokemon.length; k++){
-				cfg.atkrSettings[i].parties[j].pokemon[k].level = level;
+	for (let player of cfg.players){
+		if (player.team == "0"){
+			for (let party of player.parties){
+				for (let pokemon of party.pokemon){
+					pokemon.level = level;
+				}
 			}
 		}
 	}
-	var resCol = [];
-	runSim(cfg, resCol);
-	return parseFloat(resCol[0].output.generalStat.battle_result);
+	runSimulation(cfg);
+	return parseFloat(runSimulation(cfg)[0].output.generalStat.battle_result);
 }

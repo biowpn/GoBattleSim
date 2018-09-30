@@ -53,8 +53,9 @@ var attributesEnumeration = [
 		default: "current, legacy, exclusive"
 	}
 ];
-				
+
 function batchSim(cfg, start){
+	start = start || [0, 0, 0, 0];
 	for (var i = start[0]; i < cfg.players.length; i++){
 		let player = cfg.players[i];
 		for (var j = start[1]; j < player.parties.length; j++){
@@ -282,6 +283,7 @@ function applicationInit(){
 	addPlayerNode();
 	addPlayerNode();
 	write(playersNode.children[1], {team: "1", parties: [{pokemon: [{role: "rb"}]}]});
+	comply();
 
 	if (window.location.href.includes('?')){
 		write(document.getElementById("input"), importConfig(window.location.href));

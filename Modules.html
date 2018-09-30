@@ -167,14 +167,8 @@
 			</tr>
 		</thead>
 		<tbody>
-		
 		</tbody>
 	</table>
-	<br>
-	<button onclick='boxEditFormSubmit()' id='boxEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button>
-	
-	<div id='boxEditForm-feedback'>
-	</div>
 </div>
 
 
@@ -210,67 +204,22 @@
 		<tbody></tbody>		
 	</table>
 	
-	<table id="MVLTable-attacker" name="pokemon">
-		<thead>
-			<colgroup>
-				<col width="50%"><col width="50%">
-			</colgroup>
-		</thead>
-		<tbody>
-			<tr>
-				<td id="MVLTable-attacker-name-td"></td>
-				<td>
-					<select name="mvl-numOfPlayers">
-						<option value="1">Solo</option>
-						<option value="2">Duo</option>
-						<option value="3">Trio</option>
-						<option value="4">Quartet</option>
-						<option value="5">Quintet</option>
-						<option value="6">Sextet</option>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<td id="MVLTable-attacker-fmove-td"></td>
-				<td id="MVLTable-attacker-cmove-td"></td>
-			</tr>
-		</tbody>
-	</table>
-	
-	<table id="MVLTable-defender" name="pokemon">
-		<thead>
-			<colgroup>
-				<col width="50%"><col width="50%">
-			</colgroup>
-		</thead>
-		<tbody>
-			<tr>
-				<td id="MVLTable-defender-name-td"></td>
-				<td><select name="input-weather" id="MVLTable-weather"></select></td>
-			</tr>
-			<tr>
-				<td id="MVLTable-defender-fmove-td"></td>
-				<td id="MVLTable-defender-cmove-td"></td>
-			</tr>
-		</tbody>
-	</table>
-	
 	<table>
 		<thead>
 			<colgroup>
 				<col width="50%"><col width="50%">
 			</colgroup>
+			<tr><th>Min Friendship</th><th>Max Friendship</th></tr>
 		</thead>
 		<tbody>
 			<tr>
 				<td><select id="MVLTable-friendStart"></select></td>
 				<td><select id="MVLTable-friendEnd"></select></td>
 			</tr>
-			<tr>
-				<td><button onclick="MVLTableSubmit();">Generate</button></td>
-				<td><button onclick="MVLTableClear();">Clear</button></td>
-			</tr>
 		</tbody>
 	</table>
+	<br>
+	
+	<div><button onclick="MVLTableSubmit();">Generate</button></div>
 
 </div>

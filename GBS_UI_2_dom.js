@@ -130,6 +130,7 @@ function createMinimizeButton(parentName){
 	return button;
 }
 
+
 function createCopyPokemonButton(){
 	var copyPokemonButton = createElement('button','<i class="fa fa-files-o" aria-hidden="true"></i>', {
 		class: "button-icon", title: "Copy"
@@ -141,15 +142,19 @@ function createCopyPokemonButton(){
 	return copyPokemonButton;
 }
 
+
 function createPastePokemonButton(){
 	var pastePokemonButton = createElement('button','<i class="fa fa-clipboard" aria-hidden="true"></i>', {
 		class: "button-icon", title: "Paste"
 	});
 	pastePokemonButton.onclick = function(){
-		write($$$(this).parent("pokemon").node, LocalData.PokemonClipboard || {});
+		var pokemonNode = $$$(this).parent("pokemon").node;
+		write(pokemonNode, LocalData.PokemonClipboard || {});
+		formatting(pokemonNode);
 	}
 	return pastePokemonButton;
 }
+
 
 function createRemovePokemonButton(){
 	var removePokemonButton = createElement('button', '<i class="fa fa-times" aria-hidden="true"></i>', {
@@ -166,6 +171,7 @@ function createRemovePokemonButton(){
 	}
 	return removePokemonButton;
 }
+
 
 function createPokemonRoleInput(){
 	var roleInput = createElement("select", "", {name: "pokemon-role"});
@@ -188,8 +194,19 @@ function createPokemonRoleInput(){
 			strategyNode.value = "strat0";
 		}
 	}
+	roleInput.comply = function(kwargs){
+		this.disabled = false;
+		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
+			if ($$$(this).parent("player").child("player-team").val() == "1"){
+				this.value = (kwargs.battleMode == "raid" ? "rb" : "gd");
+				this.onchange();
+				this.disabled = true;
+			}
+		}
+	}
 	return roleInput;
 }
+
 
 function createPokemonCopiesInput(){
 	var copiesInput = createElement('input','',{
@@ -203,8 +220,18 @@ function createPokemonCopiesInput(){
 		if (this.value < 1)
 			this.value = 1;
 	}
+	copiesInput.comply = function(kwargs){
+		this.disabled = false;
+		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
+			if ($$$(this).parent("player").child("player-team").val() == "1"){
+				this.value = 1;
+				this.disabled = true;
+			}
+		}
+	}
 	return copiesInput;
 }
+
 
 function createPokemonRaidTierInput(){
 	var raidTierInput = createElement("select", "", {
@@ -213,8 +240,24 @@ function createPokemonRaidTierInput(){
 	for (let raidTier of Data.RaidTierSettings){
 		raidTierInput.appendChild(createElement('option', raidTier.label, {value: raidTier.name}));
 	}
+	raidTierInput.onchange = function(){
+		if (document.getElementById("battleMode").value == "raid"){
+			var timelimitInput = document.getElementById("timelimit");
+			if (parseInt(this.value) <= 4){
+				timelimitInput.value = Data.BattleSettings.timelimitRaidMs;
+			}else{
+				timelimitInput.value = Data.BattleSettings.timelimitLegendaryRaidMs;
+			}
+		}
+	}
+	raidTierInput.comply = function(kwargs){
+		if (kwargs.battleMode == "raid"){
+			this.onchange();
+		}
+	}
 	return raidTierInput;
 }
+
 
 function createPokemonStrategyInput(){
 	var strategyInput = createElement('select', '', {name: "pokemon-strategy"});
@@ -222,8 +265,18 @@ function createPokemonStrategyInput(){
 	strategyInput.appendChild(createElement('option', 'Dodge Charged', {value: "strat2"}));
 	strategyInput.appendChild(createElement('option', 'Dodge All', {value: "strat3"}));
 	strategyInput.appendChild(createElement('option', 'Defender AI', {value: "strat0"}));
+	strategyInput.comply = function(kwargs){
+		this.disabled = false;
+		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
+			if ($$$(this).parent("player").child("player-team").val() == "1"){
+				this.value = "strat0";
+				this.disabled = true;
+			}
+		}
+	}
 	return strategyInput;
 }
+
 
 function createPartyNameInput(){
 	var partyNameInput = createElement('input', '', {
@@ -251,15 +304,28 @@ function createPartyNameInput(){
 		select: function(event, ui){
 			var partyNode = $$$(this).parent("party").node;
 			write(partyNode, ui.item);
+			comply(partyNode, {battleMode: $("#battleMode").val()});
 			formatting(partyNode);
 			relabel();
 		}
 	});
+	partyNameInput.comply = function(kwargs){
+		if (kwargs.battleMode == "raid"){
+			var playerNode = $$$(this).parent("player");
+			if (playerNode.child("player-team").val() == "1"){
+				let pokemonNodes = $$$(this).parent("party").child("party-pokemon").node;
+				while (pokemonNodes.children.length > 1){
+					pokemonNodes.removeChild(pokemonNodes.lastChild);
+				}
+			}
+		}
+	}
 	partyNameInput.onfocus = function(){
 		$(this).autocomplete("search", "");
 	}
 	return partyNameInput;
 }
+
 
 function createSavePartyButton(){
 	var savePartyButton = createElement('button','<i class="fa fa-floppy-o" aria-hidden="true"></i>',{
@@ -278,6 +344,7 @@ function createSavePartyButton(){
 	}
 	return savePartyButton;
 }
+
 
 function createRemovePartyButton(){
 	var removePartyButton = createElement('button', '<i class="fa fa-times" aria-hidden="true"></i>', {
@@ -318,6 +385,27 @@ function createRemovePartyButton(){
 	return removePartyButton;
 }
 
+
+function createPartyReviveCheckbox(){
+	var reviveCheckboxContainer = createElement("label", "Max Revive", {style: "width: 50%"});
+	var reviveCheckbox = createElement("input", "", {type: "checkbox", name: "party-revive"});
+	reviveCheckbox.onclick = function(){
+		$(this).button("refresh");
+		$(this).button("disable");
+	}
+	reviveCheckbox.comply = function(kwargs){
+		$(this).button("enable");
+		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
+			if ($$$(this).parent("player").child("player-team").val() == "1"){
+				$(this).button("disable");
+			}
+		}
+	}
+	reviveCheckboxContainer.appendChild(reviveCheckbox);
+	return reviveCheckboxContainer;
+}
+
+
 function createAddPokemonButton(){
 	var addPokemonButton = createElement("button", "Add Pokemon", {style: "width: 50%"});
 	addPokemonButton.onclick = function(){
@@ -330,35 +418,80 @@ function createAddPokemonButton(){
 			partyNode.children[1].appendChild(newPokemonNode);
 			write(newPokemonNode, prevPokemonConfig);
 			formatting(newPokemonNode);
+			comply(newPokemonNode, {battleMode: $("#battleMode").val()});
 			relabel();
 		}else{
 			sendFeedbackDialog("Exceeding Maximum number of Pokemon per party.");
 		}
 	}
+	addPokemonButton.comply = function(kwargs){
+		$(this).button("enable");
+		if (kwargs.battleMode == "raid"){
+			if ($$$(this).parent("player").child("player-team").val() == "1"){
+				$(this).button("disable");
+			}
+		}
+	}
 	return addPokemonButton;
 }
+
 
 function createPlayerTeamInput(){
 	var playerTeamInput = createElement('select', '', {
 		style: 'width: 50%; display: inline-block; text-align: center;', name: "player-team"
 	});
-	playerTeamInput.appendChild(createElement('option', "Primary", {value: "0"}));
-	playerTeamInput.appendChild(createElement('option', "Secondary", {value: "1"}));
+	playerTeamInput.appendChild(createElement('option', "Primary Team", {value: "0"}));
+	playerTeamInput.appendChild(createElement('option', "Opposite Team", {value: "1"}));
 	playerTeamInput.onchange = function(){
-		// Verification needed
+		/* TODO: Validation - different team
+		var different = false;
+		for (let player of read().players){
+			if (player.team != this.value){
+				different = true;
+				break;
+			}
+		}
+		if (!different){
+			this.value = this.value == "0" ? "1": "0";
+			sendFeedbackDialog("There must be two different teams");
+		}
+		*/
+	}
+	playerTeamInput.comply = function(kwargs){
+		this.disabled = false;
+		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
+			this.disabled = true;
+			var playerNode = $$$(this).parent("player");
+			if (playerNode.child("player-team").val() == "1"){
+				let partyNodes = playerNode.child("player-parties").node;
+				while (partyNodes.children.length > 1){
+					partyNodes.removeChild(partyNodes.lastChild);
+				}
+			}
+		}
 	}
 	return playerTeamInput;
 }
 
+
 function createPlayerFriendInput(){
-	var playerFriendInput = createElement('select','', {
+	var playerFriendInput = createElement('select', '', {
 		style: 'width: 50%; display: inline-block; text-align: center;', name: "player-friend"
 	});
 	for (let friendSetting of Data.FriendSettings){
 		playerFriendInput.appendChild(createElement('option', friendSetting.label, {value: friendSetting.name}));
 	}
+	playerFriendInput.comply = function(kwargs){
+		this.disabled = false;
+		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
+			if ($$$(this).parent("player").child("player-team").val() == "1"){
+				this.disabled = true;
+			}
+		}
+	}
 	return playerFriendInput;
 }
+
 
 function createRemovePlayerButton(){
 	var removePlayerButton = createElement('button','<i class="fa fa-times" aria-hidden="true"></i>',{
@@ -378,6 +511,7 @@ function createRemovePlayerButton(){
 	return removePlayerButton;
 }
 
+
 function createAddPartyButton(){
 	var addPartyButton = createElement("button", "Add Party", {
 		class: 'player_button'
@@ -391,7 +525,49 @@ function createAddPartyButton(){
 			sendFeedbackDialog("Exceeding Maximum number of Parties per player.");
 		}
 	}
+	addPartyButton.comply = function(kwargs){
+		$(this).button("enable");
+		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
+			if ($$$(this).parent("player").child("player-team").val() == "1"){
+				$(this).button("disable");
+			}
+		}
+	}
 	return addPartyButton;
+}
+
+// Recursive call to make a node and all its children to comply the system requirements
+function comply(node, kwargs){
+	node = node || document.getElementById("input");
+	kwargs = kwargs || {battleMode: $("#battleMode").val()};
+	if (node.comply){
+		node.comply(kwargs);
+	}
+	for (let child of node.children){
+		comply(child, kwargs);
+	}
+}
+
+// Trigger when the battle mode input changed
+function complyBattleMode(mode){
+	let playerNodes = $$$(document.getElementById("input")).child("input-players").node;
+	if (mode == "gym" || mode == "raid"){
+		let hasProcessedDefender = false;
+		for (let playerNode of playerNodes.children){
+			if ($$$(playerNode).child("player-team").val() == "1"){
+				if (hasProcessedDefender){
+					playerNodes.removeChild(playerNode);
+				}else{
+					hasProcessedDefender = true;
+				}
+			}
+		}
+	}
+	comply(playerNodes, {battleMode: mode});
+	var timelimitInput = document.getElementById("timelimit");
+	if (mode == "gym"){
+		timelimitInput.value = Data.BattleSettings.timelimitGymMs;
+	}
 }
 
 
@@ -479,7 +655,7 @@ function createPartyNode(){
 	$( partyNode.children[1] ).sortable({axis: 'y'});
 	
 	// 3. Tail
-	partyNode.children[2].innerHTML = "<label style='width:50%'>Max Revive<input type='checkbox' name='party-revive'></label>";
+	partyNode.children[2].appendChild(createPartyReviveCheckbox());
 	partyNode.children[2].appendChild(createAddPokemonButton());
 	$( partyNode.children[2] ).controlgroup();
 	
@@ -522,9 +698,9 @@ function createPlayerNode(){
 
 
 function addPlayerNode(){
-	var playersNode = $$$(document.getElementById("input")).child("input-players").node;
-	if (playersNode.children.length < MAX_NUM_OF_PLAYERS){
-		playersNode.appendChild(createPlayerNode());
+	var playerNodes = $$$(document.getElementById("input")).child("input-players").node;
+	if (playerNodes.children.length < MAX_NUM_OF_PLAYERS){
+		playerNodes.appendChild(createPlayerNode());
 		relabel();
 	}else{
 		document.getElementById('input.addPlayer').setAttribute('disabled', true);
@@ -534,9 +710,9 @@ function addPlayerNode(){
 
 // Update label and background color of player/party/pokemon nodes based on their position
 function relabel(){
-	var playersNode = $$$(document.getElementById("input")).child("input-players").node;
+	var playerNodes = $$$(document.getElementById("input")).child("input-players").node;
 	let i = 0;
-	for (let playerNode of playersNode.children){
+	for (let playerNode of playerNodes.children){
 		playerNode.setAttribute('style', 'background:' + HSL_COLORS[i%HSL_COLORS.length][0]);
 		playerNode.children[0].children[0].innerHTML = "Player " + (i+1);
 		let j = 0;
@@ -737,19 +913,19 @@ function displayDetail(i){
 	var fbSection = document.getElementById("feedback_table2");
 	fbSection.appendChild(createElement('h3', 'Battle Log'));
 	var battleLogDiv = document.createElement('div');
-	var battleLogTable = createBattleLogTable(output.battleLog);
 	fbSection.appendChild(battleLogDiv);
-	battleLogDiv.appendChild(battleLogTable);
-	
-	$( battleLogTable ).DataTable({
-		scrollX: true,
-		scrollY: '80vh',
-		scroller: true,
-		searching: false,
-		ordering: false
-	});
-	
-	$( "#feedback_table2" ).accordion({
+	if (output.battleLog.length > 0){
+		var battleLogTable = createBattleLogTable(output.battleLog);
+		battleLogDiv.appendChild(battleLogTable);
+		$( battleLogTable ).DataTable({
+			scrollX: true,
+			scrollY: '80vh',
+			scroller: true,
+			searching: false,
+			ordering: false
+		});
+	}
+	$( fbSection ).accordion({
 		active: false,
 		collapsible: true,
 		heightStyle: 'content'
@@ -761,12 +937,9 @@ function displayDetail(i){
 
 
 function createBattleLogTable(log){
-	var table = createElement('table','<thead></thead><tbody></tbody>',{
+	var table = createElement('table', '<thead></thead><tbody></tbody>', {
 		width: '100%', class: 'display nowrap', id: "ui-log-table"
 	});
-	if (!log || log.length == 0){
-		return table;
-	}
 
 	let headers = ["Time"];
 	for (var i = 0; i < log[0].events.length; i++){

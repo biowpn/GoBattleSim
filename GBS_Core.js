@@ -758,17 +758,20 @@ World.prototype.getStatistics = function(){
 // Gym Defender/Raid Boss strategy
 function strat0(state){
 	let projectedEnergyDelta = 0;
-	let defenderDelay;
-	if (state.currentAction){
+	this.actionCount = this.actionCount || 0;
+	if (state.currentAction && this.actionCount >= 2){
 		if (state.currentAction.name == "fast"){
 			projectedEnergyDelta = this.fmove.energyDelta;
 		}else if (state.currentAction.name == "charged"){
 			projectedEnergyDelta = this.cmove.energyDelta;
 		}
-		defenderDelay = 1500 + round(1000 * Math.random()) // Add the defender delay;
-	}else{
+		defenderDelay = 1500 + round(1000 * Math.random()) // Add the standard defender delay;
+	}else if (this.actionCount >= 1){ // Delay for the second action
+		defenderDelay = Math.max(0, 1000 - this.fmove.duration);
+	}else{ // Delay for the first action
 		defenderDelay = 0;
 	}
+	this.actionCount++;
 	if (this.energy + projectedEnergyDelta + this.cmove.energyDelta >= 0 && Math.random() <= 0.5){
 		actionName = "charged";
 	}else{
@@ -776,7 +779,7 @@ function strat0(state){
 	}
 	return {
 		name: actionName,
-		delay: defenderDelay
+		delay: defenderDelay,
 	};
 }
 

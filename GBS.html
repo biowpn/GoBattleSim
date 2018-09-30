@@ -268,17 +268,17 @@
 		<tr>
 			<th>Battle Mode</th>
 			<td>
-				<select name="input-battleMode">
+				<select name="input-battleMode" id="battleMode" onchange="complyBattleMode(this.value);">
 					<option value="raid">Raid</option>
 					<option value="gym">Gym</option>
-					<option value="pvp">PVP</option>
+					<option value="pvp">PvP</option>
 				</select>
 			</td>
 		</tr>
 		<tr>
-			<th>Time Limit</th>
+			<th>Time Limit (ms)</th>
 			<td>
-				<select name="input-timelimit"></select>
+				<input type="number" name="input-timelimit" id="timelimit"></input>
 			</td>
 		</tr>
 		<tr>
@@ -329,12 +329,40 @@
 <div id="feedback_table2"></div>
 
 <table>
-<colgroup><col width="50%"><col width="50%"></colgroup>
-<tr>
-<td><button class="player_button" id="copy-button-clipboard" onclick="">Copy to Clipboard</button></td>
-<td><button class="player_button" id="copy-button-csv" onclick="">Export To CSV</button></td>
-</tr>
+	<colgroup><col width="50%"><col width="50%"></colgroup>
+	<tr>
+		<td><button class="player_button" id="copy-button-clipboard" onclick="">Copy to Clipboard</button></td>
+		<td><button class="player_button" id="copy-button-csv" onclick="">Export To CSV</button></td>
+	</tr>
 </table>
+
+
+
+<div id='MVLTable' title="Minimum Viable Level Table" style="visibility: hidden;">
+	<table id="MVLTable-table">
+		<thead></thead>
+		<tbody></tbody>		
+	</table>
+	
+	<table>
+		<thead>
+			<colgroup>
+				<col width="50%"><col width="50%">
+			</colgroup>
+			<tr><th>Min Friendship</th><th>Max Friendship</th></tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td><select id="MVLTable-friendStart"></select></td>
+				<td><select id="MVLTable-friendEnd"></select></td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<div><button onclick="MVLTableSubmit();">Generate</button></div>
+
+</div>
+
 
 
 
@@ -365,26 +393,18 @@ for (let weatherSetting of Data.WeatherSettings){
 	weatherInput.appendChild(createElement('option', weatherSetting.label, {value: weatherSetting.name}));
 }
 
-var timelimitInput = $$$(document.getElementById("input")).child("input-timelimit").node;
-for (var setting in Data.BattleSettings){
-	if (setting.toLowerCase().includes("timelimit")){
-		timelimitInput.appendChild(createElement('option', setting, {value: Data.BattleSettings[setting]}));
-	}
-}
+var timelimitInput = document.getElementById("timelimit");
+timelimitInput.value = Data.BattleSettings.timelimitLegendaryRaidMs;
 
 
 dropdownMenuInit();
+
 moveEditFormInit();
 pokemonEditFormInit();
-
-/*
 parameterEditFormInit();
 modEditFormInit();
 userEditFormInit();
-
 MVLTableInit();
-*/
-
 
 populateAll(applicationInit);
 
