@@ -222,3 +222,82 @@
 	<div><button onclick="MVLTableSubmit();">Generate</button></div>
 
 </div>
+
+
+<div id='WelcomeDialog' title="Welcome to GoBattleSim v3" style="visibility: hidden;">
+	
+	<h4>Welcome!</h4>
+	
+	<table>
+		<thead>
+			<colgroup>
+				<col width="60%"><col width="40%">
+			</colgroup>
+		</thead>
+		<tbody>
+			<tr>
+				<td>
+					<p>Hi there! Thanks for using GoBattleSim v3. </p>
+					<p>If you are new to it, select one of the example sims below, and get a feel of how GoBattleSim works:</p>
+				</td>
+				<td>
+					<img src="https://pokemongo.gamepress.gg/sites/pokemongo/files/2017-08/381_0.png"></img>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<table>
+		<thead>
+			<colgroup>
+				<col width="100%">
+			</colgroup>
+		</thead>
+		<tbody>
+			<tr>
+				<td><button class="player_button" onclick="welcomeDialogSubmit(0)">Gym Battle</button></td>
+			</tr>
+			<tr>
+				<td><button class="player_button" onclick="welcomeDialogSubmit(1)">Solo Raid</button></td>
+			</tr>
+			<tr>
+				<td><button class="player_button" onclick="welcomeDialogSubmit(2)">Duo Raid</button></td>
+			</tr>
+			<tr>
+				<td><button class="player_button" onclick="welcomeDialogSubmit(3)">Fantasy PvP</button></td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<table>
+		<thead>
+			<colgroup>
+				<col width="100%">
+			</colgroup>
+		</thead>
+		<tbody>
+			<tr>
+				<td>
+					<p>If you already know the basics, you may want to learn about the <b>Batch Input Scheme</b> by checking out the example configurations below: </p>
+				</td>
+			</tr>
+			<tr>
+				<td><button class="player_button" onclick="welcomeDialogSubmit(4, true)">My Best Counter</button></td>
+			</tr>
+			<tr>
+				<td><button class="player_button" onclick="welcomeDialogSubmit(5, true)">Minimum Level to Win</button></td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<br>
+	<br>
+	
+	<table> 
+		<colgroup><col width='50%'><col width='50%'></colgroup>
+		<tr>
+			<td><button onclick='welcomeDialogRespond(0)'>OK</button></td>
+			<td><button onclick='welcomeDialogRespond(1)'>Don't show this again</button></td>
+		</tr>
+	</table>
+</div>

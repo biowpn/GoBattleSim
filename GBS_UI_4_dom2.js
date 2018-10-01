@@ -1,71 +1,37 @@
 /* GBS_UI_4_dom2.js */
 
-var Mods = [
-	{
-		name: 'Ultimate Future Pokemon Expansion',
-		effect: function(_data){
-			_data.Pokemon = mergeDatabase(_data.Pokemon, _data.PokemonForms, function(a, b){
-				if (a.dex <= 386){
-					a.icon = b.icon;
-					return a;
-				}else
-					return b;
-			});
-		}
-	},
-	{
-		name: 'Nerf cp4354+ Future Pokemon by 9%',
-		effect: function(_data){
-			_data.Pokemon.forEach(function(pkm){
-				if (pkm.dex != 289){ // Not Slaking
-					var pkm2 = new Pokemon({
-						name: pkm.name,
-						atkiv: 15,
-						defiv: 15,
-						stmiv: 15,
-						level: 40
-					});
-					if (calculateCP(pkm2) >= 4354){
-						pkm.baseAtk = round(pkm.baseAtk * 0.91);
-						pkm.baseDef = round(pkm.baseDef * 0.91);
-						pkm.baseStm = round(pkm.baseStm * 0.91);
-					}
-				}
-			});
-		}
-	},
-	{
-		name: 'Exclude Low-rating and Low-stat Species',
-		effect: function(_data){
-			var Pokemon_new = [];
-			for (var i = 0; i < _data.Pokemon.length; i++){
-				pkm = _data.Pokemon[i];
-				if (pkm.rating && pkm.rating < 2 || pkm.baseAtk < 160){
-					continue;
-				}
-				Pokemon_new.push(pkm);
-			}
-			_data.Pokemon = Pokemon_new;
-		}
-	},
-	{
-		name: 'Move Effects Expansion 1.1',
-		effect: function(_data){
-			var fmove_transform = getEntry('transform', _data.FastMoves);
-			if (fmove_transform){
-				fmove_transform.effect_name = 'transform';
-			}
-			var cmove_mega_drain = getEntry('mega drain', _data.ChargedMoves);
-			if (cmove_mega_drain){
-				cmove_mega_drain.effect_name = 'hp draining';
-			}
-			var cmove_giga_drain = getEntry('giga drain', _data.ChargedMoves);
-			if (cmove_giga_drain){
-				cmove_giga_drain.effect_name = 'hp draining';
-			}
-		}
+function welcomeDialogInit(){
+	$( "#WelcomeDialog" ).attr("style", "visibility: show;");
+	$( "#WelcomeDialog" ).dialog({ 
+		autoOpen: false,
+		width: 600
+	});
+	$( "#WelcomeDialogOpener" ).click(function() {
+		$( "#WelcomeDialog" ).dialog( "open" );
+	});
+}
+
+
+function welcomeDialogSubmit(configIndex, advanced){
+	var masterInputNode = document.getElementById("input");
+	write(masterInputNode, sampleConfigurations[configIndex] || {});
+	formatting(masterInputNode);
+	relabel();
+	$( "#WelcomeDialog" ).dialog( "close" );
+	if (!advanced){
+		document.getElementById('GoButton').scrollIntoView({block: "center", inline: "center"});
+		sendFeedbackDialog('Nice choice! Now, click "GO" to start the simulation.');
 	}
-];
+}
+
+
+function welcomeDialogRespond(resp){
+	if (resp == 1){
+		LocalData.WelcomeDialogNoShow = 1;
+		saveLocalData();
+	}
+	$( "#WelcomeDialog" ).dialog( "close" );
+}
 
 
 function dropdownMenuInit(){

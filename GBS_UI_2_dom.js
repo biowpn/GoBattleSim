@@ -392,7 +392,6 @@ function createPartyReviveCheckbox(){
 	var reviveCheckbox = createElement("input", "", {type: "checkbox", name: "party-revive"});
 	reviveCheckbox.onclick = function(){
 		$(this).button("refresh");
-		$(this).button("disable");
 	}
 	reviveCheckbox.comply = function(kwargs){
 		$(this).button("enable");
@@ -767,26 +766,27 @@ function clearAllSims(){
 
 
 function createMasterSummaryTable(){
-	var table = createElement('table','<thead></thead><tfoot></tfoot><tbody></tbody>',{
-		width:'100%', id :'ui-mastersummarytable', cellspacing:'0', class : 'display nowrap'
+	var table = createElement('table', '<thead></thead><tfoot></tfoot><tbody></tbody>', {
+		width: '100%', id: 'ui-mastersummarytable', cellspacing: '0', class: 'display nowrap'
 	});
 	var headers = ['#'];
 	for (var m in MasterSummaryTableMetrics){
 		headers.push(MasterSummaryTableMetrics[m]);
 	}
 	headers.push('Detail');
-	table.children[0].appendChild(createRow(headers,"th"));
-	table.children[1].appendChild(createRow(headers,"th"));
+	table.children[0].appendChild(createRow(headers, "th"));
+	table.children[1].appendChild(createRow(headers, "th"));
 	for (var i = 0; i < simResults.length; i++){
 		var sim = simResults[i];
 		var row = [i+1];
 		for (var m in MasterSummaryTableMetrics){
 			if (m[0] == '*'){
 				m = m.slice(1);
-				var pkmInfo = getPokemonConfig(sim.input, m.split('.')[0]), attr = m.split('.')[1];
-				if (attr == 'name'){
+				var pkmInfo = getPokemonConfig(sim.input, m.split('.')[0]);
+				var attr = m.split('.')[1];
+				if (attr == 'name' || attr == 'nickname'){
 					var pkmData = getEntry(pkmInfo.name, Data.Pokemon);
-					row.push(createIconLabelSpan(pkmInfo.icon || pkmData.icon, pkmInfo.label || pkmData.label, 'species-input-with-icon'));
+					row.push(createIconLabelSpan(pkmData.icon, pkmInfo.nickname || pkmData.label, 'species-input-with-icon'));
 				}else if (attr == 'fmove'){
 					var moveData = getEntry(pkmInfo.fmove, Data.FastMoves);
 					row.push(createIconLabelSpan(moveData.icon, moveData.label, 'move-input-with-icon'));

@@ -241,6 +241,7 @@
 			<td class='sub-menu-container'>
 				<button class='sub-menu-opener'><i class="fa fa-question" aria-hidden="true"></i> Help</button>
 				<div class='sub-menu'>
+					<button class='player_button' id="WelcomeDialogOpener">Quick Start</button>
 					<button class='player_button' onclick="window.open('https://pokemongo.gamepress.gg/comprehensive-guide-GoBattleSim', '_blank')">User Manual</button>
 					<button class='player_button' onclick="window.open('https://pokemongo.gamepress.gg/GoBattleSim-and-comprehensive-dps-spreadsheet-change-log', '_blank')">Change Log</button>
 				</div>
@@ -316,7 +317,6 @@
 </div>
 
 
-
 <button onclick="requestSimulation()" id="GoButton">Go</button>
 
 
@@ -335,7 +335,6 @@
 		<td><button class="player_button" id="copy-button-csv" onclick="">Export To CSV</button></td>
 	</tr>
 </table>
-
 
 
 <script>
@@ -370,7 +369,7 @@ timelimitInput.value = Data.BattleSettings.timelimitLegendaryRaidMs;
 
 
 dropdownMenuInit();
-
+welcomeDialogInit();
 try{
 	moveEditFormInit();
 	pokemonEditFormInit();

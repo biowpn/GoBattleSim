@@ -456,7 +456,7 @@ function fetchSpeciesData(oncomplete){
 					chargedMoves: parseMovesFromString(data[i].field_secondary_moves),
 					fastMoves_legacy: parseMovesFromString(data[i].field_legacy_quick_moves),
 					chargedMoves_legacy: parseMovesFromString(data[i].field_legacy_charge_moves),
-					fastMoves_exclusive: parseMovesFromString(data[i].field_exclusive_quick_moves),
+					fastMoves_exclusive: parseMovesFromString(data[i].quick_exclusive_moves),
 					chargedMoves_exclusive: parseMovesFromString(data[i].charge_exclusive_moves),
 					rating: parseFloat(data[i].rating) || 0,
 					raidMarker: '',

@@ -96,12 +96,9 @@ function batchSim(cfg, start){
 							let cfg_copy = JSON.parse(JSON.stringify(cfg));
 							pokemon = cfg_copy.players[i].parties[j].pokemon[k];
 							pokemon[attr.name] = match.name;
-							if (attr.name == "name" && match.uid){
-								for (let a of ["level", "atkiv", "defiv", "stmiv", "fmove", "cmove"]){
+							if (attr.name == "name" && match.uid){ // Match user's Pokemon
+								for (let a of ["nickname", "level", "atkiv", "defiv", "stmiv", "fmove", "cmove"]){
 									pokemon[a] = (pokemon[a] || match[a]).toString().replace("#", match[a]);
-									if (selector != '?'){
-										createNewMetric('*' + (i+1) + "-" + (j+1) + "-" + (k+1) + '.' + a);
-									}
 								}
 							}
 							branches = branches.concat(batchSim(cfg_copy, [i, j, k, m+1]));
@@ -251,6 +248,8 @@ function applicationInit(){
 
 	if (window.location.href.includes('?')){
 		write(document.getElementById("input"), importConfig(window.location.href));
+	}else if (!LocalData.WelcomeDialogNoShow){
+		$( "#WelcomeDialog" ).dialog( "open" );
 	}
 
 	formatting(playersNode);
