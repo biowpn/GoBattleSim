@@ -14,10 +14,12 @@ var acceptedNumericalAttributes = [
 
 var DialogStack = [];
 
+
 function round(value, numDigits){
 	var multiplier = Math.pow(10, parseInt(numDigits) || 0);
 	return Math.round(value * multiplier) / multiplier;
 }
+
 
 function createElement(type, innerHTML, attrsAndValues){
 	var e = document.createElement(type);
@@ -28,6 +30,7 @@ function createElement(type, innerHTML, attrsAndValues){
 	return e;
 }
 
+
 function searchParent(node, predicate){
 	while (node.parentNode){
 		node = node.parentNode;
@@ -36,6 +39,7 @@ function searchParent(node, predicate){
 		}
 	}
 }
+
 
 function searchChild(node, predicate){
 	if (predicate(node)){
@@ -49,6 +53,7 @@ function searchChild(node, predicate){
 	}
 }
 
+
 function createRow(rowData, type){
 	type = type || "td";
 	var row = document.createElement("tr");
@@ -60,10 +65,12 @@ function createRow(rowData, type){
 	return row;
 }
 
+
 function toTitleCase(str){
 	str = str || "";
     return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
+
 
 function leftMerge(objL, objR, attrs){
 	if (attrs){
@@ -77,6 +84,40 @@ function leftMerge(objL, objR, attrs){
 	}
 }
 
+
+function traverseLeaf(json, callback, path){
+	path = path || [];
+	if (typeof json == typeof "" || typeof json == typeof 0){
+		callback(json, path);
+		return;
+	}
+	if (Array.isArray(json)){
+		for (var i = 0; i < json.length; i++){
+			traverseLeaf(json[i], callback, path.concat([i]));
+		}
+	}else{
+		for (var attr in json){
+			traverseLeaf(json[attr], callback, path.concat([attr]));
+		}
+	}
+}
+
+
+function getProperty(json, path){
+	for (var i = 0; i < path.length; i++){
+		json = json[path[i]];
+	}
+	return json;
+}
+
+
+function setProperty(json, path, value){
+	for (var i = 0; i < path.length - 1; i++){
+		json = json[path[i]];
+	}
+	json[path[path.length - 1]] = value;
+}
+
 // https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript/901144#901144
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;
@@ -88,10 +129,42 @@ function getParameterByName(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
+// https://hackernoon.com/copying-text-to-clipboard-with-javascript-df4d4988697f
+const copyToClipboard = str => {
+  const el = document.createElement('textarea');  // Create a <textarea> element
+  el.value = str;                                 // Set its value to the string that you want copied
+  el.setAttribute('readonly', '');                // Make it readonly to be tamper-proof
+  el.style.position = 'absolute';                 
+  el.style.left = '-9999px';                      // Move outside the screen to make it invisible
+  document.body.appendChild(el);                  // Append the <textarea> element to the HTML document
+  const selected =            
+    document.getSelection().rangeCount > 0        // Check if there is any content selected previously
+      ? document.getSelection().getRangeAt(0)     // Store selection if found
+      : false;                                    // Mark as false to know no selection existed before
+  el.select();                                    // Select the <textarea> content
+  document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
+  document.body.removeChild(el);                  // Remove the <textarea> element
+  if (selected) {                                 // If a selection existed before copying
+    document.getSelection().removeAllRanges();    // Unselect everything on the HTML document
+    document.getSelection().addRange(selected);   // Restore the original selection
+  }
+};
+
+
+function getCookie(name){
+	for (let pair of document.cookie.split(";")){
+		kv = pair.split("=");
+		if (kv[0].trim() == name){
+			return kv[kv.length - 1].trim();
+		}
+	}
+}
+
+
 function jsonToURI(json){ return encodeURIComponent(JSON.stringify(json)); }
 
-function uriToJSON(urijson){ return JSON.parse(decodeURIComponent(urijson)); }
 
+function uriToJSON(urijson){ return JSON.parse(decodeURIComponent(urijson)); }
 
 
 function Predicate(pd, parent, attr){
@@ -100,6 +173,7 @@ function Predicate(pd, parent, attr){
 	else
 		return pd;
 }
+
 
 function parseNumericalRange(str){
 	if (!isNaN(parseFloat(str))){
@@ -112,6 +186,7 @@ function parseNumericalRange(str){
 	};
 	return ['', str];
 }
+
 
 function createSimplePredicate(str, parent, attr){
 	str = str.trim();
@@ -198,6 +273,7 @@ function createSimplePredicate(str, parent, attr){
 	}
 }
 
+
 function parseNextToken(expression){
 	var position = 0, token = '', hasEscaped = false, startsWithWhiteSpace = true;
 	while(position < expression.length){
@@ -228,6 +304,7 @@ function parseNextToken(expression){
 		'expression': expression.slice(Math.max(position, token.length))
 	};
 }
+
 
 function createComplexPredicate(expression, parent, attr){
 	var tokensArr = [], stack = [];
@@ -347,6 +424,7 @@ function createPokemonNameInput(){
 	return nameInput;
 }
 
+
 function createPokemonMoveInput(moveType){
 	var placeholder_ = "", attr_ = "";
 	if (moveType == "fast"){
@@ -428,6 +506,7 @@ function sendFeedback(msg, appending, feedbackElementId){
 	}
 }
 
+
 function sendFeedbackDialog(msg, dialogTitle){
 	var d = $(createElement('div', msg, {
 		title: dialogTitle || document.title
@@ -441,6 +520,7 @@ function sendFeedbackDialog(msg, dialogTitle){
 	DialogStack.push(d);
 	return d;
 }
+
 
 function getTableContent(dt){
 	var content = [];
@@ -465,18 +545,34 @@ function getTableContent(dt){
 function copyTableToClipboard(elementId){
 	var copyStr = "";
 	var content = getTableContent($("#" + elementId).DataTable());
+	var language = getCookie("language") || "en";
 	for (var i = 0; i < content.length; i++){
+		for (var j = 0; j < content[i].length; j++){
+			let num = parseFloat(content[i][j]);
+			if (!isNaN(num)){
+				content[i][j] = num.toLocaleString(language);
+			}
+		}
 		copyStr += content[i].join("\t") + "\n";
 	}
 	copyToClipboard(copyStr);
 	sendFeedbackDialog("Table has been copied to clipboard");
 }
 
+
 function exportTableToCSV(elementId, filename){
 	filename = filename || "table.csv";
 	let csvStr = "data:text/csv;charset=utf-8,";
 	var content = getTableContent($("#" + elementId).DataTable());
+	var language = getCookie("language") || "en";
 	for (var i = 0; i < content.length; i++){
+		for (var j = 0; j < content[i].length; j++){
+			let num = parseFloat(content[i][j]);
+			if (!isNaN(num)){
+				content[i][j] = num.toLocaleString(language);
+			}
+			content[i][j] = '"' + content[i][j] + '"';
+		}
 		csvStr += content[i].join(",") + "\r\n";
 	}
 	var encodedUri = encodeURI(csvStr);
@@ -488,19 +584,23 @@ function exportTableToCSV(elementId, filename){
 	link.click();
 }
 
+
 function createIconLabelDiv(iconURL, label, iconClass){
 	return "<div><span class='" + iconClass + "'>" + "<img src='"+iconURL+"'></img></span><span class='apitem-label'>" + label + "</span></div>";
 }
 
+
 function createIconLabelSpan(icon, label, cls){
 	return '<span class="input-with-icon ' + cls + '" style="background-image: url(' + icon + ')">' + label + '</span>';
 }
+
 
 function _renderAutocompletePokemonItem(ul, item){
     return $( "<li>" )
         .append( "<div>" + createIconLabelDiv(item.icon, item.label, 'apitem-pokemon-icon') + "</div>" )
         .appendTo( ul );
 }
+
 
 function _renderAutocompleteMoveItem(ul, item){
     return $( "<li>" )

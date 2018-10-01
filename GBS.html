@@ -338,34 +338,6 @@
 
 
 
-<div id='MVLTable' title="Minimum Viable Level Table" style="visibility: hidden;">
-	<table id="MVLTable-table">
-		<thead></thead>
-		<tbody></tbody>		
-	</table>
-	
-	<table>
-		<thead>
-			<colgroup>
-				<col width="50%"><col width="50%">
-			</colgroup>
-			<tr><th>Min Friendship</th><th>Max Friendship</th></tr>
-		</thead>
-		<tbody>
-			<tr>
-				<td><select id="MVLTable-friendStart"></select></td>
-				<td><select id="MVLTable-friendEnd"></select></td>
-			</tr>
-		</tbody>
-	</table>
-	
-	<div><button onclick="MVLTableSubmit();">Generate</button></div>
-
-</div>
-
-
-
-
 <script>
 
 const HSL_COLORS = [
@@ -399,12 +371,16 @@ timelimitInput.value = Data.BattleSettings.timelimitLegendaryRaidMs;
 
 dropdownMenuInit();
 
-moveEditFormInit();
-pokemonEditFormInit();
-parameterEditFormInit();
-modEditFormInit();
-userEditFormInit();
-MVLTableInit();
+try{
+	moveEditFormInit();
+	pokemonEditFormInit();
+	parameterEditFormInit();
+	modEditFormInit();
+	userEditFormInit();
+	MVLTableInit();
+}catch(err){
+	console.log(err);
+}
 
 populateAll(applicationInit);
 

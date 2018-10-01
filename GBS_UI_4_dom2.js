@@ -136,6 +136,7 @@ function moveEditFormInit(){
 	}
 }
 
+
 function moveEditFormSubmit(){
 	var moveInput = document.getElementById("moveEditForm-table");
 	var move = read(moveInput);
@@ -157,6 +158,7 @@ function moveEditFormSubmit(){
 	saveLocalData();
 }
 
+
 function moveEditFormReset(){
 	Data.FastMoves = [];
 	Data.ChargedMoves = [];
@@ -172,6 +174,7 @@ function moveEditFormReset(){
 		saveLocalData();
 	});
 }
+
 
 function moveEditFormDelete(){
 	var moveInput = document.getElementById("moveEditForm-table");
@@ -239,6 +242,7 @@ function pokemonEditFormInit(){
 	}).autocomplete( "instance" )._renderItem = _renderAutocompletePokemonItem;
 }
 
+
 function pokemonEditFormSubmit(){
 	var pokemonInput = document.getElementById("pokemonEditForm-table");
 	
@@ -288,6 +292,7 @@ function pokemonEditFormSubmit(){
 	saveLocalData();
 }
 
+
 function pokemonEditFormReset(){
 	Data.Pokemon = [];
 	fetchSpeciesData(function(){
@@ -302,6 +307,7 @@ function pokemonEditFormReset(){
 		sendFeedbackDialog("Latest Pokemon Data have been fetched");
 	});
 }
+
 
 function pokemonEditFormDelete(){
 	var pokemonInput = document.getElementById("pokemonEditForm-table");
@@ -332,6 +338,7 @@ function parameterEditFormInit(){
 	};
 }
 
+
 function parameterEditFormSubmit(){
 	var EDITABLE_PARAMETERS = {};
 	for (var attr in Data.BattleSettings){
@@ -341,6 +348,7 @@ function parameterEditFormSubmit(){
 	sendFeedbackDialog("Battle settings have been updated");
 }
 
+
 function parameterEditFormReset(){
 	LocalData.BattleSettings = {};
 	Data.BattleSettings = JSON.parse(JSON.stringify(DefaultData.BattleSettings));
@@ -349,9 +357,9 @@ function parameterEditFormReset(){
 }
 
 
-
 function userEditFormInit(){
 	$( "#userEditForm" ).attr("style", "visibility: show;");
+	$( "#boxEditForm" ).attr("style", "visibility: show;");
 	$( "#userEditForm" ).dialog({ 
 		autoOpen: false,
 		width: 600
@@ -373,6 +381,7 @@ function userEditFormInit(){
 	});
 }
 
+
 function userEditFormAddUser(){
 	var userID = document.getElementById('userEditForm-userID-1').value.trim();
 	fetchUserData(userID, function(){
@@ -380,6 +389,7 @@ function userEditFormAddUser(){
 		udpateUserTable();
 	});
 }
+
 
 function userEditFormRemoveUser(){
 	var userID = document.getElementById('userEditForm-userID-1').value.trim();
@@ -393,22 +403,25 @@ function userEditFormRemoveUser(){
 	}
 }
 
+
 function udpateUserTable(){
 	var table = document.getElementById('userEditForm-userTable');
 	table.children[1].innerHTML = '';
 	for (var i = 0; i < Data.Users.length; i++){
 		table.children[1].appendChild(createRow([
-			i+1,
 			Data.Users[i].uid,
 			Data.Users[i].box.length,
-			'<button onclick="udpateBoxTable('+i+')">Manage Box</button>'
-		],'td'));
+			'<button onclick="udpateBoxTable(' + Data.Users[i].uid + ')">View Box</button>'
+		], 'td'));
 	}
 }
 
-function udpateBoxTable(userIndex){
-	document.getElementById('boxEditForm-title').innerHTML = 'User ' + Data.Users[userIndex].uid;
-	var boxEditFormTable = $('#boxEditForm-pokemonTable').DataTable(), box = Data.Users[userIndex].box;
+
+function udpateBoxTable(uid){
+	document.getElementById('boxEditForm-title').innerHTML = "User ID: " + uid;
+	var boxEditFormTable = $('#boxEditForm-pokemonTable').DataTable();
+	let user = getEntry(uid, Data.Users);
+	var box = user.box;
 	
 	$( "#boxEditForm" ).dialog( "open" );
 	boxEditFormTable.clear();
@@ -419,7 +432,6 @@ function udpateBoxTable(userIndex){
 			createIconLabelSpan(box[i].icon, box[i].label, 'species-input-with-icon'),
 			createIconLabelSpan(getTypeIcon({pokeType: box[i].pokeType1}), toTitleCase(box[i].pokeType1), 'move-input-with-icon'),
 			createIconLabelSpan(getTypeIcon({pokeType: box[i].pokeType2}), toTitleCase(box[i].pokeType2), 'move-input-with-icon'),
-			box[i].nickname,
 			box[i].cp,
 			box[i].level,
 			box[i].stmiv,
@@ -453,6 +465,7 @@ function modEditFormInit(){
 		$( "#modEditForm" ).dialog( "open" );
 	});
 }
+
 
 function modEditFormSubmit(){
 	fetchAll(function(){
@@ -502,6 +515,7 @@ function MVLTableSubmit(){
 		}
 	}, 100);
 }
+
 
 function MVLTableCalculate(){
 	var baseConfig = read();

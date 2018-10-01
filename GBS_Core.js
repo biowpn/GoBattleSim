@@ -109,20 +109,28 @@ function Pokemon(cfg){
 	this.init();
 }
 
+
 Pokemon.prototype.init = function(){
 	this.initCurrentStats();
 	
 	this.hasDodged = false;
 	this.active = false;
+	this.buffedAction = null;
+	
 	this.timeEnterMs = 0;
 	this.timeLeaveMs = 0;
 	this.activeDurationMs = 0;
 	this.numOfDeaths = 0;
 	this.tdo = 0;
 	this.tdoFast = 0;
+	this.numOfFastHits = 0;
+	this.numOfChargedHits = 0;
+	this.numOfFastHitsPostCharged = 0;
+	this.actionCount = 0;
 	
 	this.heal();
 }
+
 
 Pokemon.prototype.initCurrentStats = function(){
 	if (this.role == "gd"){ // gym defender
@@ -175,6 +183,11 @@ Pokemon.prototype.attributeDamage = function(dmg, moveType){
 	this.tdo += dmg;
 	if (moveType == 'fast'){
 		this.tdoFast += dmg;
+		this.numOfFastHits++;
+		this.numOfFastHitsPostCharged++;
+	}else{
+		this.numOfFastHitsPostCharged = 0;
+		this.numOfChargedHits++;
 	}
 }
 
@@ -182,12 +195,16 @@ Pokemon.prototype.attributeDamage = function(dmg, moveType){
 Pokemon.prototype.getStatistics = function(){
 	return {
 		name: this.name,
+		nickname: this.nickname,
 		hp: this.HP,
 		energy: this.energy,
 		tdo: this.tdo,
 		tdoFast: this.tdoFast,
 		duration: this.activeDurationMs/1000,
-		dps: this.tdo / (this.activeDurationMs/1000)
+		dps: this.tdo / (this.activeDurationMs/1000),
+		numOfFastHits: this.numOfFastHits,
+		numOfChargedHits: this.numOfChargedHits,
+		numOfFastHitsPostCharged: this.numOfFastHitsPostCharged
 	};
 }
 /* End of Class <Pokemon> */
@@ -208,6 +225,7 @@ function Party(cfg){
 		}
 	}
 	this.headingPokemonIndex = 0;
+	this.switchingStack = [];
 	this.heal();
 }
 
@@ -217,16 +235,43 @@ Party.prototype.init = function(){
 		pokemon.init();
 	}
 	this.headingPokemonIndex = 0;
+	this.switchingStack = [];
 }
 
 Party.prototype.head = function(){
 	return this.pokemon[this.headingPokemonIndex];
 }
 
-// Set heading Pokemon to the next Pokemon in the party
-// Returns true if there is next Pokemon in the party and false otherwise
+// Set heading Pokemon to the next alive Pokemon in the party
+// Returns true if there is such Pokemon in the party and false otherwise
 Party.prototype.selectNextPokemon = function(){
-	return ++this.headingPokemonIndex < this.pokemon.length;
+	while (this.switchingStack.length > 0){
+		var i = this.switchingStack.pop();
+		if (this.pokemon[i].HP > 0){
+			this.headingPokemonIndex = i;
+			return true;
+		}
+	}
+	for (var i = 0; i < this.pokemon.length; i++){
+		if (this.pokemon[i].HP > 0){
+			this.headingPokemonIndex = i;
+			return true;
+		}
+	}
+	return false;
+}
+
+// Switch to a Pokemon with the index
+// Returns true if the switching is successful and false otherwise
+Party.prototype.switchPokemon = function(index){
+	if (0 <= index && index < this.pokemon.length && index != this.headingPokemonIndex){
+		if (this.pokemon[index].HP > 0){ // Cannot switch to a fainted Pokemon
+			this.switchingStack.push(this.headingPokemonIndex);
+			this.headingPokemonIndex = index;
+			return true;
+		}
+	}
+	return false;
 }
 
 // Fully heal each fainted Pokemon, sets the heading pokemon to the first one
@@ -502,9 +547,6 @@ World.prototype.registerAction = function(pkm, t, action){
 		// TODO: Switching feature to be implemented
 	}
 	
-	this.timeline.insert({
-		name: EVENT_TYPE.Free, t: t, subject: pkm
-	});
 	return t;
 }
 
@@ -553,6 +595,9 @@ World.prototype.battle = function(){
 					currentAction: currentAction,
 					weather: this.weather,
 					dodgeBugActive: this.dodgeBugActive
+				});
+				this.timeline.insert({
+					name: EVENT_TYPE.Free, t: tFree, subject: e.subject
 				});
 			}
 		}else if (e.name == EVENT_TYPE.Hurt){
@@ -757,29 +802,32 @@ World.prototype.getStatistics = function(){
 
 // Gym Defender/Raid Boss strategy
 function strat0(state){
-	let projectedEnergyDelta = 0;
-	this.actionCount = this.actionCount || 0;
-	if (state.currentAction && this.actionCount >= 2){
+	let actionName, delay;
+	if (this.actionCount >= 2){
+		let projectedEnergyDelta = 0;
 		if (state.currentAction.name == "fast"){
 			projectedEnergyDelta = this.fmove.energyDelta;
 		}else if (state.currentAction.name == "charged"){
 			projectedEnergyDelta = this.cmove.energyDelta;
 		}
-		defenderDelay = 1500 + round(1000 * Math.random()) // Add the standard defender delay;
-	}else if (this.actionCount >= 1){ // Delay for the second action
-		defenderDelay = Math.max(0, 1000 - this.fmove.duration);
-	}else{ // Delay for the first action
-		defenderDelay = 0;
+		if (this.energy + projectedEnergyDelta + this.cmove.energyDelta >= 0 && Math.random() <= 0.5){
+			actionName = "charged";
+		}else{
+			actionName = "fast";
+		}
+		delay = 1500 + round(1000 * Math.random()); // Add the standard defender delay
+	}else if (this.actionCount == 1){ // The second action
+		actionName = "fast";
+		delay = Math.max(0, 1000 - this.fmove.duration);
+	}else{ // The first action
+		actionName = "fast";
+		delay = 0;
 	}
 	this.actionCount++;
-	if (this.energy + projectedEnergyDelta + this.cmove.energyDelta >= 0 && Math.random() <= 0.5){
-		actionName = "charged";
-	}else{
-		actionName = "fast";
-	}
+	
 	return {
 		name: actionName,
-		delay: defenderDelay,
+		delay: delay
 	};
 }
 
@@ -852,27 +900,51 @@ function strat2(state){
 
 // Attacker strategy: Dodge All
 function strat3(state){
-	let t = state.t;
-	let tFree = state.tFree;
-	let hurtEvent = this.incomingHurtEvent;
-	// TODO: Dodge All
-	if (hurtEvent && !this.hasDodged){
-
-	}else if (this.hasDodged){
-		
-	}else{
-		
+	if (state.t < state.tFree){
+		return;
 	}
-	// strat1
+	let hurtEvent = this.incomingHurtEvent;
+	if (hurtEvent && !this.hasDodged){
+		let undodgedDmg = hurtEvent.dmg;
+		let dodgedDmg = Math.max(1, Math.floor(undodgedDmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent)));
+		if (state.dodgeBugActive){
+			dodgedDmg = undodgedDmg;
+		}
+		if (dodgedDmg < this.HP){
+			let timeTillHurt = hurtEvent.t - state.tFree;
+			if (timeTillHurt > this.cmove.duration + Data.BattleSettings.chargedMoveLagMs + Data.BattleSettings.dodgeSwipeMs){
+				// Fit in another charge move
+				return {name: "charged", delay: 0};
+			}else if (timeTillHurt > this.fmove.duration + Data.BattleSettings.fastMoveLagMs + Data.BattleSettings.dodgeSwipeMs){
+				// Fit in another fast move
+				return {name: "fast", delay: 0};
+			}else if (timeTillHurt < Data.BattleSettings.dodgeWindowMs + Data.BattleSettings.dodgeSwipeMs){
+				// Dodge window open, just directly dodge
+				this.hasDodged = true;
+				return {name: "dodge", delay: 0};
+			}else{
+				// Dodge window not open, but can't fit in a fast move, so delay a little while and then dodge
+				this.hasDodged = true;
+				return {
+					name: "dodge",
+					delay: timeTillHurt - Data.BattleSettings.dodgeWindowMs - Data.BattleSettings.dodgeSwipeMs
+				};
+			}
+		}
+	}
+	// modified strat1
 	let projectedEnergyDelta = 0;
+	let isLastActionDodged = false;
 	if (state.currentAction){
 		if (state.currentAction.name == "fast"){
 			projectedEnergyDelta = this.fmove.energyDelta;
 		}else if (state.currentAction.name == "charged"){
 			projectedEnergyDelta = this.cmove.energyDelta;
+		}else if (state.currentAction.name == "dodge"){
+			isLastActionDodged = true;
 		}
 	}
-	if (this.energy + projectedEnergyDelta + this.cmove.energyDelta >= 0){
+	if (this.energy + projectedEnergyDelta + this.cmove.energyDelta >= 0 && isLastActionDodged){
 		return {name: "charged", delay: 0};
 	}else{
 		return {name: "fast", delay: 0};

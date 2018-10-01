@@ -123,6 +123,9 @@ function batchSim(cfg, start){
 
 // Simulate a specific configuration
 function runSimulation(cfg){
+	if (cfg.aggregation == "avrg"){
+		cfg.hasLog = false;
+	}
 	var world = new World(cfg);
 	let simPerConfig = parseInt(cfg.simPerConfig) || 1;
 	let simulations = [];
@@ -144,74 +147,35 @@ function runSimulation(cfg){
 
 function averageSimulations(sims){
 	var avrgOutput = JSON.parse(JSON.stringify(sims[0].output));
-	var numSims = sims.length, numPlayer = avrgOutput.playerStats.length;
-	avrgOutput.battleLog = [];
-	
-	// These are the metrics to sum and average
-	var generalStat_attrs = ['duration', 'tdo_percent', 'tdo', 'numOfDeaths'];
-	var playerStats_attrs = ['tdo', 'tdo_percentage', 'num_rejoin'];
-	var pokemonStats_attrs = [];
-	for (var attr in avrgOutput.pokemonStats[0][0][0]){
-		if (attr != "name" && attr != "dps")
-			pokemonStats_attrs.push(attr);
-	}
 	
 	// 1. Initialize everything to 0
-	avrgOutput['generalStat']['battle_result'] = 0;
-	generalStat_attrs.forEach(function(attr){ avrgOutput.generalStat[attr] = 0; });
-	for (var j = 0; j < numPlayer; j++){
-		playerStats_attrs.forEach(function(attr){ avrgOutput.playerStats[j][attr] = 0; });
-	}
-	for (var j = 0; j < numPlayer; j++){
-		for (var k = 0; k < avrgOutput.pokemonStats[j].length; k++){
-			for (var p = 0; p < avrgOutput.pokemonStats[j][k].length; p++){
-				pokemonStats_attrs.forEach(function(attr){ avrgOutput.pokemonStats[j][k][p][attr] = 0; });
-			}
+	traverseLeaf(avrgOutput, function(v, path){
+		if (!isNaN(parseFloat(v)) || path[path.length-1] == "battle_result"){
+			setProperty(avrgOutput, path, 0);
 		}
-	}
+	});
 	
 	// 2. Sum them up
-	for (var i = 0; i < numSims; i++){
-		var out = sims[i].output;
-		// generalStat
-		if (out.generalStat.battle_result == 'Win')
-			avrgOutput.generalStat.battle_result++;
-		generalStat_attrs.forEach(function(attr){ avrgOutput.generalStat[attr] += out.generalStat[attr]; });
-		// playerStats
-		for (var j = 0; j < numPlayer; j++){
-			playerStats_attrs.forEach(function(attr){ avrgOutput.playerStats[j][attr] += out.playerStats[j][attr]; });
-		}
-		// pokemonStats
-		for (var j = 0; j < numPlayer; j++){
-			for (var k = 0; k < out.pokemonStats[j].length; k++){
-				for (var p = 0; p < out.pokemonStats[j][k].length; p++){
-					pokemonStats_attrs.forEach(function(attr){avrgOutput.pokemonStats[j][k][p][attr] += out.pokemonStats[j][k][p][attr];});
-				}
+	for (let sim of sims){
+		traverseLeaf(sim.output, function(v, path){
+			if (!isNaN(parseFloat(v))){
+				setProperty(avrgOutput, path, getProperty(avrgOutput, path) + v);
+			}else if (path[path.length-1] == "battle_result"){
+				setProperty(avrgOutput, path, getProperty(avrgOutput, path) + (v == "Win" ? 1 : 0));
 			}
-		}
+		});
 	}
 	
 	// 3. Divide and get the results
-	avrgOutput.generalStat.battle_result = round(avrgOutput.generalStat.battle_result/numSims*100, 2) + "%";
-	avrgOutput.generalStat.dps = round(avrgOutput.generalStat.tdo/avrgOutput.generalStat.duration, 2);
-	generalStat_attrs.forEach(function(attr){
-		avrgOutput.generalStat[attr] = round(avrgOutput.generalStat[attr]/numSims, 2);
-	});
-	for (var j = 0; j < numPlayer; j++){
-		playerStats_attrs.forEach(function(attr){
-			avrgOutput.playerStats[j][attr] = round(avrgOutput.playerStats[j][attr]/numSims, 2);
-		});
-	}
-	for (var j = 0; j < numPlayer; j++){
-		for (var k = 0; k < avrgOutput.pokemonStats[j].length; k++){
-			for (var p = 0; p < avrgOutput.pokemonStats[j][k].length; p++){
-				pokemonStats_attrs.forEach(function(attr){
-					avrgOutput.pokemonStats[j][k][p][attr] = round(avrgOutput.pokemonStats[j][k][p][attr]/numSims, 2);
-				});
-				avrgOutput.pokemonStats[j][k][p].dps = round(avrgOutput.pokemonStats[j][k][p].tdo/avrgOutput.pokemonStats[j][k][p].duration, 2);
-			}
+	traverseLeaf(avrgOutput, function(v, path){
+		if (!isNaN(parseFloat(v))){
+			v = v / sims.length;
+			setProperty(avrgOutput, path, v);
 		}
-	}
+		if (path[path.length-1] == "battle_result"){
+			setProperty(avrgOutput, path, round(v * 100, 2) + "%");
+		}
+	});
 	
 	return {
 		input: sims[0].input,

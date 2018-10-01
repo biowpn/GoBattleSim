@@ -209,8 +209,9 @@ function createPokemonRoleInput(){
 
 
 function createPokemonCopiesInput(){
-	var copiesInput = createElement('input','',{
-		type: 'number', placeholder: 'Copies', min: 1, max: 6, value: 1, name: "pokemon-copies"
+	var copiesInput = createElement('input', '', {
+		type: 'number', placeholder: 'Copies', title: "Number of copies",
+		min: 1, max: 6, value: 1, name: "pokemon-copies"
 	});
 	copiesInput.onchange = function(){
 		var pokemonCount = countPokemonFromParty($$$(this).parent("party").node);
@@ -395,10 +396,16 @@ function createPartyReviveCheckbox(){
 	}
 	reviveCheckbox.comply = function(kwargs){
 		$(this).button("enable");
-		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
+		if (kwargs.battleMode == "raid"){
 			if ($$$(this).parent("player").child("player-team").val() == "1"){
+				this.checked = false;
+				$(this).button("refresh");
 				$(this).button("disable");
 			}
+		}else if (kwargs.battleMode == "gym"){
+			this.checked = false;
+			$(this).button("refresh");
+			$(this).button("disable");
 		}
 	}
 	reviveCheckboxContainer.appendChild(reviveCheckbox);
@@ -462,7 +469,7 @@ function createPlayerTeamInput(){
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
 			this.disabled = true;
 			var playerNode = $$$(this).parent("player");
-			if (playerNode.child("player-team").val() == "1"){
+			if (playerNode.child("player-team").val() == "1" || kwargs.battleMode == "gym"){
 				let partyNodes = playerNode.child("player-parties").node;
 				while (partyNodes.children.length > 1){
 					partyNodes.removeChild(partyNodes.lastChild);
@@ -485,6 +492,7 @@ function createPlayerFriendInput(){
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
 			if ($$$(this).parent("player").child("player-team").val() == "1"){
+				this.value = "none";
 				this.disabled = true;
 			}
 		}
@@ -527,10 +535,12 @@ function createAddPartyButton(){
 	}
 	addPartyButton.comply = function(kwargs){
 		$(this).button("enable");
-		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
+		if (kwargs.battleMode == "raid"){
 			if ($$$(this).parent("player").child("player-team").val() == "1"){
 				$(this).button("disable");
 			}
+		}else if (kwargs.battleMode == "gym"){
+			$(this).button("disable");
 		}
 	}
 	return addPartyButton;
@@ -1018,6 +1028,3 @@ function importConfig(url){
 	// TODO: backward compatibility
 	return cfg;
 }
-
-
-
