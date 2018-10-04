@@ -21,6 +21,47 @@ function round(value, numDigits){
 }
 
 
+function Combination(arr, n, start){
+	start = start || 0;
+	if (n == 0){
+		return [[]];
+	}
+	var combinations = [];
+	for (var i = start; i < arr.length; i++){
+		for (let c2 of Combination(arr, n - 1, i + 1)){
+			var c = [arr[i]];
+			for (let e of c2){
+				c.push(e);
+			}
+			combinations.push(c);
+		}
+	}
+	return combinations;
+}
+
+
+function Permutation(arr, n, start){
+	start = start || 0;
+	if (n == 0){
+		return [[]];
+	}
+	var permutations = [];
+	for (var i = start; i < arr.length; i++){
+		let temp = arr[start];
+		arr[start] = arr[i];
+		arr[i] = temp;
+		for (let p2 of Permutation(arr, n - 1, start + 1)){
+			var p = [arr[start]];
+			p = p.concat(p2);
+			permutations.push(p);
+		}
+		arr[i] = arr[start];
+		arr[start] = temp;
+	}
+	return permutations;
+}
+
+
 function createElement(type, innerHTML, attrsAndValues){
 	var e = document.createElement(type);
 	e.innerHTML = innerHTML;
@@ -251,17 +292,21 @@ function createSimplePredicate(str, parent, attr){
 		return function(obj){
 			return evolutions_const.includes(obj.name);
 		};
+	}else if (str.toLowerCase() == "evolve"){ // The Pokemon has evolution
+		return function(obj){
+			return obj.evolutions && obj.evolutions.length > 0;
+		};
 	}else if (str.toLowerCase() == "current"){ // Current Move
 		return function(obj){
-			return parent[obj.moveType + "Moves"].includes(obj.name);
+			return parent && parent[obj.moveType + "Moves"].includes(obj.name);
 		};
 	}else if (str.toLowerCase() == "legacy"){ // Legacy Move
 		return function(obj){
-			return parent[obj.moveType + "Moves_legacy"].includes(obj.name);
+			return parent && parent[obj.moveType + "Moves_legacy"].includes(obj.name);
 		};
 	}else if (str.toLowerCase() == "exclusive"){ // Exclusive Move
 		return function(obj){
-			return parent[obj.moveType + "Moves_exclusive"].includes(obj.name);
+			return parent && parent[obj.moveType + "Moves_exclusive"].includes(obj.name);
 		};
 	}else{ // Match name/nickname/species
 		const str_const = str.toLowerCase();
@@ -545,7 +590,7 @@ function getTableContent(dt){
 function copyTableToClipboard(elementId){
 	var copyStr = "";
 	var content = getTableContent($("#" + elementId).DataTable());
-	var language = getCookie("language") || "en";
+	var language = window.navigator.userLanguage || window.navigator.language || "en";
 	for (var i = 0; i < content.length; i++){
 		for (var j = 0; j < content[i].length; j++){
 			let num = parseFloat(content[i][j]);
@@ -564,7 +609,7 @@ function exportTableToCSV(elementId, filename){
 	filename = filename || "table.csv";
 	let csvStr = "data:text/csv;charset=utf-8,";
 	var content = getTableContent($("#" + elementId).DataTable());
-	var language = getCookie("language") || "en";
+	var language = window.navigator.userLanguage || window.navigator.language || "en";
 	for (var i = 0; i < content.length; i++){
 		for (var j = 0; j < content[i].length; j++){
 			let num = parseFloat(content[i][j]);

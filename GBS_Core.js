@@ -572,6 +572,7 @@ World.prototype.battle = function(){
 	let faintedPokemon = null;
 	
 	t += Data.BattleSettings.arenaEntryLagMs;
+	this.battleDuration -= Data.BattleSettings.arenaEntryLagMs;
 	timelimit -= Data.BattleSettings.arenaEarlyTerminationMs;
 	
 	for (let player of this.players){
@@ -617,7 +618,7 @@ World.prototype.battle = function(){
 			e.subject.timeEnterMs = t;
 			e.subject.active = true;
 			this.timeline.insert({
-				name: EVENT_TYPE.Free, t: t + 100, subject: e.subject
+				name: EVENT_TYPE.Free, t: t, subject: e.subject
 			});
 			elog.push(e);
 		}else if (e.name == EVENT_TYPE.Dodge){
@@ -821,7 +822,7 @@ function strat0(state){
 		delay = Math.max(0, 1000 - this.fmove.duration);
 	}else{ // The first action
 		actionName = "fast";
-		delay = 0;
+		delay = 500;
 	}
 	this.actionCount++;
 	

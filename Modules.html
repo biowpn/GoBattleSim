@@ -225,9 +225,7 @@
 
 
 <div id='WelcomeDialog' title="Welcome to GoBattleSim v3" style="visibility: hidden;">
-	
-	<h4>Welcome!</h4>
-	
+
 	<table>
 		<thead>
 			<colgroup>
@@ -238,10 +236,10 @@
 			<tr>
 				<td>
 					<p>Hi there! Thanks for using GoBattleSim v3. </p>
-					<p>If you are new to it, select one of the example sims below, and get a feel of how GoBattleSim works:</p>
+					<p>If you are new to it, check out one of the examples below, and get a feel of how GoBattleSim works:</p>
 				</td>
 				<td>
-					<img src="https://pokemongo.gamepress.gg/sites/pokemongo/files/2017-08/381_0.png"></img>
+					<img src="https://pokemongo.gamepress.gg/sites/pokemongo/files/2017-08/381_0.png" width="150px;"></img>
 				</td>
 			</tr>
 		</tbody>
@@ -250,20 +248,16 @@
 	<table>
 		<thead>
 			<colgroup>
-				<col width="100%">
+				<col width="50%"><col width="50%">
 			</colgroup>
 		</thead>
 		<tbody>
 			<tr>
-				<td><button class="player_button" onclick="welcomeDialogSubmit(0)">Gym Battle</button></td>
-			</tr>
-			<tr>
 				<td><button class="player_button" onclick="welcomeDialogSubmit(1)">Solo Raid</button></td>
-			</tr>
-			<tr>
 				<td><button class="player_button" onclick="welcomeDialogSubmit(2)">Duo Raid</button></td>
 			</tr>
 			<tr>
+				<td><button class="player_button" onclick="welcomeDialogSubmit(0)">Gym Battle</button></td>
 				<td><button class="player_button" onclick="welcomeDialogSubmit(3)">Fantasy PvP</button></td>
 			</tr>
 		</tbody>
@@ -278,7 +272,7 @@
 		<tbody>
 			<tr>
 				<td>
-					<p>If you already know the basics, you may want to learn about the <b>Batch Input Scheme</b> by checking out the example configurations below: </p>
+					<p>If you already know the basics, you may want to learn about the <b>Batch Input Scheme</b> by checking out the examples below: </p>
 				</td>
 			</tr>
 			<tr>
@@ -287,17 +281,66 @@
 			<tr>
 				<td><button class="player_button" onclick="welcomeDialogSubmit(5, true)">Minimum Level to Win</button></td>
 			</tr>
+			<tr>
+				<td><button class="player_button" onclick="welcomeDialogSubmit(6, true)">Best Pokemon of Type</button></td>
+			</tr>
 		</tbody>
 	</table>
 	
-	<br>
-	<br>
+	<p>And don't forget to check out the amazing <b>Team Builder</b> under the "Tools" tag!</p>
 	
+
 	<table> 
 		<colgroup><col width='50%'><col width='50%'></colgroup>
 		<tr>
 			<td><button onclick='welcomeDialogRespond(0)'>OK</button></td>
 			<td><button onclick='welcomeDialogRespond(1)'>Don't show this again</button></td>
 		</tr>
+	</table>
+</div>
+
+<div id='teamBuilder' title="Team Builder" style="visibility: hidden;">
+	<p><i><b>Warning</b>: this feature can be very compute-intensive. It is recommended to run it on PC or Metagross. </i></p>
+
+	<br>
+	
+	<table>
+		<thead>
+			<colgroup><col width="50%"><col width="50%"></colgroup>
+			<tr><th>Pokemon Pool</th><th>Party Optimizer</th></tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td><button class="player_button" onclick="teamBuilderSubmit(0)">Analyze Pokemon</button></td>
+				<td><button class="player_button" onclick="teamBuilderSubmit(1)">Permutate Party</button></td>
+			</tr>
+			<tr>
+				<td>
+					<table id="teamBuilder-pokemonTable">
+						<thead></thead>
+						<tbody></tbody>
+					</table>
+				</td>
+				<td id="teamBuilder-partyTable-dropArea">
+					<table id="teamBuilder-partyTable">
+						<thead></thead>
+						<tbody></tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td>
+					<table>
+						<tr><th>DPS</th><td id="teamBuilder-optimalPartyDPS"></td></tr>
+						<tr><th>TDO%</th><td id="teamBuilder-optimalPartyTDO"></td></tr>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><button class="player_button" onclick="teamBuilderSaveParty">Save Party</button></td>
+			</tr>
+		</tbody>
 	</table>
 </div>

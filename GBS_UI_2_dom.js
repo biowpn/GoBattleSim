@@ -846,7 +846,7 @@ function createPokemonStatisticsTable(pokemonStats){
 				pokemonTable.appendChild(createElement('tr',"<th>" + attr + "</th><td>" + ps_const[attr] + "</td>"));
 			}
 			pokemonDialog.appendChild(pokemonTable);
-			$(pokemonDialog).dialog().dialog('open');
+			$(pokemonDialog).dialog({width: 400}).dialog('open');
 		};
 		table.appendChild(row);
 	}

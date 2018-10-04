@@ -565,3 +565,323 @@ function getWinRate(level, cfg){
 	runSimulation(cfg);
 	return parseFloat(runSimulation(cfg)[0].output.generalStat.battle_result);
 }
+
+
+var teamBuilderPartyPermutationStats = {};
+
+function getPokemonByNID(nid){
+	for (let user of Data.Users){
+		for (let pokemon of user.box){
+			if (pokemon.nid == nid){
+				return pokemon;
+			}
+		}
+	}
+	return null;
+}
+
+
+function teamBuilderInit(){
+	$( "#teamBuilder" ).attr("style", "visibility: show;");
+	$( "#teamBuilder" ).dialog({ 
+		autoOpen: false,
+		width: 800
+	});
+	$( "#teamBuilderOpener" ).click(function() {
+		$( "#teamBuilder" ).dialog( "open" );
+	});
+	
+	var pokemonDT = $( "#teamBuilder-pokemonTable" ).DataTable({
+		data: [],
+		columns: [
+			{ data: 'iconLabel', title: "Pokemon"},
+			{ data: 'dps', title: "DPS", "orderSequence": [ "desc", "asc"]},
+			{ data: 'tdo', title: "TDO", "orderSequence": [ "desc", "asc"]}
+		],
+		order: [],
+		scrollY: "50vh",
+		scroller: true,
+		searching: false
+	});
+	
+	var partyDT = $( "#teamBuilder-partyTable" ).DataTable({
+		data: [],
+		columns: [
+			{ data: 'iconLabel', title: "Pokemon"}
+		],
+		scrollY: "50vh",
+		scroller: true,
+		searching: false,
+		ordering: false
+	});
+	
+	$( partyDT.table().body() ).sortable({
+		stop: function(event, ui){
+			var partySize = partyDT.table().body().children.length;
+			if ((ui.position.left < -100 || ui.position.left > 100) & partySize > 1){
+				var data = partyDT.rows().data();
+				for (var i = 0; i < data.length; i++){
+					if (data[i].nid == ui.item[0].getAttribute("nid")){
+						partyDT.row(i).remove();
+					}
+				}
+				partyDT.draw();
+			}
+			teamBuilderUpdatePartyStats();
+		}
+	});
+	
+	$( "#teamBuilder-partyTable-dropArea" ).droppable({
+		drop: function(event, ui){
+			if (ui.draggable){
+				var partySize = partyDT.table().body().children.length;
+				if (partySize < 6){
+					var pokemon = getPokemonByNID(ui.draggable[0].getAttribute("nid"));
+					var pokemonCopy = JSON.parse(JSON.stringify(pokemon));
+					pokemonCopy.iconLabel = createIconLabelSpan(pokemon.icon, pokemon.label, "species-input-with-icon");
+					partyDT.row.add(pokemonCopy);
+					partyDT.draw();
+					partyDT.row(partySize).node().setAttribute("nid", pokemonCopy.nid);
+					teamBuilderUpdatePartyStats();
+				}
+			}
+		}
+	});
+
+}
+
+
+function teamBuilderSubmit(type){
+	if (type == 0){
+		teamBuilderPartyPermutationStats = {};
+		calculationMethod = teamBuilderCalculatePokemon;
+		sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Evaluating Pokemon...");
+	}else if (type == 1){
+		calculationMethod = teamBuilderCalculateParty;
+		sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Calculating optimal permuation...");
+	}
+	setTimeout(function(){
+		try{
+			calculationMethod();
+			while (DialogStack.length){
+				DialogStack.pop().dialog('close');
+			}
+		}catch(err){
+			while (DialogStack.length){
+				DialogStack.pop().dialog('close');
+			}
+			sendFeedbackDialog("Oops, something went wrong!");
+		}
+	}, 100);
+}
+
+
+function teamBuilderReadConfig(){
+	var baseConfig = read();
+	
+	var baseAttackingPlayer = null;
+	var defendingPlayer = null;
+	for (let player of baseConfig.players){
+		if (player.team == "1"){
+			defendingPlayer = player;
+		}else{
+			baseAttackingPlayer = player;
+		}
+	}
+	baseAttackingPlayer.parties = baseAttackingPlayer.parties.slice(0, 1);
+	baseAttackingPlayer.parties[0].pokemon = [];
+	
+	var raidTier = defendingPlayer.parties[0].pokemon[0].raidTier;
+	baseConfig.players = [baseAttackingPlayer];
+	if (raidTier > 3){
+		for (var r = 0; r < 3; r++){ // 3 clone players for Tier 4+ raids
+			baseConfig.players.push(baseAttackingPlayer);
+		}
+	}
+	baseConfig.players.push(defendingPlayer);
+	baseConfig.aggregation = "avrg";
+	
+	return baseConfig;
+}
+
+
+function teamBuilderCalculatePokemon(){		
+	var baseConfig = teamBuilderReadConfig();
+	var baseAttackingPlayer = baseConfig.players[0];
+	var defendingPlayer = baseConfig.players[baseConfig.players.length - 1];
+	var bestParty = baseAttackingPlayer.parties[0];
+	bestParty.revive = false;
+	
+	defendingPlayer.parties[0].pokemon[0].immortal = true;
+	var numAttacker = baseConfig.players.length - 1;
+	
+	// 1. Find out individual Pokemon's performance
+	var allPokemon = [];
+	for (let user of Data.Users){
+		for (let pokemon of user.box){
+			var pokemonCopy = JSON.parse(JSON.stringify(pokemon));
+			pokemonCopy.iconLabel = createIconLabelSpan(pokemon.icon, pokemon.label, "species-input-with-icon");
+			allPokemon.push(pokemonCopy);
+		}
+	}
+	baseConfig.timelimit = -1;
+	baseConfig.simPerConfig = 100;
+	
+	var pokemonDT = $( "#teamBuilder-pokemonTable" ).DataTable();
+	pokemonDT.clear();
+	for (let pokemon of allPokemon){
+		pokemon.copies = 6;
+		pokemon.role = "a";
+		pokemon.strategy = "strat1";
+		bestParty.pokemon = [pokemon];
+		let intermediateSimResults = [];
+		for (let config of batchSim(baseConfig)){
+			intermediateSimResults = intermediateSimResults.concat(processConfig(config));
+		}
+		var avrgSim = averageSimulations(intermediateSimResults);
+		pokemon.dps = round(avrgSim.output.generalStat.dps / numAttacker, 3);
+		pokemon.tdo = round(avrgSim.output.generalStat.tdo / numAttacker / 6, 1);
+		pokemonDT.row.add(pokemon);
+	}
+	pokemonDT.draw();
+	for (var i = 0; i < allPokemon.length; i++){
+		var tr = pokemonDT.table().body().children[i];
+		tr.setAttribute("nid", allPokemon[i].nid);
+		$( tr ).draggable();
+	}
+	
+	// 2. Output the naive best party - top six Pareto Pokemon
+	var paretoPokemon = [], inferiorPokemon = [];
+	allPokemon.sort(function(x, y){
+		return y.dps - x.dps;
+	});
+	let bestTDO = 0;
+	for (let pokemon of allPokemon){
+		pokemon.copies = 1;
+		if (paretoPokemon.length == 0 || pokemon.tdo >= bestTDO){
+			paretoPokemon.push(pokemon);
+			bestTDO = pokemon.tdo;
+		}else{
+			inferiorPokemon.push(pokemon);
+		}
+	}
+	// If less than 6, fill with "interior" options
+	while (paretoPokemon.length < 6 && inferiorPokemon.length > 0){
+		paretoPokemon.push(inferiorPokemon.shift());
+	}
+	// If more than 6, just pick the first 6
+	paretoPokemon = paretoPokemon.slice(0, 6);
+	
+	teamBuilderUpdatePartyTable(paretoPokemon);
+}
+
+
+function teamBuilderUpdatePartyTable(pokemonArr){
+	var partyDT = $( "#teamBuilder-partyTable" ).DataTable();
+	partyDT.clear();
+	for (let pokemon of pokemonArr){
+		partyDT.row.add(pokemon);
+	}
+	partyDT.draw();
+	for (var i = 0; i < pokemonArr.length; i++){
+		var tr = partyDT.table().body().children[i];
+		tr.setAttribute("nid", pokemonArr[i].nid);
+	}
+}
+
+
+function teamBuilderCalculateParty(){
+	var baseConfig = teamBuilderReadConfig();
+	var baseAttackingPlayer = baseConfig.players[0];
+	var defendingPlayer = baseConfig.players[baseConfig.players.length - 1];
+	var bestParty = baseAttackingPlayer.parties[0];
+	bestParty.revive = false;
+	baseConfig.simPerConfig = 100;
+	var numAttacker = baseConfig.players.length - 1;
+	
+	var partyDT = $( "#teamBuilder-partyTable" ).DataTable();
+	var party = [];
+	for (let tr of partyDT.table().body().children){
+		var pokemon = getPokemonByNID(tr.getAttribute("nid"));
+		pokemon = JSON.parse(JSON.stringify(pokemon));
+		pokemon.copies = 1;
+		pokemon.role = "a";
+		pokemon.strategy = "strat1";
+		pokemon.iconLabel = createIconLabelSpan(pokemon.icon, pokemon.label, "species-input-with-icon");
+		party.push(pokemon);
+	}
+	
+	if (party.length == 0){
+		while (DialogStack.length){
+			DialogStack.pop().dialog('close');
+		}
+		sendFeedbackDialog("Party is empty. Analzye Pokemon first.");
+		return;
+	}
+	
+	// Test all permuations of parties
+	var bestStats = null;
+	var bestPermuation = null;
+	for (let permutation of Permutation(party, party.length)){ // Did you know that 36 = 6!?
+		bestParty.pokemon = permutation;
+		let intermediateSimResults = [];
+		for (let config of batchSim(baseConfig)){
+			intermediateSimResults = intermediateSimResults.concat(processConfig(config));
+		}
+		let curStats = averageSimulations(intermediateSimResults).output.generalStat;
+		curStats.dps = curStats.dps / numAttacker;
+		curStats.tdo_percent = curStats.tdo_percent / numAttacker;
+		if (!bestStats || curStats.dps > bestStats.dps){
+			bestPermuation = permutation;
+			bestStats = curStats;
+		}
+		let nids = [];
+		for (let pokemon of permutation){
+			nids.push(pokemon.nid);
+		}
+		teamBuilderPartyPermutationStats[nids.join("->")] = curStats;
+	}
+	
+	// 3. Output the party
+	teamBuilderUpdatePartyTable(bestPermuation);
+	teamBuilderUpdatePartyStats();
+}
+
+
+function teamBuilderUpdatePartyStats(){
+	var partyDT = $( "#teamBuilder-partyTable" ).DataTable();
+	var nids = [];
+	for (let row of partyDT.table().body().children){
+		nids.push(row.getAttribute("nid"));
+	}
+	var curStats = teamBuilderPartyPermutationStats[nids.join("->")];
+	if (curStats){
+		document.getElementById("teamBuilder-optimalPartyDPS").innerHTML = round(curStats.dps, 2);
+		document.getElementById("teamBuilder-optimalPartyTDO").innerHTML = round(curStats.tdo_percent, 2) + "%";
+	}else{
+		document.getElementById("teamBuilder-optimalPartyDPS").innerHTML = "?";
+		document.getElementById("teamBuilder-optimalPartyTDO").innerHTML = "?";
+	}
+}
+
+
+function teamBuilderSaveParty(){
+	var namePostFix = 0;
+	while (getEntry("Best_Party_" + namePostFix, LocalData.BattleParties)){
+		namePostFix++;
+	}
+	var partyName = "Best_Party_" + namePostFix;
+	var bestParty = {
+		name: partyName,
+		label: partyName,
+		pokemon: []
+	};
+	var partyDT = $( "#teamBuilder-partyTable" ).DataTable();
+	var pokemonData = partyDT.rows().data();
+	for (var i = 0; i < pokemonData.length; i++){
+		bestParty.pokemon.push(pokemonData[i]);
+	}
+	insertEntry(bestParty, LocalData.BattleParties);
+	saveLocalData();
+	sendFeedbackDialog('This party has been saved with the name "' + partyName + '"');
+}

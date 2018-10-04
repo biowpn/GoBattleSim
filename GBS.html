@@ -235,6 +235,7 @@
 				<button class='sub-menu-opener'><i class="fa fa-wrench" aria-hidden="true"></i> Tools</button>
 				<div class='sub-menu'>
 					<button class='player_button' id='MVLTableOpener'>MVL Table</button>
+					<button class='player_button' id='teamBuilderOpener'>Team Builder</button>
 				</div>
 			</td>
 			
@@ -337,6 +338,7 @@
 </table>
 
 
+
 <script>
 
 const HSL_COLORS = [
@@ -369,14 +371,16 @@ timelimitInput.value = Data.BattleSettings.timelimitLegendaryRaidMs;
 
 
 dropdownMenuInit();
-welcomeDialogInit();
+teamBuilderInit();
 try{
+	welcomeDialogInit();
 	moveEditFormInit();
 	pokemonEditFormInit();
 	parameterEditFormInit();
 	modEditFormInit();
 	userEditFormInit();
 	MVLTableInit();
+	
 }catch(err){
 	console.log(err);
 }

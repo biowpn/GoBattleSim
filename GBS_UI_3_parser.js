@@ -154,6 +154,7 @@ function averageSimulations(sims){
 	
 	// 2. Sum them up
 	for (let sim of sims){
+		sim.output.battleLog = [];
 		traverseLeaf(sim.output, function(v, path){
 			if (!isNaN(parseFloat(v))){
 				setProperty(avrgOutput, path, getProperty(avrgOutput, path) + v);
@@ -204,7 +205,7 @@ function requestSimulation(){
 
 
 function processConfig(config){
-	if (config.hasOwnProperty("length")){
+	if (Array.isArray(config)){
 		var sims = [];
 		for (let subConfig of config){
 			sims = sims.concat(processConfig(subConfig));
