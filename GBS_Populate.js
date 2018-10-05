@@ -1,5 +1,6 @@
 /* GBS_Populate.js */
 
+var raidBossListURL = "", pokemonDataFullURL = "", moveDataFullURL = "";
 
 var FETCHED_STATUS = 0;
 var FETCHED_STATUS_PASS = 5;
@@ -86,6 +87,7 @@ var DefaultData = {
 		{"name": "3", "label": "Tier 3", "cpm": 0.7300000190734863, "HP": 3000},
 		{"name": "4", "label": "Tier 4", "cpm": 0.7900000214576721, "HP": 7500},
 		{"name": "5", "label": "Tier 5", "cpm": 0.7900000214576721, "HP": 12500},
+                {"name": "6", "label": "Tier 6", "cpm": 0.7900000214576721, "HP": 18750}
 	],
 	
 	RaidBosses: [],
@@ -137,14 +139,13 @@ function parsePokemonTypeFromString(S){
 }
 
 function parseMovesFromString(S){
-	var moveNames = [];
-	var L = S.split(",");
-	for (var i = 0; i < L.length; i++){
-		var name = L[i].trim().toLowerCase();
+	var moves = [];
+	for (name of S.split(",")){
+		name = name.trim();
 		if (name.length > 0)
-			moveNames.push(name);
+			moves.push(name.toLowerCase());
 	}
-	return moveNames;
+	return moves;
 }
 
 
@@ -322,7 +323,7 @@ function handleSpeciesDatabase(pokemonDataBase){
 		var pkm = pokemonDataBase[i];
 		
 		delete pkm['index'];
-		
+		delete pkm['marker_1'];
 		// Handle move pools
 		pkm.fastMoves = pkm.fastMoves || [];
 		pkm.chargedMoves = pkm.chargedMoves || [];
@@ -338,22 +339,21 @@ function handleSpeciesDatabase(pokemonDataBase){
 					pkm.chargedMoves_exclusive.push(move);
 			});
 			delete pkm.exclusiveMoves;
+		}else{
+			pkm.chargedMoves_exclusive = pkm.chargedMoves_exclusive.filter(x => !pkm.fastMoves_exclusive.includes(x));
 		}
-		
-		// Handle boss markers
-		pkm.marker_1 = '';
-		for (var j = 0; j < Data.RaidBosses.length; j++){
-			var boss = Data.RaidBosses[j];
+		// Raid markers
+		pkm.raidMarker = '';
+		for (boss of Data.RaidBosses){
 			if (boss.name == pkm.name){
-				pkm.marker_1 += boss.tier;
-				pkm.marker_1 += (boss.future || boss.legacy || boss.special) ? '' : ' current';
-				pkm.marker_1 += boss.future ? ' future' : '';
-				pkm.marker_1 += boss.legacy ? ' legacy' : '';
-				pkm.marker_1 += boss.special ? ' special' : '';
+				pkm.raidMarker += boss.tier;
+				pkm.raidMarker += (boss.future || boss.legacy || boss.special) ? '' : ' current';
+				pkm.raidMarker += boss.future ? ' future' : '';
+				pkm.raidMarker += boss.legacy ? ' legacy' : '';
+				pkm.raidMarker += boss.special ? ' special' : '';
 				break;
 			}
 		}
-		
 	}
 }
 
@@ -373,19 +373,10 @@ function parseUserPokebox(data){
 			nickname : data[i].nickname,
 			nid: data[i].nid
 		};
-		var species = getEntry(pkm.species, Data.Pokemon), fmove = getEntry(pkm.fmove, Data.FastMoves), cmove = getEntry(pkm.cmove, Data.ChargedMoves);
-		if (!species || !fmove || !cmove){
-			console.log("[Error] When importing User Pokemon: species/moves not in database");
-			console.log(data[i]);
-			continue;
-		}
+		var species = getEntry(pkm.species, Data.Pokemon);
 		leftMerge(pkm, species);
 		pkm.box_index = i;
-		if (!pkm.level){
-			console.log("[Error] When importing User Pokemon: invalid level");
-			console.log(data[i]);
-			continue;
-		}
+                pkm.nid = data[i].nid;
 		box.push(pkm);
 	}
 	return box;
@@ -425,7 +416,7 @@ function fetchRaidBossList(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({ 
-		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/raid-boss-list.json?v2', 
+		url: raidBossListURL, 
 		dataType: 'json', 
 		success: function(data){
 			Data.RaidBosses = [];
@@ -453,29 +444,32 @@ function fetchSpeciesData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({ 
-		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pokemon-data-full.json?v2',
+		url: pokemonDataFullURL,
 		dataType: 'json', 
 		success: function(data){
 			Data.Pokemon = [];
 			for(var i = 0; i < data.length; i++){
 				var pkm = {
-					dex : parseInt(data[i].number),
-					name : data[i].title_1.toLowerCase().replace("&#039;", "'"),
-					pokeType1 : parsePokemonTypeFromString(data[i].field_pokemon_type).pokeType1,
-					pokeType2 : parsePokemonTypeFromString(data[i].field_pokemon_type).pokeType2,
-					baseAtk : parseInt(data[i].atk),
-					baseDef : parseInt(data[i].def),
-					baseStm : parseInt(data[i].sta),
-					fastMoves : parseMovesFromString(data[i].field_primary_moves),
-					chargedMoves : parseMovesFromString(data[i].field_secondary_moves),
-					fastMoves_legacy : parseMovesFromString(data[i].field_legacy_quick_moves),
-					chargedMoves_legacy : parseMovesFromString(data[i].field_legacy_charge_moves),
-					exclusiveMoves : parseMovesFromString(data[i].exclusive_moves),
-					rating : parseFloat(data[i].rating) || 0,
-					marker_1: '',
+					dex: parseInt(data[i].number),
+					name: data[i].title_1.toLowerCase().replace("&#039;", "'"),
+					pokeType1: parsePokemonTypeFromString(data[i].field_pokemon_type).pokeType1,
+					pokeType2: parsePokemonTypeFromString(data[i].field_pokemon_type).pokeType2,
+					baseAtk: parseInt(data[i].atk),
+					baseDef: parseInt(data[i].def),
+					baseStm: parseInt(data[i].sta),
+					fastMoves: parseMovesFromString(data[i].field_primary_moves),
+					chargedMoves: parseMovesFromString(data[i].field_secondary_moves),
+					fastMoves_legacy: parseMovesFromString(data[i].field_legacy_quick_moves),
+					chargedMoves_legacy: parseMovesFromString(data[i].field_legacy_charge_moves),
+					fastMoves_exclusive: parseMovesFromString(data[i].quick_exclusive_moves),
+					chargedMoves_exclusive: parseMovesFromString(data[i].charge_exclusive_moves),
+					rating: parseFloat(data[i].rating) || 0,
+					raidMarker: '',
+					nid: data[i].nid,
 					image: data[i].uri,
 					icon: getPokemonIcon({dex: data[i].number}),
-					label: data[i].title_1.replace("&#039;", "'")
+					label: data[i].title_1.replace("&#039;", "'"),
+					evolutions: parseMovesFromString(data[i].field_evolutions),
 				};
 				Data.Pokemon.push(pkm);
 			}
@@ -496,10 +490,7 @@ function fetchSpeciesFormData(oncomplete){
 		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json?v2',
 		dataType: 'json', 
 		success: function(data){
-			Data.PokemonForms = [];
-			for(var i = 0; i < data.length; i++){
-				Data.PokemonForms.push(data[i]);
-			}
+			Data.PokemonForms = data;
 			sortDatabase(Data.PokemonForms);
 		},
 		complete: function(jqXHR, textStatus){
@@ -515,7 +506,7 @@ function fetchMoveData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
 	$.ajax({
-		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/move-data-full.json?v2',
+		url: moveDataFullURL,
 		dataType: 'json', 
 		success: function(data){
 			Data.FastMoves = [];
@@ -605,6 +596,7 @@ function fetchUserTeamData(userid, oncomplete){
 							}
 						}
 					}
+                                        party.pokemon_list = parseUserPokebox(party.pokemon_list);
 					user.parties.push(party);
 				}
 				sortDatabase(user.parties);
@@ -679,12 +671,6 @@ function fetchLocalData(){
 		LocalData.BattleParties.forEach(function(party){
 			party.isLocal = true;
 			party.label = party.label || party.name;
-			party.pokemon_list.forEach(function(pkm){
-				delete pkm.index;
-				delete pkm.box_index;
-				delete pkm.fmove_index;
-				delete pkm.cmove_index;
-			});
 		});
 		
 		saveLocalData();
@@ -704,13 +690,6 @@ function fetchAll(oncomplete, isInit){
 	FETCHED_STATUS = 0;
 	
 	fetchLevelData();
-
-	fetchSpeciesData(function(){
-		FETCHED_STATUS++;
-		fetchAll_then(function(){
-			oncomplete();
-		});
-	});
 	
 	fetchSpeciesFormData(function(){
 		FETCHED_STATUS++;
@@ -718,19 +697,44 @@ function fetchAll(oncomplete, isInit){
 			oncomplete();
 		});
 	});
-
-	fetchMoveData(function(){ 
-		FETCHED_STATUS++;
-		fetchAll_then(function(){
-			oncomplete();
-		});
-	});
-	
-	fetchRaidBossList(function(){
-		FETCHED_STATUS++;
-		fetchAll_then(function(){
-			oncomplete();
-		});
+	var currTime = new Date().getTime();
+	$.ajax({ 
+		url: "https://gamepress.gg/json-list?_format=json&game_tid=1&" + currTime, 
+		dataType: 'json', 
+		success: function(data){
+			for(var i = 0; i < data.length; i++){
+				var curr = data[i];
+				if(curr.title == "raid-boss-list-PoGO"){
+					raidBossListURL = curr.url;
+				}
+				if(curr.title == "pokemon-data-full-en-PoGO"){
+					pokemonDataFullURL = curr.url;
+				}
+				if(curr.title == "move-data-full-PoGO"){
+					moveDataFullURL = curr.url;
+				}
+			}
+		},
+		complete: function(jqXHR, textStatus){
+			fetchMoveData(function(){ 
+				FETCHED_STATUS++;
+				fetchAll_then(function(){
+					oncomplete();
+				});
+			});
+			fetchRaidBossList(function(){
+				FETCHED_STATUS++;
+				fetchAll_then(function(){
+					oncomplete();
+				});
+			});
+			fetchSpeciesData(function(){
+				FETCHED_STATUS++;
+				fetchAll_then(function(){
+					oncomplete();
+				});
+			});
+		}
 	});
 	
 	if (isInit && window['userID2'] && userID2 != '0'){

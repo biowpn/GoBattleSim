@@ -3,6 +3,7 @@
 test/*
 tools/*
 feedback/*
+Documentation/*
 Populate_local.js
 *.xlsx
 GBS_Populate_extras.js

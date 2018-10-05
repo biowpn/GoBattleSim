@@ -633,7 +633,7 @@ function populateQuickStartWizardBossList(tag){
 		1: [], 2: [], 3:[], 4:[], 5:[]
 	};
 	bosses.forEach(function(boss){
-		bosses_by_tier[parseInt(boss.marker_1.split(' ')[0])].push(boss);
+		bosses_by_tier[parseInt(boss.raidMarker.split(' ')[0])].push(boss);
 	});
 
 	var listObj = document.getElementById('quickStartWizard-raidbosslist');

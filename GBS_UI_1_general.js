@@ -147,12 +147,12 @@ function createSimplePredicate(str, parent, attr){
 	}else if (str[0] == '%'){ // Raid Boss
 		const str_const = str.slice(1);
 		return function(obj){
-			return obj.marker_1 && obj.marker_1.includes(str_const);
+			return obj.raidMarker && obj.raidMarker.includes(str_const);
 		};
-	}else if (str[0] == '>'){ // Cutomized expression
-		const str_const = str.slice(1);
+	}else if (str[0] == '+'){ // Evolutions
+		const evolutions_const = getAllEvolutions(str.slice(1).trim().toLowerCase());
 		return function(obj){
-			return eval(str_const);
+			return evolutions_const.includes(obj.name);
 		};
 	}else if (str.toLowerCase() == "current"){ // Current Move
 		return function(obj){
@@ -266,6 +266,16 @@ function createComplexPredicate(expression, parent, attr){
 }
 
 
+function getAllEvolutions(name){
+	var evolutions = [name], pkm = getEntry(name, Data.Pokemon);
+	if (pkm){
+		for (evo of pkm.evolutions){
+			evolutions = evolutions.concat(getAllEvolutions(evo));
+		}
+	}
+	return evolutions;
+}
+
 
 function getPokemonOptions(userIndex){
 	var speciesOptions = [];
@@ -323,8 +333,8 @@ function autocompletePokemonNodeSpecies(speciesInput){
 			this.setAttribute('style', 'background-image: url(' + pkmInfo.icon + ')');
 			if (thisAddress == 'd' && $("#battleMode").val() == 'raid'){
 				var pkm = Data.Pokemon[this.getAttribute("index")];
-				if (pkm && pkm.marker_1){
-					$( "#raidTier" ).val(parseInt(pkm.marker_1.split(" ")[0]) || 5);
+				if (pkm && pkm.raidMarker){
+					$( "#raidTier" ).val(parseInt(pkm.raidMarker.split(" ")[0]) || 5);
 				}
 			}
 		},

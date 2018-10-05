@@ -419,7 +419,7 @@ function createDefenderNode(){
 	tb2.appendChild(createRow(['']));
 	var raidSelection = document.createElement("select");
 	raidSelection.id = "raidTier";
-	for (var i = 1; i <= 5; i++)
+	for (var i = 1; i <= 6; i++)
 		raidSelection.appendChild(createElement('option', 'Tier ' + i, {value: i}));
 	raidSelection.children[4].setAttribute("selected", "selected");
 	tb2.children[1].children[0].appendChild(raidSelection);
@@ -600,6 +600,9 @@ function writeAttackerNode(node, pkmConfig){
 function writePartyNode(node, partyConfig){
 	node.children[0].children[1].value = partyConfig.name || node.children[0].children[1].value;
 	node.children[1].innerHTML = "";
+        if (!partyConfig.pokemon_list){
+                 partyConfig.pokemon_list = partyConfig.pokemon;
+        }
 	for (var k = 0; k < partyConfig.pokemon_list.length; k++){
 		var pokemonNode = createAttackerNode();
 		writeAttackerNode(pokemonNode, partyConfig.pokemon_list[k]);
@@ -669,8 +672,8 @@ function updateDefenderNode(mode){
 	var curDefenderConfig = parseDefenderNode(defenderNode);
 	if (mode == 'raid'){
 		var pkm = Data.Pokemon[curDefenderConfig.index];
-		if (pkm && pkm.marker_1){
-			curDefenderConfig.raid_tier = parseInt(pkm.marker_1.split(" ")[0]) || 5;
+		if (pkm && pkm.raidMarker){
+			curDefenderConfig.raid_tier = parseInt(pkm.raidMarker.split(" ")[0]) || 5;
 		}
 	}else if (mode == 'gym'){
 		curDefenderConfig.raid_tier = -1;
