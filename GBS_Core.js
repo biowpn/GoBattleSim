@@ -116,6 +116,8 @@ Pokemon.prototype.init = function(){
 	this.hasDodged = false;
 	this.active = false;
 	this.buffedAction = null;
+	this.incomingHurtEvent = null;
+	this.incomingRivalAction = null;
 	
 	this.timeEnterMs = 0;
 	this.timeLeaveMs = 0;
@@ -487,7 +489,7 @@ World.prototype.init = function(){
 }
 
 // A Pokemon uses an attack
-World.prototype.pokemonUseAttack = function(pkm, move, t){
+World.prototype.pokemonUsesAttack = function(pkm, move, t){
 	t += Data.BattleSettings[move.moveType + "MoveLagMs"] || 0;
 	let energyDeltaEvent = {
 		name: EVENT_TYPE.EnergyDelta, t: t + move.dws, subject: pkm, energyDelta: move.energyDelta
@@ -504,6 +506,19 @@ World.prototype.pokemonUseAttack = function(pkm, move, t){
 			this.timeline.insert(hurtEvent);
 			target.incomingHurtEvent = hurtEvent;
 			// TODO: Implement Move Effects
+		}
+	}
+}
+
+// A Pokemon tells all its rivals about its next action
+// Basically annoucing "I'll be performing action at time t"
+World.prototype.pokemonBroadcasts = function(pkm, action, t){
+	action.t = t + action.delay || 0;
+	action.from = pkm;
+	for (let rival of pkm.master.rivals){
+		let target = rival.head();
+		if (target && target.active){
+			target.incomingRivalAction = action;
 		}
 	}
 }
@@ -590,6 +605,10 @@ World.prototype.battle = function(){
 			if (e.subject.active){
 				let currentAction = e.subject.buffedAction;
 				let tFree = this.registerAction(e.subject, t, currentAction);
+				if (currentAction && (e.subject.role == "gd" || e.subject.role == "rb")){
+					// Gym Defenders and Raid Bosses are forced to broadcast
+					this.pokemonBroadcasts(e.subject, currentAction, tFree);
+				}
 				e.subject.buffedAction = e.subject.choose({
 					t: t,
 					tFree: tFree,
@@ -629,7 +648,7 @@ World.prototype.battle = function(){
 			}
 			elog.push(e);
 		}else if (e.name == EVENT_TYPE.Announce){
-			this.pokemonUseAttack(e.subject, e.move, t);
+			this.pokemonUsesAttack(e.subject, e.move, t);
 		}else if (e.name == EVENT_TYPE.MoveEffect){
 			// TODO: Move Effects
 		}
@@ -855,6 +874,19 @@ function strat2(state){
 		return;
 	}
 	let hurtEvent = this.incomingHurtEvent;
+	if (!hurtEvent && this.incomingRivalAction && this.incomingRivalAction.t > state.tFree){
+		if (this.incomingRivalAction.name == "fast"){
+			hurtEvent = this.incomingRivalAction;
+			hurtEvent.move = hurtEvent.from.fmove;
+			hurtEvent.t = hurtEvent.t + hurtEvent.move.dws;
+			hurtEvent.dmg = damage(hurtEvent.from, this, hurtEvent.move, state.weather);
+		}else if (this.incomingRivalAction.name == "charged"){
+			hurtEvent = this.incomingRivalAction;
+			hurtEvent.move = hurtEvent.from.cmove;
+			hurtEvent.t = hurtEvent.t + hurtEvent.move.dws;
+			hurtEvent.dmg = damage(hurtEvent.from, this, hurtEvent.move, state.weather);
+		}
+	}
 	if (hurtEvent && hurtEvent.move.moveType == "charged" && !this.hasDodged){
 		let undodgedDmg = hurtEvent.dmg;
 		let dodgedDmg = Math.max(1, Math.floor(undodgedDmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent)));
@@ -905,6 +937,19 @@ function strat3(state){
 		return;
 	}
 	let hurtEvent = this.incomingHurtEvent;
+	if (!hurtEvent && this.incomingRivalAction && this.incomingRivalAction.t > state.tFree){
+		if (this.incomingRivalAction.name == "fast"){
+			hurtEvent = this.incomingRivalAction;
+			hurtEvent.move = hurtEvent.from.fmove;
+			hurtEvent.t = hurtEvent.t + hurtEvent.move.dws;
+			hurtEvent.dmg = damage(hurtEvent.from, this, hurtEvent.move, state.weather);
+		}else if (this.incomingRivalAction.name == "charged"){
+			hurtEvent = this.incomingRivalAction;
+			hurtEvent.move = hurtEvent.from.cmove;
+			hurtEvent.t = hurtEvent.t + hurtEvent.move.dws;
+			hurtEvent.dmg = damage(hurtEvent.from, this, hurtEvent.move, state.weather);
+		}
+	}
 	if (hurtEvent && !this.hasDodged){
 		let undodgedDmg = hurtEvent.dmg;
 		let dodgedDmg = Math.max(1, Math.floor(undodgedDmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent)));
@@ -933,19 +978,16 @@ function strat3(state){
 			}
 		}
 	}
-	// modified strat1
+	// strat1
 	let projectedEnergyDelta = 0;
-	let isLastActionDodged = false;
 	if (state.currentAction){
 		if (state.currentAction.name == "fast"){
 			projectedEnergyDelta = this.fmove.energyDelta;
 		}else if (state.currentAction.name == "charged"){
 			projectedEnergyDelta = this.cmove.energyDelta;
-		}else if (state.currentAction.name == "dodge"){
-			isLastActionDodged = true;
 		}
 	}
-	if (this.energy + projectedEnergyDelta + this.cmove.energyDelta >= 0 && isLastActionDodged){
+	if (this.energy + projectedEnergyDelta + this.cmove.energyDelta >= 0){
 		return {name: "charged", delay: 0};
 	}else{
 		return {name: "fast", delay: 0};

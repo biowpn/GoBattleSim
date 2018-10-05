@@ -1025,6 +1025,59 @@ function exportConfig(cfg){
 // Return simulation configuration parsed from URL
 function importConfig(url){
 	var cfg = uriToJSON(url.split('?')[1]);
-	// TODO: backward compatibility
+	if (cfg.hasOwnProperty("atkrSettings")){ // Backward compatibility to v2
+		cfg.players = [];
+		for (let player of cfg.atkrSettings){
+			player.team = "0";
+			player.parties = player.party_list;
+			delete player.party_list;
+			for (let party of player.parties){
+				party.revive = party.revive_strategy;
+				party.pokemon = party.pokemon_list;
+				delete party.revive_strategy;
+				delete party.pokemon_list;
+				for (let pokemon of party.pokemon){
+					pokemon.role = "a";
+					pokemon.strategy = (pokemon.dodge == "2" ? "strat3" : (pokemon.dodge == "1" ? "strat2" : "strat1"));
+					delete pokemon.dodge;
+				}
+			}
+			cfg.players.push(player);
+		}
+		delete cfg.atkrSettings;
+		
+		var defenderPokemon = cfg.dfdrSettings;
+		defenderPokemon.copies = 1;
+		defenderPokemon.strategy = "strat0";
+		defenderPokemon.raidTier = parseInt(defenderPokemon.raid_tier);
+		delete defenderPokemon.raid_tier;
+		cfg.players.push({
+			team: "1",
+			friend: "none",
+			parties: [
+				{
+					revive: false,
+					pokemon: [defenderPokemon]
+				}
+			]
+		});
+		delete cfg.dfdrSettings;
+		
+		for (var attr in cfg.generalSettings){
+			cfg[attr] = cfg.generalSettings[attr];
+		}		
+		if (cfg.battleMode == "raid" || defenderPokemon.raidTier > 0){
+			cfg.battleMode = "raid";
+			if (defenderPokemon.raidTier > 4){
+				cfg.timelimit = Data.BattleSettings.timelimitLegendaryRaidMs;
+			}else{
+				cfg.timelimit = Data.BattleSettings.timelimitRaidMs;
+			}
+		}else{
+			cfg.battleMode = "gym";
+			cfg.timelimit = Data.BattleSettings.timelimitGymMs;
+		}
+		delete cfg.generalSettings;
+	}
 	return cfg;
 }

@@ -331,7 +331,7 @@ function userEditFormInit(){
 		width: 600
 	});
 	$( "#userEditFormOpener" ).click(function() {
-		udpateUserTable();
+		updateUserTable();
 		$( "#userEditForm" ).dialog( "open" );
 	});
 
@@ -352,7 +352,7 @@ function userEditFormAddUser(){
 	var userID = document.getElementById('userEditForm-userID-1').value.trim();
 	fetchUserData(userID, function(){
 		sendFeedbackDialog("Imported user " + userID);
-		udpateUserTable();
+		updateUserTable();
 	});
 }
 
@@ -362,7 +362,7 @@ function userEditFormRemoveUser(){
 	var userIndex = getEntryIndex(userID, Data.Users);
 	if (userIndex >= 0){
 		Data.Users.splice(userIndex, 1);
-		udpateUserTable();
+		updateUserTable();
 		sendFeedbackDialog("Successfully removed user " + userID);
 	}else{
 		sendFeedbackDialog("No user with ID " + userID + " was found");
@@ -370,20 +370,20 @@ function userEditFormRemoveUser(){
 }
 
 
-function udpateUserTable(){
+function updateUserTable(){
 	var table = document.getElementById('userEditForm-userTable');
 	table.children[1].innerHTML = '';
 	for (var i = 0; i < Data.Users.length; i++){
 		table.children[1].appendChild(createRow([
 			Data.Users[i].uid,
 			Data.Users[i].box.length,
-			'<button onclick="udpateBoxTable(' + Data.Users[i].uid + ')">View Box</button>'
+			'<button onclick="updateBoxTable(' + Data.Users[i].uid + ')">View Box</button>'
 		], 'td'));
 	}
 }
 
 
-function udpateBoxTable(uid){
+function updateBoxTable(uid){
 	document.getElementById('boxEditForm-title').innerHTML = "User ID: " + uid;
 	var boxEditFormTable = $('#boxEditForm-pokemonTable').DataTable();
 	let user = getEntry(uid, Data.Users);
@@ -601,7 +601,8 @@ function teamBuilderInit(){
 		order: [],
 		scrollY: "50vh",
 		scroller: true,
-		searching: false
+		searching: false,
+		info: false
 	});
 	
 	var partyDT = $( "#teamBuilder-partyTable" ).DataTable({
@@ -612,7 +613,8 @@ function teamBuilderInit(){
 		scrollY: "50vh",
 		scroller: true,
 		searching: false,
-		ordering: false
+		ordering: false,
+		info: false
 	});
 	
 	$( partyDT.table().body() ).sortable({
@@ -724,6 +726,10 @@ function teamBuilderCalculatePokemon(){
 			allPokemon.push(pokemonCopy);
 		}
 	}
+	if (allPokemon.length == 0){
+		sendFeedbackDialog("No Pokemon in your box! Please log in and enter some Pokemon.");
+		return;
+	}
 	baseConfig.timelimit = -1;
 	baseConfig.simPerConfig = 100;
 	
@@ -744,10 +750,17 @@ function teamBuilderCalculatePokemon(){
 		pokemonDT.row.add(pokemon);
 	}
 	pokemonDT.draw();
-	for (var i = 0; i < allPokemon.length; i++){
-		var tr = pokemonDT.table().body().children[i];
-		tr.setAttribute("nid", allPokemon[i].nid);
-		$( tr ).draggable();
+	var pokemonDTData = pokemonDT.rows().data();
+	var pokemonDTRows = pokemonDT.rows().nodes();
+	for (var i = 0; i < pokemonDTData.length; i++){
+		var tr = pokemonDTRows[i];
+		tr.setAttribute("nid", pokemonDTData[i].nid);
+		$(tr).draggable({
+			appendTo: "#teamBuilder",
+			scroll: false,
+			helper: "clone",
+			zIndex: 100
+		});
 	}
 	
 	// 2. Output the naive best party - top six Pareto Pokemon
@@ -772,21 +785,40 @@ function teamBuilderCalculatePokemon(){
 	// If more than 6, just pick the first 6
 	paretoPokemon = paretoPokemon.slice(0, 6);
 	
-	teamBuilderUpdatePartyTable(paretoPokemon);
+	teamBuilderWritePartyTable(paretoPokemon);
+	teamBuilderUpdatePartyStats();
 }
 
 
-function teamBuilderUpdatePartyTable(pokemonArr){
+function teamBuilderWritePartyTable(pokemonArr){
 	var partyDT = $( "#teamBuilder-partyTable" ).DataTable();
 	partyDT.clear();
 	for (let pokemon of pokemonArr){
 		partyDT.row.add(pokemon);
 	}
 	partyDT.draw();
-	for (var i = 0; i < pokemonArr.length; i++){
-		var tr = partyDT.table().body().children[i];
-		tr.setAttribute("nid", pokemonArr[i].nid);
+	var partyDTData = partyDT.rows().data();
+	var partyDTRows = partyDT.rows().nodes();
+	for (var i = 0; i < partyDTData.length; i++){
+		var tr = partyDTRows[i];
+		tr.setAttribute("nid", partyDTData[i].nid);
 	}
+}
+
+
+function teamBuilderReadPartyTable(){
+	var partyDT = $( "#teamBuilder-partyTable" ).DataTable();
+	var party = [];
+	for (let tr of partyDT.table().body().children){
+		var pokemon = getPokemonByNID(tr.getAttribute("nid"));
+		pokemon = JSON.parse(JSON.stringify(pokemon));
+		pokemon.copies = 1;
+		pokemon.role = "a";
+		pokemon.strategy = "strat1";
+		pokemon.iconLabel = createIconLabelSpan(pokemon.icon, pokemon.label, "species-input-with-icon");
+		party.push(pokemon);
+	}
+	return party;
 }
 
 
@@ -799,18 +831,7 @@ function teamBuilderCalculateParty(){
 	baseConfig.simPerConfig = 100;
 	var numAttacker = baseConfig.players.length - 1;
 	
-	var partyDT = $( "#teamBuilder-partyTable" ).DataTable();
-	var party = [];
-	for (let tr of partyDT.table().body().children){
-		var pokemon = getPokemonByNID(tr.getAttribute("nid"));
-		pokemon = JSON.parse(JSON.stringify(pokemon));
-		pokemon.copies = 1;
-		pokemon.role = "a";
-		pokemon.strategy = "strat1";
-		pokemon.iconLabel = createIconLabelSpan(pokemon.icon, pokemon.label, "species-input-with-icon");
-		party.push(pokemon);
-	}
-	
+	var party = teamBuilderReadPartyTable();
 	if (party.length == 0){
 		while (DialogStack.length){
 			DialogStack.pop().dialog('close');
@@ -843,7 +864,7 @@ function teamBuilderCalculateParty(){
 	}
 	
 	// 3. Output the party
-	teamBuilderUpdatePartyTable(bestPermuation);
+	teamBuilderWritePartyTable(bestPermuation);
 	teamBuilderUpdatePartyStats();
 }
 
@@ -854,14 +875,27 @@ function teamBuilderUpdatePartyStats(){
 	for (let row of partyDT.table().body().children){
 		nids.push(row.getAttribute("nid"));
 	}
-	var curStats = teamBuilderPartyPermutationStats[nids.join("->")];
-	if (curStats){
-		document.getElementById("teamBuilder-optimalPartyDPS").innerHTML = round(curStats.dps, 2);
-		document.getElementById("teamBuilder-optimalPartyTDO").innerHTML = round(curStats.tdo_percent, 2) + "%";
-	}else{
-		document.getElementById("teamBuilder-optimalPartyDPS").innerHTML = "?";
-		document.getElementById("teamBuilder-optimalPartyTDO").innerHTML = "?";
+	var key = nids.join("->");
+	var curStats = teamBuilderPartyPermutationStats[key];
+	if (!curStats){ // Calculate the party on-the-fly
+		var baseConfig = teamBuilderReadConfig();
+		var baseAttackingPlayer = baseConfig.players[0];
+		var bestParty = baseAttackingPlayer.parties[0];
+		bestParty.revive = false;
+		baseConfig.simPerConfig = 100;
+		var numAttacker = baseConfig.players.length - 1;
+		bestParty.pokemon = teamBuilderReadPartyTable();
+		let intermediateSimResults = [];
+		for (let config of batchSim(baseConfig)){
+			intermediateSimResults = intermediateSimResults.concat(processConfig(config));
+		}
+		curStats = averageSimulations(intermediateSimResults).output.generalStat;
+		curStats.dps = curStats.dps / numAttacker;
+		curStats.tdo_percent = curStats.tdo_percent / numAttacker;
+		teamBuilderPartyPermutationStats[key] = curStats;
 	}
+	document.getElementById("teamBuilder-optimalPartyDPS").innerHTML = round(curStats.dps, 2);
+	document.getElementById("teamBuilder-optimalPartyTDO").innerHTML = round(curStats.tdo_percent, 2) + "%";
 }
 
 

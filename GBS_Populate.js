@@ -371,7 +371,7 @@ function parseUserPokebox(data){
 			nickname : data[i].nickname,
 			uid: data[i].uid
 		};
-		let species = getEntry(pkm.name, Data.Pokemon);
+		let species = getEntry(pkm.name, Data.Pokemon) || {};
 		leftMerge(pkm, species);
 		pkm.nid = data[i].nid;
 		pkm.label = pkm.nickname;
@@ -546,7 +546,7 @@ function fetchUserData(userid, oncomplete){
 			var user = {
 				name: userid,
 				uid: userid,
-				box: data
+				box: parseUserPokebox(data)
 			};
 			insertEntry(user, Data.Users);
 		},

@@ -450,13 +450,18 @@ function createPokemonNameInput(){
 		select: function(event, ui){
 			var pkmInfo = ui.item;
 			ui.item.value = toTitleCase(ui.item.name);
+			let pokemonGBS = $$$(this).parent("pokemon");
 			if (pkmInfo.uid){
-				let pokemonNode = $$$(this).parent("pokemon").node;
-				write(pokemonNode, pkmInfo);
-				formatting(pokemonNode);
+				write(pokemonGBS.node, pkmInfo);
+				formatting(pokemonGBS.node);
 			}
 			this.setAttribute('style', 'background-image: url(' + pkmInfo.icon + ')');
-			// TODO: Set raid tier if the Pokemon is in raid boss list
+			if (pkmInfo.raidMarker){
+				let raidTierInput = pokemonGBS.child("pokemon-raidTier").node;
+				if (raidTierInput){
+					raidTierInput.value = pkmInfo.raidMarker.split(" ")[0];
+				}
+			}
 		},
 		change: function(event, ui){
 			if (!ui.item){ // Change not due to selecting an item from menu
