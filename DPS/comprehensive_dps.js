@@ -1,21 +1,19 @@
 /* Comprehensive_DPS.js */
 
-var Table = null;
-var colHeaders = ["Pokemon", "Fast Move", "Charged Move", "DPS", "TDO", "DPS*TDO", "CP"];
-
 var DEFAULT_LEVEL = 40;
 var DEFAULT_IVs = [15, 15, 15];
+var DEFAULT_ENEMY_DPS1 = 900;
 var DEFAULT_ENEMY_CURRENT_DEFENSE = 160;
 var DEFAULT_ENEMY_POKETYPE1 = 'none';
 var DEFAULT_ENEMY_POKETYPE2 = 'none';
 var DEFAULT_WEATHER = 'EXTREME';
 
 var ConfigurableAttributes = [
-	{'elementId': "ui-species_boss", 'qsField': "pkm", 'defaultValue': '', 'iconGetter': getPokemonIcon, 'databaseName': "Pokemon"}, 
-	{'elementId': "d-pokeType1", 'qsField': "type1", 'defaultValue': DEFAULT_ENEMY_POKETYPE1}, 
-	{'elementId': "d-pokeType2", 'qsField': "type2", 'defaultValue': DEFAULT_ENEMY_POKETYPE2}, 
-	{'elementId': "fmove_boss", 'qsField': "fm", 'defaultValue': '', 'iconGetter': getTypeIcon, 'databaseName': "FastMoves"}, 
-	{'elementId': "cmove_boss", 'qsField': "cm", 'defaultValue': '', 'iconGetter': getTypeIcon, 'databaseName': "ChargedMoves"}, 
+	{'elementId': "pokemon-name", 'qsField': "pkm", 'defaultValue': '', 'iconGetter': getPokemonIcon, 'databaseName': "Pokemon"}, 
+	{'elementId': "pokemon-pokeType1", 'qsField': "type1", 'defaultValue': DEFAULT_ENEMY_POKETYPE1}, 
+	{'elementId': "pokemon-pokeType2", 'qsField': "type2", 'defaultValue': DEFAULT_ENEMY_POKETYPE2}, 
+	{'elementId': "pokemon-fmove", 'qsField': "fm", 'defaultValue': '', 'iconGetter': getTypeIcon, 'databaseName': "FastMoves"}, 
+	{'elementId': "pokemon-cmove", 'qsField': "cm", 'defaultValue': '', 'iconGetter': getTypeIcon, 'databaseName': "ChargedMoves"}, 
 	{'elementId': "weather", 'qsField': "wt", 'defaultValue': DEFAULT_WEATHER}, 
 	{'elementId': "searchInput", 'qsField': "qs", 'defaultValue': ''},
 	{'qsField': "by", defaultValue: "DPS"},
@@ -29,8 +27,6 @@ var Context = {
 	isEnemyNeutral: false,
 	swapDiscount: 'off'
 };
-
-var ALL_COMBINATIONS = [];
 
 
 Pokemon.prototype.calculateDPS = function(kwargs){
@@ -82,7 +78,7 @@ Pokemon.prototype.calculateDPSIntake = function(kwargs){
 	if (kwargs.isEnemyNeutral){
 		return {
 			x: -this.cmove.energyDelta * 0.5 + this.fmove.energyDelta * 0.5,
-			y: 900 / this.Def
+			y: DEFAULT_ENEMY_DPS1 / this.Def
 		};
 	}else{
 		var FDmg = damage2(kwargs.enemy, this, kwargs.enemy.fmove, Context.weather);
@@ -118,68 +114,6 @@ function damage2(dmg_giver, dmg_taker, move, weather){
 }
 
 
-
-function setConfigFromUrl(url){
-	if (url.includes('?')){
-		var cfg = {};
-		ConfigurableAttributes.forEach(function(info){
-			cfg[info.qsField] = getParameterByName(info.qsField, url) || info.defaultValue;
-			$('#' + info.elementId).val(cfg[info.qsField] || info.defaultValue);
-			if (info.iconGetter){
-				$('#' + info.elementId).attr('style', "background-image: url(" + info.iconGetter({name: cfg[info.qsField], mtype: info.elementId[0]}) + ")");
-			}
-			if (info.databaseName){
-				$('#' + info.elementId).attr('index', getEntryIndex(cfg[info.qsField].toLowerCase(), Data[info.databaseName]));
-			}
-		});
-		if (cfg['pkm'] && cfg['type1'] == 'none' && cfg['type2'] == 'none'){
-			var pkm = getEntry(cfg['pkm'].toLowerCase(), Data.Pokemon);
-			if (pkm){
-				$('#d-pokeType1').val(pkm.pokeType1);
-				$('#d-pokeType2').val(pkm.pokeType2);
-			}
-		}
-		if (cfg['by'] || cfg['order']){
-			var col_idx = colHeaders.indexOf(cfg['by'] || 'DPS');
-			if (col_idx >= 0){
-				Table.order([col_idx, cfg['order'] || 'desc']);
-			}
-		}
-		if (cfg['swpdsct'] == 'on'){
-			Context.swapDiscount = "on";
-			$( "#ui-swapDiscount-checkbox" ).attr("checked", true);
-			$( "#ui-swapDiscount-checkbox" ).checkboxradio( "refresh" );
-		}
-	}
-}
-
-function setUrlFromConfig(){
-	var cfg = {}, non_default_flag = false;
-	
-	var sortingSetting = Table.settings().context[0].aaSorting[0];
-	if (sortingSetting){
-		var sortBy = [colHeaders[sortingSetting[0]], sortingSetting[1]];
-		cfg['by'] = sortBy[0];
-		cfg['order'] = sortBy[1];
-	}
-	cfg['swpdsct'] = Context.swapDiscount;
-	ConfigurableAttributes.forEach(function(info){
-		var val = info.elementId ? $('#' + info.elementId).val() : cfg[info.qsField];
-		if (val == info.defaultValue){
-			delete cfg[info.qsField];
-		}else{
-			cfg[info.qsField] = val;
-			non_default_flag = true;
-		}
-	});
-	
-	var comp = $.param(cfg);
-	window.history.pushState('', '', window.location.href.split('?')[0] + (comp ? '?' : '') + comp);
-}
-
-
-
-
 function applicationInit(){
 	acceptedNumericalAttributes = acceptedNumericalAttributes.concat(['dps', 'tdo']);
 	
@@ -189,45 +123,46 @@ function applicationInit(){
 	});
 	weatherSelect.value = DEFAULT_WEATHER;
 	
-	var enemySpeciesNode = document.getElementById('ui-species_boss');
-	var enemyFastMoveNode = document.getElementById('fmove_boss');
-	var enemyChargedMoveNode = document.getElementById('cmove_boss');
+	var enemySpeciesNodeContainer = document.getElementById('enemy-pokemon-name-container');
+	var enemyFastMoveNodeContainer = document.getElementById('enemy-pokemon-fmove-container');
+	var enemyChargedMoveNodeContainer = document.getElementById('enemy-pokemon-cmove-container');
 	
-	autocompletePokemonNodeSpecies(enemySpeciesNode);
+	var enemySpeciesNode = createPokemonNameInput();
+	enemySpeciesNode.id = "pokemon-name";
+	var enemyFastMoveNode = createPokemonMoveInput("fast");
+	enemyFastMoveNode.id = "pokemon-fmove";
+	var enemyChargedMoveNode = createPokemonMoveInput("charged");
+	enemyChargedMoveNode.id = "pokemon-cmove";
+	
+	enemySpeciesNodeContainer.appendChild(enemySpeciesNode);
 	$( enemySpeciesNode ).on( "autocompleteselect", function(event, ui){
-		document.getElementById('d-pokeType1').value = ui.item.pokeType1;
-		document.getElementById('d-pokeType2').value = ui.item.pokeType2;
+		$('#pokemon-pokeType1').val(ui.item.pokeType1);
+		$('#pokemon-pokeType2').val(ui.item.pokeType2);
 		leftMerge(Context.enemy, ui.item);
-		$(this).val(ui.item.label);
-		this.setAttribute('index', getEntryIndex(ui.item.name, Data.Pokemon));
-		if ($(enemyFastMoveNode).attr('index') >= 0 && $(enemyChargedMoveNode).attr('index') >= 0){
+		if (getEntry(enemyFastMoveNode.value.toLowerCase(), Data.FastMoves) && getEntry(enemyChargedMoveNode.value.toLowerCase(), Data.ChargedMoves)){
 			this.blur();
 			requestSpreadsheet(false);
 		}
 	});
 	
-	autocompletePokemonNodeMoves(enemyFastMoveNode);
+	enemyFastMoveNodeContainer.appendChild(enemyFastMoveNode);
 	$( enemyFastMoveNode ).on( "autocompleteselect", function(event, ui){
-		$(this).val(ui.item.label);
-		this.setAttribute('index', getEntryIndex(ui.item.name, Data.FastMoves));
-		if ($(enemySpeciesNode).attr('index') >= 0 && $(enemyChargedMoveNode).attr('index') >= 0){
+		if (getEntry(enemySpeciesNode.value.toLowerCase(), Data.Pokemon) && getEntry(enemyChargedMoveNode.value.toLowerCase(), Data.ChargedMoves)){
 			this.blur();
 			requestSpreadsheet(false);
 		}
 	});
 	
-	autocompletePokemonNodeMoves(enemyChargedMoveNode);
+	enemyChargedMoveNodeContainer.appendChild(enemyChargedMoveNode);
 	$( enemyChargedMoveNode ).on( "autocompleteselect", function(event, ui){
-		$(this).val(ui.item.label);
-		this.setAttribute('index', getEntryIndex(ui.item.name, Data.ChargedMoves));
-		if ($(enemySpeciesNode).attr('index') >= 0 && $(enemyFastMoveNode).attr('index') >= 0){
+		if (getEntry(enemySpeciesNode.value.toLowerCase(), Data.Pokemon) && getEntry(enemyFastMoveNode.value.toLowerCase(), Data.FastMoves)){
 			this.blur();
 			requestSpreadsheet(false);
 		}
 	});
 	
-	var enemyPokeType1Select = document.getElementById('d-pokeType1');
-	var enemyPokeType2Select = document.getElementById('d-pokeType2');
+	var enemyPokeType1Select = document.getElementById('pokemon-pokeType1');
+	var enemyPokeType2Select = document.getElementById('pokemon-pokeType2');
 	enemyPokeType1Select.appendChild(createElement('option', toTitleCase(DEFAULT_ENEMY_POKETYPE1), {value: DEFAULT_ENEMY_POKETYPE1}));
 	enemyPokeType2Select.appendChild(createElement('option', toTitleCase(DEFAULT_ENEMY_POKETYPE2), {value: DEFAULT_ENEMY_POKETYPE2}));
 	for (var pokeType in Data.TypeEffectiveness){
@@ -237,43 +172,23 @@ function applicationInit(){
 	enemyPokeType1Select.value = DEFAULT_ENEMY_POKETYPE1;
 	enemyPokeType2Select.value = DEFAULT_ENEMY_POKETYPE2;	
 	
-	var table = document.getElementById('ranking_table');
-	var headerRow = document.createElement('tr');
-	colHeaders.forEach(function(header){
-		headerRow.innerHTML += '<th>' + header + '<\/th>';
-	});
-	table.children[0].appendChild(headerRow);
-	
-	Table = $(table).DataTable({
+	var Table = $("#ranking_table").DataTable({
 		lengthChange: false,
 		autoWidth: false,
 		deferRender: true,
-		columnDefs: [
-			{"width": "24%"},
-			{"width": "18%"},
-			{"width": "18%"},
-			{"width": "10%"},
-			{"width": "10%"},
-			{"width": "10%"},
-			{"width": "10%"},
-		],
-		aoColumns: [
-			null,
-            null,
-            null,
-            { "orderSequence": [ "desc", "asc"] },
-            { "orderSequence": [ "desc", "asc"] },
-            { "orderSequence": [ "desc", "asc"] },
-            { "orderSequence": [ "desc", "asc"] }
-        ]
+		columns: [
+			{title: "Pokemon", data: "ui_name", width: "24%"},
+			{title: "Fast Move", data: "ui_fmove", width: "18%"},
+			{title: "Charged Move", data: "ui_cmove", width: "18%"},
+			{title: "DPS", data: "ui_dps", width: "10%", orderSequence: [ "desc", "asc"]},
+			{title: "TDO", data: "ui_tdo", width: "10%", orderSequence: [ "desc", "asc"]},
+			{title: "DPS*TDO", data: "ui_d2ps", width: "10%", orderSequence: [ "desc", "asc"]},
+			{title: "CP", data: "ui_cp", width: "10%", orderSequence: [ "desc", "asc"]},
+		]
 	});
-	$('#ranking_table_filter').hide();
 	Table.order( [ 3, 'desc' ] );
-	Table.table().header().onclick = function(){
-		setUrlFromConfig();
-	}
-	
-	setConfigFromUrl(window.location.href);
+	$('#ranking_table_filter').hide();
+
 	generateSpreadsheet(Data.Pokemon);
 }
 
@@ -282,9 +197,9 @@ function applyContext(){
 	Context.weather = document.getElementById('weather').value;
 	
 	Context.isEnemyNeutral = false;
-	var d_index = getEntryIndex($('#ui-species_boss').val().trim().toLowerCase(), Data.Pokemon);
-	var d_fmove_index = getEntryIndex($('#fmove_boss').val().trim().toLowerCase(), Data.FastMoves);
-	var d_cmove_index = getEntryIndex($('#cmove_boss').val().trim().toLowerCase(), Data.ChargedMoves);
+	var d_index = getEntryIndex($('#pokemon-name').val().trim().toLowerCase(), Data.Pokemon);
+	var d_fmove_index = getEntryIndex($('#pokemon-fmove').val().trim().toLowerCase(), Data.FastMoves);
+	var d_cmove_index = getEntryIndex($('#pokemon-cmove').val().trim().toLowerCase(), Data.ChargedMoves);
 	if (d_index < 0 || d_fmove_index < 0 || d_cmove_index < 0){
 		Context.isEnemyNeutral = true;
 		d_index = d_fmove_index = d_cmove_index = 0;
@@ -300,73 +215,50 @@ function applyContext(){
 		stmiv: DEFAULT_IVs[2],
 		raidTier: 0
 	});
-	Context.enemy.pokeType1 = document.getElementById('d-pokeType1').value;
-	Context.enemy.pokeType2 = document.getElementById('d-pokeType2').value;
+	Context.enemy.pokeType1 = document.getElementById('pokemon-pokeType1').value;
+	Context.enemy.pokeType2 = document.getElementById('pokemon-pokeType2').value;
 	
 	if (Context.isEnemyNeutral){
 		Context.enemy.Def = DEFAULT_ENEMY_CURRENT_DEFENSE;
 	}
-	
-	setUrlFromConfig();
 }
 
 
 function generateSpreadsheet(pokemonCollection){
-	ALL_COMBINATIONS = [];
+	var Table = $("#ranking_table").DataTable();
 	Table.clear();
 	applyContext();
-	
-	for (var i = 0; i < pokemonCollection.length; i++){
-		var p = pokemonCollection[i];
-		var bestPkm = null;
-
+	for (let p of pokemonCollection){
+		var bestPkm = {dps: -1};
 		var fastMoves_all = p.fmove ? [p.fmove] : p.fastMoves.concat(p.fastMoves_legacy).concat(p.fastMoves_exclusive);
 		var chargedMoves_all = p.cmove ? [p.cmove] : p.chargedMoves.concat(p.chargedMoves_legacy).concat(p.chargedMoves_exclusive);
-		for (var j = 0; j < fastMoves_all.length; j++){
-			var fmove = getEntry(fastMoves_all[j], Data.FastMoves);
-			if (!fmove){
-				console.log("Move not found: " + fastMoves_all[j]);
-				continue;
-			}
-			for (var k = 0; k < chargedMoves_all.length; k++){
-				var cmove = getEntry(chargedMoves_all[k], Data.ChargedMoves);
-				if (!cmove){
-					console.log("Move not found: " + chargedMoves_all[k]);
-					continue;
-				}
-				var p2 = JSON.parse(JSON.stringify(p));
-				p2.fmove = fmove;
-				p2.cmove = cmove;
-				p2.level = p.level || DEFAULT_LEVEL;
-				p2.atkiv = typeof p.atkiv == typeof 0 ? p.atkiv : DEFAULT_IVs[0];
-				p2.defiv = typeof p.defiv == typeof 0 ? p.defiv : DEFAULT_IVs[1];
-				p2.stmiv = typeof p.stmiv == typeof 0 ? p.stmiv : DEFAULT_IVs[2];
-				var pkm = new Pokemon(p2);
-				pkm.cp = calculateCP(pkm);
-				pkm.calculateDPS(Context);
-				
-				if (bestPkm == null){
-					bestPkm = pkm;
+		for (let fmove of fastMoves_all){
+			for (let cmove of chargedMoves_all){
+				var pkm = new Pokemon({
+					name: p.name,
+					fmove: fmove,
+					cmove: cmove,
+					level: p.level || DEFAULT_LEVEL,
+					atkiv: p.atkiv >= 0 ? p.atkiv : DEFAULT_IVs[0],
+					defiv: p.defiv >= 0 ? p.defiv : DEFAULT_IVs[1],
+					stmiv: p.stmiv >= 0 ? p.stmiv : DEFAULT_IVs[2]
+				});
+				pkm.calculateDPS(Context);	
+				if (pkm.dps > bestPkm.dps){
+					bestPkm.best = false;
 					pkm.best = true;
+					bestPkm = pkm;
 				}else{
-					if (pkm.dps > bestPkm.dps){
-						bestPkm.best = false;
-						pkm.best = true;
-						bestPkm = pkm;
-					}else{
-						pkm.best = false;
-					}
+					pkm.best = false;
 				}
-				Table.row.add([
-					createIconLabelSpan(pkm.icon, p.nickname || pkm.label, 'species-input-with-icon'), 
-					createIconLabelSpan(pkm.fmove.icon, pkm.fmove.label, 'move-input-with-icon'), 
-					createIconLabelSpan(pkm.cmove.icon, pkm.cmove.label, 'move-input-with-icon'), 
-					round(pkm.dps, 3), 
-					round(pkm.tdo, 1),
-					round(pkm.dps * pkm.tdo, 1),
-					pkm.cp
-				]);
-				ALL_COMBINATIONS.push(pkm);
+				pkm.ui_name = createIconLabelSpan(p.icon, p.nickname || p.label, 'species-input-with-icon');
+				pkm.ui_fmove = createIconLabelSpan(pkm.fmove.icon, pkm.fmove.label, 'move-input-with-icon');
+				pkm.ui_cmove = createIconLabelSpan(pkm.cmove.icon, pkm.cmove.label, 'move-input-with-icon');
+				pkm.ui_dps = round(pkm.dps, 3);
+				pkm.ui_tdo = round(pkm.tdo, 1);
+				pkm.ui_d2ps = round(pkm.dps * pkm.tdo, 1);
+				pkm.ui_cp = calculateCP(pkm);
+				Table.row.add(pkm);
 			}
 		}
 	}
@@ -376,15 +268,16 @@ function generateSpreadsheet(pokemonCollection){
 }
 
 function updateSpreadsheet(){
+	var Table = $("#ranking_table").DataTable();
 	applyContext();
 	var bestEachSpecies = {};
-	var i = 0;
-	Table.data().each(function(row){
-		var pkm = ALL_COMBINATIONS[i];
+	var dataLength = Table.data().length;
+	for (var i = 0; i < dataLength; i++){
+		var pkm = Table.row(i).data();
 		pkm.calculateDPS(Context);
-		row[3] = round(pkm.dps, 3);
-		row[4] = round(pkm.tdo, 1);
-		row[5] = round(pkm.dps * pkm.tdo, 1);
+		pkm.ui_dps = round(pkm.dps, 3);
+		pkm.ui_tdo = round(pkm.tdo, 1);
+		pkm.ui_d2ps = round(pkm.dps * pkm.tdo, 1);
 		var curBest = bestEachSpecies[pkm.name];
 		if (curBest){
 			if (pkm.dps > curBest.dps){
@@ -398,11 +291,9 @@ function updateSpreadsheet(){
 			pkm.best = true;
 			bestEachSpecies[pkm.name] = pkm;
 		}
-		i++;
-	});
-	
+		Table.row(i).data(pkm);
+	}
 	console.log(Date() + ": All DPS re-calculated");
-	Table.rows().invalidate();
 	pred = createComplexPredicate($('#searchInput').val());
 	$("#ranking_table").DataTable().draw();
 }
@@ -446,7 +337,6 @@ function requestSpreadsheet(startover){
 			}
 			sendFeedbackDialog("Oops, an issue occurred: " + err.toString());
 		}
-		
 	}, 50);
 }
 
@@ -469,17 +359,15 @@ var uniqueSpecies = false;
 
 $.fn.dataTable.ext.search.push(
     function(settings, searchData, index, rowData, counter){
-		var pkm = ALL_COMBINATIONS[index];
 		var selected = true;
 		try{ 
-			selected = pred(pkm) && (!uniqueSpecies || pkm.best);
+			selected = pred(rowData) && (!uniqueSpecies || rowData.best);
 		}catch(err){ 
 			selected = true; 
 		}
 		return selected;
     }
 );
-
 
 
 
@@ -504,57 +392,3 @@ function generateSpectrum(pkm, settings){
 	}
 	return DPS_spectrum;
 }
-
-// Defender ability
-function calculateDefender(){
-	DPS_dict = {};
-	
-	var type_list = ['none'];
-	for (var type in Data.TypeEffectiveness){
-		type_list.push(type);
-	}
-	
-	Context.enemy.Def = DEFAULT_ENEMY_CURRENT_DEFENSE;
-	for (var i = 0; i < type_list.length - 1; i++){
-		type1 = type_list[i];
-		for (var j = i + 1; j < type_list.length; j++){
-			type2 = type_list[j];
-			Context.enemy.pokeType1 = type1;
-			Context.enemy.pokeType2 = type2;
-			DPS_dict[type1 + ',' + type2] = 0;
-			DPS_dict[type2 + ',' + type1] = 0;
-			for (var k = 0; k < ALL_COMBINATIONS.length; k++){
-				var pkm = ALL_COMBINATIONS[k];
-				pkm.calculateDPS({
-					'y': 400 / pkm.Def,
-					'enemy': Context.enemy,
-					'weather': Context.weather
-				});
-				if (pkm.dps > DPS_dict[type1 + ',' + type2]){
-					DPS_dict[type1 + ',' + type2] = pkm.dps;
-					DPS_dict[type2 + ',' + type1] = pkm.dps;
-				}
-			}
-		}
-	}
-	
-	for (var i = 0; i < ALL_COMBINATIONS.length; i++){
-		var pkm = ALL_COMBINATIONS[i];
-		var dps_in = DPS_dict[pkm.pokeType1 + ',' + pkm.pokeType2];
-		pkm.defender_time = 2 * pkm.Stm * pkm.Def / (dps_in * DEFAULT_ENEMY_CURRENT_DEFENSE);
-	}
-	
-	ALL_COMBINATIONS.sort(function(a,b){return b.defender_time - a.defender_time;});
-	
-	names = [];
-	str = '';
-	for (var i = 0; i < ALL_COMBINATIONS.length && names.length < 100; i++){
-		name = ALL_COMBINATIONS[i].label;
-		if (!names.includes(name)){
-			str += name + '\t' + ALL_COMBINATIONS[i].defender_time + '\n';
-			names.push(name);
-		}
-	}
-	copy(str.trim());
-}
-

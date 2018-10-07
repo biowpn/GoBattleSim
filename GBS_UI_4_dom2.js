@@ -678,7 +678,7 @@ function teamBuilderSubmit(type){
 }
 
 
-function teamBuilderReadConfig(){
+function teamBuilderReadConfig(numAttacker){
 	var baseConfig = read();
 	
 	var baseAttackingPlayer = null;
@@ -691,12 +691,12 @@ function teamBuilderReadConfig(){
 		}
 	}
 	baseAttackingPlayer.parties = baseAttackingPlayer.parties.slice(0, 1);
-	baseAttackingPlayer.parties[0].pokemon = [];
 	
 	var raidTier = defendingPlayer.parties[0].pokemon[0].raidTier;
 	baseConfig.players = [baseAttackingPlayer];
-	if (raidTier > 3){
-		for (var r = 0; r < 3; r++){ // 3 clone players for Tier 4+ raids
+	if (raidTier > 3 || numAttacker){
+		numAttacker = numAttacker || 4;
+		for (var r = 0; r < numAttacker - 1; r++){ // 3 clone players for Tier 4+ raids
 			baseConfig.players.push(baseAttackingPlayer);
 		}
 	}
@@ -713,6 +713,7 @@ function teamBuilderCalculatePokemon(){
 	var defendingPlayer = baseConfig.players[baseConfig.players.length - 1];
 	var bestParty = baseAttackingPlayer.parties[0];
 	bestParty.revive = false;
+	bestParty.pokemon = [];
 	
 	defendingPlayer.parties[0].pokemon[0].immortal = true;
 	var numAttacker = baseConfig.players.length - 1;
@@ -828,6 +829,7 @@ function teamBuilderCalculateParty(){
 	var defendingPlayer = baseConfig.players[baseConfig.players.length - 1];
 	var bestParty = baseAttackingPlayer.parties[0];
 	bestParty.revive = false;
+	bestParty.pokemon = [];
 	baseConfig.simPerConfig = 100;
 	var numAttacker = baseConfig.players.length - 1;
 	

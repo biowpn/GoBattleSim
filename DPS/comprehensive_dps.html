@@ -28,9 +28,9 @@
 			<th>PokeType 2</th>
 		</tr>
 		<tr>
-			<td><input type='text' name='pokemon-name' class='input-with-icon species-input-with-icon'></input></td>
-			<td><select name='pokemon-pokeType1' onchange='requestSpreadsheet()'></select></td>
-			<td><select name='pokemon-pokeType2' onchange='requestSpreadsheet()'></select></td>
+			<td id="enemy-pokemon-name-container"></td>
+			<td><select name='pokemon-pokeType1' id="pokemon-pokeType1" onchange='requestSpreadsheet()'></select></td>
+			<td><select name='pokemon-pokeType2' id="pokemon-pokeType2" onchange='requestSpreadsheet()'></select></td>
 		</tr>
 	</table>
 
@@ -41,8 +41,8 @@
 			<th>Enemy Charged Move</th>
 		</tr>
 		<tr>
-			<td><input type='text' name="pokemon-fmove" class='input-with-icon move-input-with-icon'></td>
-			<td><input type='text' name="pokemon-cmove" class='input-with-icon move-input-with-icon'></td>
+			<td id="enemy-pokemon-fmove-container"></td>
+			<td id="enemy-pokemon-cmove-container"></td>
 		</tr>
 	</table>
 

@@ -582,7 +582,6 @@ World.prototype.isTeamDefeated = function(team){
 World.prototype.battle = function(){
 	let t = 0;
 	let timelimit = this.timelimit;
-	let elog = [];
 	let defeatedTeam = "";
 	let faintedPokemon = null;
 	
@@ -629,7 +628,7 @@ World.prototype.battle = function(){
 					e.subject.active = false;
 				}
 				e.object.attributeDamage(e.dmg, e.move.moveType);
-				elog.push(e);
+				this.appendEventToLog(e);
 			}
 		}else if (e.name == EVENT_TYPE.EnergyDelta){
 			e.subject.gainEnergy(e.energyDelta);
@@ -639,14 +638,14 @@ World.prototype.battle = function(){
 			this.timeline.insert({
 				name: EVENT_TYPE.Free, t: t, subject: e.subject
 			});
-			elog.push(e);
+			this.appendEventToLog(e);
 		}else if (e.name == EVENT_TYPE.Dodge){
 			let eHurt = e.subject.incomingHurtEvent;
 			if (eHurt && !e.dodged && (eHurt.t - Data.BattleSettings.dodgeWindowMs) <= t && t <= eHurt.t){
 				eHurt.dmg = Math.max(1, Math.floor(eHurt.dmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent)));
 				e.dodged = true;
 			}
-			elog.push(e);
+			this.appendEventToLog(e);
 		}else if (e.name == EVENT_TYPE.Announce){
 			this.pokemonUsesAttack(e.subject, e.move, t);
 		}else if (e.name == EVENT_TYPE.MoveEffect){
@@ -695,17 +694,10 @@ World.prototype.battle = function(){
 		// Fetch and process the next event if it's at the same time
 		if (this.timeline.list.length > 0 && t == this.timeline.list[0].t){
 			continue;
-		}else if (this.hasLog && elog.length > 0){
-			this.appendToLog(elog);
-			elog = [];
 		}
 	}
 	
-	// Battle has ended, some leftovers to handle
-	if (this.hasLog && elog.length > 0){
-		this.appendToLog(elog);
-	}
-	
+	// Battle has ended, some leftovers to handle	
 	this.battleDuration += t;
 	for (let player of this.players){
 		let pkm = player.head();
@@ -716,53 +708,87 @@ World.prototype.battle = function(){
 	}
 }
 
-// Add events of the same time to battle log
-World.prototype.appendToLog = function(events){
+// Translate simulator event to battle log entry
+World.prototype.appendEventToLog = function(e){
+	if (!this.hasLog){
+		return;
+	}
 	let logEntry = {
-		t: round(events[0].t / 1000, 2),
+		t: round(e.t / 1000, 2),
 		events: new Array(this.players.length)
 	};
-	for (let e of events){
-		if (e.name == EVENT_TYPE.Enter){
-			logEntry.events[e.subject.master.index] = {
-				type: 'pokemon',
-				eventType: EVENT_TYPE.Enter,
-				name: e.subject.name,
-				nickname: e.subject.nickname
-			};
-		}else if (e.name == EVENT_TYPE.Hurt){
-			if (!logEntry.events[e.subject.master.index] || logEntry.events[e.subject.master.index].eventType != EVENT_TYPE.Hurt){
-				logEntry.events[e.subject.master.index] = {
+	if (e.name == EVENT_TYPE.Enter){
+		logEntry.events[e.subject.master.index] = {
+			type: 'pokemon',
+			eventType: EVENT_TYPE.Enter,
+			name: e.subject.name,
+			nickname: e.subject.nickname
+		};
+	}else if (e.name == EVENT_TYPE.Hurt){
+		logEntry.events[e.subject.master.index] = {
+			name: e.move.name,
+			eventType: EVENT_TYPE.Hurt,
+			text: e.subject.HP + "(-" + e.dmg + ")",
+			value: e.dmg
+		};
+		logEntry.events[e.object.master.index] = {
+			type: e.move.moveType + 'Move', 
+			name: e.move.name
+		};
+	}else if (e.name == EVENT_TYPE.Dodge){
+		logEntry.events[e.subject.master.index] = {
+			type: 'text',
+			text: 'Dodge'
+		};
+	}else if (e.name == EVENT_TYPE.MoveEffect){
+		logEntry.events[e.subject.master.index] = {
+			type: 'text', 
+			text: e.text
+		};
+	}
+	this.appendEntryToLog(logEntry);
+}
+
+// Append entry to log and try to merge with the last one
+World.prototype.appendEntryToLog = function(entry){
+	if (this.log.length == 0){
+		this.log.push(entry);
+		return;
+	}
+	var lastEntry = this.log[this.log.length - 1];
+	if (entry.t != lastEntry.t){
+		this.log.push(entry);
+		return;
+	}
+	var mergedEntry = {
+		t: entry.t,
+		events: new Array(this.players.length)
+	};
+	for (var i = 0; i < this.players.length; i++){
+		var cur = entry.events[i], prev = lastEntry.events[i];
+		if (cur && prev){
+			if (cur.eventType == EVENT_TYPE.Hurt && prev.eventType == EVENT_TYPE.Hurt){
+				mergedEntry.events[i] = {
 					type: 'text',
 					eventType: EVENT_TYPE.Hurt,
-					text: e.subject.HP,
-					value: 0
+					text: prev.text.split("(")[0],
+					value: prev.value + cur.value
 				};
+				mergedEntry.events[i].text += "(-" + mergedEntry.events[i].value + ")";
+			}else if (prev.name && prev.name == cur.name) {
+				mergedEntry.events[i] = prev;
+			}else{
+				this.log.push(entry);
+				return;
 			}
-			logEntry.events[e.subject.master.index].value += e.dmg;
-			logEntry.events[e.object.master.index] = {
-				type: e.move.moveType + 'Move', 
-				name: e.move.name
-			};
-		}else if (e.name == EVENT_TYPE.Dodge){
-			logEntry.events[e.subject.master.index] = {
-				type: 'text',
-				text: 'Dodge'
-			};
-		}else if (e.name == EVENT_TYPE.MoveEffect){
-			logEntry.events[e.subject.master.index] = {
-				type: 'text', 
-				text: e.text
-			};
+		}else{
+			mergedEntry.events[i] = cur || prev;
 		}
 	}
-	for (let e of logEntry.events){
-		if (e && e.eventType == EVENT_TYPE.Hurt){
-			e.text += "(-" + e.value + ")";
-		}
-	}
-	this.log.push(logEntry);
+	this.log.pop();
+	this.log.push(mergedEntry);
 }
+
 
 // From the perspective of team "0"
 World.prototype.getBattleResult = function(){
@@ -876,15 +902,15 @@ function strat2(state){
 	let hurtEvent = this.incomingHurtEvent;
 	if (!hurtEvent && this.incomingRivalAction && this.incomingRivalAction.t > state.tFree){
 		if (this.incomingRivalAction.name == "fast"){
-			hurtEvent = this.incomingRivalAction;
-			hurtEvent.move = hurtEvent.from.fmove;
-			hurtEvent.t = hurtEvent.t + hurtEvent.move.dws;
-			hurtEvent.dmg = damage(hurtEvent.from, this, hurtEvent.move, state.weather);
+			hurtEvent = {};
+			hurtEvent.move = this.incomingRivalAction.from.fmove;
+			hurtEvent.t = this.incomingRivalAction.t + hurtEvent.move.dws;
+			hurtEvent.dmg = damage(this.incomingRivalAction.from, this, hurtEvent.move, state.weather);
 		}else if (this.incomingRivalAction.name == "charged"){
-			hurtEvent = this.incomingRivalAction;
-			hurtEvent.move = hurtEvent.from.cmove;
-			hurtEvent.t = hurtEvent.t + hurtEvent.move.dws;
-			hurtEvent.dmg = damage(hurtEvent.from, this, hurtEvent.move, state.weather);
+			hurtEvent = {};
+			hurtEvent.move = this.incomingRivalAction.from.cmove;
+			hurtEvent.t = this.incomingRivalAction.t + hurtEvent.move.dws;
+			hurtEvent.dmg = damage(this.incomingRivalAction.from, this, hurtEvent.move, state.weather);
 		}
 	}
 	if (hurtEvent && hurtEvent.move.moveType == "charged" && !this.hasDodged){
@@ -895,7 +921,7 @@ function strat2(state){
 		}
 		if (dodgedDmg < this.HP){
 			let timeTillHurt = hurtEvent.t - state.tFree;
-			if (timeTillHurt > this.cmove.duration + Data.BattleSettings.chargedMoveLagMs + Data.BattleSettings.dodgeSwipeMs){
+			if (this.energy + this.cmove.energyDelta >= 0 && timeTillHurt > this.cmove.duration + Data.BattleSettings.chargedMoveLagMs + Data.BattleSettings.dodgeSwipeMs){
 				// Fit in another charge move
 				return {name: "charged", delay: 0};
 			}else if (timeTillHurt > this.fmove.duration + Data.BattleSettings.fastMoveLagMs + Data.BattleSettings.dodgeSwipeMs){
@@ -939,15 +965,15 @@ function strat3(state){
 	let hurtEvent = this.incomingHurtEvent;
 	if (!hurtEvent && this.incomingRivalAction && this.incomingRivalAction.t > state.tFree){
 		if (this.incomingRivalAction.name == "fast"){
-			hurtEvent = this.incomingRivalAction;
-			hurtEvent.move = hurtEvent.from.fmove;
-			hurtEvent.t = hurtEvent.t + hurtEvent.move.dws;
-			hurtEvent.dmg = damage(hurtEvent.from, this, hurtEvent.move, state.weather);
+			hurtEvent = {};
+			hurtEvent.move = this.incomingRivalAction.from.fmove;
+			hurtEvent.t = this.incomingRivalAction.t + hurtEvent.move.dws;
+			hurtEvent.dmg = damage(this.incomingRivalAction.from, this, hurtEvent.move, state.weather);
 		}else if (this.incomingRivalAction.name == "charged"){
-			hurtEvent = this.incomingRivalAction;
-			hurtEvent.move = hurtEvent.from.cmove;
-			hurtEvent.t = hurtEvent.t + hurtEvent.move.dws;
-			hurtEvent.dmg = damage(hurtEvent.from, this, hurtEvent.move, state.weather);
+			hurtEvent = {};
+			hurtEvent.move = this.incomingRivalAction.from.cmove;
+			hurtEvent.t = this.incomingRivalAction.t + hurtEvent.move.dws;
+			hurtEvent.dmg = damage(this.incomingRivalAction.from, this, hurtEvent.move, state.weather);
 		}
 	}
 	if (hurtEvent && !this.hasDodged){
@@ -958,7 +984,7 @@ function strat3(state){
 		}
 		if (dodgedDmg < this.HP){
 			let timeTillHurt = hurtEvent.t - state.tFree;
-			if (timeTillHurt > this.cmove.duration + Data.BattleSettings.chargedMoveLagMs + Data.BattleSettings.dodgeSwipeMs){
+			if (this.energy + this.cmove.energyDelta >= 0 && timeTillHurt > this.cmove.duration + Data.BattleSettings.chargedMoveLagMs + Data.BattleSettings.dodgeSwipeMs){
 				// Fit in another charge move
 				return {name: "charged", delay: 0};
 			}else if (timeTillHurt > this.fmove.duration + Data.BattleSettings.fastMoveLagMs + Data.BattleSettings.dodgeSwipeMs){
