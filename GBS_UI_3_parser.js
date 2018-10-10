@@ -147,7 +147,7 @@ function averageSimulations(sims){
 	
 	// 1. Initialize everything to 0
 	traverseLeaf(avrgOutput, function(v, path){
-		if (!isNaN(parseFloat(v)) || path[path.length-1] == "battle_result"){
+		if (!isNaN(parseFloat(v))){
 			setProperty(avrgOutput, path, 0);
 		}
 	});
@@ -158,8 +158,6 @@ function averageSimulations(sims){
 		traverseLeaf(sim.output, function(v, path){
 			if (!isNaN(parseFloat(v))){
 				setProperty(avrgOutput, path, getProperty(avrgOutput, path) + v);
-			}else if (path[path.length-1] == "battle_result"){
-				setProperty(avrgOutput, path, getProperty(avrgOutput, path) + (v == "Win" ? 1 : 0));
 			}
 		});
 	}
@@ -169,9 +167,6 @@ function averageSimulations(sims){
 		if (!isNaN(parseFloat(v))){
 			v = v / sims.length;
 			setProperty(avrgOutput, path, v);
-		}
-		if (path[path.length-1] == "battle_result"){
-			setProperty(avrgOutput, path, round(v * 100, 2) + "%");
 		}
 	});
 	

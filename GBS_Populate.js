@@ -29,8 +29,8 @@ var DefaultData = {
 		'timelimitRaidMs': 180000,
 		'timelimitLegendaryRaidMs': 300000,
 		'rejoinDurationMs': 10000,
-		'itemMenuAnimationTimeMs': 200,
-		'maxReviveTimePerPokemonMs': 800
+		'itemMenuAnimationTimeMs': 2000,
+		'maxReviveTimePerPokemonMs': 1000
 	},
 	
 	FriendSettings: [
@@ -479,9 +479,9 @@ function fetchSpeciesData(oncomplete){
 // Get supplement Pokemon form data
 function fetchSpeciesFormData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
-	
+	var currTime = new Date().getTime();
 	$.ajax({ 
-		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json?v2',
+		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json?_format=json&' + currTime,
 		dataType: 'json', 
 		success: function(data){
 			Data.PokemonForms = data;
@@ -546,7 +546,8 @@ function fetchUserData(userid, oncomplete){
 			var user = {
 				name: userid,
 				uid: userid,
-				box: parseUserPokebox(data)
+				box: parseUserPokebox(data),
+				parties: []
 			};
 			insertEntry(user, Data.Users);
 		},
@@ -763,6 +764,12 @@ function fetchAll_then(onfinish){
 			var pkm2 = getEntry(pkm.name, Data.Pokemon);
 			if (pkm2){
 				pkm2.icon = pkm.icon;
+				pkm2.ms_hp = pkm.ms_hp;
+				pkm2.ms_atk = pkm.ms_atk;
+				pkm2.ms_def = pkm.ms_def;
+				pkm2.ms_spa = pkm.ms_spa;
+				pkm2.ms_spd = pkm.ms_spd;
+				pkm2.ms_spe = pkm.ms_spe;
 			}else{
 				pkm = JSON.parse(JSON.stringify(pkm));
 				pkm.fastMoves = [];

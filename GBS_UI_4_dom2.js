@@ -351,6 +351,7 @@ function userEditFormInit(){
 function userEditFormAddUser(){
 	var userID = document.getElementById('userEditForm-userID-1').value.trim();
 	fetchUserData(userID, function(){
+		fetchUserTeamData(userID);
 		sendFeedbackDialog("Imported user " + userID);
 		updateUserTable();
 	});

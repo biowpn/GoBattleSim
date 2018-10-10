@@ -124,18 +124,18 @@ function createPokemonRaidTierInput(){
 		raidTierInput.appendChild(createElement('option', raidTier.label, {value: raidTier.name}));
 	}
 	raidTierInput.onchange = function(){
-		if (document.getElementById("battleMode").value == "raid"){
-			var timelimitInput = document.getElementById("timelimit");
-			if (parseInt(this.value) <= 4){
-				timelimitInput.value = Data.BattleSettings.timelimitRaidMs;
-			}else{
-				timelimitInput.value = Data.BattleSettings.timelimitLegendaryRaidMs;
-			}
-		}
+		this.comply({battleMode: $("#battleMode").val()});
 	}
 	raidTierInput.comply = function(kwargs){
 		if (kwargs.battleMode == "raid"){
-			this.onchange();
+			if ($$$(this).parent("player").child("player-team").val() == "1"){
+				var timelimitInput = document.getElementById("timelimit");
+				if (parseInt(this.value) <= 4){
+					timelimitInput.value = Data.BattleSettings.timelimitRaidMs;
+				}else{
+					timelimitInput.value = Data.BattleSettings.timelimitLegendaryRaidMs;
+				}
+			}
 		}
 	}
 	return raidTierInput;
@@ -683,7 +683,15 @@ function createMasterSummaryTable(){
 			}else{
 				let cellData = sim.output.generalStat[m];
 				if (typeof cellData == typeof 0){
-					row.push(round(cellData, 2));
+					if (m == "battle_result"){
+						if (sim.input.aggregation == "enum"){
+							row.push(cellData == 1 ? "Win" : "Lose");
+						}else{
+							row.push(round(cellData * 100, 2) + "%");
+						}
+					}else{
+						row.push(round(cellData, 2));
+					}
 				}else{
 					row.push(cellData);
 				}

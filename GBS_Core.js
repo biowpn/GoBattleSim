@@ -674,7 +674,7 @@ World.prototype.battle = function(){
 				party.heal();
 				this.timeline.insert({
 					name: EVENT_TYPE.Enter, 
-					t: t + Data.BattleSettings.itemMenuAnimationTimeMs + party.pokemon.length * Data.BattleSettings.maxReviveTimePerPokemonMs,
+					t: t + Data.BattleSettings.rejoinDurationMs + Data.BattleSettings.itemMenuAnimationTimeMs + party.pokemon.length * Data.BattleSettings.maxReviveTimePerPokemonMs,
 					subject: player.head()
 				});
 			}else if (player.selectNextParty()){ // Select next Party and re-lobby
@@ -792,7 +792,7 @@ World.prototype.appendEntryToLog = function(entry){
 
 // From the perspective of team "0"
 World.prototype.getBattleResult = function(){
-	return this.isTeamDefeated("1") ? "Win" : "Lose";
+	return this.isTeamDefeated("1") ? 1 : 0;
 }
 
 // Return the statistis and battle log
