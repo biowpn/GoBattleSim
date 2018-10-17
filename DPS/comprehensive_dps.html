@@ -127,6 +127,9 @@ $( "#ui-use-box-checkbox" ).change(function(){
 $( "#ui-uniqueSpecies" ).controlgroup();
 $( "#ui-uniqueSpecies-checkbox" ).change(function(){
 	uniqueSpecies = this.checked;
+	if (uniqueSpecies){
+		markFirstInstancePerSpecies();
+	}
 	$("#ranking_table").DataTable().draw();
 });
 

@@ -183,13 +183,7 @@ function applicationInit(){
 			{title: "DPS", data: "ui_dps", width: "10%", orderSequence: [ "desc", "asc"]},
 			{title: "TDO", data: "ui_tdo", width: "10%", orderSequence: [ "desc", "asc"]},
 			{title: "DPS*TDO", data: "ui_d2ps", width: "10%", orderSequence: [ "desc", "asc"]},
-			{title: "CP", data: "ui_cp", width: "10%", orderSequence: [ "desc", "asc"]},
-			
-			{title: "old DPS", data: "ui_dps_old", width: "10%", orderSequence: [ "desc", "asc"]},
-			{title: "old TDO", data: "ui_tdo_old", width: "10%", orderSequence: [ "desc", "asc"]},
-			{title: "old DPS*TDO", data: "ui_d2ps_old", width: "10%", orderSequence: [ "desc", "asc"]},
-			{title: "old CP", data: "ui_cp_old", width: "10%", orderSequence: [ "desc", "asc"]},
-
+			{title: "CP", data: "ui_cp", width: "10%", orderSequence: [ "desc", "asc"]}
 		],
 		scrollX: true
 	});
@@ -251,11 +245,8 @@ function generateSpreadsheet(pokemonCollection){
 					stmiv: p.stmiv >= 0 ? p.stmiv : DEFAULT_IVs[2]
 				});
 				leftMerge(pkm, p);
-				pkm.cpm = 0.79030001;
-				setNewBaseStats(pkm);
-				pkm.initCurrentStats();
 				
-				pkm.calculateDPS(Context);	
+				pkm.calculateDPS(Context);
 				if (pkm.dps > bestPkm.dps){
 					bestPkm.best = false;
 					pkm.best = true;
@@ -263,6 +254,7 @@ function generateSpreadsheet(pokemonCollection){
 				}else{
 					pkm.best = false;
 				}
+				
 				pkm.ui_name = createIconLabelSpan(p.icon, p.nickname || p.label, 'species-input-with-icon');
 				pkm.ui_fmove = createIconLabelSpan(pkm.fmove.icon, pkm.fmove.label, 'move-input-with-icon');
 				pkm.ui_cmove = createIconLabelSpan(pkm.cmove.icon, pkm.cmove.label, 'move-input-with-icon');
@@ -270,19 +262,6 @@ function generateSpreadsheet(pokemonCollection){
 				pkm.ui_tdo = round(pkm.tdo, 1);
 				pkm.ui_d2ps = round(pkm.dps * pkm.tdo, 1);
 				pkm.ui_cp = calculateCP(pkm);
-				
-				pkm_old = new Pokemon(pkm);
-				leftMerge(pkm_old, p);
-				pkm_old.cpm = 0.79030001;
-				setOldBaseStats(pkm_old);
-				pkm_old.initCurrentStats();
-				pkm_old.calculateDPS(Context);
-				
-				pkm.ui_dps_old = round(pkm_old.dps, 3);
-				pkm.ui_tdo_old = round(pkm_old.tdo, 1);
-				pkm.ui_d2ps_old = round(pkm_old.dps * pkm_old.tdo, 1);
-				pkm.ui_cp_old = calculateCP(pkm_old);
-				
 				
 				Table.row.add(pkm);
 			}
@@ -293,6 +272,7 @@ function generateSpreadsheet(pokemonCollection){
 	$("#ranking_table").DataTable().draw();
 }
 
+
 function updateSpreadsheet(){
 	var Table = $("#ranking_table").DataTable();
 	applyContext();
@@ -300,28 +280,8 @@ function updateSpreadsheet(){
 	var dataLength = Table.data().length;
 	for (var i = 0; i < dataLength; i++){
 		var pkm = Table.row(i).data();
-		setNewBaseStats(pkm);
-		pkm.cpm = 0.79030001;
-		pkm.initCurrentStats();
 		
 		pkm.calculateDPS(Context);
-		pkm.ui_dps = round(pkm.dps, 3);
-		pkm.ui_tdo = round(pkm.tdo, 1);
-		pkm.ui_d2ps = round(pkm.dps * pkm.tdo, 1);
-		
-		pkm_old = new Pokemon(pkm);
-		leftMerge(pkm_old, pkm);
-		pkm_old.cpm = 0.79030001;
-		setOldBaseStats(pkm_old);
-		pkm_old.initCurrentStats();
-		pkm_old.calculateDPS(Context);
-		
-		pkm.ui_dps_old = round(pkm_old.dps, 3);
-		pkm.ui_tdo_old = round(pkm_old.tdo, 1);
-		pkm.ui_d2ps_old = round(pkm_old.dps * pkm_old.tdo, 1);
-		pkm.ui_cp_old = calculateCP(pkm_old);
-		
-		
 		var curBest = bestEachSpecies[pkm.name];
 		if (curBest){
 			if (pkm.dps > curBest.dps){
@@ -335,6 +295,10 @@ function updateSpreadsheet(){
 			pkm.best = true;
 			bestEachSpecies[pkm.name] = pkm;
 		}
+		
+		pkm.ui_dps = round(pkm.dps, 3);
+		pkm.ui_tdo = round(pkm.tdo, 1);
+		pkm.ui_d2ps = round(pkm.dps * pkm.tdo, 1)
 		Table.row(i).data(pkm);
 	}
 	console.log(Date() + ": All DPS re-calculated");
@@ -342,9 +306,13 @@ function updateSpreadsheet(){
 	$("#ranking_table").DataTable().draw();
 }
 
+
 function requestSpreadsheet(startover){
 	calculationMethod = function(){};
-	uniqueSpecies = document.getElementById('ui-uniqueSpecies-checkbox').checked;
+	
+	uniqueSpecies = false;
+	document.getElementById('ui-uniqueSpecies-checkbox').checked = false;
+	$("#ui-uniqueSpecies-checkbox").button('refresh');
 	
 	if (startover){
 		var pokebox_checkbox = document.getElementById('ui-use-box-checkbox');
@@ -385,7 +353,6 @@ function requestSpreadsheet(startover){
 }
 
 
-
 var lastKeyUpTime = 0;
 pred = function(obj){return true;}
 
@@ -393,13 +360,27 @@ function search_trigger(){
 	lastKeyUpTime = Date.now();
 	setTimeout(function(){
 		if (Date.now() - lastKeyUpTime >= 600){
+			var DT = $("#ranking_table").DataTable();
 			pred = createComplexPredicate($('#searchInput').val());
-			$("#ranking_table").DataTable().draw();
+			DT.draw();
 		}
 	}, 600);
 }
 
 var uniqueSpecies = false;
+
+function markFirstInstancePerSpecies(){
+	var data = $("#ranking_table").DataTable().rows({search: "applied"}).data();
+	var speciesHasOccured = {};
+	for (var i = 0; i < data.length; i++){
+		if (!speciesHasOccured[data[i].name]){
+			data[i].best = true;
+			speciesHasOccured[data[i].name] = true;
+		}else{
+			data[i].best = false;
+		}
+	}
+}
 
 $.fn.dataTable.ext.search.push(
     function(settings, searchData, index, rowData, counter){
