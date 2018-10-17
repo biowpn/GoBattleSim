@@ -707,8 +707,10 @@ function getTableContent(dt){
 	var data = dt.rows().data();
 	for (var i = 0; i < data.length; i++){
 		let r = [];
-		for (var j = 0; j < data[i].length; j++){
-			r.push(createElement("div", data[i][j]).innerText.trim());
+		for (var attr in data[i]){
+			if (attr.substr(0, 3) == "ui_"){
+				r.push(createElement("div", data[i][attr]).innerText.trim());
+			}
 		}
 		content.push(r);
 	}

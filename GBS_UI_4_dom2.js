@@ -246,11 +246,11 @@ function pokemonEditFormSubmit(){
 		pokemon = pokemon2;
 		sendFeedbackDialog('Pokemon: ' + pokemon.label + ' has been updated.');
 	}else{
-		pkm.dex = 0;
-		pkm.icon = "https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png";
-		pkm.label = toTitleCase(pokemon.name);
-		pkm.rating = 0;
-		insertEntry(pkm, Data.Pokemon);
+		pokemon.dex = 0;
+		pokemon.icon = "https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png";
+		pokemon.label = toTitleCase(pokemon.name);
+		pokemon.rating = 0;
+		insertEntry(pokemon, Data.Pokemon);
 		sendFeedbackDialog('Pokemon: ' + pokemon.label + ' has been added.');
 	}
 

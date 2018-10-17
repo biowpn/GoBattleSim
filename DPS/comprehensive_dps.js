@@ -184,7 +184,14 @@ function applicationInit(){
 			{title: "TDO", data: "ui_tdo", width: "10%", orderSequence: [ "desc", "asc"]},
 			{title: "DPS*TDO", data: "ui_d2ps", width: "10%", orderSequence: [ "desc", "asc"]},
 			{title: "CP", data: "ui_cp", width: "10%", orderSequence: [ "desc", "asc"]},
-		]
+			
+			{title: "old DPS", data: "ui_dps_old", width: "10%", orderSequence: [ "desc", "asc"]},
+			{title: "old TDO", data: "ui_tdo_old", width: "10%", orderSequence: [ "desc", "asc"]},
+			{title: "old DPS*TDO", data: "ui_d2ps_old", width: "10%", orderSequence: [ "desc", "asc"]},
+			{title: "old CP", data: "ui_cp_old", width: "10%", orderSequence: [ "desc", "asc"]},
+
+		],
+		scrollX: true
 	});
 	Table.order( [ 3, 'desc' ] );
 	$('#ranking_table_filter').hide();
@@ -243,6 +250,11 @@ function generateSpreadsheet(pokemonCollection){
 					defiv: p.defiv >= 0 ? p.defiv : DEFAULT_IVs[1],
 					stmiv: p.stmiv >= 0 ? p.stmiv : DEFAULT_IVs[2]
 				});
+				leftMerge(pkm, p);
+				pkm.cpm = 0.79030001;
+				setNewBaseStats(pkm);
+				pkm.initCurrentStats();
+				
 				pkm.calculateDPS(Context);	
 				if (pkm.dps > bestPkm.dps){
 					bestPkm.best = false;
@@ -258,6 +270,20 @@ function generateSpreadsheet(pokemonCollection){
 				pkm.ui_tdo = round(pkm.tdo, 1);
 				pkm.ui_d2ps = round(pkm.dps * pkm.tdo, 1);
 				pkm.ui_cp = calculateCP(pkm);
+				
+				pkm_old = new Pokemon(pkm);
+				leftMerge(pkm_old, p);
+				pkm_old.cpm = 0.79030001;
+				setOldBaseStats(pkm_old);
+				pkm_old.initCurrentStats();
+				pkm_old.calculateDPS(Context);
+				
+				pkm.ui_dps_old = round(pkm_old.dps, 3);
+				pkm.ui_tdo_old = round(pkm_old.tdo, 1);
+				pkm.ui_d2ps_old = round(pkm_old.dps * pkm_old.tdo, 1);
+				pkm.ui_cp_old = calculateCP(pkm_old);
+				
+				
 				Table.row.add(pkm);
 			}
 		}
@@ -274,10 +300,28 @@ function updateSpreadsheet(){
 	var dataLength = Table.data().length;
 	for (var i = 0; i < dataLength; i++){
 		var pkm = Table.row(i).data();
+		setNewBaseStats(pkm);
+		pkm.cpm = 0.79030001;
+		pkm.initCurrentStats();
+		
 		pkm.calculateDPS(Context);
 		pkm.ui_dps = round(pkm.dps, 3);
 		pkm.ui_tdo = round(pkm.tdo, 1);
 		pkm.ui_d2ps = round(pkm.dps * pkm.tdo, 1);
+		
+		pkm_old = new Pokemon(pkm);
+		leftMerge(pkm_old, pkm);
+		pkm_old.cpm = 0.79030001;
+		setOldBaseStats(pkm_old);
+		pkm_old.initCurrentStats();
+		pkm_old.calculateDPS(Context);
+		
+		pkm.ui_dps_old = round(pkm_old.dps, 3);
+		pkm.ui_tdo_old = round(pkm_old.tdo, 1);
+		pkm.ui_d2ps_old = round(pkm_old.dps * pkm_old.tdo, 1);
+		pkm.ui_cp_old = calculateCP(pkm_old);
+		
+		
 		var curBest = bestEachSpecies[pkm.name];
 		if (curBest){
 			if (pkm.dps > curBest.dps){

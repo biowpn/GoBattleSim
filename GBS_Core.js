@@ -437,7 +437,7 @@ function World(cfg){
 	}
 	this.weather = cfg.weather || "EXTREME";
 	this.hasLog = cfg.hasLog || false;
-	this.dodgeBugActive = cfg.dodgeBug || false;
+	this.dodgeBugActive = cfg.dodgeBugActive || false;
 	
 	// Configure players
 	this.players = [];
@@ -659,12 +659,9 @@ World.prototype.battle = function(){
 			faintedPokemon.timeLeaveMs = t;
 			faintedPokemon.activeDurationMs += t - faintedPokemon.timeEnterMs;
 			if (faintedPokemon.role == "gd" && this.battleMode == "gym"){
-				// A gym defender's fainting will reset the battle if the battle mode if "gym"
-				this.battleDuration += t;
-				for (let e of this.timeline.list){
-					e.t -= t;
-				}
-				t = 0;
+				// A gym defender's fainting will reset the timelimit if the battle mode if "gym"
+				timelimit += t - this.battleDuration;
+				this.battleDuration = t;
 			}
 			if (player.selectNextPokemon()){ // Select next Pokemon from current party
 				this.timeline.insert({
@@ -698,7 +695,7 @@ World.prototype.battle = function(){
 	}
 	
 	// Battle has ended, some leftovers to handle	
-	this.battleDuration += t;
+	this.battleDuration = t;
 	for (let player of this.players){
 		let pkm = player.head();
 		if (pkm && pkm.active){
