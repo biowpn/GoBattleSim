@@ -117,6 +117,12 @@ function damage2(dmg_giver, dmg_taker, move, weather){
 function applicationInit(){
 	acceptedNumericalAttributes = acceptedNumericalAttributes.concat(['dps', 'tdo']);
 	
+	$.fn.dataTable.Api.register( 'rows().generate()', function () {
+		return this.iterator( 'row', function ( context, index ) {
+		  context.oApi._fnCreateTr( context, index );
+		} );
+	});
+	
 	var weatherSelect = document.getElementById('weather');
 	Data.WeatherSettings.forEach(function(weatherSetting){
 		weatherSelect.appendChild(createElement('option', weatherSetting.name, {value: weatherSetting.name}));
@@ -244,7 +250,7 @@ function generateSpreadsheet(pokemonCollection){
 					defiv: p.defiv >= 0 ? p.defiv : DEFAULT_IVs[1],
 					stmiv: p.stmiv >= 0 ? p.stmiv : DEFAULT_IVs[2]
 				});
-				leftMerge(pkm, p);
+				pkm.dex = p.dex;
 				
 				pkm.calculateDPS(Context);
 				if (pkm.dps > bestPkm.dps){
@@ -417,3 +423,39 @@ function generateSpectrum(pkm, settings){
 	}
 	return DPS_spectrum;
 }
+
+
+function calculateDPSGrades(maxDPS){
+	var DT = $("#ranking_table").DataTable();
+	var data = DT.data();
+	for (var i = 0; i < data.length; i++){
+		var score = data[i].ui_dps / maxDPS;
+		if (score >= 0.976190){
+			grade = "A";
+		}else if (score >= 0.928571){
+			grade = "A-";
+		}else if (score >= 0.880952){
+			grade = "B+";
+		}else if (score >= 0.833333){
+			grade = "B";
+		}else if (score >= 0.785714){
+			grade = "B-";
+		}else if (score >= 0.738095){
+			grade = "C+";
+		}else if (score >= 0.690476){
+			grade = "C";
+		}else if (score >= 0.642857){
+			grade = "C-";
+		}else{
+			grade = "X";
+		}
+		data[i].ui_cp = grade;
+	}
+	DT.rows().invalidate();
+}
+
+
+
+
+
+

@@ -71,11 +71,15 @@ function Move(m, moveDatabase){
 // constructor
 function Pokemon(cfg){
 	this.id = cfg.id;
-	this.role = cfg.role;
+	this.role = cfg.role || "a";
 	this.raidTier = cfg.raidTier;
 	this.master = cfg.master || null;
 	this.nickname = cfg.nickname || "";
 	this.immortal = cfg.immortal || false;
+	if (this.role.toUpperCase() == this.role){
+		this.immortal = true;
+		this.role = this.role.toLowerCase();
+	}
 	this.fab = cfg.fab || 1;
 	
 	let speciesData = {};

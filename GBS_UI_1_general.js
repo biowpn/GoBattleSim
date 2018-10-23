@@ -584,6 +584,7 @@ function createPokemonNameInput(){
 				let raidTierInput = pokemonGBS.child("pokemon-raidTier").node;
 				if (raidTierInput){
 					raidTierInput.value = pkmInfo.raidMarker.split(" ")[0];
+					raidTierInput.onchange();
 				}
 			}
 		},
@@ -698,19 +699,23 @@ function sendFeedbackDialog(msg, dialogTitle){
 
 function getTableContent(dt){
 	var content = [];
-	var hrow = dt.table().header().children[0];
 	let r = [];
-	for (let child of hrow.children){
-		r.push(child.innerText.trim());
+	let headers = dt.columns().header();
+	for (var i = 0; i < headers.length; i++){
+		r.push(headers[i].innerText.trim());
 	}
 	content.push(r);
-	var data = dt.rows().data();
+	
+	let attributes = [];
+	let dataSrc = dt.columns().dataSrc();
+	for (var i = 0; i < dataSrc.length; i++){
+		attributes.push(dataSrc[i]);
+	}
+	var data = dt.rows({search: "applied"}).data();
 	for (var i = 0; i < data.length; i++){
 		let r = [];
-		for (var attr in data[i]){
-			if (attr.substr(0, 3) == "ui_"){
-				r.push(createElement("div", data[i][attr]).innerText.trim());
-			}
+		for (let attr of attributes){
+			r.push(createElement("div", data[i][attr]).innerText.trim());
 		}
 		content.push(r);
 	}

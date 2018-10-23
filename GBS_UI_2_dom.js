@@ -58,11 +58,12 @@ function createRemovePokemonButton(){
 function createPokemonRoleInput(){
 	var roleInput = createElement("select", "", {name: "pokemon-role"});
 	roleInput.appendChild(createElement('option', 'User Pokemon', {value: "a"}));
-	roleInput.appendChild(createElement('option', 'Raid Boss', {value: "rb"}));
 	roleInput.appendChild(createElement('option', 'Gym Defender', {value: "gd"}));
+	roleInput.appendChild(createElement('option', 'Raid Boss', {value: "rb"}));
+	roleInput.appendChild(createElement('option', 'Raid Boss (Immortal)', {value: "RB"}));
 	roleInput.onchange = function(){
 		var pokemonNode = $$$(this).parent("pokemon").node;
-		if (this.value == "rb"){
+		if (this.value.toLowerCase() == "rb"){
 			pokemonNode.children[1].children[1].setAttribute("hidden", true);
 			pokemonNode.children[1].children[2].removeAttribute("hidden");
 		}else{
