@@ -898,7 +898,7 @@ function exportConfig(cfg){
 					if (!pokemon[attr]){
 						delete pokemon[attr];
 					}
-					if (pokemon.role == "rb"){
+					if ((pokemon.role || "").toLowerCase() == "rb"){
 						delete pokemon.atkiv;
 						delete pokemon.defiv;
 						delete pokemon.stmiv;

@@ -117,8 +117,8 @@ function Pokemon(cfg){
 Pokemon.prototype.init = function(){
 	this.initCurrentStats();
 	
-	this.hasDodged = false;
 	this.active = false;
+	this.reducedDamageStatusExpiration = -1;
 	this.buffedAction = null;
 	this.incomingHurtEvent = null;
 	this.incomingRivalAction = null;
@@ -181,7 +181,6 @@ Pokemon.prototype.takeDamage = function(dmg){
 		this.numOfDeaths++;
 	}
 	this.gainEnergy(Math.ceil(dmg * Data.BattleSettings.energyDeltaPerHealthLost));
-	this.hasDodged = false;
 }
 
 // Keep record of TDO for performance analysis
@@ -189,6 +188,12 @@ Pokemon.prototype.attributeDamage = function(dmg, moveType){
 	this.tdo += dmg;
 	if (moveType == 'fast'){
 		this.tdoFast += dmg;
+	}
+}
+
+// Increase Attack count
+Pokemon.prototype.incrementAttackCount = function(moveType){
+	if (moveType == 'fast'){
 		this.numOfFastHits++;
 		this.numOfFastHitsPostCharged++;
 	}else{
@@ -441,7 +446,7 @@ function World(cfg){
 	}
 	this.weather = cfg.weather || "EXTREME";
 	this.hasLog = cfg.hasLog || false;
-	this.dodgeBugActive = cfg.dodgeBugActive || false;
+	this.dodgeBugActive = parseInt(cfg.dodgeBugActive) || false;
 	
 	// Configure players
 	this.players = [];
@@ -494,7 +499,8 @@ World.prototype.init = function(){
 
 // A Pokemon uses an attack
 World.prototype.pokemonUsesAttack = function(pkm, move, t){
-	t += Data.BattleSettings[move.moveType + "MoveLagMs"] || 0;
+	pkm.incrementAttackCount(move.moveType);
+	
 	let energyDeltaEvent = {
 		name: EVENT_TYPE.EnergyDelta, t: t + move.dws, subject: pkm, energyDelta: move.energyDelta
 	};
@@ -534,7 +540,7 @@ World.prototype.registerAction = function(pkm, t, action){
 		action = {};
 	}
 	t += action.delay || 0;
-	if (action.name == 'fast'){ // Use fast move
+	if (action.name == "fast"){ // Use fast move
 		if (pkm.role == "a"){ // Add lag for human player's Pokemon
 			t += Data.BattleSettings.fastMoveLagMs;
 		}
@@ -555,9 +561,11 @@ World.prototype.registerAction = function(pkm, t, action){
 			t += 100;
 		}
 	}else if (action.name == "dodge"){ // dodge
+		/*
 		if (pkm.role == "a"){ // Add swiping time for human player
 			t += Data.BattleSettings.dodgeSwipeMs;
 		}
+		*/
 		this.timeline.insert({
 			name: EVENT_TYPE.Dodge, t: t, subject: pkm
 		});
@@ -610,7 +618,7 @@ World.prototype.battle = function(){
 				let tFree = this.registerAction(e.subject, t, currentAction);
 				if (currentAction && (e.subject.role == "gd" || e.subject.role == "rb")){
 					// Gym Defenders and Raid Bosses are forced to broadcast
-					this.pokemonBroadcasts(e.subject, currentAction, tFree);
+					this.pokemonBroadcasts(e.subject, currentAction, t);
 				}
 				e.subject.buffedAction = e.subject.choose({
 					t: t,
@@ -619,14 +627,17 @@ World.prototype.battle = function(){
 					weather: this.weather,
 					dodgeBugActive: this.dodgeBugActive
 				});
+				
 				this.timeline.insert({
 					name: EVENT_TYPE.Free, t: tFree, subject: e.subject
 				});
 			}
 		}else if (e.name == EVENT_TYPE.Hurt){
 			if (e.subject.active && e.object.active){
+				if (t <= e.subject.reducedDamageStatusExpiration){
+					e.dmg = Math.max(1, Math.floor(e.dmg * (1 - e.subject.reducedDamagePercent)));
+				}
 				e.subject.takeDamage(e.dmg);
-				e.subject.incomingHurtEvent = null;
 				if (e.subject.HP <= 0 && !e.subject.immortal){
 					faintedPokemon = e.subject;
 					e.subject.active = false;
@@ -644,11 +655,8 @@ World.prototype.battle = function(){
 			});
 			this.appendEventToLog(e);
 		}else if (e.name == EVENT_TYPE.Dodge){
-			let eHurt = e.subject.incomingHurtEvent;
-			if (eHurt && !e.dodged && (eHurt.t - Data.BattleSettings.dodgeWindowMs) <= t && t <= eHurt.t){
-				eHurt.dmg = Math.max(1, Math.floor(eHurt.dmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent)));
-				e.dodged = true;
-			}
+			e.subject.reducedDamageStatusExpiration = t + Data.BattleSettings.dodgeWindowMs;
+			e.subject.reducedDamagePercent = Data.BattleSettings.dodgeDamageReductionPercent;
 			this.appendEventToLog(e);
 		}else if (e.name == EVENT_TYPE.Announce){
 			this.pokemonUsesAttack(e.subject, e.move, t);
@@ -901,20 +909,24 @@ function strat2(state){
 		return;
 	}
 	let hurtEvent = this.incomingHurtEvent;
-	if (!hurtEvent && this.incomingRivalAction && this.incomingRivalAction.t > state.tFree){
-		if (this.incomingRivalAction.name == "fast"){
-			hurtEvent = {};
-			hurtEvent.move = this.incomingRivalAction.from.fmove;
-			hurtEvent.t = this.incomingRivalAction.t + hurtEvent.move.dws;
-			hurtEvent.dmg = damage(this.incomingRivalAction.from, this, hurtEvent.move, state.weather);
-		}else if (this.incomingRivalAction.name == "charged"){
-			hurtEvent = {};
-			hurtEvent.move = this.incomingRivalAction.from.cmove;
-			hurtEvent.t = this.incomingRivalAction.t + hurtEvent.move.dws;
-			hurtEvent.dmg = damage(this.incomingRivalAction.from, this, hurtEvent.move, state.weather);
+	if (!hurtEvent || this.reducedDamageStatusExpiration >= hurtEvent.t){
+		hurtEvent = null;
+		if (this.incomingRivalAction){
+			if (this.incomingRivalAction.name == "fast"){
+				hurtEvent = {};
+				hurtEvent.move = this.incomingRivalAction.from.fmove;
+				hurtEvent.t = this.incomingRivalAction.t + hurtEvent.move.dws;
+				hurtEvent.dmg = damage(this.incomingRivalAction.from, this, hurtEvent.move, state.weather);
+			}else if (this.incomingRivalAction.name == "charged"){
+				hurtEvent = {};
+				hurtEvent.move = this.incomingRivalAction.from.cmove;
+				hurtEvent.t = this.incomingRivalAction.t + hurtEvent.move.dws;
+				hurtEvent.dmg = damage(this.incomingRivalAction.from, this, hurtEvent.move, state.weather);
+			}
 		}
 	}
-	if (hurtEvent && hurtEvent.move.moveType == "charged" && !this.hasDodged){
+	
+	if (hurtEvent && this.reducedDamageStatusExpiration < hurtEvent.t && hurtEvent.move.moveType == "charged"){
 		let undodgedDmg = hurtEvent.dmg;
 		let dodgedDmg = Math.max(1, Math.floor(undodgedDmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent)));
 		if (state.dodgeBugActive){
@@ -922,22 +934,17 @@ function strat2(state){
 		}
 		if (dodgedDmg < this.HP){
 			let timeTillHurt = hurtEvent.t - state.tFree;
-			if (this.energy + this.cmove.energyDelta >= 0 && timeTillHurt > this.cmove.duration + Data.BattleSettings.chargedMoveLagMs + Data.BattleSettings.dodgeSwipeMs){
+			if (this.energy + this.cmove.energyDelta >= 0 && timeTillHurt > this.cmove.duration + Data.BattleSettings.chargedMoveLagMs){
 				// Fit in another charge move
 				return {name: "charged", delay: 0};
-			}else if (timeTillHurt > this.fmove.duration + Data.BattleSettings.fastMoveLagMs + Data.BattleSettings.dodgeSwipeMs){
+			}else if (timeTillHurt > this.fmove.duration + Data.BattleSettings.fastMoveLagMs){
 				// Fit in another fast move
 				return {name: "fast", delay: 0};
-			}else if (timeTillHurt < Data.BattleSettings.dodgeWindowMs + Data.BattleSettings.dodgeSwipeMs){
-				// Dodge window open, just directly dodge
-				this.hasDodged = true;
-				return {name: "dodge", delay: 0};
 			}else{
-				// Dodge window not open, but can't fit in a fast move, so delay a little while and then dodge
-				this.hasDodged = true;
+				// Dodge, and delay a little bit to wait for damage window if necessary
 				return {
 					name: "dodge",
-					delay: timeTillHurt - Data.BattleSettings.dodgeWindowMs - Data.BattleSettings.dodgeSwipeMs
+					delay: Math.max(0, timeTillHurt - Data.BattleSettings.dodgeWindowMs)
 				};
 			}
 		}
@@ -955,7 +962,7 @@ function strat2(state){
 		return {name: "charged", delay: 0};
 	}else{
 		return {name: "fast", delay: 0};
-	}
+	}	
 }
 
 // Attacker strategy: Dodge All
@@ -964,20 +971,24 @@ function strat3(state){
 		return;
 	}
 	let hurtEvent = this.incomingHurtEvent;
-	if (!hurtEvent && this.incomingRivalAction && this.incomingRivalAction.t > state.tFree){
-		if (this.incomingRivalAction.name == "fast"){
-			hurtEvent = {};
-			hurtEvent.move = this.incomingRivalAction.from.fmove;
-			hurtEvent.t = this.incomingRivalAction.t + hurtEvent.move.dws;
-			hurtEvent.dmg = damage(this.incomingRivalAction.from, this, hurtEvent.move, state.weather);
-		}else if (this.incomingRivalAction.name == "charged"){
-			hurtEvent = {};
-			hurtEvent.move = this.incomingRivalAction.from.cmove;
-			hurtEvent.t = this.incomingRivalAction.t + hurtEvent.move.dws;
-			hurtEvent.dmg = damage(this.incomingRivalAction.from, this, hurtEvent.move, state.weather);
+	if (!hurtEvent || this.reducedDamageStatusExpiration >= hurtEvent.t){
+		hurtEvent = null;
+		if (this.incomingRivalAction){
+			if (this.incomingRivalAction.name == "fast"){
+				hurtEvent = {};
+				hurtEvent.move = this.incomingRivalAction.from.fmove;
+				hurtEvent.t = this.incomingRivalAction.t + hurtEvent.move.dws;
+				hurtEvent.dmg = damage(this.incomingRivalAction.from, this, hurtEvent.move, state.weather);
+			}else if (this.incomingRivalAction.name == "charged"){
+				hurtEvent = {};
+				hurtEvent.move = this.incomingRivalAction.from.cmove;
+				hurtEvent.t = this.incomingRivalAction.t + hurtEvent.move.dws;
+				hurtEvent.dmg = damage(this.incomingRivalAction.from, this, hurtEvent.move, state.weather);
+			}
 		}
 	}
-	if (hurtEvent && !this.hasDodged){
+	
+	if (hurtEvent && this.reducedDamageStatusExpiration < hurtEvent.t){
 		let undodgedDmg = hurtEvent.dmg;
 		let dodgedDmg = Math.max(1, Math.floor(undodgedDmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent)));
 		if (state.dodgeBugActive){
@@ -985,22 +996,17 @@ function strat3(state){
 		}
 		if (dodgedDmg < this.HP){
 			let timeTillHurt = hurtEvent.t - state.tFree;
-			if (this.energy + this.cmove.energyDelta >= 0 && timeTillHurt > this.cmove.duration + Data.BattleSettings.chargedMoveLagMs + Data.BattleSettings.dodgeSwipeMs){
+			if (this.energy + this.cmove.energyDelta >= 0 && timeTillHurt > this.cmove.duration + Data.BattleSettings.chargedMoveLagMs){
 				// Fit in another charge move
 				return {name: "charged", delay: 0};
-			}else if (timeTillHurt > this.fmove.duration + Data.BattleSettings.fastMoveLagMs + Data.BattleSettings.dodgeSwipeMs){
+			}else if (timeTillHurt > this.fmove.duration + Data.BattleSettings.fastMoveLagMs){
 				// Fit in another fast move
 				return {name: "fast", delay: 0};
-			}else if (timeTillHurt < Data.BattleSettings.dodgeWindowMs + Data.BattleSettings.dodgeSwipeMs){
-				// Dodge window open, just directly dodge
-				this.hasDodged = true;
-				return {name: "dodge", delay: 0};
 			}else{
-				// Dodge window not open, but can't fit in a fast move, so delay a little while and then dodge
-				this.hasDodged = true;
+				// Dodge, and delay a little bit to wait for damage window if necessary
 				return {
 					name: "dodge",
-					delay: timeTillHurt - Data.BattleSettings.dodgeWindowMs - Data.BattleSettings.dodgeSwipeMs
+					delay: Math.max(0, timeTillHurt - Data.BattleSettings.dodgeWindowMs)
 				};
 			}
 		}
