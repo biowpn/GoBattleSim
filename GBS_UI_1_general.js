@@ -373,32 +373,33 @@ function createSimplePredicate(str, parent, attr){
 	}else if (str[0] == '@'){ // Match moves
 		str = str.slice(1).toLowerCase();
 		if (str.substring(0,3) == '<f>'){
-			const str_const = str.slice(3).trim();
+			str = str.slice(3);
 			return function(obj){
 				var fmove = (typeof obj.fmove == typeof "" ? getEntry(obj.fmove, Data.FastMoves) : obj.fmove);
-				if (fmove){
-					return fmove.name.includes(str_const) || fmove.pokeType == str_const;
-				}
-				return false;
+				pred_move = createSimplePredicate(str, obj, attr);
+				return fmove && pred_move(fmove);
 			};
 		}else if (str.substring(0,3) == '<c>'){
-			const str_const = str.slice(3).trim();
+			str = str.slice(3);
 			return function(obj){
 				var cmove = (typeof obj.cmove == typeof "" ? getEntry(obj.cmove, Data.ChargedMoves) : obj.cmove);
-				if (cmove){
-					return cmove.name.includes(str_const) || cmove.pokeType == str_const;
-				}
-				return false;
+				pred_move = createSimplePredicate(str, obj, attr);
+				return cmove && pred_move(cmove);
 			};
 		}else if (str.substring(0,3) == '<*>'){
-			const pred_f = createSimplePredicate('@<f>' + str.slice(3)), pred_c = createSimplePredicate('@<c>' + str.slice(3));
+			str = str.slice(3);
 			return function(obj){
-				return pred_f(obj) && pred_c(obj);
+				var fmove = (typeof obj.fmove == typeof "" ? getEntry(obj.fmove, Data.FastMoves) : obj.fmove);
+				var cmove = (typeof obj.cmove == typeof "" ? getEntry(obj.cmove, Data.ChargedMoves) : obj.cmove);
+				pred_move = createSimplePredicate(str, obj, attr);
+				return (fmove && pred_move(fmove)) && (cmove && pred_move(cmove));
 			};
 		}else{
-			const pred_f = createSimplePredicate('@<f>' + str), pred_c = createSimplePredicate('@<c>' + str);
 			return function(obj){
-				return pred_f(obj) || pred_c(obj);
+				var fmove = (typeof obj.fmove == typeof "" ? getEntry(obj.fmove, Data.FastMoves) : obj.fmove);
+				var cmove = (typeof obj.cmove == typeof "" ? getEntry(obj.cmove, Data.ChargedMoves) : obj.cmove);
+				pred_move = createSimplePredicate(str, obj, attr);
+				return (fmove && pred_move(fmove)) || (cmove && pred_move(cmove));
 			};
 		}
 	}else if (str[0] == '$'){ // Box

@@ -213,6 +213,8 @@ function pokemonEditFormSubmit(){
 	var pokemonInput = document.getElementById("pokemonEditForm-table");
 	
 	var pokemon = read(pokemonInput);
+	var orginalLabel = pokemon.name;
+	pokemon.name = pokemon.name.toLowerCase();
 	
 	pokemon.fastMoves = [];
 	pokemon.fastMoves_legacy = [];
@@ -248,7 +250,7 @@ function pokemonEditFormSubmit(){
 	}else{
 		pokemon.dex = 0;
 		pokemon.icon = "https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png";
-		pokemon.label = toTitleCase(pokemon.name);
+		pokemon.label = orginalLabel;
 		pokemon.rating = 0;
 		insertEntry(pokemon, Data.Pokemon);
 		sendFeedbackDialog('Pokemon: ' + pokemon.label + ' has been added.');

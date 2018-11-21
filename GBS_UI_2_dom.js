@@ -146,6 +146,7 @@ function createPokemonRaidTierInput(){
 function createPokemonStrategyInput(){
 	var strategyInput = createElement('select', '', {name: "pokemon-strategy"});
 	strategyInput.appendChild(createElement('option', 'No Dodge', {value: "strat1"}));
+	strategyInput.appendChild(createElement('option', 'No Dodge Burst', {value: "strat4"}));
 	strategyInput.appendChild(createElement('option', 'Dodge Charged', {value: "strat2"}));
 	strategyInput.appendChild(createElement('option', 'Dodge All', {value: "strat3"}));
 	strategyInput.appendChild(createElement('option', 'Defender AI', {value: "strat0"}));

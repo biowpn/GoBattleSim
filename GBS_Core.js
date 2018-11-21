@@ -1026,3 +1026,21 @@ function strat3(state){
 		return {name: "fast", delay: 0};
 	}
 }
+
+// Attacker strategy: No dodging + Burst charge move
+function strat4(state){
+	let projectedEnergyDelta = 0;
+	if (state.currentAction){
+		if (state.currentAction.name == "fast"){
+			projectedEnergyDelta = this.fmove.energyDelta;
+		}else if (state.currentAction.name == "charged"){
+			projectedEnergyDelta = this.cmove.energyDelta;
+		}
+	}
+	var projectEnergy = this.energy + projectedEnergyDelta;
+	if (projectEnergy >= Data.BattleSettings.maximumEnergy || (projectEnergy + this.cmove.energyDelta >= 0 && state.currentAction && state.currentAction.name == "charged")){
+		return {name: "charged", delay: 0};
+	}else{
+		return {name: "fast", delay: 0};
+	}
+}
