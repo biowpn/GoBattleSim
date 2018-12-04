@@ -230,6 +230,13 @@ function applyContext(){
 	if (Context.isEnemyNeutral){
 		Context.enemy.Def = DEFAULT_ENEMY_CURRENT_DEFENSE;
 	}
+	
+	var cpcap = parseInt(document.getElementById("ui-cpcap").value);
+	if (!isNaN(cpcap) && cpcap > 0){
+		LeagueCPCap = cpcap;
+	}else{
+		LeagueCPCap = 0;
+	}
 }
 
 
@@ -256,6 +263,9 @@ function generateSpreadsheet(pokemonCollection){
 					if (!pkm.hasOwnProperty(attr)){
 						pkm[attr] = p[attr];
 					}
+				}
+				if (LeagueCPCap > 0){
+					adjustStatsUnderCPCap(pkm, LeagueCPCap);
 				}
 				
 				pkm.calculateDPS(Context);
@@ -405,6 +415,22 @@ $.fn.dataTable.ext.search.push(
 		return selected;
     }
 );
+
+var LeagueCPCap = 0;
+
+function adjustStatsUnderCPCap(pkm, cp){
+	var old_cp = calculateCP(pkm);
+	if (old_cp > cp){
+		pkm.cpm = pkm.cpm * Math.sqrt(cp / old_cp);
+		pkm.role = "a";
+		pkm.initCurrentStats();
+	}
+}
+
+function applyCPCap(cap){
+	LeagueCPCap = cap;
+	requestSpreadsheet(false);
+}
 
 
 
