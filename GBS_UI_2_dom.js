@@ -509,11 +509,12 @@ function createPokemonNode(){
 	tb3.appendChild(createRow(['']));
 	tb3.children[1].children[0].appendChild(createPokemonRaidTierInput());
 
-	var tb4 = createElement("table", "<colgroup><col width=37.5%><col width=37.5%><col width=25%></colgroup>");
-	tb4.appendChild(createRow(['', '', ''], 'td'));
-	tb4.children[1].children[0].appendChild(createPokemonMoveInput("fast"));
-	tb4.children[1].children[1].appendChild(createPokemonMoveInput("charged"));	
-	tb4.children[1].children[2].appendChild(createPokemonStrategyInput());
+	var tb4 = createElement("table", "<colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>");
+	tb4.appendChild(createRow(['', '', '', ''], 'td'));
+	tb4.children[1].children[0].appendChild(createPokemonMoveInput("fast", "fmove"));
+	tb4.children[1].children[1].appendChild(createPokemonMoveInput("charged", "cmove"));
+	tb4.children[1].children[2].appendChild(createPokemonMoveInput("charged", "cmove2"));
+	tb4.children[1].children[3].appendChild(createPokemonStrategyInput());
 	
 	pokemonNode.children[1].appendChild(tb1);
 	pokemonNode.children[1].appendChild(tb2);

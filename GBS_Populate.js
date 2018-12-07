@@ -18,6 +18,7 @@ var DefaultData = {
 		'dodgeDurationMs': 500, 
 		'swapDurationMs': 1000, 
 		'dodgeDamageReductionPercent': 0.75, 
+		'protectShieldDamageReductionPercent': 1, 
 		'weatherAttackBonusMultiplier': 1.2,
 		'dodgeWindowMs': 700,
 		'dodgeSwipeMs': 200,
@@ -25,6 +26,8 @@ var DefaultData = {
 		'arenaEarlyTerminationMs': 3000,
 		'fastMoveLagMs': 25,
 		'chargedMoveLagMs': 100,
+		'chargeUpDurationMs': 3000,
+		'chargeMoveAnimationMs': 2500,
 		'timelimitGymMs': 100000,
 		'timelimitRaidMs': 180000,
 		'timelimitLegendaryRaidMs': 300000,
@@ -308,54 +311,6 @@ function calculateLevelUpCost(startLevel, endLevel){
 }
 
 
-function setNewBaseStats(pokemon){
-	var speedMod = 1 + (pokemon.ms_spe - 75)/500;
-	var higha = Math.max(pokemon.ms_atk, pokemon.ms_spa), lowa = Math.min(pokemon.ms_atk, pokemon.ms_spa);
-	pokemon.baseAtk = Math.round(Math.round(1/4*lowa + 7/4*higha) * speedMod);
-	var highd = Math.max(pokemon.ms_def, pokemon.ms_spd), lowd = Math.min(pokemon.ms_def, pokemon.ms_spd);
-	pokemon.baseDef = Math.round(Math.round(3/4*lowd + 5/4*highd) * speedMod);
-	pokemon.baseStm = Math.floor(1.75 * pokemon.ms_hp) + 50;
-	var pkm2 = {
-		baseAtk: pokemon.baseAtk,
-		baseDef: pokemon.baseDef,
-		baseStm: pokemon.baseStm,
-		atkiv: 15,
-		defiv: 15,
-		stmiv: 15,
-		cpm: 0.79030001
-	};
-	if (calculateCP(pkm2) >= 4000){
-		pokemon.baseAtk = round(pokemon.baseAtk * 0.91);
-		pokemon.baseDef = round(pokemon.baseDef * 0.91);
-		pokemon.baseStm = round((1.75 * pokemon.ms_hp + 50) * 0.91);
-	}
-}
-
-
-function setOldBaseStats(pokemon){
-	var speedMod = 1 + (pokemon.ms_spe - 75)/500;
-	var higha = Math.max(pokemon.ms_atk, pokemon.ms_spa), lowa = Math.min(pokemon.ms_atk, pokemon.ms_spa);
-	pokemon.baseAtk = Math.round(Math.round(1/4*lowa + 7/4*higha) * speedMod);
-	var highd = Math.max(pokemon.ms_def, pokemon.ms_spd), lowd = Math.min(pokemon.ms_def, pokemon.ms_spd);
-	pokemon.baseDef = Math.round(Math.round(1/4*lowd + 7/4*highd) * speedMod);
-	pokemon.baseStm = Math.floor(2 * pokemon.ms_hp);
-	var pkm2 = {
-		baseAtk: pokemon.baseAtk,
-		baseDef: pokemon.baseDef,
-		baseStm: pokemon.baseStm,
-		atkiv: 15,
-		defiv: 15,
-		stmiv: 15,
-		cpm: 0.79030001
-	};
-	if (calculateCP(pkm2) >= 4000){
-		pokemon.baseAtk = round(pokemon.baseAtk * 0.91);
-		pokemon.baseDef = round(pokemon.baseDef * 0.91);
-		pokemon.baseStm = round(pokemon.baseStm * 0.91);
-	}
-}
-
-
 function handleSpeciesDatabase(pokemonDataBase){
 	for (var i = 0; i < pokemonDataBase.length; i++){
 		var pkm = pokemonDataBase[i];
@@ -399,6 +354,7 @@ function parseUserPokebox(data){
 			defiv: parseInt(data[i].def || data[i].defiv) || 0,
 			fmove: (data[i].fast_move || data[i].fmove).toLowerCase(),
 			cmove: (data[i].charge_move || data[i].cmove).toLowerCase(),
+			cmove2: (data[i].charge_move || data[i].cmove2 || data[i].cmove).toLowerCase(),
 			nickname : data[i].nickname,
 			uid: data[i].uid
 		};

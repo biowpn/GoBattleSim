@@ -51,6 +51,11 @@ var attributesEnumeration = [
 		matcher: x => getEntryIndex(x, Data.ChargedMoves),
 		database: a => Data.ChargedMoves,
 		default: "current, legacy, exclusive"
+	},{
+		name: "cmove2",
+		matcher: x => getEntryIndex(x, Data.ChargedMoves),
+		database: a => Data.ChargedMoves,
+		default: "current, legacy, exclusive"
 	}
 ];
 
@@ -97,7 +102,8 @@ function batchSim(cfg, start){
 							pokemon = cfg_copy.players[i].parties[j].pokemon[k];
 							pokemon[attr.name] = match.name;
 							if (attr.name == "name" && match.uid){ // Match user's Pokemon
-								for (let a of ["nickname", "level", "atkiv", "defiv", "stmiv", "fmove", "cmove"]){
+								for (let ae of attributesEnumeration){
+									let a = ae.name;
 									pokemon[a] = (pokemon[a] || match[a]).toString().replace("#", match[a]);
 								}
 							}

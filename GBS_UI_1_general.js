@@ -316,7 +316,7 @@ function getConstructor(attrName){
 // A generic function for formatting select HTML elements input
 function formatting(node){
 	let name = node.getAttribute("name");
-	if (name == "pokemon-name" || name == "pokemon-fmove" || name == "pokemon-cmove"){
+	if (name == "pokemon-name" || name == "pokemon-fmove" || name == "pokemon-cmove" || name == "pokemon-cmove2"){
 		node.value = toTitleCase(node.value);
 	}
 	if ($(node).data("ui-autocomplete")){
@@ -601,17 +601,15 @@ function createPokemonNameInput(){
 }
 
 
-function createPokemonMoveInput(moveType){
-	var placeholder_ = "", attr_ = "";
+function createPokemonMoveInput(moveType, attrName){
+	var placeholder_ = "";
 	if (moveType == "fast"){
 		placeholder_ = "Fast Move";
-		attr_ = "fmove";
 	}else if (moveType == "charged"){
 		placeholder_ = "Charged Move";
-		attr_ = "cmove";
 	}
 	var moveInput = createElement('input', '', {
-		type: 'text', placeholder: placeholder_, name: "pokemon-" + attr_,
+		type: 'text', placeholder: placeholder_, name: "pokemon-" + attrName,
 		class: 'input-with-icon move-input-with-icon', style: 'background-image: url()'
 	});
 	$( moveInput ).autocomplete({
@@ -620,7 +618,7 @@ function createPokemonMoveInput(moveType){
 		source: function(request, response){
 			let moveNode = null;
 			for (var i = 0; i < this.bindings.length; i++){
-				if (this.bindings[i].name == "pokemon-fmove" || this.bindings[i].name == "pokemon-cmove"){
+				if (this.bindings[i].name && this.bindings[i].name.includes("pokemon")){
 					moveNode = this.bindings[i];
 				}
 			}
@@ -629,7 +627,7 @@ function createPokemonMoveInput(moveType){
 			if (searchStr == '' && pokemonInstance){ //special case
 				searchStr = 'current, legacy, exclusive';
 			}
-			matches = Data[toTitleCase(moveType) + "Moves"].filter(Predicate(searchStr, pokemonInstance, attr_));
+			matches = Data[toTitleCase(moveType) + "Moves"].filter(Predicate(searchStr, pokemonInstance, attrName));
 			response(matches);
 		},
 		select: function(event, ui) {
