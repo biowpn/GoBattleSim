@@ -285,7 +285,7 @@ function createPartyReviveCheckbox(){
 				$(this).button("refresh");
 				$(this).button("disable");
 			}
-		}else if (kwargs.battleMode == "gym"){
+		}else if (kwargs.battleMode == "gym" || kwargs.battleMode == "pvp"){
 			this.checked = false;
 			$(this).button("refresh");
 			$(this).button("disable");

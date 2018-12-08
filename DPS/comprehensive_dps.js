@@ -83,8 +83,8 @@ Pokemon.prototype.calculateDPSIntake = function(kwargs){
 			y: DEFAULT_ENEMY_DPS1 / this.Def
 		};
 	}else{
-		var FDmg = damage2(kwargs.enemy, this, kwargs.enemy.fmove, Context.weather);
-		var CDmg = damage2(kwargs.enemy, this, kwargs.enemy.cmove, Context.weather);
+		var FDmg = damage2(kwargs.enemy, this, kwargs.enemy.fmove, kwargs.weather);
+		var CDmg = damage2(kwargs.enemy, this, kwargs.enemy.cmove, kwargs.weather);
 		var FDur = kwargs.enemy.fmove.duration/1000 + 2;
 		var CDur = kwargs.enemy.cmove.duration/1000 + 2;
 		var FE = kwargs.enemy.fmove.energyDelta;
