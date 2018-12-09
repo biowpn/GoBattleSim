@@ -1,8 +1,9 @@
 /* GBS_Core.js */
 
-/* 
- *	PART I: SIMULATOR SETTINGS
- */
+/**
+	@file The GoBattleSim simulator core.
+	@author BIOWP
+*/
 
 const MAX_NUM_POKEMON_PER_PARTY = 6;
 const MAX_NUM_PARTIES_PER_PLAYER = 5;
@@ -23,10 +24,15 @@ const EVENT_TYPE = {
 };
 
 
-/*
- *	PART II: GLOBAL FUNCTIONS
- */
 
+/**
+	The damage formula, calculating how much damage the attack inflicts.
+	@param {Pokemon} dmgGiver The Pokemon using the attack.
+	@param {Pokemon} dmgReceiver The Pokemon taking the hit.
+	@param {Move} move The move being used.
+	@param {string} weather The current weather.
+	@return {number} The damage value.
+*/
 function damage(dmgGiver, dmgReceiver, move, weather){
 	var stab = 1;	// Same Type Attack Bonus
 	if (move.pokeType == dmgGiver.pokeType1 || move.pokeType == dmgGiver.pokeType2){
@@ -43,19 +49,27 @@ function damage(dmgGiver, dmgReceiver, move, weather){
 	return Math.floor(0.5*dmgGiver.Atk/dmgReceiver.Def*move.power*effe1*effe2*stab*wab*fab*mab) + 1;
 }
 
+
+/**
+	The CP formula, calculating the current CP of a Pokemon.
+	@param {Pokemon} pkm The Pokemon to calculate CP for. Expected to have Atk, Def and Stm. If not, then must have base stats, IV stats and cpm.
+	@return {number} The CP value
+*/
 function calculateCP(pkm){
-	return Math.max(10, Math.floor((pkm.baseAtk+pkm.atkiv)*Math.sqrt((pkm.baseDef+pkm.defiv)*(pkm.baseStm+pkm.stmiv))*pkm.cpm*pkm.cpm/10));
+	var atk = pkm.Atk || (pkm.baseAtk + pkm.atkiv) * pkm.cpm;
+	var def = pkm.Def || (pkm.baseDef + pkm.defiv) * pkm.cpm;
+	var stm = pkm.Stm || (pkm.baseStm + pkm.stmiv) * pkm.cpm;
+	return Math.max(10, Math.floor(atk * Math.sqrt(def * stm)/10));
 }
 
 
 
-/*
- *	PART III: CLASSES
- */
 
-/* Class <Move> */
-
-// constructor
+/** 
+	@class
+	@param {string|number|Move} m Information of the move.
+	@param {Object[]} moveDatabase The database to look up for the move stats.
+*/
 function Move(m, moveDatabase){
 	if (typeof m == typeof 0 && m >= 0){
 		leftMerge(this, moveDatabase[m]);
@@ -65,13 +79,13 @@ function Move(m, moveDatabase){
 		leftMerge(this, m);
 	}
 }
-/* End of Class Move */
 
 
 
-/* Class <Pokemon> */
-
-// constructor
+/** 
+	@class
+	@param {Object|Pokemon} cfg Keyword arguments for constructing the Pokemon.
+*/
 function Pokemon(cfg){
 	this.id = cfg.id;
 	this.role = cfg.role || "a";
@@ -114,7 +128,7 @@ function Pokemon(cfg){
 	this.cmove = new Move(cfg.cmove, Data.ChargedMoves);
 	this.cmoves = [];
 	if (cfg.cmoves){
-		let = unique_cmoves = cfg.cmoves.filter(function(item, pos){
+		let unique_cmoves = cfg.cmoves.filter(function(item, pos){
 			return cfg.cmoves.indexOf(item) == pos;
 		});
 		for (let cmove of unique_cmoves){
@@ -133,7 +147,9 @@ function Pokemon(cfg){
 	this.init();
 }
 
-// Initialize
+/** 
+	Initialize the Pokemon's battle states. Call this method before a new battle.
+*/
 Pokemon.prototype.init = function(){
 	this.calculateStats();
 	
@@ -161,7 +177,9 @@ Pokemon.prototype.init = function(){
 	this.heal();
 }
 
-// Re-calculate the core stats
+/** 
+	Re-calculate and set the core stats of the Pokemon.
+*/
 Pokemon.prototype.calculateStats = function(){
 	if (this.role == "gd"){ // gym defender
 		this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
@@ -185,13 +203,18 @@ Pokemon.prototype.calculateStats = function(){
 	this.Def *= (1 + this.statEffectivenessLevel * Data.BattleSettings.statEffectivenessLevelUnitDelta);
 }
 
-// Fully heal, and set energy to 0
+/** 
+	Fully heal the Pokemon and set its energy to 0
+*/
 Pokemon.prototype.heal = function(){
 	this.HP = this.maxHP;
 	this.energy = 0;
 }
 
-// A Pokemon gains/loses energy
+/** 
+	The Pokemon gains/loses energy.
+	@param {number} energyDelta The amount of energy change. Positive value indicates energy gain.
+*/
 Pokemon.prototype.gainEnergy = function(energyDelta){
 	this.energy += energyDelta;
 	if (this.energy > Data.BattleSettings.maximumEnergy){
@@ -200,7 +223,10 @@ Pokemon.prototype.gainEnergy = function(energyDelta){
 	}
 }
 
-// A Pokemon takes damage
+/** 
+	The Pokemon takes damage and changes HP.
+	@param {number} dmg The amount of HP to lose.
+*/
 Pokemon.prototype.takeDamage = function(dmg){
 	this.HP -= dmg;
 	if (this.HP <= 0 && !this.immortal){
@@ -208,8 +234,10 @@ Pokemon.prototype.takeDamage = function(dmg){
 	}
 }
 
-// Buff/debuff stats
-// If no parameter is passed, then the level is reset to 0
+/** 
+	Buff or debuff the Pokemon's core stats.
+	@param {number=} deltaLevel The change of the stat effectiveness level. If omitted, the level will be reset to 0.
+*/
 Pokemon.prototype.changeStatEffectivenessLevel = function(deltaLevel){
 	if (deltaLevel === undefined){
 		this.statEffectivenessLevel = 0;
@@ -220,7 +248,11 @@ Pokemon.prototype.changeStatEffectivenessLevel = function(deltaLevel){
 }
 
 
-// Decides which charge move to primarily use against a new opponent
+/** 
+	Decides which charged move to use based on an opponent.
+	@enemy {Pokemon} The opponent based on which to select charged move.
+	@weather {string} The current weather.
+*/
 Pokemon.prototype.adjustDefaultChargedMove = function(enemy, weather){
 	var best_cmove = this.cmoves[0];
 	var best_dpe = damage(this, enemy, best_cmove, weather) / (-best_cmove.energyDelta);
@@ -234,7 +266,11 @@ Pokemon.prototype.adjustDefaultChargedMove = function(enemy, weather){
 	this.cmove = best_cmove;
 }
 
-// Keep record of TDO for performance analysis
+/** 
+	Increase the Pokemon's TDO to keep track of its battle performance.
+	@param {number} dmg The amount of damage attributed to the Pokemon.
+	@param {string} moveType The type of the move.
+*/
 Pokemon.prototype.attributeDamage = function(dmg, moveType){
 	this.tdo += dmg;
 	if (moveType == 'fast'){
@@ -242,7 +278,10 @@ Pokemon.prototype.attributeDamage = function(dmg, moveType){
 	}
 }
 
-// Increase Attack count
+/** 
+	Increase the corresponding attack count by 1.
+	@moveType {string} The type of the move.
+*/
 Pokemon.prototype.incrementAttackCount = function(moveType){
 	if (moveType == 'fast'){
 		this.numOfFastHits++;
@@ -253,7 +292,10 @@ Pokemon.prototype.incrementAttackCount = function(moveType){
 	}
 }
 
-// Return the performance statistics of the Pokemon
+/** 
+	Get the battle performance metrics of the Pokemon.
+	@return {Object} Battle performance metrics.
+*/
 Pokemon.prototype.getStatistics = function(){
 	return {
 		name: this.name,
@@ -273,9 +315,10 @@ Pokemon.prototype.getStatistics = function(){
 
 
 
-/* Class <Party> */
-
-// constructor
+/** 
+	@class
+	@param {Object|Party} cfg Keyword arguments for constructing the party.
+*/
 function Party(cfg){
 	this.revive = cfg.revive;
 	this.fab = cfg.fab || 1;
@@ -290,7 +333,9 @@ function Party(cfg){
 	this.heal();
 }
 
-// Initialize
+/** 
+	Initialize the party. Call this method before a new battle.
+*/
 Party.prototype.init = function(){
 	for (let pokemon of this.pokemon){
 		pokemon.init();
@@ -299,13 +344,18 @@ Party.prototype.init = function(){
 	this.headingPokemonIndex = 0;
 }
 
-// Get the heading Pokemon of the party
+/** 
+	Get the heading Pokemon of the party.
+	@return {Pokemon} The heading Pokemon.
+*/
 Party.prototype.head = function(){
 	return this.pokemon[this.headingPokemonIndex];
 }
 
-// Set heading Pokemon to the next alive Pokemon in the party
-// Returns true if there is such Pokemon in the party and false otherwise
+/**
+	Set heading Pokemon to the next alive Pokemon in the party.
+	@return {boolean} true if there is such Pokemon in the party and false otherwise.
+*/
 Party.prototype.selectNextPokemon = function(){
 	for (var i = this.headingPokemonIndex + 1; i < this.pokemon.length; i++){
 		if (this.pokemon[i].HP > 0){
@@ -316,8 +366,10 @@ Party.prototype.selectNextPokemon = function(){
 	return false;
 }
 
-// Set heading Pokemon to the first alive Pokemon in the party
-// Returns true if there is such Pokemon in the party and false otherwise
+/**
+	Set heading Pokemon to the first alive Pokemon in the party.
+	@return {boolean} true if there is such Pokemon in the party and false otherwise.
+*/
 Party.prototype.selectFirstPokemon = function(){
 	for (var i = 0; i < this.pokemon.length; i++){
 		if (this.pokemon[i].HP > 0){
@@ -328,8 +380,11 @@ Party.prototype.selectFirstPokemon = function(){
 	return false;
 }
 
-// Switch to a Pokemon with the index
-// Returns true if the switching is successful and false otherwise
+/**
+	Switch the heading Pokemon to another Pokemon in the party.
+	@param {number} index The index of the Pokemon to switch to.
+	@return {boolean} true if the switching is successful and false otherwise.
+*/
 Party.prototype.switchPokemon = function(index){
 	if (0 <= index && index < this.pokemon.length){
 		if (this.pokemon[index].HP > 0){ // Cannot switch to a fainted Pokemon
@@ -340,7 +395,9 @@ Party.prototype.switchPokemon = function(index){
 	return false;
 }
 
-// Fully heal each fainted Pokemon, sets the heading pokemon to the first one
+/** 
+	Fully heal all Pokemon of the party and set the heading pokemon to the first one.
+*/
 Party.prototype.heal = function (){
 	for (let pokemon of this.pokemon){
 		pokemon.heal();
@@ -348,7 +405,10 @@ Party.prototype.heal = function (){
 	this.headingPokemonIndex = 0;
 }
 
-// Return the performance statistics of the party
+/** 
+	Get the battle performance metrics of the party.
+	@return {Object} Battle performance metrics.
+*/
 Party.prototype.getStatistics = function(){
 	let sum_tdo = 0, sum_numOfDeaths = 0;
 	for (let pokemon of this.pokemon){
@@ -360,16 +420,17 @@ Party.prototype.getStatistics = function(){
 		numOfDeaths: sum_numOfDeaths
 	};
 }
-/* End of Class <Party> */
 
 
 
-/* Class <Player> */
 
-// constructor
+/**
+	@class
+	@param {Object|Player} cfg Keyword arguments for constructing the player.
+*/
 function Player(cfg){
 	this.index = cfg.index;
-	this.fab = getFriendMultiplier(cfg.friend);
+	this.fab = cfg.fab || getFriendMultiplier(cfg.friend);
 	this.team = cfg.team;
 	this.rivals = [];
 	this.parties = [];
@@ -385,7 +446,9 @@ function Player(cfg){
 	this.headingPartyIndex = 0;
 }
 
-// Initialize
+/** 
+	Initialize the player. Call this method before a new battle.
+*/
 Player.prototype.init = function(){
 	for (let party of this.parties){
 		party.init();
@@ -395,20 +458,27 @@ Player.prototype.init = function(){
 	this.switchingCooldownExpiration = -1;
 }
 
-// Return the heading Pokemon of the heading party of the player
+/** 
+	Get the heading Pokemon of the player.
+	@return {Pokemon} The heading Pokemon.
+*/
 Player.prototype.head = function(){
 	let party = this.headParty();
 	return party ? party.head() : null;
 }
 
-// Return the heading party of the player
+/** 
+	Get the heading party of the player.
+	@return {Party} The heading party.
+*/
 Player.prototype.headParty = function(){
 	return this.parties[this.headingPartyIndex];
 }
 
-// Control calls this function to ask for the next Pokemon of the player.
-// Returns true if the heading party has next Pokemon, 
-// and false otherwise, in which case Control should call selectNextParty()
+/**
+	Select the next alive Pokemon of the active party of the player.
+	@return {boolean} true if the heading party has next alive Pokemon and false otherwise
+*/
 Player.prototype.selectNextPokemon = function(){
 	let party = this.headParty();
 	if (party){
@@ -420,8 +490,10 @@ Player.prototype.selectNextPokemon = function(){
 	}
 }
 
-// Select the best Pokemon from the active party to counter the opponent. Used in PvP battle
-// Returns true if the heading party has next Pokemon
+/**
+	Select the best Pokemon from the active party to counter the opponent.
+	@return {boolean} true if the heading party has at least one alive Pokemon and false otherwise.
+*/
 Player.prototype.selectBestPokemon = function(){
 	var party = this.headParty();
 	var enemy = null;
@@ -456,13 +528,18 @@ Player.prototype.selectBestPokemon = function(){
 	return false;
 }
 
-// Set heading party to the next party
-// Returns true if there is next party of the player and false otherwise
+/**
+	Select the next available party.
+	@return true if there is next party and false otherwise
+*/
 Player.prototype.selectNextParty = function(){
 	return ++this.headingPartyIndex < this.parties.length;
 }
 
-// Return the performance statistics of the player
+/** 
+	Get the battle performance metrics of the player.
+	@return {Object} Battle performance metrics.
+*/
 Player.prototype.getStatistics = function(battleDuration){
 	let sum_tdo = 0, sum_numOfDeaths = 0;
 	for (let party of this.parties){
@@ -477,18 +554,22 @@ Player.prototype.getStatistics = function(battleDuration){
 		numOfDeaths: sum_numOfDeaths
 	};
 }
-/* End of Class <Player> */
 
 
-/* Class <Timeline> */
-// A priority queue
 
-// constructor
+
+/**
+	@class
+	@classdesc A priority queue using 't' as key.
+*/
 function Timeline(){
 	this.list = [];
 }
 
-// Enqueue a new event
+/** 
+	Add an item.
+	@param {{t: number}} e The item to add.
+*/
 Timeline.prototype.insert = function(e){
 	this.list.push(e);
 	let i = this.list.length-1, j;
@@ -504,7 +585,10 @@ Timeline.prototype.insert = function(e){
 	}
 }
 
-// Remove the earliest event (with the smallest t) and returns it
+/**
+	Remove the item with the smallest key.
+	@return {{t: number}} The item with the smallest key.
+*/
 Timeline.prototype.extract_min = function(){
 	if (this.list.length == 0){
 		return null;
@@ -530,19 +614,24 @@ Timeline.prototype.extract_min = function(){
 	return e;
 }
 
-// Shift every key (time) by a constant
+/**
+	Shift the key of every item by a constant.
+	@param {number} dkey The constant change of key.
+*/
 Timeline.prototype.shift_key = function(dkey){
 	for (var i = 0; i < this.list.length; i++){
 		this.list[i].t += dkey;
 	}
 }
-/* End of Class <Timeline> */
 
 
 
-/* Class <World> */
 
-// constructor
+/**
+	@class
+	@classdesc The highest-level class, where the battle takes place.
+	@param {Object} cfg The structured simulation input.
+*/
 function World(cfg){
 	// Configure general parameters
 	this.battleMode = cfg.battleMode;
@@ -593,7 +682,9 @@ function World(cfg){
 	this.log = [];
 }
 
-// Initialize
+/** 
+	Initialize for a new battle.
+*/
 World.prototype.init = function(){
 	for (let player of this.players){
 		player.init();
@@ -603,7 +694,12 @@ World.prototype.init = function(){
 	this.log = [];
 }
 
-// A Pokemon uses an attack
+/**
+	A Pokemon uses an attack.
+	@param {Pokemon} pkm The pokemon who will use an attack.
+	@param {Move} move The move used by the Pokemon.
+	@param {number} t The time of the attack.
+*/
 World.prototype.pokemonUsesAttack = function(pkm, move, t){
 	pkm.incrementAttackCount(move.moveType);
 	
@@ -623,9 +719,13 @@ World.prototype.pokemonUsesAttack = function(pkm, move, t){
 	this.timeline.insert(damageEvent);
 }
 
-// A Pokemon tells all its rivals about its next action
-// Basically annoucing "I'll be performing action at time t"
-World.prototype.pokemonBroadcasts = function(pkm, action, t){
+/**
+	A Pokemon announces its next action.
+	@param {Pokemon} pkm The pokemon who is annoucing.
+	@param {number} t The time of the action.
+	@param {Object} action The action the Pokemon will take.
+*/
+World.prototype.pokemonBroadcasts = function(pkm, t, action){
 	action.t = t + action.delay || 0;
 	action.from = pkm;
 	for (let rival of pkm.master.rivals){
@@ -636,8 +736,14 @@ World.prototype.pokemonBroadcasts = function(pkm, action, t){
 	}
 }
 
-// Register events to timeline based on the action performed by a Pokemon
-// Returns the time when the Pokemon will be free again
+/**
+	Register the action of a Pokemon by queuing appropriate events.
+	This method only queues events, not handles them, therefore this method does not change the internal simulator state.
+	@param {Pokemon} pkm The pokemon who performs the attack.
+	@param {number} t The time of the action.
+	@param {Object} action The action performed by the Pokemon.
+	@return {number} The time when the Pokemon will be free again for another action.
+*/
 World.prototype.registerAction = function(pkm, t, action){
 	if (!action){
 		action = {};
@@ -664,7 +770,7 @@ World.prototype.registerAction = function(pkm, t, action){
 				var totalChargeMoveDuration = Data.BattleSettings.minigameDurationMs + Data.BattleSettings.chargeMoveAnimationMs;
 				this.timeline.shift_key(totalChargeMoveDuration);
 				this.timeline.insert({
-					name: EVENT_TYPE.Announce, t: t, subject: pkm, move: cmove
+					name: EVENT_TYPE.Announce, t: t + Data.BattleSettings.minigameDurationMs, subject: pkm, move: cmove
 				});
 				pkm.chargedAttackBonus = Data.BattleSettings.chargedAttackBonusMultiplier;
 				for (let rival of pkm.master.rivals){ // Ask each enemy whether to use Protect Shield
@@ -699,7 +805,11 @@ World.prototype.registerAction = function(pkm, t, action){
 	return t;
 }
 
-// Check if any of the player is still in game
+/**
+	Check if any player of the team is still in game.
+	@param {string} team The team to check whether it's defeated or not.
+	@return {boolean} true if it's defeated and false otherwise.
+*/
 World.prototype.isTeamDefeated = function(team){
 	for (let player of this.players){
 		if (player.team == team){
@@ -712,7 +822,9 @@ World.prototype.isTeamDefeated = function(team){
 	return true;
 }
 
-// Function to start simulating a battle
+/**
+	Simulate a new battle.
+*/
 World.prototype.battle = function(){
 	var t = 0;
 	var timelimit = this.timelimit;
@@ -740,7 +852,7 @@ World.prototype.battle = function(){
 				let tFree = this.registerAction(e.subject, t, currentAction);
 				if (currentAction && (e.subject.role == "gd" || e.subject.role == "rb")){
 					// Gym Defenders and Raid Bosses are forced to broadcast
-					this.pokemonBroadcasts(e.subject, currentAction, t);
+					this.pokemonBroadcasts(e.subject, t, currentAction);
 				}
 				e.subject.queuedAction = e.subject.choose({
 					subject: e.subject, t: t, tFree: tFree,
@@ -869,7 +981,10 @@ World.prototype.battle = function(){
 	}
 }
 
-
+/**
+	Handles the move effect of the move.
+	@param {Object} e The event to handle.
+*/
 World.prototype.handleMoveEffect = function(e){
 	// TODO
 	let effect = e.move.effect;
@@ -878,50 +993,51 @@ World.prototype.handleMoveEffect = function(e){
 	}
 }
 
-
-// Translate simulator event to battle log entry
+/**
+	Log the simulator event.
+	@param {Object} e Event to log.
+*/
 World.prototype.appendEventToLog = function(e){
 	if (!this.hasLog){
 		return;
 	}
-	let logEntry = {
-		t: round(e.t / 1000, 2),
+	// Prepare a formatted log entry.
+	let entry = {
+		t: e.t,
 		events: new Array(this.players.length)
 	};
 	if (e.name == EVENT_TYPE.Enter){
-		logEntry.events[e.subject.master.index] = {
+		entry.events[e.subject.master.index] = {
 			type: 'pokemon',
 			eventType: EVENT_TYPE.Enter,
 			name: e.subject.name,
 			nickname: e.subject.nickname
 		};
 	}else if (e.name == EVENT_TYPE.Hurt){
-		logEntry.events[e.subject.master.index] = {
+		entry.events[e.subject.master.index] = {
 			name: e.move.name,
 			eventType: EVENT_TYPE.Hurt,
 			text: e.subject.HP + "(-" + e.dmg + ")",
-			value: e.dmg
+			value: e.dmg,
+			value2: e.subject.HP
 		};
-		logEntry.events[e.object.master.index] = {
+		entry.events[e.object.master.index] = {
 			type: e.move.moveType + 'Move', 
 			name: e.move.name
 		};
 	}else if (e.name == EVENT_TYPE.Dodge){
-		logEntry.events[e.subject.master.index] = {
+		entry.events[e.subject.master.index] = {
 			type: 'text',
 			text: 'Dodge'
 		};
 	}else if (e.name == EVENT_TYPE.Protect){
-		logEntry.events[e.subject.master.index] = {
+		entry.events[e.subject.master.index] = {
 			type: 'text', 
 			text: 'Protect Shield'
 		};
 	}
-	this.appendEntryToLog(logEntry);
-}
-
-// Append entry to log and try to merge with the last one
-World.prototype.appendEntryToLog = function(entry){
+	
+	// Append the log entry to the log list. Try to merge with the last entry if possible.
 	if (this.log.length == 0){
 		this.log.push(entry);
 		return;
@@ -942,10 +1058,10 @@ World.prototype.appendEntryToLog = function(entry){
 				mergedEntry.events[i] = {
 					type: 'text',
 					eventType: EVENT_TYPE.Hurt,
-					text: prev.text.split("(")[0],
-					value: (prev.value || 0) + cur.value
+					text: prev.value2 + "(-" + (prev.value + cur.value) + ")",
+					value: prev.value + cur.value,
+					value2: prev.value2
 				};
-				mergedEntry.events[i].text += "(-" + mergedEntry.events[i].value + ")";
 			}else if (prev.name && prev.name == cur.name) {
 				mergedEntry.events[i] = prev;
 			}else{
@@ -961,12 +1077,18 @@ World.prototype.appendEntryToLog = function(entry){
 }
 
 
-// From the perspective of team "0"
+/**
+	Get the battle result. This method is used for the termination condition for the main battle() function.
+	@return {number} 1 if team "1" is defeated, 0 otherwise.
+*/
 World.prototype.getBattleResult = function(){
 	return this.isTeamDefeated("1") ? 1 : 0;
 }
 
-// Return the statistis and battle log
+/** 
+	Get the battle performance metrics and batte log of the simulation.
+	@return {{generalStat, playerStats, pokemonStats, battleLog}} Battle performance metrics.
+*/
 World.prototype.getStatistics = function(){
 	let general_stat = {};
 	let player_stats = [];
@@ -1008,18 +1130,15 @@ World.prototype.getStatistics = function(){
 		battleLog: this.log
 	};	
 }
-/* End of Class <World> */
 
 
-// Strategies: these functions are called when control is asking for the next action.
-// They should return an action object with the following attributes:
-// - name: "fast", "charge", "dodge", "switch"
-// - delay: in milliseconds
-// - index: 
-//		- (for switch action) pokemon index within the same party
-//		- (for charge action) charge move index
 
-// Gym Defender/Raid Boss strategy
+
+/**
+	Defender AI strategy.
+	@param {Object} state Information for making the decision.
+	@return {{name: string, delay: number, index: number}} The action decided to take.
+*/
 function strat0(state){
 	let actionName, delay;
 	if (this.actionCount >= 2){
@@ -1050,7 +1169,12 @@ function strat0(state){
 	};
 }
 
-// Attacker strategy: No dodging
+
+/**
+	Attacker strategy: No dodging.
+	@param {Object} state Information for making the decision.
+	@return {{name: string, delay: number, index: number}} The action decided to take.
+*/
 function strat1(state){
 	var subject = state.subject;
 	let projectedEnergyDelta = 0;
@@ -1072,7 +1196,12 @@ function strat1(state){
 	}
 }
 
-// Attacker strategy: Dodge Charged
+
+/**
+	Attacker strategy: Dodge Charged
+	@param {Object} state Information for making the decision.
+	@return {{name: string, delay: number, index: number}} The action decided to take.
+*/
 function strat2(state){
 	var subject = state.subject;
 	if (state.t < state.tFree){
@@ -1123,7 +1252,12 @@ function strat2(state){
 	return strat1(state);
 }
 
-// Attacker strategy: Dodge All
+
+/**
+	Attacker strategy: Dodge All
+	@param {Object} state Information for making the decision.
+	@return {{name: string, delay: number, index: number}} The action decided to take.
+*/
 function strat3(state){
 	var subject = state.subject;
 	if (state.t < state.tFree){
@@ -1174,7 +1308,12 @@ function strat3(state){
 	return strat1(state);
 }
 
-// Attacker strategy: No dodging + Burst charge move
+
+/**
+	Attacker strategy: No dodging + Burst charge move
+	@param {Object} state Information for making the decision.
+	@return {{name: string, delay: number, index: number}} The action decided to take.
+*/
 function strat4(state){
 	var subject = state.subject;
 	let projectedEnergyDelta = 0;

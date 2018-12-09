@@ -1,9 +1,41 @@
-/* GBS_UI_2_dom.js */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: GBS_UI_2_dom.js</title>
 
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: GBS_UI_2_dom.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* GBS_UI_2_dom.js */
+
+/**
+	@file Define major UI Widgets.
+	@author BIOWP
+*/
 
 function createMinimizeButton(parentName){
 	const pName = parentName;
-	var button = createElement("button", '<i class="fa fa-minus" aria-hidden="true"></i>',{
+	var button = createElement("button", '&lt;i class="fa fa-minus" aria-hidden="true">&lt;/i>',{
 		class: "button-icon", title: "Minimize"
 	});
 	button.onclick = function(){
@@ -14,7 +46,7 @@ function createMinimizeButton(parentName){
 
 
 function createCopyPokemonButton(){
-	var copyPokemonButton = createElement('button','<i class="fa fa-files-o" aria-hidden="true"></i>', {
+	var copyPokemonButton = createElement('button','&lt;i class="fa fa-files-o" aria-hidden="true">&lt;/i>', {
 		class: "button-icon", title: "Copy"
 	});
 	copyPokemonButton.onclick = function(){
@@ -26,7 +58,7 @@ function createCopyPokemonButton(){
 
 
 function createPastePokemonButton(){
-	var pastePokemonButton = createElement('button','<i class="fa fa-clipboard" aria-hidden="true"></i>', {
+	var pastePokemonButton = createElement('button','&lt;i class="fa fa-clipboard" aria-hidden="true">&lt;/i>', {
 		class: "button-icon", title: "Paste"
 	});
 	pastePokemonButton.onclick = function(){
@@ -39,7 +71,7 @@ function createPastePokemonButton(){
 
 
 function createRemovePokemonButton(){
-	var removePokemonButton = createElement('button', '<i class="fa fa-times" aria-hidden="true"></i>', {
+	var removePokemonButton = createElement('button', '&lt;i class="fa fa-times" aria-hidden="true">&lt;/i>', {
 		class: "button-icon", title: "Remove"
 	});
 	removePokemonButton.onclick = function(){
@@ -101,7 +133,7 @@ function createPokemonCopiesInput(){
 		if (pokemonCount > MAX_NUM_POKEMON_PER_PARTY){
 			this.value -= pokemonCount - MAX_NUM_POKEMON_PER_PARTY;
 		}
-		if (this.value < 1)
+		if (this.value &lt; 1)
 			this.value = 1;
 	}
 	copiesInput.comply = function(kwargs){
@@ -131,7 +163,7 @@ function createPokemonRaidTierInput(){
 		if (kwargs.battleMode == "raid"){
 			if ($$$(this).parent("player").child("player-team").val() == "1"){
 				var timelimitInput = document.getElementById("timelimit");
-				if (parseInt(this.value) <= 4){
+				if (parseInt(this.value) &lt;= 4){
 					timelimitInput.value = Data.BattleSettings.timelimitRaidMs;
 				}else{
 					timelimitInput.value = Data.BattleSettings.timelimitLegendaryRaidMs;
@@ -213,7 +245,7 @@ function createPartyNameInput(){
 
 
 function createSavePartyButton(){
-	var savePartyButton = createElement('button','<i class="fa fa-floppy-o" aria-hidden="true"></i>',{
+	var savePartyButton = createElement('button','&lt;i class="fa fa-floppy-o" aria-hidden="true">&lt;/i>',{
 		class: 'button-icon', title: 'Save'
 	});
 	savePartyButton.onclick = function(){
@@ -232,7 +264,7 @@ function createSavePartyButton(){
 
 
 function createRemovePartyButton(){
-	var removePartyButton = createElement('button', '<i class="fa fa-times" aria-hidden="true"></i>', {
+	var removePartyButton = createElement('button', '&lt;i class="fa fa-times" aria-hidden="true">&lt;/i>', {
 		class: 'button-icon', title: 'Remove'
 	});
 	removePartyButton.onclick = function(){
@@ -301,7 +333,7 @@ function createAddPokemonButton(){
 	addPokemonButton.onclick = function(){
 		let partyNode = $$$(this).parent("party").node;
 		let pokemonCount = countPokemonFromParty(partyNode);
-		if (pokemonCount < MAX_NUM_POKEMON_PER_PARTY){
+		if (pokemonCount &lt; MAX_NUM_POKEMON_PER_PARTY){
 			let newPokemonNode = createPokemonNode();
 			let prevPokemonConfig = read(partyNode.children[1].lastChild);
 			prevPokemonConfig.copies = 1;
@@ -385,7 +417,7 @@ function createPlayerFriendInput(){
 
 
 function createRemovePlayerButton(){
-	var removePlayerButton = createElement('button','<i class="fa fa-times" aria-hidden="true"></i>',{
+	var removePlayerButton = createElement('button','&lt;i class="fa fa-times" aria-hidden="true">&lt;/i>',{
 		class: 'button-icon', title: 'Remove'
 	});
 	removePlayerButton.onclick = function(){
@@ -409,7 +441,7 @@ function createAddPartyButton(){
 	});
 	addPartyButton.onclick = function(){
 		var playerNode = $$$(this).parent("player").node;
-		if (playerNode.children[1].children.length < MAX_NUM_PARTIES_PER_PLAYER){
+		if (playerNode.children[1].children.length &lt; MAX_NUM_PARTIES_PER_PLAYER){
 			playerNode.children[1].appendChild(createPartyNode());
 			relabel();
 		}else{
@@ -484,13 +516,13 @@ function createPokemonNode(){
 	
 	
 	// 2. Body
-	var tb1 = createElement("table", "<colgroup><col width=50%><col width=25%><col width=25%></colgroup>");
+	var tb1 = createElement("table", "&lt;colgroup>&lt;col width=50%>&lt;col width=25%>&lt;col width=25%>&lt;/colgroup>");
 	tb1.appendChild(createRow(['', '', ''], 'td'));
 	tb1.children[1].children[0].appendChild(createPokemonNameInput());
 	tb1.children[1].children[1].appendChild(createPokemonRoleInput());
 	tb1.children[1].children[2].appendChild(createPokemonCopiesInput());
 	
-	var tb2 = createElement("table", "<colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>");
+	var tb2 = createElement("table", "&lt;colgroup>&lt;col width=25%>&lt;col width=25%>&lt;col width=25%>&lt;col width=25%>&lt;/colgroup>");
 	tb2.appendChild(createRow(['', '', '', ''], 'td'));
 	tb2.children[1].children[0].appendChild(createElement("input", "", {
 		placeholder: "Level", name: "pokemon-level"
@@ -505,11 +537,11 @@ function createPokemonNode(){
 		placeholder: "Def. IV", name: "pokemon-defiv"
 	}));
 	
-	var tb3 = createElement("table", "<colgroup><col width=100%></colgroup>", {hidden: "true"});
+	var tb3 = createElement("table", "&lt;colgroup>&lt;col width=100%>&lt;/colgroup>", {hidden: "true"});
 	tb3.appendChild(createRow(['']));
 	tb3.children[1].children[0].appendChild(createPokemonRaidTierInput());
 
-	var tb4 = createElement("table", "<colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>");
+	var tb4 = createElement("table", "&lt;colgroup>&lt;col width=25%>&lt;col width=25%>&lt;col width=25%>&lt;col width=25%>&lt;/colgroup>");
 	tb4.appendChild(createRow(['', '', '', ''], 'td'));
 	tb4.children[1].children[0].appendChild(createPokemonMoveInput("fast", "fmove"));
 	tb4.children[1].children[1].appendChild(createPokemonMoveInput("charged", "cmove"));
@@ -536,7 +568,7 @@ function createPartyNode(){
 	partyNode.appendChild(createElement('div', "", {style: "width:100%"}));
 	
 	// 1. Head
-	partyNode.children[0].innerHTML = "<span class='section-node-title'>Unlabeled Party</span>";
+	partyNode.children[0].innerHTML = "&lt;span class='section-node-title'>Unlabeled Party&lt;/span>";
 	partyNode.children[0].appendChild(createPartyNameInput());
 	var controlButtonDiv = createElement('div', "", {class: "section-buttons-panel"});
 	controlButtonDiv.appendChild(createMinimizeButton("party"));
@@ -566,7 +598,7 @@ function createPlayerNode(){
 	playerNode.appendChild(createElement('div', "", {style: "width:100%"}));
 	
 	// 1. Head
-	playerNode.children[0].innerHTML = "<span class='section-node-title'>Unlabeled Player</span>";
+	playerNode.children[0].innerHTML = "&lt;span class='section-node-title'>Unlabeled Player&lt;/span>";
 	var playerSettingDiv = createElement('div','', {
 		style: 'width: 50%; display: inline-block; text-align: center;'
 	});
@@ -593,7 +625,7 @@ function createPlayerNode(){
 
 function addPlayerNode(){
 	var playerNodes = $$$(document.getElementById("input")).child("input-players").node;
-	if (playerNodes.children.length < MAX_NUM_OF_PLAYERS){
+	if (playerNodes.children.length &lt; MAX_NUM_OF_PLAYERS){
 		playerNodes.appendChild(createPlayerNode());
 		relabel();
 	}else{
@@ -651,7 +683,7 @@ function clearAllSims(){
 
 
 function createMasterSummaryTable(){
-	var table = createElement('table', '<thead></thead><tfoot></tfoot><tbody></tbody>', {
+	var table = createElement('table', '&lt;thead>&lt;/thead>&lt;tfoot>&lt;/tfoot>&lt;tbody>&lt;/tbody>', {
 		width: '100%', id: 'ui-mastersummarytable', cellspacing: '0', class: 'display nowrap'
 	});
 	var headers = ['#'];
@@ -661,7 +693,7 @@ function createMasterSummaryTable(){
 	headers.push('Detail');
 	table.children[0].appendChild(createRow(headers, "th"));
 	table.children[1].appendChild(createRow(headers, "th"));
-	for (var i = 0; i < simResults.length; i++){
+	for (var i = 0; i &lt; simResults.length; i++){
 		var sim = simResults[i];
 		var row = [i+1];
 		for (var m in MasterSummaryTableMetrics){
@@ -700,7 +732,7 @@ function createMasterSummaryTable(){
 				}
 			}
 		}
-		row.push("<a onclick='displayDetail("+i+")' style='cursor: pointer'><i class='fa fa-info-circle' aria-hidden='true'></i></a>");
+		row.push("&lt;a onclick='displayDetail("+i+")' style='cursor: pointer'>&lt;i class='fa fa-info-circle' aria-hidden='true'>&lt;/i>&lt;/a>");
 		table.children[2].appendChild(createRow(row, "td"));
 	}
 	return table;
@@ -717,18 +749,18 @@ function createPlayerStatisticsString(playerStat){
 
 function createPokemonStatisticsTable(pokemonStats){
 	var table = document.createElement("table");
-	table.appendChild(createRow(["<img src='" + getPokemonIcon({dex: 0}) + "'></img>",
+	table.appendChild(createRow(["&lt;img src='" + getPokemonIcon({dex: 0}) + "'>&lt;/img>",
 								"HP", "Energy", "TDO", "Duration", "DPS", "Detail"], 'th'));
-	for (var i = 0; i < pokemonStats.length; i++){
+	for (var i = 0; i &lt; pokemonStats.length; i++){
 		var ps = pokemonStats[i];
 		var row = createRow([
-			"<img src='" + getPokemonIcon({name: ps.name}) + "' class='apitem-pokemon-icon'></img>", 
+			"&lt;img src='" + getPokemonIcon({name: ps.name}) + "' class='apitem-pokemon-icon'>&lt;/img>", 
 			ps.hp, 
 			ps.energy, 
 			ps.tdo, 
 			round(ps.duration, 2), 
 			round(ps.dps, 2), 
-			"<a style='cursor: pointer'><i class='fa fa-info-circle' aria-hidden='true'></i></a>"], 
+			"&lt;a style='cursor: pointer'>&lt;i class='fa fa-info-circle' aria-hidden='true'>&lt;/i>&lt;/a>"], 
 		'td');
 		
 		const ps_const = JSON.parse(JSON.stringify(ps));
@@ -736,7 +768,7 @@ function createPokemonStatisticsTable(pokemonStats){
 			var pokemonDialog = createElement('div', '', {title: 'Pokemon Detail'});
 			var pokemonTable = createElement('table', '');
 			for (var attr in ps_const){
-				pokemonTable.appendChild(createElement('tr',"<th>" + attr + "</th><td>" + ps_const[attr] + "</td>"));
+				pokemonTable.appendChild(createElement('tr',"&lt;th>" + attr + "&lt;/th>&lt;td>" + ps_const[attr] + "&lt;/td>"));
 			}
 			pokemonDialog.appendChild(pokemonTable);
 			$(pokemonDialog).dialog({width: 400}).dialog('open');
@@ -749,7 +781,7 @@ function createPokemonStatisticsTable(pokemonStats){
 
 function displayMasterSummaryTable(){
 	clearFeedbackTables();
-	document.getElementById("feedback_buttons").innerHTML = "<button onclick='clearAllSims()'>Clear All</button>";
+	document.getElementById("feedback_buttons").innerHTML = "&lt;button onclick='clearAllSims()'>Clear All&lt;/button>";
 	
 	var table = createMasterSummaryTable();
 	document.getElementById("feedback_table1").appendChild(table);
@@ -788,11 +820,11 @@ function displayDetail(i){
 	// Prepare Player/Party/Pokemon summary
 	var output = simResults[i].output;
 	var fbSection = document.getElementById("feedback_table1");
-	for (var i = 0; i < output.pokemonStats.length; i++){
+	for (var i = 0; i &lt; output.pokemonStats.length; i++){
 		fbSection.appendChild(createElement('h4', createPlayerStatisticsString(output.playerStats[i]), 
 			{style: 'background:' + HSL_COLORS[i%HSL_COLORS.length][0]}));
 		var playerDiv = document.createElement('div');
-		for (var j = 0; j < output.pokemonStats[i].length; j++){
+		for (var j = 0; j &lt; output.pokemonStats[i].length; j++){
 			playerDiv.appendChild(createElement('h5', 'Party ' + (j+1)));
 			var partyDiv = document.createElement('div');
 			partyDiv.appendChild(createPokemonStatisticsTable(output.pokemonStats[i][j]));
@@ -840,19 +872,19 @@ function displayDetail(i){
 
 
 function createBattleLogTable(log){
-	var table = createElement('table', '<thead></thead><tbody></tbody>', {
+	var table = createElement('table', '&lt;thead>&lt;/thead>&lt;tbody>&lt;/tbody>', {
 		width: '100%', class: 'display nowrap', id: "ui-log-table"
 	});
 
 	let headers = ["Time"];
-	for (var i = 0; i < log[0].events.length; i++){
+	for (var i = 0; i &lt; log[0].events.length; i++){
 		headers.push("Player " + (i+1));
 	}
 	table.children[0].appendChild(createRow(headers, "th"));
 	
 	var sameTimeEvents = [];
 	for (let rowEntry of log){
-		let rowData = [rowEntry.t];
+		let rowData = [round(rowEntry.t/1000, 2)];
 		for (let entry of rowEntry.events){
 			entry = entry || {type: 'text', text: ''};
 			if (entry.type == 'pokemon'){
@@ -869,7 +901,7 @@ function createBattleLogTable(log){
 			}
 		}
 		let row = createRow(rowData);
-		for (var k = 0; k < row.children.length - 1; k++){
+		for (var k = 0; k &lt; row.children.length - 1; k++){
 			row.children[k+1].setAttribute('style', 'background:' + HSL_COLORS[k%HSL_COLORS.length][0]);
 		}
 		table.children[1].appendChild(row, "td");
@@ -974,3 +1006,26 @@ function importConfig(url){
 	}
 	return cfg;
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li><li><a href="global.html#strat0">strat0</a></li><li><a href="global.html#strat1">strat1</a></li><li><a href="global.html#strat2">strat2</a></li><li><a href="global.html#strat3">strat3</a></li><li><a href="global.html#strat4">strat4</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Dec 09 2018 20:49:02 GMT+0800 (Hong Kong Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

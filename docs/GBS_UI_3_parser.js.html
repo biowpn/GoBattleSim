@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: GBS_UI_3_parser.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: GBS_UI_3_parser.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* GBS_UI_3_parser.js */
+
+/**
+	@file Process simulation request and handle Batch Input.
+	@author BIOWP
+*/
+
+function initMasterSummaryTableMetrics(){
+	currentJobSize = 0;
+}
+
+function createNewMetric(metric, nameDisplayed){
+	MasterSummaryTableMetrics[metric] = nameDisplayed || metric;
+}
+
+function getPokemonConfig(cfg, address){
+	var arr = address.split('-');
+	var i = parseInt(arr[0])-1, j = parseInt(arr[1])-1, k = parseInt(arr[2])-1; // indices start from 1 in address
+	return cfg.players[i].parties[j].pokemon[k];
+}
+
+var attributesEnumeration = [
+	{
+		name: "name",
+		matcher: x => getEntryIndex(x, Data.Pokemon),
+		database: a => getPokemonOptions(true),
+		default: "latios"
+	},{
+		name: "level",
+		matcher: parseFloat,
+		database: a => Data.LevelSettings,
+		default: "40"
+	},{
+		name: "atkiv",
+		matcher: parseInt,
+		database: a => Data.IndividualValues,
+		default: "15"
+	},{
+		name: "defiv",
+		matcher: parseInt,
+		database: a => Data.IndividualValues,
+		default: "15"
+	},{
+		name: "stmiv",
+		matcher: parseInt,
+		database: a => Data.IndividualValues,
+		default: "15"
+	},{
+		name: "fmove",
+		matcher: x => getEntryIndex(x, Data.FastMoves),
+		database: a => Data.FastMoves,
+		default: "current, legacy, exclusive"
+	},{
+		name: "cmove",
+		matcher: x => getEntryIndex(x, Data.ChargedMoves),
+		database: a => Data.ChargedMoves,
+		default: "current, legacy, exclusive"
+	},{
+		name: "cmove2",
+		matcher: x => getEntryIndex(x, Data.ChargedMoves),
+		database: a => Data.ChargedMoves,
+		default: "current, legacy, exclusive"
+	}
+];
+
+function batchSim(cfg, start){
+	start = start || [0, 0, 0, 0];
+	for (var i = start[0]; i &lt; cfg.players.length; i++){
+		let player = cfg.players[i];
+		for (var j = start[1]; j &lt; player.parties.length; j++){
+			let party = player.parties[j];
+			for (var k = start[2]; k &lt; party.pokemon.length; k++){
+				let pokemon = party.pokemon[k];
+				let pokemonInstance = getEntry(pokemon.name.trim().toLowerCase(), Data.Pokemon);
+				for (var m = start[3]; m &lt; attributesEnumeration.length; m++){
+					let attr = attributesEnumeration[m];
+					let database = attr.database([i, j, k, m]);
+					let expression = (pokemon[attr.name] || attr.default).toString().toLowerCase();
+					if (attr.matcher(expression) >= 0){
+						continue;
+					}
+					if (expression[0] == '='){ // Dynamic Paster
+						try{
+							var pokemonSrc = getPokemonConfig(cfg, expression.slice(1));
+							pokemon[attr.name] = pokemonSrc[attr.name];
+							continue;
+						}catch(err){
+							sendFeedback((i+1) + "-" + (j+1) + "-" + (k+1) + '.' + attr.name + ": Invalid Dynamic Paster", true);
+							return [];
+						}
+					}else{ // Logical Expression
+						let branches = [];
+						let selector = expression[0];
+						if (SELECTORS.includes(selector)){
+							expression = expression.slice(1).trim() || attr.default;
+						}
+						let matches = database.filter(Predicate(expression, pokemonInstance, attr.name));
+						if (matches.length == 0){
+							return [];
+						}
+						if (selector != '?'){
+							createNewMetric('*' + (i+1) + "-" + (j+1) + "-" + (k+1) + '.' + attr.name);
+						}
+						for (let match of matches){
+							let cfg_copy = JSON.parse(JSON.stringify(cfg));
+							pokemon = cfg_copy.players[i].parties[j].pokemon[k];
+							pokemon[attr.name] = match.name;
+							if (attr.name == "name" &amp;&amp; match.uid){ // Match user's Pokemon
+								for (let ae of attributesEnumeration){
+									let a = ae.name;
+									pokemon[a] = (pokemon[a] || match[a]).toString().replace("#", match[a]);
+								}
+							}
+							branches = branches.concat(batchSim(cfg_copy, [i, j, k, m+1]));
+						}
+						if (selector == '?'){ // Forced prouping	
+							branches = [branches];
+						}
+						return branches;
+					}	
+				}
+				start[3] = 0;
+			}
+			start[2] = 0;
+		}
+		start[1] = 0;
+	}
+	return [cfg];
+}
+
+// Simulate a specific configuration
+function runSimulation(cfg){
+	if (cfg.aggregation == "avrg"){
+		cfg.hasLog = false;
+	}
+	var world = new World(cfg);
+	let simPerConfig = parseInt(cfg.simPerConfig) || 1;
+	let simulations = [];
+	for (var i = 0; i &lt; simPerConfig; i++){
+		world.init();
+		world.battle();
+		simulations.push({
+			input: cfg,
+			output: world.getStatistics()
+		});
+	}
+	currentJobSize += simPerConfig;
+	if (cfg.aggregation == "avrg"){
+		simulations = [averageSimulations(simulations)];
+	}
+	return simulations;
+}
+
+
+function averageSimulations(sims){
+	var avrgOutput = JSON.parse(JSON.stringify(sims[0].output));
+	
+	// 1. Initialize everything to 0
+	traverseLeaf(avrgOutput, function(v, path){
+		if (!isNaN(parseFloat(v))){
+			setProperty(avrgOutput, path, 0);
+		}
+	});
+	
+	// 2. Sum them up
+	for (let sim of sims){
+		sim.output.battleLog = [];
+		traverseLeaf(sim.output, function(v, path){
+			if (!isNaN(parseFloat(v))){
+				setProperty(avrgOutput, path, getProperty(avrgOutput, path) + v);
+			}
+		});
+	}
+	
+	// 3. Divide and get the results
+	traverseLeaf(avrgOutput, function(v, path){
+		if (!isNaN(parseFloat(v))){
+			v = v / sims.length;
+			setProperty(avrgOutput, path, v);
+		}
+	});
+	
+	return {
+		input: sims[0].input,
+		output: avrgOutput
+	};
+}
+
+
+function requestSimulation(){
+	sendFeedbackDialog("&lt;i class='fa fa-spinner fa-spin fa-3x fa-fw'>&lt;\/i>&lt;span class='sr-only'>&lt;\/span>Simulating...");
+	setTimeout(function(){
+		try{
+			GoBattleSim();
+			sendFeedback(currentJobSize + " sims have been performed", true);
+			setTimeout(function(){
+				document.getElementById('ui-mastersummarytable').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+			}, 100);
+			while (DialogStack.length){
+				DialogStack.pop().dialog('close');
+			}
+		}catch(err){
+			while (DialogStack.length){
+				DialogStack.pop().dialog('close');
+			}
+			sendFeedbackDialog("Oops, something went wrong!");
+		}
+	}, 100);
+}
+
+
+function processConfig(config){
+	if (Array.isArray(config)){
+		var sims = [];
+		for (let subConfig of config){
+			sims = sims.concat(processConfig(subConfig));
+		}
+		return [averageSimulations(sims)];
+	}else{
+		return runSimulation(config);
+	}
+}
+
+
+function GoBattleSim(){
+	var userInput = read();
+	
+	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfig(userInput));
+	userInput.hasLog = true;
+	
+	initMasterSummaryTableMetrics();
+	date = new Date();
+	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations started");
+	
+	var configurations = batchSim(userInput, [0,0,0,0]);
+	for (let config of configurations){
+		simResults = simResults.concat(processConfig(config));
+	}
+	
+	date = new Date();
+	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations completed");
+
+	displayMasterSummaryTable();
+}
+
+
+function applicationInit(){
+	var playersNode = $$$(document.getElementById("input")).child("input-players").node;
+	$(playersNode).sortable({axis: 'y'});
+	addPlayerNode();
+	addPlayerNode();
+	write(playersNode.children[1], {team: "1", parties: [{pokemon: [{role: "rb"}]}]});
+	comply();
+
+	if (window.location.href.includes('?')){
+		write(document.getElementById("input"), importConfig(window.location.href));
+	}else if (!LocalData.WelcomeDialogNoShow){
+		$( "#WelcomeDialog" ).dialog( "open" );
+	}
+
+	formatting(playersNode);
+	relabel();
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li><li><a href="global.html#strat0">strat0</a></li><li><a href="global.html#strat1">strat1</a></li><li><a href="global.html#strat2">strat2</a></li><li><a href="global.html#strat3">strat3</a></li><li><a href="global.html#strat4">strat4</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Dec 09 2018 20:49:02 GMT+0800 (Hong Kong Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

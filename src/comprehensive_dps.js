@@ -1,5 +1,10 @@
 /* Comprehensive_DPS.js */
 
+/**
+	@file Comprehensive DPS Calculator, UI Control and others
+	@author BIOWP
+*/
+
 var DEFAULT_ATTACKER_LEVEL = 40;
 var DEFAULT_ATTACKER_IVs = [15, 15, 15];
 var DEFAULT_ENEMY_DPS1 = 900;

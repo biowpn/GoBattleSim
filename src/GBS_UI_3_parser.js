@@ -1,5 +1,9 @@
 /* GBS_UI_3_parser.js */
 
+/**
+	@file Process simulation request and handle Batch Input.
+	@author BIOWP
+*/
 
 function initMasterSummaryTableMetrics(){
 	currentJobSize = 0;
