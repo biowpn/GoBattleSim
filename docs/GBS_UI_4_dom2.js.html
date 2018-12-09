@@ -1,4 +1,37 @@
-/* GBS_UI_4_dom2.js */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: GBS_UI_4_dom2.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: GBS_UI_4_dom2.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* GBS_UI_4_dom2.js */
+
+/**
+	@file Define extension tools.
+	@author BIOWP
+*/
 
 function welcomeDialogInit(){
 	$( "#WelcomeDialog" ).attr("style", "visibility: show;");
@@ -36,12 +69,12 @@ function welcomeDialogRespond(resp){
 
 function dropdownMenuInit(){
 	var SubMenuContainers = document.getElementsByClassName('sub-menu-container');
-	for (var i = 0; i < SubMenuContainers.length; i++){
+	for (var i = 0; i &lt; SubMenuContainers.length; i++){
 		var container = SubMenuContainers[i];
 		container.children[0].onclick = function(){
 			$(this.parentNode.children[1]).slideToggle('fast');
 			var subMenus = document.getElementsByClassName('sub-menu');
-			for (var j = 0; j < subMenus.length; j++){
+			for (var j = 0; j &lt; subMenus.length; j++){
 				if (subMenus[j].id != this.parentNode.children[1].id){
 					$(subMenus[j]).hide();
 				}
@@ -131,7 +164,7 @@ function moveEditFormReset(){
 	fetchMoveData(function(){
 		sendFeedbackDialog("Latest Move Data have been fetched");
 		['FastMoves', 'ChargedMoves'].forEach(function(moveDatabaseName){
-			for (var i = 0; i < LocalData[moveDatabaseName].length; i++){
+			for (var i = 0; i &lt; LocalData[moveDatabaseName].length; i++){
 				if (getEntry(LocalData[moveDatabaseName][i].name, Data[moveDatabaseName])){
 					LocalData[moveDatabaseName].splice(i--, 1);
 				}
@@ -147,7 +180,7 @@ function moveEditFormDelete(){
 	var moveDatabaseName = toTitleCase($$$(moveInput).child("move-moveType").val()) + "Moves";
 	var moveName = $$$(moveInput).child("move-name").val().trim().toLowerCase();
 	
-	if (removeEntry(moveName, Data[moveDatabaseName]) && removeEntry(moveName, LocalData[moveDatabaseName])){
+	if (removeEntry(moveName, Data[moveDatabaseName]) &amp;&amp; removeEntry(moveName, LocalData[moveDatabaseName])){
 		saveLocalData();
 		sendFeedbackDialog("Move: " + moveName + " has been removed");
 	}
@@ -266,7 +299,7 @@ function pokemonEditFormReset(){
 	fetchSpeciesData(function(){
 		handleSpeciesDatabase(Data.Pokemon);
 		manuallyModifyData(Data);
-		for (var i = 0; i < LocalData.Pokemon.length; i++){
+		for (var i = 0; i &lt; LocalData.Pokemon.length; i++){
 			if (getEntry(LocalData.Pokemon[i].name, Data.Pokemon)){
 				LocalData.Pokemon.splice(i--, 1);
 			}
@@ -280,7 +313,7 @@ function pokemonEditFormReset(){
 function pokemonEditFormDelete(){
 	var pokemonInput = document.getElementById("pokemonEditForm-table");
 	var pokemonName = $$$(pokemonInput).child("pokemon-name").val();
-	if (removeEntry(pokemonName, Data.Pokemon) && removeEntry(pokemonName, LocalData.Pokemon)){
+	if (removeEntry(pokemonName, Data.Pokemon) &amp;&amp; removeEntry(pokemonName, LocalData.Pokemon)){
 		saveLocalData();
 		sendFeedbackDialog("Pokemon: " + pokemonName + " has been removed");
 	}
@@ -300,7 +333,7 @@ function parameterEditFormInit(){
 
 	var parameterTable = document.getElementById('parameterEditForm-Table');
 	for (var attr in Data.BattleSettings){
-		var row = createRow([attr, "<input type='number' id='parameterEditForm-" + attr + "'></input>"],'td');
+		var row = createRow([attr, "&lt;input type='number' id='parameterEditForm-" + attr + "'>&lt;/input>"],'td');
 		row.children[1].children[0].value = Data.BattleSettings[attr];
 		parameterTable.children[1].appendChild(row);
 	};
@@ -376,11 +409,11 @@ function userEditFormRemoveUser(){
 function updateUserTable(){
 	var table = document.getElementById('userEditForm-userTable');
 	table.children[1].innerHTML = '';
-	for (var i = 0; i < Data.Users.length; i++){
+	for (var i = 0; i &lt; Data.Users.length; i++){
 		table.children[1].appendChild(createRow([
 			Data.Users[i].uid,
 			Data.Users[i].box.length,
-			'<button onclick="updateBoxTable(' + Data.Users[i].uid + ')">View Box</button>'
+			'&lt;button onclick="updateBoxTable(' + Data.Users[i].uid + ')">View Box&lt;/button>'
 		], 'td'));
 	}
 }
@@ -394,7 +427,7 @@ function updateBoxTable(uid){
 	
 	$( "#boxEditForm" ).dialog( "open" );
 	boxEditFormTable.clear();
-	for (var i = 0; i < box.length; i++){
+	for (var i = 0; i &lt; box.length; i++){
 		var fmove = getEntry(box[i].fmove, Data.FastMoves), cmove = getEntry(box[i].cmove, Data.ChargedMoves);
 		boxEditFormTable.row.add([
 			i+1,
@@ -418,10 +451,10 @@ function modEditFormInit(){
 	var tbody = document.getElementById('modEditForm-table-body');
 	if (tbody){
 		tbody.innerHTML = '';
-		for (var i = 0; i < Mods.length; i++){
+		for (var i = 0; i &lt; Mods.length; i++){
 			tbody.appendChild(createRow([
 				Mods[i].name,
-				"<input type='checkbox' id='mod_checkbox_" + i + "'>"
+				"&lt;input type='checkbox' id='mod_checkbox_" + i + "'>"
 			]));
 		}
 	}
@@ -438,9 +471,9 @@ function modEditFormInit(){
 
 function modEditFormSubmit(){
 	fetchAll(function(){
-		for (var i = 0; i < Mods.length; i++){
+		for (var i = 0; i &lt; Mods.length; i++){
 			var mod_checkbox = document.getElementById('mod_checkbox_' + i);
-			if (mod_checkbox && mod_checkbox.checked){
+			if (mod_checkbox &amp;&amp; mod_checkbox.checked){
 				Mods[i].effect(Data);
 			}
 		}
@@ -459,7 +492,7 @@ function MVLTableInit(){
 		$( "#MVLTable" ).dialog( "open" );
 	});
 	var friendStartEl = document.getElementById("MVLTable-friendStart"), friendEndEl = document.getElementById("MVLTable-friendEnd");
-	for (var i = 0; i < Data.FriendSettings.length; i++){
+	for (var i = 0; i &lt; Data.FriendSettings.length; i++){
 		friendStartEl.appendChild(createElement("option", Data.FriendSettings[i].name, {"value": i}));
 		friendEndEl.appendChild(createElement("option", Data.FriendSettings[i].name, {"value": i}));
 	}
@@ -469,7 +502,7 @@ function MVLTableInit(){
 }
 
 function MVLTableSubmit(){
-	sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Simulating...");
+	sendFeedbackDialog("&lt;i class='fa fa-spinner fa-spin fa-3x fa-fw'>&lt;\/i>&lt;span class='sr-only'>&lt;\/span>Simulating...");
 	setTimeout(function(){
 		try{
 			MVLTableCalculate();
@@ -494,7 +527,7 @@ function MVLTableCalculate(){
 	var configurations = batchSim(baseConfig); // Each configuration will take a row
 	
 	var friends = [], frendStart = parseInt($("#MVLTable-friendStart").val()), friendEnd = parseInt($("#MVLTable-friendEnd").val());
-	for (var i = frendStart; i <= friendEnd; i++){
+	for (var i = frendStart; i &lt;= friendEnd; i++){
 		friends.push(Data.FriendSettings[i].name);
 	}
 	
@@ -529,7 +562,7 @@ function MVLTableCalculate(){
 				}
 			}
 			rowDict[friendLevel] = Data.LevelSettings[Data.LevelSettings.length - 1].name + "*";
-			for (var k = 0; k < winRates.length; k++){
+			for (var k = 0; k &lt; winRates.length; k++){
 				if (winRates[k] >= 60){
 					rowDict[friendLevel] = Data.LevelSettings[k].name;
 					break;
@@ -544,9 +577,9 @@ function MVLTableCalculate(){
 	tb.children[0].innerHTML = "";
 	tb.children[0].appendChild(createRow(columns, "th"));
 	tb.children[1].innerHTML = "";
-	for (var i = 0; i < data.length; i++){
+	for (var i = 0; i &lt; data.length; i++){
 		var rowArr = [];
-		for (var j = 0; j < columns.length; j++){
+		for (var j = 0; j &lt; columns.length; j++){
 			rowArr.push(data[i][columns[j]]);
 		}
 		tb.children[1].appendChild(createRow(rowArr));
@@ -623,9 +656,9 @@ function teamBuilderInit(){
 	$( partyDT.table().body() ).sortable({
 		stop: function(event, ui){
 			var partySize = partyDT.table().body().children.length;
-			if ((ui.position.left < -100 || ui.position.left > 100) & partySize > 1){
+			if ((ui.position.left &lt; -100 || ui.position.left > 100) &amp; partySize > 1){
 				var data = partyDT.rows().data();
-				for (var i = 0; i < data.length; i++){
+				for (var i = 0; i &lt; data.length; i++){
 					if (data[i].nid == ui.item[0].getAttribute("nid")){
 						partyDT.row(i).remove();
 					}
@@ -640,7 +673,7 @@ function teamBuilderInit(){
 		drop: function(event, ui){
 			if (ui.draggable){
 				var partySize = partyDT.table().body().children.length;
-				if (partySize < 6){
+				if (partySize &lt; 6){
 					var pokemon = getPokemonByNID(ui.draggable[0].getAttribute("nid"));
 					var pokemonCopy = JSON.parse(JSON.stringify(pokemon));
 					pokemonCopy.iconLabel = createIconLabelSpan(pokemon.icon, pokemon.label, "species-input-with-icon");
@@ -660,10 +693,10 @@ function teamBuilderSubmit(type){
 	if (type == 0){
 		teamBuilderPartyPermutationStats = {};
 		calculationMethod = teamBuilderCalculatePokemon;
-		sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Evaluating Pokemon...");
+		sendFeedbackDialog("&lt;i class='fa fa-spinner fa-spin fa-3x fa-fw'>&lt;\/i>&lt;span class='sr-only'>&lt;\/span>Evaluating Pokemon...");
 	}else if (type == 1){
 		calculationMethod = teamBuilderCalculateParty;
-		sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Calculating optimal permuation...");
+		sendFeedbackDialog("&lt;i class='fa fa-spinner fa-spin fa-3x fa-fw'>&lt;\/i>&lt;span class='sr-only'>&lt;\/span>Calculating optimal permuation...");
 	}
 	setTimeout(function(){
 		try{
@@ -699,7 +732,7 @@ function teamBuilderReadConfig(numAttacker){
 	baseConfig.players = [baseAttackingPlayer];
 	if (raidTier > 3 || numAttacker){
 		numAttacker = numAttacker || 4;
-		for (var r = 0; r < numAttacker - 1; r++){ // 3 clone players for Tier 4+ raids
+		for (var r = 0; r &lt; numAttacker - 1; r++){ // 3 clone players for Tier 4+ raids
 			baseConfig.players.push(baseAttackingPlayer);
 		}
 	}
@@ -756,7 +789,7 @@ function teamBuilderCalculatePokemon(){
 	pokemonDT.draw();
 	var pokemonDTData = pokemonDT.rows().data();
 	var pokemonDTRows = pokemonDT.rows().nodes();
-	for (var i = 0; i < pokemonDTData.length; i++){
+	for (var i = 0; i &lt; pokemonDTData.length; i++){
 		var tr = pokemonDTRows[i];
 		tr.setAttribute("nid", pokemonDTData[i].nid);
 		$(tr).draggable({
@@ -783,7 +816,7 @@ function teamBuilderCalculatePokemon(){
 		}
 	}
 	// If less than 6, fill with "interior" options
-	while (paretoPokemon.length < 6 && inferiorPokemon.length > 0){
+	while (paretoPokemon.length &lt; 6 &amp;&amp; inferiorPokemon.length > 0){
 		paretoPokemon.push(inferiorPokemon.shift());
 	}
 	// If more than 6, just pick the first 6
@@ -803,7 +836,7 @@ function teamBuilderWritePartyTable(pokemonArr){
 	partyDT.draw();
 	var partyDTData = partyDT.rows().data();
 	var partyDTRows = partyDT.rows().nodes();
-	for (var i = 0; i < partyDTData.length; i++){
+	for (var i = 0; i &lt; partyDTData.length; i++){
 		var tr = partyDTRows[i];
 		tr.setAttribute("nid", partyDTData[i].nid);
 	}
@@ -917,10 +950,32 @@ function teamBuilderSaveParty(){
 	};
 	var partyDT = $( "#teamBuilder-partyTable" ).DataTable();
 	var pokemonData = partyDT.rows().data();
-	for (var i = 0; i < pokemonData.length; i++){
+	for (var i = 0; i &lt; pokemonData.length; i++){
 		bestParty.pokemon.push(pokemonData[i]);
 	}
 	insertEntry(bestParty, LocalData.BattleParties);
 	saveLocalData();
 	sendFeedbackDialog('This party has been saved with the name "' + partyName + '"');
-}
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li><li><a href="global.html#strat0">strat0</a></li><li><a href="global.html#strat1">strat1</a></li><li><a href="global.html#strat2">strat2</a></li><li><a href="global.html#strat3">strat3</a></li><li><a href="global.html#strat4">strat4</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Dec 09 2018 20:49:02 GMT+0800 (Hong Kong Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,30 +1,38 @@
 /* GBS_Populate.js */
 
+/**
+	@file Fetch and Prepare Game Data from GamePress.
+	@author BIOWP
+*/
+
 var raidBossListURL = "", pokemonDataFullURL = "", moveDataFullURL = "";
 
 var FETCHED_STATUS = 0;
 var FETCHED_STATUS_PASS = 5;
 
 
-/* 
- *	Global variables for storing data
- */
-
 var DefaultData = {
 	BattleSettings: {
 		'sameTypeAttackBonusMultiplier': 1.2,
+		'weatherAttackBonusMultiplier': 1.2,
+		'fastAttackBonusMultiplier': 1.2,
+		'chargedAttackBonusMultiplier': 1.2,
 		'maximumEnergy': 100, 
 		'energyDeltaPerHealthLost': 0.5, 
-		'dodgeDurationMs': 500, 
-		'swapDurationMs': 1000, 
 		'dodgeDamageReductionPercent': 0.75, 
-		'weatherAttackBonusMultiplier': 1.2,
+		'protectShieldDamageReductionPercent': 1, 
+		'statEffectivenessLevelUnitDelta': 0.05,
+		
+		'dodgeDurationMs': 500, 
 		'dodgeWindowMs': 700,
-		'dodgeSwipeMs': 200,
+		'swapDurationMs': 1000, 
+		'switchingCooldownDurationMs': 50000,
 		'arenaEntryLagMs': 3000,
 		'arenaEarlyTerminationMs': 3000,
 		'fastMoveLagMs': 25,
 		'chargedMoveLagMs': 100,
+		'minigameDurationMs': 3000,
+		'chargeMoveAnimationMs': 2500,
 		'timelimitGymMs': 100000,
 		'timelimitRaidMs': 180000,
 		'timelimitLegendaryRaidMs': 300000,
@@ -105,6 +113,9 @@ var DefaultData = {
 };
 
 
+/**
+	The data stored locally by the user.
+*/
 var LocalData = {
 	Pokemon: [],
 	FastMoves: [],
@@ -113,12 +124,18 @@ var LocalData = {
 	BattleSettings: {}
 };
 
+
+/**
+	The data center.
+*/
 var Data = JSON.parse(JSON.stringify(DefaultData));
 
 
 
-/* 
-	Array-based Database Manipulation
+/**
+	Sort an array of items with key "name" in ascending order in place.
+	@param {Object[]} database The array to sort.
+	@return {Object[]} The same database.
 */
 function sortDatabase(database){
 	database.sort(function(a, b){
@@ -127,6 +144,13 @@ function sortDatabase(database){
 	return database;
 }
 
+/**
+	Look up the index of an item by key "name" in an array.
+	@param {string} name The key to look up for.
+	@param {Object[]} database The array to search from.
+	@param {boolean} linearSearch If true, the function will perform linear search. Otherwise, binary search (for sorted array).
+	@return {number} The index of the item matched. -1 if not found.
+*/
 function getEntryIndex(name, database, linearSearch){
 	// If entry with the name doesn't exist, return -1
 	if (linearSearch){
@@ -142,6 +166,13 @@ function getEntryIndex(name, database, linearSearch){
 	}
 }
 
+/**
+	Look up the item by key "name" in an array.
+	@param {string} name The key to look up for.
+	@param {Object[]} database The array to search from.
+	@param {boolean} linearSearch If true, the function will perform linear search. Otherwise, binary search (for sorted array).
+	@return {Object} The index of the item matched. -1 if not found.
+*/
 function getEntry(name, database, linearSearch){
 	// If entry with the name doesn't exist, return null
 	if (linearSearch){
@@ -157,6 +188,12 @@ function getEntry(name, database, linearSearch){
 	}
 }
 
+/**
+	Add a new item to a sorted array and maintain sorted order.
+	If there already an item with the same key, the old item will be replaced.
+	@param {Object} entry The item to add.
+	@param {Object[]} database The array to search from.
+*/
 function insertEntry(entry, database){
 	// If entry with the name already exists, replaces the existing entry
 	return binarySearch(entry.name, database, 0, database.length, function(db, idx, matched){
@@ -167,6 +204,11 @@ function insertEntry(entry, database){
 	});
 }
 
+/**
+	Remove the item by key from a sorted array.
+	@param {string} name The key that any item matches will be removed.
+	@param {Object[]} database The array to search from.
+*/
 function removeEntry(name, database){
 	// Returns the entry to be removed
 	// If entry with the name doesn't exist, return null
@@ -176,6 +218,14 @@ function removeEntry(name, database){
 	});
 }
 
+/**
+	Generic binary search method.
+	@param {string} name The key to search for.
+	@param {Object[]} database The array to search from.
+	@param {number} start The starting index (including) of the array.
+	@param {number} end The ending index (excluding) of the array.
+	@param {binarySearchCallback} The callback that handles the search result.
+*/
 function binarySearch(name, database, start, end, callback){
 	if (start == end){
 		return callback(database, start, false);
@@ -188,8 +238,21 @@ function binarySearch(name, database, start, end, callback){
 	else
 		return binarySearch(name, database, mid + 1, end, callback);
 }
+/**
+	@callback binarySearchCallback
+	@param {db} The same array to search from.
+	@param {idx} The index when the search terminates.
+	@param {matched} true if an item with the key searched has been found (whose index is idx) and false otherwise.
+*/
 
-// Returns a new merged database
+
+/**
+	Merge two sorted array.
+	@param {Object[]} database1 The first array to merge.
+	@param {Object[]} database2 The second array to merge.
+	@param {mergeDatabaseCallback} conflictSolver Decide which one to keep when two items from two database have the same key.
+	@param {Object[]} A merged and sorted array.
+*/
 function mergeDatabase(database1, database2, conflictSolver){
 	conflictSolver = conflictSolver || function(e1, e2){ return e2; } // simple overwriting. Pick the "right" one
 	
@@ -214,6 +277,14 @@ function mergeDatabase(database1, database2, conflictSolver){
 	}
 	return mergedDatabase;
 }
+/**
+	The callback for mergeDatabase(). By default, it returns the right one.
+	@callback mergeDatabaseCallback
+	@param {Object} e1 Entry from the first array with the same key.
+	@param {Object} e2 Entry from the second array with the same key.
+	@return {Object} The entry that will be kept. It can be a new entry.
+*/
+
 
 
 /*
@@ -308,54 +379,6 @@ function calculateLevelUpCost(startLevel, endLevel){
 }
 
 
-function setNewBaseStats(pokemon){
-	var speedMod = 1 + (pokemon.ms_spe - 75)/500;
-	var higha = Math.max(pokemon.ms_atk, pokemon.ms_spa), lowa = Math.min(pokemon.ms_atk, pokemon.ms_spa);
-	pokemon.baseAtk = Math.round(Math.round(1/4*lowa + 7/4*higha) * speedMod);
-	var highd = Math.max(pokemon.ms_def, pokemon.ms_spd), lowd = Math.min(pokemon.ms_def, pokemon.ms_spd);
-	pokemon.baseDef = Math.round(Math.round(3/4*lowd + 5/4*highd) * speedMod);
-	pokemon.baseStm = Math.floor(1.75 * pokemon.ms_hp) + 50;
-	var pkm2 = {
-		baseAtk: pokemon.baseAtk,
-		baseDef: pokemon.baseDef,
-		baseStm: pokemon.baseStm,
-		atkiv: 15,
-		defiv: 15,
-		stmiv: 15,
-		cpm: 0.79030001
-	};
-	if (calculateCP(pkm2) >= 4000){
-		pokemon.baseAtk = round(pokemon.baseAtk * 0.91);
-		pokemon.baseDef = round(pokemon.baseDef * 0.91);
-		pokemon.baseStm = round((1.75 * pokemon.ms_hp + 50) * 0.91);
-	}
-}
-
-
-function setOldBaseStats(pokemon){
-	var speedMod = 1 + (pokemon.ms_spe - 75)/500;
-	var higha = Math.max(pokemon.ms_atk, pokemon.ms_spa), lowa = Math.min(pokemon.ms_atk, pokemon.ms_spa);
-	pokemon.baseAtk = Math.round(Math.round(1/4*lowa + 7/4*higha) * speedMod);
-	var highd = Math.max(pokemon.ms_def, pokemon.ms_spd), lowd = Math.min(pokemon.ms_def, pokemon.ms_spd);
-	pokemon.baseDef = Math.round(Math.round(1/4*lowd + 7/4*highd) * speedMod);
-	pokemon.baseStm = Math.floor(2 * pokemon.ms_hp);
-	var pkm2 = {
-		baseAtk: pokemon.baseAtk,
-		baseDef: pokemon.baseDef,
-		baseStm: pokemon.baseStm,
-		atkiv: 15,
-		defiv: 15,
-		stmiv: 15,
-		cpm: 0.79030001
-	};
-	if (calculateCP(pkm2) >= 4000){
-		pokemon.baseAtk = round(pokemon.baseAtk * 0.91);
-		pokemon.baseDef = round(pokemon.baseDef * 0.91);
-		pokemon.baseStm = round(pokemon.baseStm * 0.91);
-	}
-}
-
-
 function handleSpeciesDatabase(pokemonDataBase){
 	for (var i = 0; i < pokemonDataBase.length; i++){
 		var pkm = pokemonDataBase[i];
@@ -399,6 +422,7 @@ function parseUserPokebox(data){
 			defiv: parseInt(data[i].def || data[i].defiv) || 0,
 			fmove: (data[i].fast_move || data[i].fmove).toLowerCase(),
 			cmove: (data[i].charge_move || data[i].cmove).toLowerCase(),
+			cmove2: (data[i].charge_move || data[i].cmove2 || data[i].cmove).toLowerCase(),
 			nickname : data[i].nickname,
 			uid: data[i].uid
 		};

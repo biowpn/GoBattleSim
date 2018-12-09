@@ -1,5 +1,10 @@
 /* GBS_UI_1_general.js */
 
+/**
+	@file General utility functions, UI functions and Unified Search Query parser.
+	@author BIOWP
+*/
+
 var LOGICAL_OPERATORS = {
 	',': 0,	':': 0, ';': 0, // OR
 	'&': 1, '|': 1, // AND
@@ -15,27 +20,51 @@ var acceptedNumericalAttributes = [
 var DialogStack = [];
 
 
-// This class is to save some lines of codes
+
+/**
+	@class
+	@classdesc A wrapper class to manipulate document elements.
+*/
 function GoBattleSimNode(el){
 	this.node = el;
 }
 
+/** 
+	A shortcut for creating GoBattleSimNode
+	@param {Element} el The raw HTML element.
+	@return {GoBattleSimNode}
+*/
+function $$$(el){
+	return new GoBattleSimNode(el);
+}
+
+/**
+	Get the first parent by element name.
+	@param {string} name The name to match.
+	@return {GoBattleSimNode}
+*/
 GoBattleSimNode.prototype.parent = function(name){
 	return new GoBattleSimNode(searchParent(this.node, x => x.getAttribute("name") == name));
 }
 
+/**
+	Get the first child (inorder Depth First traversal) by element name.
+	@param {string} name The name to match.
+	@return {GoBattleSimNode}
+*/
 GoBattleSimNode.prototype.child = function(name){
 	return new GoBattleSimNode(searchChild(this.node, x => x.getAttribute("name") == name));
 }
 
+/**
+	Get the value of the node.
+	@return {string|number}
+*/
 GoBattleSimNode.prototype.val = function(){
 	return $(this.node).val();
 }
 
-// A wrapper function for creating GoBattleSimNode
-function $$$(el){
-	return new GoBattleSimNode(el);
-}
+
 
 
 function round(value, numDigits){
@@ -316,7 +345,7 @@ function getConstructor(attrName){
 // A generic function for formatting select HTML elements input
 function formatting(node){
 	let name = node.getAttribute("name");
-	if (name == "pokemon-name" || name == "pokemon-fmove" || name == "pokemon-cmove"){
+	if (name == "pokemon-name" || name == "pokemon-fmove" || name == "pokemon-cmove" || name == "pokemon-cmove2"){
 		node.value = toTitleCase(node.value);
 	}
 	if ($(node).data("ui-autocomplete")){
@@ -601,17 +630,15 @@ function createPokemonNameInput(){
 }
 
 
-function createPokemonMoveInput(moveType){
-	var placeholder_ = "", attr_ = "";
+function createPokemonMoveInput(moveType, attrName){
+	var placeholder_ = "";
 	if (moveType == "fast"){
 		placeholder_ = "Fast Move";
-		attr_ = "fmove";
 	}else if (moveType == "charged"){
 		placeholder_ = "Charged Move";
-		attr_ = "cmove";
 	}
 	var moveInput = createElement('input', '', {
-		type: 'text', placeholder: placeholder_, name: "pokemon-" + attr_,
+		type: 'text', placeholder: placeholder_, name: "pokemon-" + attrName,
 		class: 'input-with-icon move-input-with-icon', style: 'background-image: url()'
 	});
 	$( moveInput ).autocomplete({
@@ -620,7 +647,7 @@ function createPokemonMoveInput(moveType){
 		source: function(request, response){
 			let moveNode = null;
 			for (var i = 0; i < this.bindings.length; i++){
-				if (this.bindings[i].name == "pokemon-fmove" || this.bindings[i].name == "pokemon-cmove"){
+				if (this.bindings[i].name && this.bindings[i].name.includes("pokemon")){
 					moveNode = this.bindings[i];
 				}
 			}
@@ -629,7 +656,7 @@ function createPokemonMoveInput(moveType){
 			if (searchStr == '' && pokemonInstance){ //special case
 				searchStr = 'current, legacy, exclusive';
 			}
-			matches = Data[toTitleCase(moveType) + "Moves"].filter(Predicate(searchStr, pokemonInstance, attr_));
+			matches = Data[toTitleCase(moveType) + "Moves"].filter(Predicate(searchStr, pokemonInstance, attrName));
 			response(matches);
 		},
 		select: function(event, ui) {

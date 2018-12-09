@@ -1,5 +1,10 @@
 /* Comprehensive_DPS.js */
 
+/**
+	@file Comprehensive DPS Calculator, UI Control and others
+	@author BIOWP
+*/
+
 var DEFAULT_ATTACKER_LEVEL = 40;
 var DEFAULT_ATTACKER_IVs = [15, 15, 15];
 var DEFAULT_ENEMY_DPS1 = 900;
@@ -83,8 +88,8 @@ Pokemon.prototype.calculateDPSIntake = function(kwargs){
 			y: DEFAULT_ENEMY_DPS1 / this.Def
 		};
 	}else{
-		var FDmg = damage2(kwargs.enemy, this, kwargs.enemy.fmove, Context.weather);
-		var CDmg = damage2(kwargs.enemy, this, kwargs.enemy.cmove, Context.weather);
+		var FDmg = damage2(kwargs.enemy, this, kwargs.enemy.fmove, kwargs.weather);
+		var CDmg = damage2(kwargs.enemy, this, kwargs.enemy.cmove, kwargs.weather);
 		var FDur = kwargs.enemy.fmove.duration/1000 + 2;
 		var CDur = kwargs.enemy.cmove.duration/1000 + 2;
 		var FE = kwargs.enemy.fmove.energyDelta;
