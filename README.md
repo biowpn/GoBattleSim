@@ -1,4 +1,6 @@
 # GoBattleSim
 A next-generation Pokemon GO Battle simulator.
 
-Visit: https://pokemongo.gamepress.gg/gobattlesim
+Product: https://pokemongo.gamepress.gg/gobattlesim
+
+Documentation: https://ymenghank.github.io/GoBattleSim/index.html
