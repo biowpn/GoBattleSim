@@ -65,14 +65,24 @@ GoBattleSimNode.prototype.val = function(){
 }
 
 
-
-
+/**
+	Round the value.
+	@param {number} Value to round.
+	@param {number} numDigits The number of digits to keep.
+	@return {number} The rounded value.
+*/
 function round(value, numDigits){
 	var multiplier = Math.pow(10, parseInt(numDigits) || 0);
 	return Math.round(value * multiplier) / multiplier;
 }
 
-
+/**
+	Generate all the combinations for a given list of elements.
+	@param {Object[]} arr The list of elements.
+	@param {number} n The number of elements in each combination.
+	@param {number} start The starting index. Default to 0.
+	@return {Object[][]} A list of all combinations. Each combination is a list itself.
+*/
 function Combination(arr, n, start){
 	start = start || 0;
 	if (n == 0){
@@ -91,7 +101,13 @@ function Combination(arr, n, start){
 	return combinations;
 }
 
-
+/**
+	Generate all the permutations for a given list of elements.
+	@param {Object[]} arr The list of elements.
+	@param {number} n The number of elements in each permutation.
+	@param {number} start The starting index. Default to 0.
+	@return {Object[][]} A list of all permutations. Each permutation is a list itself.
+*/
 function Permutation(arr, n, start){
 	start = start || 0;
 	if (n == 0){
@@ -113,10 +129,16 @@ function Permutation(arr, n, start){
 	return permutations;
 }
 
-
+/**
+	Create a document element.
+	@param {string} type The name tag of the element. E.g., "input", "button", "div"
+	@param {string} innerHTML The initial value of innerHTML of the element to create. Default to empty string "".
+	@param {Object} attrsAndValues Name-value pairs to add additional attributes to the element.
+	@return {HTMLElement} The HTML element created.
+*/
 function createElement(type, innerHTML, attrsAndValues){
 	var e = document.createElement(type);
-	e.innerHTML = innerHTML;
+	e.innerHTML = innerHTML || "";
 	for (var attr in attrsAndValues){
 		e.setAttribute(attr, attrsAndValues[attr]);
 	}

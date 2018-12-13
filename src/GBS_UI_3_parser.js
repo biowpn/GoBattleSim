@@ -59,7 +59,7 @@ var attributesEnumeration = [
 		name: "cmove2",
 		matcher: x => getEntryIndex(x, Data.ChargedMoves),
 		database: a => Data.ChargedMoves,
-		default: "current, legacy, exclusive"
+		default: "=this.cmove"
 	}
 ];
 
@@ -81,8 +81,10 @@ function batchSim(cfg, start){
 					}
 					if (expression[0] == '='){ // Dynamic Paster
 						try{
-							var pokemonSrc = getPokemonConfig(cfg, expression.slice(1));
-							pokemon[attr.name] = pokemonSrc[attr.name];
+							var arr = expression.slice(1).split('.');
+							var address = arr[0].trim(), attrSrc = arr[1] || attr.name;
+							var pokemonSrc = (address == "this" ? pokemon : getPokemonConfig(cfg, address));
+							pokemon[attr.name] = pokemonSrc[attrSrc];
 							continue;
 						}catch(err){
 							sendFeedback((i+1) + "-" + (j+1) + "-" + (k+1) + '.' + attr.name + ": Invalid Dynamic Paster", true);
