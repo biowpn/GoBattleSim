@@ -15,27 +15,26 @@ var DefaultData = {
 	BattleSettings: {
 		'sameTypeAttackBonusMultiplier': 1.2,
 		'weatherAttackBonusMultiplier': 1.2,
-		'fastAttackBonusMultiplier': 1.2,
+		'fastAttackBonusMultiplier': 1,
 		'chargedAttackBonusMultiplier': 1.2,
 		'maximumEnergy': 100, 
 		'energyDeltaPerHealthLost': 0.5, 
 		'dodgeDamageReductionPercent': 0.75, 
-		'protectShieldDamageReductionPercent': 1, 
-		'statEffectivenessLevelUnitDelta': 0.05,
+		'protectShieldDamageReductionPercent': 1,
 		
 		'dodgeDurationMs': 500, 
 		'dodgeWindowMs': 700,
 		'swapDurationMs': 1000, 
-		'switchingCooldownDurationMs': 50000,
+		'switchingCooldownDurationMs': 60000,
 		'arenaEntryLagMs': 3000,
 		'arenaEarlyTerminationMs': 3000,
 		'fastMoveLagMs': 25,
 		'chargedMoveLagMs': 100,
-		'minigameDurationMs': 3000,
-		'chargeMoveAnimationMs': 2500,
+		'minigameDurationMs': 6000,
 		'timelimitGymMs': 100000,
 		'timelimitRaidMs': 180000,
 		'timelimitLegendaryRaidMs': 300000,
+		'timelimitPvPMs': 240000,
 		'rejoinDurationMs': 10000,
 		'itemMenuAnimationTimeMs': 2000,
 		'maxReviveTimePerPokemonMs': 1000
@@ -296,7 +295,11 @@ if (window['manuallyModifyData'] == undefined){
 	manuallyModifyData = function(data){};
 }
 
-
+/**
+	Parse two Pokemon types from a string.
+	@param {string} S The string to parse.
+	@return {{pokeType1: string, pokeType2: string}}
+*/
 function parsePokemonTypeFromString(S){
 	var L = S.split(",");
 	return {
@@ -305,11 +308,15 @@ function parsePokemonTypeFromString(S){
 	};
 }
 
-
+/**
+	Parse non-empty names separated by "," from a string.
+	@param {string} S The string to parse.
+	@return {string[]} A list of non-empty names in lower case.
+*/
 function parseMovesFromString(S){
 	S = S || "";
 	var moves = [];
-	for (name of S.split(",")){
+	for (let name of S.split(",")){
 		name = name.trim();
 		if (name.length > 0)
 			moves.push(name.toLowerCase());
@@ -317,7 +324,11 @@ function parseMovesFromString(S){
 	return moves;
 }
 
-
+/**
+	Get the URL of the icon for a Pokemon indicated via keyword arguments.
+	@param {{index: number, name: string, dex}} kwargs The keyword arguments to specify the Pokemon.
+	@return {string} The URL to the icon of the Pokemon.
+*/
 function getPokemonIcon(kwargs){
 	if (kwargs && kwargs.index != undefined){
 		return (Data.Pokemon[kwargs.index] || {icon: getPokemonIcon({dex: 0})}).icon;
@@ -334,7 +345,11 @@ function getPokemonIcon(kwargs){
 	}
 }
 
-
+/**
+	Get the URL of the Pokemon-type icon for a move indicated via keyword arguments.
+	@param {{index: number, name: string, dex}} kwargs The keyword arguments to specify the Pokemon.
+	@return {string} The URL to the Pokemon-type icon.
+*/
 function getTypeIcon(kwargs){
 	let moveDatabase = Data[toTitleCase(kwargs.mtype) + "Moves"];
 	if (kwargs && kwargs.index != undefined){
@@ -349,7 +364,11 @@ function getTypeIcon(kwargs){
 	}
 }
 
-
+/**
+	Get the friend attack multiplier given the name of the friend level.
+	@param {string} friend The name of the friend level.
+	@return {number} The friend attack multiplier. If no matched friend level, then return 1
+*/
 function getFriendMultiplier(friend){
 	for (var i = 0; i < Data.FriendSettings.length; i++){
 		if (Data.FriendSettings[i].name == friend){
@@ -359,7 +378,12 @@ function getFriendMultiplier(friend){
 	return 1;
 }
 
-
+/**
+	Calculate the cost of leveling up.
+	@param {string} startLevel The start level.
+	@param {string} endLevel The end level.
+	@return {{stardust: number, candy: number}} The cost.
+*/
 function calculateLevelUpCost(startLevel, endLevel){
 	var hasStarted = false, hasEnded = false;
 	var cost = {
@@ -378,7 +402,10 @@ function calculateLevelUpCost(startLevel, endLevel){
 	return cost;
 }
 
-
+/**
+	Validate the Pokemon array for other modules to correctly use.
+	@param {Object[]} pokemonDataBase An array of Pokemon data. The change will be in place.
+*/
 function handleSpeciesDatabase(pokemonDataBase){
 	for (var i = 0; i < pokemonDataBase.length; i++){
 		var pkm = pokemonDataBase[i];
@@ -409,7 +436,11 @@ function handleSpeciesDatabase(pokemonDataBase){
 	}
 }
 
-
+/**
+	Validate the user Pokemon data array for other modules to correctly use.
+	@param {Object[]} pokemonDataBase An array of user Pokemon data.
+	@return {Object[]} An array of valid user Pokemon data.
+*/
 function parseUserPokebox(data){
 	var box = [];
 	for (var i = 0; i < data.length; i++){
@@ -437,11 +468,11 @@ function parseUserPokebox(data){
 
 
 
-/* 
- * Fetching data from server 
- */
 
-// Get Level Settings
+/** 
+	Fetch Level Settings from GP server.
+	@param oncomplete The callback after the fetching is complete.
+*/
 function fetchLevelData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
@@ -466,7 +497,11 @@ function fetchLevelData(oncomplete){
 	});
 }
 
-// Get raid boss list
+
+/** 
+	Fetch raid boss list from GP server.
+	@param oncomplete The callback after the fetching is complete.
+*/
 function fetchRaidBossList(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
@@ -492,7 +527,10 @@ function fetchRaidBossList(oncomplete){
 	});
 }
 
-// Get Pokemon Data
+/** 
+	Fetch Pokemon data from GP server.
+	@param oncomplete The callback after the fetching is complete.
+*/
 function fetchSpeciesData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
@@ -534,7 +572,10 @@ function fetchSpeciesData(oncomplete){
 	});
 }
 
-// Get supplement Pokemon form data
+/** 
+	Fetch supplement Pokemon form data (such as icons) from GP server.
+	@param oncomplete The callback after the fetching is complete.
+*/
 function fetchSpeciesFormData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	var currTime = new Date().getTime();
@@ -551,7 +592,10 @@ function fetchSpeciesFormData(oncomplete){
 	});
 }
 
-// Get move data
+/** 
+	Fetch move data from GP server.
+	@param oncomplete The callback after the fetching is complete.
+*/
 function fetchMoveData(oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
@@ -590,7 +634,10 @@ function fetchMoveData(oncomplete){
 	});
 }
 
-// Get user Pokemon data
+/** 
+	Fetch user Pokemon data from GP server.
+	@param oncomplete The callback after the fetching is complete.
+*/
 function fetchUserData(userid, oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
@@ -615,7 +662,10 @@ function fetchUserData(userid, oncomplete){
 	});
 }
 
-// Get user parties
+/** 
+	Fetch user battle party data from GP server.
+	@param oncomplete The callback after the fetching is complete.
+*/
 function fetchUserTeamData(userid, oncomplete){
 	oncomplete = oncomplete || function(){return;};
 	
@@ -658,7 +708,9 @@ function fetchUserTeamData(userid, oncomplete){
 	});
 }
 
-// Get local data
+/** 
+	Fetch browser local data.
+*/
 function fetchLocalData(){
 	if (localStorage){
 		if (localStorage.LocalData){ // new
@@ -739,14 +791,20 @@ function fetchLocalData(){
 	}
 }
 
-// Update local data
+/** 
+	Write to browser local data.
+*/
 function saveLocalData(){
 	if (localStorage){
 		localStorage.LocalData = JSON.stringify(LocalData);
 	}
 }
 
-// Get all the data from server
+/** 
+	Fetch all data.
+	@param oncomplete The callback when the fetching is completed.
+	@isInit {boolean} isInit If true, then will fetch user Pokemon data.
+*/
 function fetchAll(oncomplete, isInit){
 	FETCHED_STATUS = 0;
 	
@@ -801,7 +859,11 @@ function fetchAll(oncomplete, isInit){
 	}
 }
 
-
+/** 
+	Procedured called after fetching all data.
+	The fetchAll() function makes many ajax calls simultaneously. This function will proceed only when all ajax are done.
+	@param onfinish The callback when the fetching is completed.
+*/
 function fetchAll_then(onfinish){
 	if (FETCHED_STATUS == FETCHED_STATUS_PASS){
 		handleSpeciesDatabase(Data.Pokemon);
@@ -841,7 +903,10 @@ function fetchAll_then(onfinish){
 	}
 }
 
-// Entry function, called by app controller
+/** 
+	Application entry point. Highest-level procedure to fetch all data. 
+	@param dataReady The callback when the fetching is completed.
+*/
 function populateAll(dataReady){
 	dataReady = dataReady || function(){};
 	

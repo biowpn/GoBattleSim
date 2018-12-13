@@ -32,7 +32,8 @@ var Context = {
 	weather: DEFAULT_WEATHER,
 	enemy: {},
 	isEnemyNeutral: false,
-	swapDiscount: 'off'
+	swapDiscount: 'off',
+	battleMode: 'regular'
 };
 
 
@@ -52,7 +53,7 @@ Pokemon.prototype.calculateDPS = function(kwargs){
 	var FE = this.fmove.energyDelta;
 	var CE = -this.cmove.energyDelta;
 	
-	if (CE >= 100){
+	if (CE >= 100 && kwargs.battleMode != "pvp"){
 		CE = CE + 0.5 * FE + 0.5 * y * CDWS;
 	}
 	
@@ -61,23 +62,29 @@ Pokemon.prototype.calculateDPS = function(kwargs){
 	var CDPS = CDmg/CDur;
 	var CEPS = CE/CDur;
 	
-	this.st = this.Stm / y;
-	this.dps = (FDPS * CEPS + CDPS * FEPS)/(CEPS + FEPS) + (CDPS - FDPS)/(CEPS + FEPS) * (1/2 - x/this.Stm) * y;
-	this.tdo = this.dps * this.st;
-	
-	if (this.dps > CDPS){
-		this.dps = CDPS;
+	if (kwargs.battleMode == "pvp"){
+		this.st = this.Stm / y;
+		this.dps = FDPS + (FEPS - x/this.Stm * y) * CDmg / CE;
 		this.tdo = this.dps * this.st;
-	}else if (this.dps < FDPS){
-		this.dps = FDPS;
+		return this.dps;
+	}else{
+		this.st = this.Stm / y;
+		this.dps = (FDPS * CEPS + CDPS * FEPS)/(CEPS + FEPS) + (CDPS - FDPS)/(CEPS + FEPS) * (1/2 - x/this.Stm) * y;
 		this.tdo = this.dps * this.st;
+		
+		if (this.dps > CDPS){
+			this.dps = CDPS;
+			this.tdo = this.dps * this.st;
+		}else if (this.dps < FDPS){
+			this.dps = FDPS;
+			this.tdo = this.dps * this.st;
+		}
+		
+		if (kwargs.swapDiscount == 'on'){
+			this.dps = this.dps * (this.st / (this.st + Data.BattleSettings.swapDurationMs/1000));
+		}
+		return this.dps;
 	}
-	
-	if (kwargs.swapDiscount == 'on'){
-		this.dps = this.dps * (this.st / (this.st + Data.BattleSettings.swapDurationMs/1000));
-	}
-	
-	return this.dps;
 }
 
 
@@ -94,13 +101,18 @@ Pokemon.prototype.calculateDPSIntake = function(kwargs){
 		var CDur = kwargs.enemy.cmove.duration/1000 + 2;
 		var FE = kwargs.enemy.fmove.energyDelta;
 		var CE = -kwargs.enemy.cmove.energyDelta;
-		
-		var n = Math.max(1, 3 * CE / 100);
-		
-		return {
-			x:  -this.cmove.energyDelta * 0.5 + this.fmove.energyDelta * 0.5 + 0.5 * (n * FDmg + CDmg)/(n + 1),
-			y: (n * FDmg + CDmg)/(n * FDur + CDur)
-		};
+		if (kwargs.battleMode == "pvp"){
+			return {
+				x: 0,
+				y: FDmg / (FDur - 2) + FE / (FDur - 2) * CDmg / CE
+			};
+		}else{
+			var n = Math.max(1, 3 * CE / 100);
+			return {
+				x: -this.cmove.energyDelta * 0.5 + this.fmove.energyDelta * 0.5 + 0.5 * (n * FDmg + CDmg)/(n + 1),
+				y: (n * FDmg + CDmg)/(n * FDur + CDur)
+			};
+		}
 	}
 }
 
@@ -264,6 +276,9 @@ function generateSpreadsheet(pokemonCollection){
 					defiv: p.defiv >= 0 ? p.defiv : DEFAULT_ATTACKER_IVs[1],
 					stmiv: p.stmiv >= 0 ? p.stmiv : DEFAULT_ATTACKER_IVs[2]
 				});
+				if (!pkm.fmove.name || !pkm.cmove.name){ // Move not found in database
+					continue;
+				}
 				for (var attr in p){
 					if (!pkm.hasOwnProperty(attr)){
 						pkm[attr] = p[attr];
@@ -428,7 +443,7 @@ function adjustStatsUnderCPCap(pkm, cp){
 	if (old_cp > cp){
 		pkm.cpm = pkm.cpm * Math.sqrt(cp / old_cp);
 		pkm.role = "a";
-		pkm.initCurrentStats();
+		pkm.calculateStats();
 	}
 }
 
@@ -490,9 +505,3 @@ function calculateDPSGrades(maxDPS){
 	}
 	DT.rows().invalidate();
 }
-
-
-
-
-
-

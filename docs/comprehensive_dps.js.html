@@ -60,7 +60,8 @@ var Context = {
 	weather: DEFAULT_WEATHER,
 	enemy: {},
 	isEnemyNeutral: false,
-	swapDiscount: 'off'
+	swapDiscount: 'off',
+	battleMode: 'regular'
 };
 
 
@@ -80,7 +81,7 @@ Pokemon.prototype.calculateDPS = function(kwargs){
 	var FE = this.fmove.energyDelta;
 	var CE = -this.cmove.energyDelta;
 	
-	if (CE >= 100){
+	if (CE >= 100 &amp;&amp; kwargs.battleMode != "pvp"){
 		CE = CE + 0.5 * FE + 0.5 * y * CDWS;
 	}
 	
@@ -89,23 +90,29 @@ Pokemon.prototype.calculateDPS = function(kwargs){
 	var CDPS = CDmg/CDur;
 	var CEPS = CE/CDur;
 	
-	this.st = this.Stm / y;
-	this.dps = (FDPS * CEPS + CDPS * FEPS)/(CEPS + FEPS) + (CDPS - FDPS)/(CEPS + FEPS) * (1/2 - x/this.Stm) * y;
-	this.tdo = this.dps * this.st;
-	
-	if (this.dps > CDPS){
-		this.dps = CDPS;
+	if (kwargs.battleMode == "pvp"){
+		this.st = this.Stm / y;
+		this.dps = FDPS + (FEPS - x/this.Stm * y) * CDmg / CE;
 		this.tdo = this.dps * this.st;
-	}else if (this.dps &lt; FDPS){
-		this.dps = FDPS;
+		return this.dps;
+	}else{
+		this.st = this.Stm / y;
+		this.dps = (FDPS * CEPS + CDPS * FEPS)/(CEPS + FEPS) + (CDPS - FDPS)/(CEPS + FEPS) * (1/2 - x/this.Stm) * y;
 		this.tdo = this.dps * this.st;
+		
+		if (this.dps > CDPS){
+			this.dps = CDPS;
+			this.tdo = this.dps * this.st;
+		}else if (this.dps &lt; FDPS){
+			this.dps = FDPS;
+			this.tdo = this.dps * this.st;
+		}
+		
+		if (kwargs.swapDiscount == 'on'){
+			this.dps = this.dps * (this.st / (this.st + Data.BattleSettings.swapDurationMs/1000));
+		}
+		return this.dps;
 	}
-	
-	if (kwargs.swapDiscount == 'on'){
-		this.dps = this.dps * (this.st / (this.st + Data.BattleSettings.swapDurationMs/1000));
-	}
-	
-	return this.dps;
 }
 
 
@@ -122,13 +129,18 @@ Pokemon.prototype.calculateDPSIntake = function(kwargs){
 		var CDur = kwargs.enemy.cmove.duration/1000 + 2;
 		var FE = kwargs.enemy.fmove.energyDelta;
 		var CE = -kwargs.enemy.cmove.energyDelta;
-		
-		var n = Math.max(1, 3 * CE / 100);
-		
-		return {
-			x:  -this.cmove.energyDelta * 0.5 + this.fmove.energyDelta * 0.5 + 0.5 * (n * FDmg + CDmg)/(n + 1),
-			y: (n * FDmg + CDmg)/(n * FDur + CDur)
-		};
+		if (kwargs.battleMode == "pvp"){
+			return {
+				x: 0,
+				y: FDmg / (FDur - 2) + FE / (FDur - 2) * CDmg / CE
+			};
+		}else{
+			var n = Math.max(1, 3 * CE / 100);
+			return {
+				x: -this.cmove.energyDelta * 0.5 + this.fmove.energyDelta * 0.5 + 0.5 * (n * FDmg + CDmg)/(n + 1),
+				y: (n * FDmg + CDmg)/(n * FDur + CDur)
+			};
+		}
 	}
 }
 
@@ -292,6 +304,9 @@ function generateSpreadsheet(pokemonCollection){
 					defiv: p.defiv >= 0 ? p.defiv : DEFAULT_ATTACKER_IVs[1],
 					stmiv: p.stmiv >= 0 ? p.stmiv : DEFAULT_ATTACKER_IVs[2]
 				});
+				if (!pkm.fmove.name || !pkm.cmove.name){ // Move not found in database
+					continue;
+				}
 				for (var attr in p){
 					if (!pkm.hasOwnProperty(attr)){
 						pkm[attr] = p[attr];
@@ -456,7 +471,7 @@ function adjustStatsUnderCPCap(pkm, cp){
 	if (old_cp > cp){
 		pkm.cpm = pkm.cpm * Math.sqrt(cp / old_cp);
 		pkm.role = "a";
-		pkm.initCurrentStats();
+		pkm.calculateStats();
 	}
 }
 
@@ -518,12 +533,6 @@ function calculateDPSGrades(maxDPS){
 	}
 	DT.rows().invalidate();
 }
-
-
-
-
-
-
 </code></pre>
         </article>
     </section>
@@ -534,13 +543,13 @@ function calculateDPSGrades(maxDPS){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li><li><a href="global.html#strat0">strat0</a></li><li><a href="global.html#strat1">strat1</a></li><li><a href="global.html#strat2">strat2</a></li><li><a href="global.html#strat3">strat3</a></li><li><a href="global.html#strat4">strat4</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="ProtectShieldStrategy.html">ProtectShieldStrategy</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#calculateLevelUpCost">calculateLevelUpCost</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchAll_then">fetchAll_then</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossList">fetchRaidBossList</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#populateAll">populateAll</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li><li><a href="global.html#strat0">strat0</a></li><li><a href="global.html#strat1">strat1</a></li><li><a href="global.html#strat2">strat2</a></li><li><a href="global.html#strat3">strat3</a></li><li><a href="global.html#strat4">strat4</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Dec 09 2018 21:19:59 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Dec 13 2018 20:18:19 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

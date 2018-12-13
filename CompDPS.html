@@ -88,7 +88,7 @@
 			<div style='width:100%;'><input id="ui-cpcap" type="number" placeholder="CP Cap"></input></div>
 		</td>
 		<td>
-
+			<div id='ui-pvpMode' style='width:100%;'><label style='width:100%;font-size:16px;'>PvP Mode<input type='checkbox' id='ui-pvpMode-checkbox'></label></div>
 		</td>
 		<td>
 
@@ -147,7 +147,28 @@ $( "#ui-uniqueSpecies-checkbox" ).change(function(){
 	$("#ranking_table").DataTable().draw();
 });
 
-$( "#refresher" ).change(function(){
+$( "#ui-pvpMode" ).controlgroup();
+$( "#ui-pvpMode-checkbox" ).change(function(){
+	Context.battleMode = this.checked ? "pvp" : "regular";
+	if (this.checked){
+		for (var i = 0; i < Mods.length; i++){
+			if (Mods[i].name == "PvP Move Parameters Overwrite"){
+				var modCheckbox = document.getElementById('mod_checkbox_' + i);
+				if (!modCheckbox.checked){
+					sendFeedbackDialog("Please check {PvP Move Parameters Overwrite} in Customize->Mods first");
+					this.checked = false;
+					$(this).button("refresh");
+					return;
+				}
+			}
+		}
+	}
+	requestSpreadsheet(true);
+});
+
+
+// Refresh button
+$ ( "#refresher" ).click(function(){
 	requestSpreadsheet(true);
 });
 
@@ -156,10 +177,7 @@ moveEditFormInit();
 pokemonEditFormInit();
 modEditFormInit();
 
-// Refresh button
-$ ( "#refresher" ).click(function(){
-	requestSpreadsheet(true);
-});
+
 
 populateAll(applicationInit);
 

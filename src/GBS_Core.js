@@ -141,9 +141,7 @@ function Pokemon(cfg){
 		this.cmoves.push(new Move(cfg.cmove2, Data.ChargedMoves));
 	}
 	this.choose = cfg.choose || window[cfg.strategy] || strat1;
-	this.chooseProtect = function(move){ // Temporary
-		return Math.random() <= 0.5;
-	}
+	this.protectStrategy = new ProtectShieldStrategy(cfg.strategy2);
 	this.init();
 }
 
@@ -159,6 +157,7 @@ Pokemon.prototype.init = function(){
 	this.damageReductionPercent = 0;
 	this.queuedAction = null;
 	this.projectedRivalActions = new Timeline();
+	this.protectStrategy.init();
 	this.fastAttackBonus = 1;
 	this.chargedAttackBonus = 1;
 	this.actionCount = 0;
@@ -174,6 +173,7 @@ Pokemon.prototype.init = function(){
 	this.numOfChargedHits = 0;
 	this.numOfFastHitsPostCharged = 0;
 	
+	this.calculateStats();
 	this.heal();
 }
 
@@ -199,8 +199,10 @@ Pokemon.prototype.calculateStats = function(){
 		this.Stm = (this.baseStm + this.stmiv) * this.cpm;
 		this.maxHP = Math.floor(this.Stm);
 	}
-	this.Atk *= (1 + this.statEffectivenessLevel * Data.BattleSettings.statEffectivenessLevelUnitDelta);
-	this.Def *= (1 + this.statEffectivenessLevel * Data.BattleSettings.statEffectivenessLevelUnitDelta);
+	/*
+	this.Atk *= (1 + this.statEffectivenessLevel * 0.05);
+	this.Def *= (1 + this.statEffectivenessLevel * 0.05);
+	*/
 }
 
 /** 
@@ -705,7 +707,7 @@ World.prototype.pokemonUsesAttack = function(pkm, move, t){
 	
 	var tHurt = t + move.dws;
 	if (this.battleMode == 'pvp'){
-		tHurt = t + round(Data.BattleSettings.chargeMoveAnimationMs / 2);
+		tHurt = t;
 	}
 	
 	let energyDeltaEvent = {
@@ -750,7 +752,7 @@ World.prototype.registerAction = function(pkm, t, action){
 	}
 	t += action.delay || 0;
 	if (action.name == "fast"){ // Use fast move
-		if (pkm.role == "a"){ // Add lag for human player's Pokemon
+		if (pkm.role == "a" && this.battleMode != 'pvp'){ // Add lag for human player's Pokemon
 			t += Data.BattleSettings.fastMoveLagMs;
 		}
 		this.timeline.insert({
@@ -763,25 +765,24 @@ World.prototype.registerAction = function(pkm, t, action){
 			cmove = pkm.cmoves[action.index];
 		}
 		if (pkm.energy + cmove.energyDelta >= 0){ // Energy requirement check
-			if (pkm.role == "a"){ // Add lag for human player's Pokemon
+			if (pkm.role == "a" && this.battleMode != 'pvp'){ // Add lag for human player's Pokemon
 				t += Data.BattleSettings.chargedMoveLagMs;
 			}
 			if (this.battleMode == 'pvp'){
-				var totalChargeMoveDuration = Data.BattleSettings.minigameDurationMs + Data.BattleSettings.chargeMoveAnimationMs;
-				this.timeline.shift_key(totalChargeMoveDuration);
+				this.timeline.shift_key(Data.BattleSettings.minigameDurationMs);
 				this.timeline.insert({
-					name: EVENT_TYPE.Announce, t: t + Data.BattleSettings.minigameDurationMs, subject: pkm, move: cmove
+					name: EVENT_TYPE.Announce, t: t + Math.round(Data.BattleSettings.minigameDurationMs * 0.5), subject: pkm, move: cmove
 				});
 				pkm.chargedAttackBonus = Data.BattleSettings.chargedAttackBonusMultiplier;
 				for (let rival of pkm.master.rivals){ // Ask each enemy whether to use Protect Shield
 					var enemy = rival.head();
-					if (enemy && rival.protectShieldLeft > 0 && enemy.chooseProtect()){
+					if (enemy && rival.protectShieldLeft > 0 && enemy.protectStrategy.decide()){
 						this.timeline.insert({
 							name: EVENT_TYPE.Protect, t: t, subject: enemy
 						});
 					}
 				}
-				t = t + totalChargeMoveDuration;
+				t = t + Data.BattleSettings.minigameDurationMs;
 			}else{
 				this.timeline.insert({
 					name: EVENT_TYPE.Announce, t: t, subject: pkm, move: cmove
@@ -872,7 +873,7 @@ World.prototype.battle = function(){
 						continue;
 					}
 					let dmg = damage(e.subject, target, e.move, this.weather);
-					if (t <= target.damageReductionExpiration){
+					if (t < target.damageReductionExpiration){
 						dmg = Math.max(1, Math.floor(dmg * (1 - target.damageReductionPercent)));
 					}
 					target.takeDamage(dmg);
@@ -900,7 +901,7 @@ World.prototype.battle = function(){
 			e.subject.damageReductionPercent = Data.BattleSettings.dodgeDamageReductionPercent;
 			this.appendEventToLog(e);
 		}else if (e.name == EVENT_TYPE.Protect){
-			e.subject.damageReductionExpiration = t + Data.BattleSettings.minigameDurationMs + Data.BattleSettings.chargeMoveAnimationMs;
+			e.subject.damageReductionExpiration = t + Data.BattleSettings.minigameDurationMs;
 			e.subject.damageReductionPercent = Data.BattleSettings.protectShieldDamageReductionPercent;
 			e.subject.master.protectShieldLeft--;
 			this.appendEventToLog(e);
@@ -1131,6 +1132,77 @@ World.prototype.getStatistics = function(){
 	};	
 }
 
+
+/**
+	@class
+	@classdesc Protect Shield strategy.
+	@param {string} S The string to indicate the strategy (see parse() function below for the format).
+*/
+function ProtectShieldStrategy(S){
+	this.rawString = (S || "").toString();
+	this.init();
+}
+
+/**
+	Initialize the protect shield strategy.
+*/
+ProtectShieldStrategy.prototype.init = function(){
+	this.parse(this.rawString);
+}
+
+/**
+	Parse protect shield strategy.
+	@param {string} S The string in the format of "n_1, n_2", where n_i is the number of charged attack tanked before using the i Protect Shield. "*" for infinity, "?" for random.
+*/
+ProtectShieldStrategy.prototype.parse = function(S){
+	var arr = S.split(",");
+	if (arr.length < 2){
+		arr.push("0");
+	}else if (arr.length >= 2){
+		arr = arr.slice(0, 2);
+	}
+	this.attacksToTank = [];
+	for (let a of arr){
+		var n = parseInt(a);
+		if (n >= 0){
+			this.attacksToTank.push(n);
+		}else if (a == '*'){
+			this.attacksToTank.push(a);
+		}else if (a == '?'){
+			this.attacksToTank.push(a);
+		}else{
+			this.attacksToTank.push(0);
+		}
+	}
+}
+
+/**
+	Decide whether to use Protect Shield or not.
+	@param {Object} kwargs Keyword arguments as input parameters.
+	@return {boolean} true if use Protect Shield and false otherwise.
+*/
+ProtectShieldStrategy.prototype.decide = function(kwargs){
+	if (this.attacksToTank.length == 0){
+		return false;
+	}
+	var a = this.attacksToTank[0];
+	if (a > 0){
+		this.attacksToTank[0]--;
+		return false;
+	}else if (a == 0){
+		this.attacksToTank.shift();
+		return true;
+	}else if (a == '*'){
+		return false;
+	}else if (a == '?'){
+		if (Math.random() < 0.5){
+			this.attacksToTank.shift();
+			return true;
+		}else{
+			return false;
+		}
+	}
+}
 
 
 

@@ -89,6 +89,9 @@ function createPokemonRoleInput(){
 				this.onchange();
 				this.disabled = true;
 			}
+		}else if (kwargs.battleMode == "pvp"){
+			this.value = "a";
+			this.onchange();
 		}
 	}
 	return roleInput;
@@ -161,11 +164,30 @@ function createPokemonStrategyInput(){
 				this.value = "strat0";
 				this.disabled = true;
 			}
+		}else if (kwargs.battleMode == "pvp"){
+			this.value = "strat1";
+			var strat2 = $$$(this).parent("pokemon").child("pokemon-strategy2").node;
+			this.setAttribute("hidden", true);
+			strat2.removeAttribute("hidden");
 		}
 	}
 	return strategyInput;
 }
 
+
+function createPokemonProtectStrategyInput(){
+	var strategyInput = createElement('input', '0,0', {name: "pokemon-strategy2", placeholder: "Protect Shield Strategy", 
+		title: "{n_1,n_2}: tank n_i attacks then use the i-th Shield. * = infinity, ? = random"
+	});
+	strategyInput.comply = function(kwargs){
+		if (kwargs.battleMode != "pvp"){
+			var strat1 = $$$(this).parent("pokemon").child("pokemon-strategy").node;
+			this.setAttribute("hidden", true);
+			strat1.removeAttribute("hidden");
+		}
+	}
+	return strategyInput;
+}
 
 function createPartyNameInput(){
 	var partyNameInput = createElement('input', '', {
@@ -459,6 +481,8 @@ function complyBattleMode(mode){
 				}
 			}
 		}
+	}else if (mode == "pvp"){
+		
 	}
 	comply(playerNodes, {battleMode: mode});
 	var timelimitInput = document.getElementById("timelimit");
@@ -519,6 +543,9 @@ function createPokemonNode(){
 	tb4.children[1].children[1].appendChild(createPokemonMoveInput("charged", "cmove"));
 	tb4.children[1].children[2].appendChild(createPokemonMoveInput("charged", "cmove2"));
 	tb4.children[1].children[3].appendChild(createPokemonStrategyInput());
+	var protectShieldStratInput = createPokemonProtectStrategyInput();
+	protectShieldStratInput.setAttribute("hidden", true);
+	tb4.children[1].children[3].appendChild(protectShieldStratInput);
 	
 	pokemonNode.children[1].appendChild(tb1);
 	pokemonNode.children[1].appendChild(tb2);

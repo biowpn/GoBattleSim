@@ -117,6 +117,9 @@ function createPokemonRoleInput(){
 				this.onchange();
 				this.disabled = true;
 			}
+		}else if (kwargs.battleMode == "pvp"){
+			this.value = "a";
+			this.onchange();
 		}
 	}
 	return roleInput;
@@ -189,11 +192,30 @@ function createPokemonStrategyInput(){
 				this.value = "strat0";
 				this.disabled = true;
 			}
+		}else if (kwargs.battleMode == "pvp"){
+			this.value = "strat1";
+			var strat2 = $$$(this).parent("pokemon").child("pokemon-strategy2").node;
+			this.setAttribute("hidden", true);
+			strat2.removeAttribute("hidden");
 		}
 	}
 	return strategyInput;
 }
 
+
+function createPokemonProtectStrategyInput(){
+	var strategyInput = createElement('input', '0,0', {name: "pokemon-strategy2", placeholder: "Protect Shield Strategy", 
+		title: "{n_1,n_2}: tank n_i attacks then use the i-th Shield. * = infinity, ? = random"
+	});
+	strategyInput.comply = function(kwargs){
+		if (kwargs.battleMode != "pvp"){
+			var strat1 = $$$(this).parent("pokemon").child("pokemon-strategy").node;
+			this.setAttribute("hidden", true);
+			strat1.removeAttribute("hidden");
+		}
+	}
+	return strategyInput;
+}
 
 function createPartyNameInput(){
 	var partyNameInput = createElement('input', '', {
@@ -487,6 +509,8 @@ function complyBattleMode(mode){
 				}
 			}
 		}
+	}else if (mode == "pvp"){
+		
 	}
 	comply(playerNodes, {battleMode: mode});
 	var timelimitInput = document.getElementById("timelimit");
@@ -547,6 +571,9 @@ function createPokemonNode(){
 	tb4.children[1].children[1].appendChild(createPokemonMoveInput("charged", "cmove"));
 	tb4.children[1].children[2].appendChild(createPokemonMoveInput("charged", "cmove2"));
 	tb4.children[1].children[3].appendChild(createPokemonStrategyInput());
+	var protectShieldStratInput = createPokemonProtectStrategyInput();
+	protectShieldStratInput.setAttribute("hidden", true);
+	tb4.children[1].children[3].appendChild(protectShieldStratInput);
 	
 	pokemonNode.children[1].appendChild(tb1);
 	pokemonNode.children[1].appendChild(tb2);
@@ -1016,13 +1043,13 @@ function importConfig(url){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li><li><a href="global.html#strat0">strat0</a></li><li><a href="global.html#strat1">strat1</a></li><li><a href="global.html#strat2">strat2</a></li><li><a href="global.html#strat3">strat3</a></li><li><a href="global.html#strat4">strat4</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="ProtectShieldStrategy.html">ProtectShieldStrategy</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#calculateLevelUpCost">calculateLevelUpCost</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchAll_then">fetchAll_then</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossList">fetchRaidBossList</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#populateAll">populateAll</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li><li><a href="global.html#strat0">strat0</a></li><li><a href="global.html#strat1">strat1</a></li><li><a href="global.html#strat2">strat2</a></li><li><a href="global.html#strat3">strat3</a></li><li><a href="global.html#strat4">strat4</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Dec 09 2018 21:19:59 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Dec 13 2018 20:18:19 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
