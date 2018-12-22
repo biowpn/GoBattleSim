@@ -226,6 +226,13 @@ function processConfig(config){
 
 function GoBattleSim(){
 	var userInput = read();
+	if (userInput.battleMode == "pvp"){
+		assignMoveParameterSet("load", Data.FastMoves, "combat");
+		assignMoveParameterSet("load", Data.ChargedMoves, "combat");
+	}else{
+		assignMoveParameterSet("load", Data.FastMoves, "regular");
+		assignMoveParameterSet("load", Data.ChargedMoves, "regular");
+	}
 	
 	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfig(userInput));
 	userInput.hasLog = true;

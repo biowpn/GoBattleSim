@@ -149,19 +149,14 @@ $( "#ui-uniqueSpecies-checkbox" ).change(function(){
 
 $( "#ui-pvpMode" ).controlgroup();
 $( "#ui-pvpMode-checkbox" ).change(function(){
-	Context.battleMode = this.checked ? "pvp" : "regular";
 	if (this.checked){
-		for (var i = 0; i < Mods.length; i++){
-			if (Mods[i].name == "PvP Move Parameters Overwrite"){
-				var modCheckbox = document.getElementById('mod_checkbox_' + i);
-				if (!modCheckbox.checked){
-					sendFeedbackDialog("Please check {PvP Move Parameters Overwrite} in Customize->Mods first");
-					this.checked = false;
-					$(this).button("refresh");
-					return;
-				}
-			}
-		}
+		Context.battleMode = "pvp";
+		assignMoveParameterSet("load", Data.FastMoves, "combat");
+		assignMoveParameterSet("load", Data.ChargedMoves, "combat");
+	}else{
+		Context.battleMode = "regular";
+		assignMoveParameterSet("load", Data.FastMoves, "regular");
+		assignMoveParameterSet("load", Data.ChargedMoves, "regular");
 	}
 	requestSpreadsheet(true);
 });

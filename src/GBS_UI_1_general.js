@@ -329,7 +329,7 @@ function write(node, config, forced){
 				if (node.type == "checkbox"){
 					node.checked = config[attrName] || false;
 				}else{
-					node.value = config[attrName] || "";
+					node.value = (config[attrName] != undefined ? config[attrName] : "");
 				}
 				if (node.onchange){
 					node.onchange();
@@ -366,8 +366,8 @@ function getConstructor(attrName){
 
 // A generic function for formatting select HTML elements input
 function formatting(node){
-	let name = node.getAttribute("name");
-	if (name == "pokemon-name" || name == "pokemon-fmove" || name == "pokemon-cmove" || name == "pokemon-cmove2"){
+	let name = node.getAttribute("name") || "";
+	if (name.includes("-name") || name.includes("-fmove") || name.includes("-cmove")){
 		node.value = toTitleCase(node.value);
 	}
 	if ($(node).data("ui-autocomplete")){

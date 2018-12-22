@@ -501,6 +501,8 @@ function complyBattleMode(mode){
 	var timelimitInput = document.getElementById("timelimit");
 	if (mode == "gym"){
 		timelimitInput.value = Data.BattleSettings.timelimitGymMs;
+	}else if (mode == "pvp"){
+		timelimitInput.value = Data.BattleSettings.timelimitPvPMs;
 	}
 }
 
@@ -824,6 +826,7 @@ function displayDetail(i){
 	// Re-configured the input
 	var inputEl = document.getElementById("input");
 	write(inputEl, simResults[i].input);
+	complyBattleMode(simResults[i].input.battleMode);
 	formatting(inputEl);
 	relabel();
 	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfig(simResults[i].input));

@@ -71,7 +71,7 @@ function calculateCP(pkm){
 function inferLevelAndIVs(pkm, cp){
 	var minIV = Data.IndividualValues[0].value, maxIV = Data.IndividualValues[Data.IndividualValues.length - 1].value;
 	var pkm2 = {baseAtk: pkm.baseAtk, baseDef: pkm.baseDef, baseStm: pkm.baseStm};
-	var minLevelIndex = null, maxLevelIndex = null;
+	var minLevelIndex = null;
 	pkm2.atkiv = pkm2.defiv = pkm2.stmiv = maxIV;
 	for (var i = 0; i < Data.LevelSettings.length; i++){
 		pkm2.cpm = Data.LevelSettings[i].cpm;
@@ -81,18 +81,9 @@ function inferLevelAndIVs(pkm, cp){
 			break;
 		}
 	}
-	pkm2.atkiv = pkm2.defiv = pkm2.stmiv = minIV;
-	for (var i = Data.LevelSettings.length - 1; i >= 0; i--){
-		pkm2.cpm = Data.LevelSettings[i].cpm;
-		if (calculateCP(pkm2) > cp){
-			maxLevelIndex = i;
-		}else{
-			break;
-		}
-	}
-	if (minLevelIndex == null || maxLevelIndex == null)
+	if (minLevelIndex == null)
 		return null;
-	for (var i = minLevelIndex; i < maxLevelIndex; i++){
+	for (var i = minLevelIndex; i < Data.LevelSettings.length; i++){
 		pkm2.level = Data.LevelSettings[i].value;
 		pkm2.cpm = Data.LevelSettings[i].cpm;
 		for (pkm2.atkiv = minIV; pkm2.atkiv <= maxIV; pkm2.atkiv++){
@@ -157,7 +148,7 @@ function Pokemon(cfg){
 	this.baseAtk = speciesData.baseAtk;
 	this.baseDef = speciesData.baseDef;
 	this.baseStm = speciesData.baseStm;
-	if (cfg.role.includes("_basic")){
+	if (cfg.role && cfg.role.includes("_basic")){
 		let inferred = inferLevelAndIVs(this, parseInt(cfg.cp));
 		if (inferred == null){
 			throw Error('No combination of level and IVs are found for ' + this.name);
@@ -1080,7 +1071,6 @@ World.prototype.appendEventToLog = function(e){
 		};
 	}else if (e.name == EVENT_TYPE.Hurt){
 		entry.events[e.subject.master.index] = {
-			name: e.move.name,
 			eventType: EVENT_TYPE.Hurt,
 			text: e.subject.HP + "(-" + e.dmg + ")",
 			value: e.dmg,

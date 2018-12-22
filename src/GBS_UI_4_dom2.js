@@ -96,14 +96,20 @@ function moveEditFormInit(){
 			var moveDatabase = Data[toTitleCase($$$(moveInput).child("move-moveType").val()) + "Moves"];
 			var move = ui.item || getEntry(this.value.trim().toLowerCase(), moveDatabase);
 			if (move){
+				assignMoveParameterSet("load", [move], $$$(moveInput).child("move-scope").val());
 				this.setAttribute('style', 'background-image: url(' + move.icon + ')');
 				write(moveInput, move);
+				this.value = toTitleCase(this.value);
 			}
 		}
 	}).autocomplete( "instance" )._renderItem = _renderAutocompleteMoveItem;
 	
 	$$$(moveInput).child("move-pokeType").node.onchange = function(){
 		$$$(moveInput).child("move-name").node.setAttribute("style", "background-image: url(" + getTypeIcon({pokeType: this.value}) + ")");
+	}
+	
+	$$$(moveInput).child("move-scope").node.onchange = function(){
+		$($$$(moveInput).child("move-name").node).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item: null});
 	}
 }
 
@@ -113,6 +119,8 @@ function moveEditFormSubmit(){
 	var move = read(moveInput);
 	move.name = move.name.trim().toLowerCase();
 	move.icon = getTypeIcon({pokeType: move.pokeType});
+	assignMoveParameterSet("save", [move], move.scope);
+	delete move.scope;
 
 	var move2 = getEntry(move.name, Data[toTitleCase(move.moveType) + "Moves"]);
 	if (move2){

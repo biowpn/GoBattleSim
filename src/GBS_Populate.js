@@ -478,14 +478,15 @@ function assignMoveParameterSet(direction, moves, setName){
 	var attributes = ["power", "energyDelta", "duration", "dws"];
 	if (direction == "load"){
 		for (let move of moves){
-			for (let attr in attributes){
+			if (!move[setName]) continue;
+			for (let attr of attributes){
 				move[attr] = move[setName][attr];
 			}
 		}
 	}else if (direction == "save"){
 		for (let move of moves){
 			move[setName] = move[setName] || {};
-			for (let attr in attributes){
+			for (let attr of attributes){
 				move[setName][attr] = move[attr];
 			}
 		}
@@ -655,15 +656,33 @@ function fetchMoveData(oncomplete){
 				if (data[i].move_category == "Fast Move"){
 					move.moveType = 'fast';
 					move.regular.energyDelta = Math.abs(parseInt(data[i].energy_gain));
+					// Temp
+					let fmove2 = getEntry(move.name, PvPFastMoves);
+					if (fmove2){
+						move.combat.power = fmove2.power;
+						move.combat.energyDelta = fmove2.energyDelta;
+						move.combat.duration = (fmove2.durationTurns + 1) * 500;
+						move.combat.dws = move.combat.duration / 2; // Guessing
+					}
+					// End Temp
 					Data.FastMoves.push(move);
 				}else{
 					move.moveType = 'charged';
 					move.regular.energyDelta = -Math.abs(parseInt(data[i].energy_cost));
+					// Temp
+					let cmove2 = getEntry(move.name, PvPChargedMoves);
+					if (cmove2){
+						move.combat.power = cmove2.power;
+						move.combat.energyDelta = cmove2.energyDelta;
+						move.combat.duration = 0;
+						move.combat.dws = 0;
+					}
+					// End Temp
 					Data.ChargedMoves.push(move);
 				}
 			}
-			assignMoveParameterSet("write", Data.FastMoves, "regular");
-			assignMoveParameterSet("write", Data.ChargedMoves, "regular");
+			assignMoveParameterSet("load", Data.FastMoves, "regular");
+			assignMoveParameterSet("load", Data.ChargedMoves, "regular");
 			sortDatabase(Data.FastMoves);
 			sortDatabase(Data.ChargedMoves);
 		},

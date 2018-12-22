@@ -1,7 +1,16 @@
 <div id='moveEditForm' title="Add/Edit Move" style="visibility: hidden;">
 	<table name="move" id="moveEditForm-table">
 		<tr>
-			<th>Move Category</th> 
+			<th>Scope</th> 
+			<td>
+				<select name='move-scope'>
+					<option value='regular'>Regular (PvE)</option>
+					<option value='combat'>Combat (PvP)</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<th>Category</th> 
 			<td>
 				<select name='move-moveType'>
 					<option value='fast'>Fast</option>
@@ -10,11 +19,11 @@
 			</td>
 		</tr>
 		<tr>
-			<th>Move Name</th> 
+			<th>Name</th> 
 			<td><input type='text' name='move-name' class='input-with-icon move-input-with-icon'></td>
 		</tr>
 		<tr>
-			<th>Move Typing</th> 
+			<th>Typing</th>
 			<td><select name='move-pokeType'></select></td>
 		</tr>
 		<tr>
@@ -236,7 +245,7 @@
 			<tr>
 				<td>
 					<p>Hi there! Thanks for using GoBattleSim v3. </p>
-					<p>If you are new to it, check out the examples below, and get a feel of how GoBattleSim works:</p>
+					<p>If you are new to it, check out the examples below and get a feel of how GoBattleSim works:</p>
 				</td>
 				<td>
 					<img src="https://pokemongo.gamepress.gg/sites/pokemongo/files/2017-08/381_0.png" width="150px;"></img>
@@ -258,7 +267,7 @@
 			</tr>
 			<tr>
 				<td><button class="player_button" onclick="welcomeDialogSubmit(0)">Gym Battle</button></td>
-				<td><button class="player_button" onclick="welcomeDialogSubmit(3)">Fantasy PvP</button></td>
+				<td><button class="player_button" onclick="welcomeDialogSubmit(3)">PvP</button></td>
 			</tr>
 		</tbody>
 	</table>
