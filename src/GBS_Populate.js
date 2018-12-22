@@ -16,7 +16,7 @@ var DefaultData = {
 		'sameTypeAttackBonusMultiplier': 1.2,
 		'weatherAttackBonusMultiplier': 1.2,
 		'fastAttackBonusMultiplier': 1,
-		'chargedAttackBonusMultiplier': 1.2,
+		'chargedAttackBonusMultiplier': 1.3,
 		'maximumEnergy': 100, 
 		'energyDeltaPerHealthLost': 0.5, 
 		'dodgeDamageReductionPercent': 0.75, 
@@ -466,7 +466,31 @@ function parseUserPokebox(data){
 	return box;
 }
 
-
+/**
+	Each move has two separated sets of combat parameters, one for gym/raids and the other for PvP.
+	This function can overwrite the applied set with a back-up set, or save the applied set to a back-up set.
+	@param {string} direction "load" or "save". "load" will overwrite; "save" will save. Default to "load".
+	@param {Object[]} moves The array of moves to perform operation on.
+	@param {string} setName The name of the parameter set.
+*/
+function assignMoveParameterSet(direction, moves, setName){
+	direction = direction || "load";
+	var attributes = ["power", "energyDelta", "duration", "dws"];
+	if (direction == "load"){
+		for (let move of moves){
+			for (let attr in attributes){
+				move[attr] = move[setName][attr];
+			}
+		}
+	}else if (direction == "save"){
+		for (let move of moves){
+			move[setName] = move[setName] || {};
+			for (let attr in attributes){
+				move[setName][attr] = move[attr];
+			}
+		}
+	}
+}
 
 
 /** 
@@ -608,23 +632,38 @@ function fetchMoveData(oncomplete){
 			for(var i = 0; i < data.length; i++){
 				var move = {
 					name: data[i].title.toLowerCase(),
-					power: parseInt(data[i].power),
 					pokeType: data[i].move_type.toLowerCase(),
-					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
-					duration: parseFloat(data[i].cooldown)*1000,
 					label: toTitleCase(data[i].title),
-					icon: getTypeIcon({pokeType: data[i].move_type})
+					icon: getTypeIcon({pokeType: data[i].move_type}),
+					power: 0,
+					dws: 0,
+					duration: 0,
+					energyDelta: 0,
+					regular: {
+						power: parseInt(data[i].power),
+						dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
+						duration: parseFloat(data[i].cooldown)*1000,
+						energyDelta: 0
+					},
+					combat: {
+						power: 0,
+						dws: 0,
+						duration: 0,
+						energyDelta: 0
+					}
 				};
 				if (data[i].move_category == "Fast Move"){
 					move.moveType = 'fast';
-					move.energyDelta = Math.abs(parseInt(data[i].energy_gain));
+					move.regular.energyDelta = Math.abs(parseInt(data[i].energy_gain));
 					Data.FastMoves.push(move);
 				}else{
 					move.moveType = 'charged';
-					move.energyDelta = -Math.abs(parseInt(data[i].energy_cost));
+					move.regular.energyDelta = -Math.abs(parseInt(data[i].energy_cost));
 					Data.ChargedMoves.push(move);
 				}
 			}
+			assignMoveParameterSet("write", Data.FastMoves, "regular");
+			assignMoveParameterSet("write", Data.ChargedMoves, "regular");
 			sortDatabase(Data.FastMoves);
 			sortDatabase(Data.ChargedMoves);
 		},

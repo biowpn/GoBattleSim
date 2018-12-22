@@ -205,7 +205,7 @@ function requestSimulation(){
 			while (DialogStack.length){
 				DialogStack.pop().dialog('close');
 			}
-			sendFeedbackDialog("Oops, something went wrong!");
+			sendFeedbackDialog("<p>Oops, something went wrong!</p>" + err.toString());
 		}
 	}, 100);
 }
@@ -252,7 +252,7 @@ function applicationInit(){
 	addPlayerNode();
 	addPlayerNode();
 	write(playersNode.children[1], {team: "1", parties: [{pokemon: [{role: "rb"}]}]});
-	comply();
+	//comply();
 
 	if (window.location.href.includes('?')){
 		write(document.getElementById("input"), importConfig(window.location.href));

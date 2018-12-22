@@ -90,6 +90,50 @@ function calculateCP(pkm){
 	return Math.max(10, Math.floor(atk * Math.sqrt(def * stm)/10));
 }
 
+/**
+	Find a combination of {level, atkiv, defiv, stmiv} that yields the given CP for a Pokemon.
+	@param {Pokemon} pkm The Pokemon to infer level and IVs for. Expected to have baseAtk, baseDef and baseStm.
+	@param {number} cp The given CP.
+	@return {Object} A set of {level, atkiv, defiv, stmiv} that yields the given CP. If no combination is found, return null.
+*/
+function inferLevelAndIVs(pkm, cp){
+	var minIV = Data.IndividualValues[0].value, maxIV = Data.IndividualValues[Data.IndividualValues.length - 1].value;
+	var pkm2 = {baseAtk: pkm.baseAtk, baseDef: pkm.baseDef, baseStm: pkm.baseStm};
+	var minLevelIndex = null, maxLevelIndex = null;
+	pkm2.atkiv = pkm2.defiv = pkm2.stmiv = maxIV;
+	for (var i = 0; i &lt; Data.LevelSettings.length; i++){
+		pkm2.cpm = Data.LevelSettings[i].cpm;
+		if (calculateCP(pkm2) &lt;= cp){
+			minLevelIndex = i;
+		}else{
+			break;
+		}
+	}
+	pkm2.atkiv = pkm2.defiv = pkm2.stmiv = minIV;
+	for (var i = Data.LevelSettings.length - 1; i >= 0; i--){
+		pkm2.cpm = Data.LevelSettings[i].cpm;
+		if (calculateCP(pkm2) > cp){
+			maxLevelIndex = i;
+		}else{
+			break;
+		}
+	}
+	if (minLevelIndex == null || maxLevelIndex == null)
+		return null;
+	for (var i = minLevelIndex; i &lt; maxLevelIndex; i++){
+		pkm2.level = Data.LevelSettings[i].value;
+		pkm2.cpm = Data.LevelSettings[i].cpm;
+		for (pkm2.atkiv = minIV; pkm2.atkiv &lt;= maxIV; pkm2.atkiv++){
+			for (pkm2.defiv = minIV; pkm2.defiv &lt;= maxIV; pkm2.defiv++){
+				for (pkm2.stmiv = minIV; pkm2.stmiv &lt;= maxIV; pkm2.stmiv++){
+					if (calculateCP(pkm2) == cp){
+						return pkm2;
+					}
+				}
+			}
+		}
+	}
+}
 
 
 
@@ -116,7 +160,7 @@ function Move(m, moveDatabase){
 */
 function Pokemon(cfg){
 	this.id = cfg.id;
-	this.role = cfg.role || "a";
+	this.role = (cfg.role || "a").split("_")[0];
 	this.raidTier = cfg.raidTier;
 	this.master = cfg.master || null;
 	this.nickname = cfg.nickname || "";
@@ -141,15 +185,27 @@ function Pokemon(cfg){
 	this.baseAtk = speciesData.baseAtk;
 	this.baseDef = speciesData.baseDef;
 	this.baseStm = speciesData.baseStm;
-	this.atkiv = parseInt(cfg.atkiv);
-	this.defiv = parseInt(cfg.defiv);
-	this.stmiv = parseInt(cfg.stmiv);
-	this.level = cfg.level;
-	this.cpm = parseFloat(cfg.cpm);
-	if (isNaN(this.cpm) &amp;&amp; this.level != undefined){
-		let levelSetting = getEntry(this.level.toString(), Data.LevelSettings, true);
-		if (levelSetting){
-			this.cpm = levelSetting.cpm;
+	if (cfg.role.includes("_basic")){
+		let inferred = inferLevelAndIVs(this, parseInt(cfg.cp));
+		if (inferred == null){
+			throw Error('No combination of level and IVs are found for ' + this.name);
+		}
+		cfg.atkiv = this.atkiv = inferred.atkiv;
+		cfg.defiv = this.defiv = inferred.defiv;
+		cfg.stmiv = this.stmiv = inferred.stmiv;
+		cfg.level = this.level = inferred.level;
+		this.cpm = inferred.cpm;
+	}else{
+		this.atkiv = parseInt(cfg.atkiv);
+		this.defiv = parseInt(cfg.defiv);
+		this.stmiv = parseInt(cfg.stmiv);
+		this.level = cfg.level;
+		this.cpm = parseFloat(cfg.cpm);
+		if (isNaN(this.cpm) &amp;&amp; this.level != undefined){
+			let levelSetting = getEntry(this.level.toString(), Data.LevelSettings, true);
+			if (levelSetting){
+				this.cpm = levelSetting.cpm;
+			}
 		}
 	}
 	this.fmove = new Move(cfg.fmove, Data.FastMoves);
@@ -233,6 +289,14 @@ Pokemon.prototype.calculateStats = function(){
 	*/
 }
 
+/**
+	Check whether the Pokemon is alive (is able to stay in battle).
+	@return {boolean} True if its HP > 0 or it's immortal and false otherwise.
+*/
+Pokemon.prototype.isAlive = function(){
+	return this.HP > 0 || this.immortal;
+}
+
 /** 
 	Fully heal the Pokemon and set its energy to 0
 */
@@ -259,7 +323,7 @@ Pokemon.prototype.gainEnergy = function(energyDelta){
 */
 Pokemon.prototype.takeDamage = function(dmg){
 	this.HP -= dmg;
-	if (this.HP &lt;= 0 &amp;&amp; !this.immortal){
+	if (!this.isAlive()){
 		this.numOfDeaths++;
 	}
 }
@@ -388,7 +452,7 @@ Party.prototype.head = function(){
 */
 Party.prototype.selectNextPokemon = function(){
 	for (var i = this.headingPokemonIndex + 1; i &lt; this.pokemon.length; i++){
-		if (this.pokemon[i].HP > 0){
+		if (this.pokemon[i].isAlive()){
 			this.headingPokemonIndex = i;
 			return true;
 		}
@@ -402,7 +466,7 @@ Party.prototype.selectNextPokemon = function(){
 */
 Party.prototype.selectFirstPokemon = function(){
 	for (var i = 0; i &lt; this.pokemon.length; i++){
-		if (this.pokemon[i].HP > 0){
+		if (this.pokemon[i].isAlive()){
 			this.headingPokemonIndex = i;
 			return true;
 		}
@@ -417,7 +481,7 @@ Party.prototype.selectFirstPokemon = function(){
 */
 Party.prototype.switchPokemon = function(index){
 	if (0 &lt;= index &amp;&amp; index &lt; this.pokemon.length){
-		if (this.pokemon[index].HP > 0){ // Cannot switch to a fainted Pokemon
+		if (this.pokemon[index].isAlive()){ // Cannot switch to a fainted Pokemon
 			this.headingPokemonIndex = index;
 			return true;
 		}
@@ -539,7 +603,7 @@ Player.prototype.selectBestPokemon = function(){
 	var best_cycle_dps = 0;
 	for (var i = 0; i &lt; party.pokemon.length; i++){
 		let pkm = party.pokemon[i];
-		if (pkm.HP > 0){
+		if (pkm.isAlive()){
 			pkm.adjustDefaultChargedMove(enemy);
 			let fDPS = damage(pkm, enemy, pkm.fmove) / pkm.fmove.duration;
 			let fEPS = pkm.fmove.energyDelta / pkm.fmove.duration;
@@ -843,7 +907,7 @@ World.prototype.isTeamDefeated = function(team){
 	for (let player of this.players){
 		if (player.team == team){
 			let pokemon = player.head();
-			if (pokemon &amp;&amp; pokemon.HP > 0){
+			if (pokemon &amp;&amp; pokemon.isAlive()){
 				return false;
 			}
 		}
@@ -906,7 +970,7 @@ World.prototype.battle = function(){
 					}
 					target.takeDamage(dmg);
 					e.subject.attributeDamage(dmg, e.move.moveType);
-					if (target.HP &lt;= 0){
+					if (!target.isAlive()){
 						target.active = false;
 						faintedPokemon.push(target);
 					}
@@ -1444,13 +1508,13 @@ function strat4(state){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="ProtectShieldStrategy.html">ProtectShieldStrategy</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#calculateLevelUpCost">calculateLevelUpCost</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchAll_then">fetchAll_then</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossList">fetchRaidBossList</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#populateAll">populateAll</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li><li><a href="global.html#strat0">strat0</a></li><li><a href="global.html#strat1">strat1</a></li><li><a href="global.html#strat2">strat2</a></li><li><a href="global.html#strat3">strat3</a></li><li><a href="global.html#strat4">strat4</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="ProtectShieldStrategy.html">ProtectShieldStrategy</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#assignMoveParameterSet">assignMoveParameterSet</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#calculateLevelUpCost">calculateLevelUpCost</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchAll_then">fetchAll_then</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossList">fetchRaidBossList</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#inferLevelAndIVs">inferLevelAndIVs</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#populateAll">populateAll</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li><li><a href="global.html#strat0">strat0</a></li><li><a href="global.html#strat1">strat1</a></li><li><a href="global.html#strat2">strat2</a></li><li><a href="global.html#strat3">strat3</a></li><li><a href="global.html#strat4">strat4</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 14 2018 01:17:13 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Dec 22 2018 08:08:48 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

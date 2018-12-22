@@ -89,22 +89,29 @@ function createRemovePokemonButton(){
 
 function createPokemonRoleInput(){
 	var roleInput = createElement("select", "", {name: "pokemon-role"});
-	roleInput.appendChild(createElement('option', 'User Pokemon', {value: "a"}));
+	roleInput.appendChild(createElement('option', 'Attacker', {value: "a"}));
+	roleInput.appendChild(createElement('option', 'Attacker Basic', {value: "a_basic"}));
 	roleInput.appendChild(createElement('option', 'Gym Defender', {value: "gd"}));
+	roleInput.appendChild(createElement('option', 'Gym Defender Basic', {value: "gd_basic"}));
 	roleInput.appendChild(createElement('option', 'Raid Boss', {value: "rb"}));
-	roleInput.appendChild(createElement('option', 'Raid Boss (Immortal)', {value: "RB"}));
+	roleInput.appendChild(createElement('option', 'Raid Boss Immortal', {value: "RB"}));
 	roleInput.onchange = function(){
 		var pokemonNode = $$$(this).parent("pokemon").node;
-		if (this.value.toLowerCase() == "rb"){
-			pokemonNode.children[1].children[1].setAttribute("hidden", true);
-			pokemonNode.children[1].children[2].removeAttribute("hidden");
-		}else{
-			pokemonNode.children[1].children[2].setAttribute("hidden", true);
-			pokemonNode.children[1].children[1].removeAttribute("hidden");
+		for (var i = 0; i &lt; pokemonNode.children[1].children.length; i++){
+			var child = pokemonNode.children[1].children[i];
+			if (child.hasAttribute("for_roles")){
+				let roles = child.getAttribute("for_roles").split(";");
+				if (roles.includes(this.value)){
+					child.removeAttribute("hidden");
+				}else{
+					child.setAttribute("hidden", true);
+				}
+			}
 		}
 		var strategyNode = $$$(pokemonNode).child("pokemon-strategy").node;
-		if (this.value == "a"){
-			strategyNode.value = "strat1";
+		if ((this.value == "a" || this.value == "a_basic")){
+			if (strategyNode.value == "strat0")
+				strategyNode.value = "strat1";
 		}else{
 			strategyNode.value = "strat0";
 		}
@@ -113,9 +120,15 @@ function createPokemonRoleInput(){
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
 			if ($$$(this).parent("player").child("player-team").val() == "1"){
-				this.value = (kwargs.battleMode == "raid" ? "rb" : "gd");
+				if (kwargs.battleMode == "raid"){
+					if (this.value.toLowerCase() != "rb"){
+						this.value = "rb";
+					}
+				}else{
+					this.value = "gd";
+				}
 				this.onchange();
-				this.disabled = true;
+				//this.disabled = true;
 			}
 		}else if (kwargs.battleMode == "pvp"){
 			this.value = "a";
@@ -545,8 +558,9 @@ function createPokemonNode(){
 	tb1.children[1].children[0].appendChild(createPokemonNameInput());
 	tb1.children[1].children[1].appendChild(createPokemonRoleInput());
 	tb1.children[1].children[2].appendChild(createPokemonCopiesInput());
+	pokemonNode.children[1].appendChild(tb1);
 	
-	var tb2 = createElement("table", "&lt;colgroup>&lt;col width=25%>&lt;col width=25%>&lt;col width=25%>&lt;col width=25%>&lt;/colgroup>");
+	var tb2 = createElement("table", "&lt;colgroup>&lt;col width=25%>&lt;col width=25%>&lt;col width=25%>&lt;col width=25%>&lt;/colgroup>", {for_roles: "a;gd"});
 	tb2.appendChild(createRow(['', '', '', ''], 'td'));
 	tb2.children[1].children[0].appendChild(createElement("input", "", {
 		placeholder: "Level", name: "pokemon-level"
@@ -560,27 +574,34 @@ function createPokemonNode(){
 	tb2.children[1].children[3].appendChild(createElement("input", "", {
 		placeholder: "Def. IV", name: "pokemon-defiv"
 	}));
+	pokemonNode.children[1].appendChild(tb2);
 	
-	var tb3 = createElement("table", "&lt;colgroup>&lt;col width=100%>&lt;/colgroup>", {hidden: "true"});
+	var tb2b = createElement("table", "&lt;colgroup>&lt;col width=100%>&lt;/colgroup>", {hidden: "true", for_roles: "a_basic;gd_basic"});
+	tb2b.appendChild(createRow(['']));
+	tb2b.children[1].children[0].appendChild(createElement("input", "", {
+		placeholder: "CP", name: "pokemon-cp"
+	}));
+	pokemonNode.children[1].appendChild(tb2b);
+	
+	var tb3 = createElement("table", "&lt;colgroup>&lt;col width=100%>&lt;/colgroup>", {hidden: "true", for_roles: "rb;RB"});
 	tb3.appendChild(createRow(['']));
 	tb3.children[1].children[0].appendChild(createPokemonRaidTierInput());
+	pokemonNode.children[1].appendChild(tb3);
 
-	var tb4 = createElement("table", "&lt;colgroup>&lt;col width=25%>&lt;col width=25%>&lt;col width=25%>&lt;col width=25%>&lt;/colgroup>");
-	tb4.appendChild(createRow(['', '', '', ''], 'td'));
+	var tb4 = createElement("table", "&lt;colgroup>&lt;col width=50%>&lt;col width=50%>&lt;/colgroup>");
+	tb4.appendChild(createRow(['', ''], 'td'));
 	tb4.children[1].children[0].appendChild(createPokemonMoveInput("fast", "fmove"));
-	tb4.children[1].children[1].appendChild(createPokemonMoveInput("charged", "cmove"));
-	tb4.children[1].children[2].appendChild(createPokemonMoveInput("charged", "cmove2"));
-	tb4.children[1].children[3].appendChild(createPokemonStrategyInput());
+	tb4.children[1].children[1].appendChild(createPokemonStrategyInput());
 	var protectShieldStratInput = createPokemonProtectStrategyInput();
 	protectShieldStratInput.setAttribute("hidden", true);
-	tb4.children[1].children[3].appendChild(protectShieldStratInput);
-	
-	pokemonNode.children[1].appendChild(tb1);
-	pokemonNode.children[1].appendChild(tb2);
-	pokemonNode.children[1].appendChild(tb3);
+	tb4.children[1].children[1].appendChild(protectShieldStratInput);
 	pokemonNode.children[1].appendChild(tb4);
 	
-	// 3. Tail
+	var tb5 = createElement("table", "&lt;colgroup>&lt;col width=50%>&lt;col width=50%>&lt;/colgroup>");
+	tb5.appendChild(createRow(['', ''], 'td'));
+	tb5.children[1].children[0].appendChild(createPokemonMoveInput("charged", "cmove"));
+	tb5.children[1].children[1].appendChild(createPokemonMoveInput("charged", "cmove2"));
+	pokemonNode.children[1].appendChild(tb5);
 	
 	return pokemonNode;
 }
@@ -1043,13 +1064,13 @@ function importConfig(url){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="ProtectShieldStrategy.html">ProtectShieldStrategy</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#calculateLevelUpCost">calculateLevelUpCost</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchAll_then">fetchAll_then</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossList">fetchRaidBossList</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#populateAll">populateAll</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li><li><a href="global.html#strat0">strat0</a></li><li><a href="global.html#strat1">strat1</a></li><li><a href="global.html#strat2">strat2</a></li><li><a href="global.html#strat3">strat3</a></li><li><a href="global.html#strat4">strat4</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="ProtectShieldStrategy.html">ProtectShieldStrategy</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#assignMoveParameterSet">assignMoveParameterSet</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#calculateLevelUpCost">calculateLevelUpCost</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchAll_then">fetchAll_then</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossList">fetchRaidBossList</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#inferLevelAndIVs">inferLevelAndIVs</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#populateAll">populateAll</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li><li><a href="global.html#strat0">strat0</a></li><li><a href="global.html#strat1">strat1</a></li><li><a href="global.html#strat2">strat2</a></li><li><a href="global.html#strat3">strat3</a></li><li><a href="global.html#strat4">strat4</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 14 2018 01:17:13 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Dec 22 2018 08:08:48 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

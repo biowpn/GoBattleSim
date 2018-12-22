@@ -44,7 +44,7 @@ var DefaultData = {
 		'sameTypeAttackBonusMultiplier': 1.2,
 		'weatherAttackBonusMultiplier': 1.2,
 		'fastAttackBonusMultiplier': 1,
-		'chargedAttackBonusMultiplier': 1.2,
+		'chargedAttackBonusMultiplier': 1.3,
 		'maximumEnergy': 100, 
 		'energyDeltaPerHealthLost': 0.5, 
 		'dodgeDamageReductionPercent': 0.75, 
@@ -494,7 +494,31 @@ function parseUserPokebox(data){
 	return box;
 }
 
-
+/**
+	Each move has two separated sets of combat parameters, one for gym/raids and the other for PvP.
+	This function can overwrite the applied set with a back-up set, or save the applied set to a back-up set.
+	@param {string} direction "load" or "save". "load" will overwrite; "save" will save. Default to "load".
+	@param {Object[]} moves The array of moves to perform operation on.
+	@param {string} setName The name of the parameter set.
+*/
+function assignMoveParameterSet(direction, moves, setName){
+	direction = direction || "load";
+	var attributes = ["power", "energyDelta", "duration", "dws"];
+	if (direction == "load"){
+		for (let move of moves){
+			for (let attr in attributes){
+				move[attr] = move[setName][attr];
+			}
+		}
+	}else if (direction == "save"){
+		for (let move of moves){
+			move[setName] = move[setName] || {};
+			for (let attr in attributes){
+				move[setName][attr] = move[attr];
+			}
+		}
+	}
+}
 
 
 /** 
@@ -636,23 +660,38 @@ function fetchMoveData(oncomplete){
 			for(var i = 0; i &lt; data.length; i++){
 				var move = {
 					name: data[i].title.toLowerCase(),
-					power: parseInt(data[i].power),
 					pokeType: data[i].move_type.toLowerCase(),
-					dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
-					duration: parseFloat(data[i].cooldown)*1000,
 					label: toTitleCase(data[i].title),
-					icon: getTypeIcon({pokeType: data[i].move_type})
+					icon: getTypeIcon({pokeType: data[i].move_type}),
+					power: 0,
+					dws: 0,
+					duration: 0,
+					energyDelta: 0,
+					regular: {
+						power: parseInt(data[i].power),
+						dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
+						duration: parseFloat(data[i].cooldown)*1000,
+						energyDelta: 0
+					},
+					combat: {
+						power: 0,
+						dws: 0,
+						duration: 0,
+						energyDelta: 0
+					}
 				};
 				if (data[i].move_category == "Fast Move"){
 					move.moveType = 'fast';
-					move.energyDelta = Math.abs(parseInt(data[i].energy_gain));
+					move.regular.energyDelta = Math.abs(parseInt(data[i].energy_gain));
 					Data.FastMoves.push(move);
 				}else{
 					move.moveType = 'charged';
-					move.energyDelta = -Math.abs(parseInt(data[i].energy_cost));
+					move.regular.energyDelta = -Math.abs(parseInt(data[i].energy_cost));
 					Data.ChargedMoves.push(move);
 				}
 			}
+			assignMoveParameterSet("write", Data.FastMoves, "regular");
+			assignMoveParameterSet("write", Data.ChargedMoves, "regular");
 			sortDatabase(Data.FastMoves);
 			sortDatabase(Data.ChargedMoves);
 		},
@@ -963,13 +1002,13 @@ function populateAll(dataReady){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="ProtectShieldStrategy.html">ProtectShieldStrategy</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#calculateLevelUpCost">calculateLevelUpCost</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchAll_then">fetchAll_then</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossList">fetchRaidBossList</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#populateAll">populateAll</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li><li><a href="global.html#strat0">strat0</a></li><li><a href="global.html#strat1">strat1</a></li><li><a href="global.html#strat2">strat2</a></li><li><a href="global.html#strat3">strat3</a></li><li><a href="global.html#strat4">strat4</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="ProtectShieldStrategy.html">ProtectShieldStrategy</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#assignMoveParameterSet">assignMoveParameterSet</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#calculateLevelUpCost">calculateLevelUpCost</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchAll_then">fetchAll_then</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossList">fetchRaidBossList</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#inferLevelAndIVs">inferLevelAndIVs</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#populateAll">populateAll</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li><li><a href="global.html#strat0">strat0</a></li><li><a href="global.html#strat1">strat1</a></li><li><a href="global.html#strat2">strat2</a></li><li><a href="global.html#strat3">strat3</a></li><li><a href="global.html#strat4">strat4</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 14 2018 01:17:13 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Dec 22 2018 08:08:48 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

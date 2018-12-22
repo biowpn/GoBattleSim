@@ -61,22 +61,29 @@ function createRemovePokemonButton(){
 
 function createPokemonRoleInput(){
 	var roleInput = createElement("select", "", {name: "pokemon-role"});
-	roleInput.appendChild(createElement('option', 'User Pokemon', {value: "a"}));
+	roleInput.appendChild(createElement('option', 'Attacker', {value: "a"}));
+	roleInput.appendChild(createElement('option', 'Attacker Basic', {value: "a_basic"}));
 	roleInput.appendChild(createElement('option', 'Gym Defender', {value: "gd"}));
+	roleInput.appendChild(createElement('option', 'Gym Defender Basic', {value: "gd_basic"}));
 	roleInput.appendChild(createElement('option', 'Raid Boss', {value: "rb"}));
-	roleInput.appendChild(createElement('option', 'Raid Boss (Immortal)', {value: "RB"}));
+	roleInput.appendChild(createElement('option', 'Raid Boss Immortal', {value: "RB"}));
 	roleInput.onchange = function(){
 		var pokemonNode = $$$(this).parent("pokemon").node;
-		if (this.value.toLowerCase() == "rb"){
-			pokemonNode.children[1].children[1].setAttribute("hidden", true);
-			pokemonNode.children[1].children[2].removeAttribute("hidden");
-		}else{
-			pokemonNode.children[1].children[2].setAttribute("hidden", true);
-			pokemonNode.children[1].children[1].removeAttribute("hidden");
+		for (var i = 0; i < pokemonNode.children[1].children.length; i++){
+			var child = pokemonNode.children[1].children[i];
+			if (child.hasAttribute("for_roles")){
+				let roles = child.getAttribute("for_roles").split(";");
+				if (roles.includes(this.value)){
+					child.removeAttribute("hidden");
+				}else{
+					child.setAttribute("hidden", true);
+				}
+			}
 		}
 		var strategyNode = $$$(pokemonNode).child("pokemon-strategy").node;
-		if (this.value == "a"){
-			strategyNode.value = "strat1";
+		if ((this.value == "a" || this.value == "a_basic")){
+			if (strategyNode.value == "strat0")
+				strategyNode.value = "strat1";
 		}else{
 			strategyNode.value = "strat0";
 		}
@@ -85,9 +92,15 @@ function createPokemonRoleInput(){
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
 			if ($$$(this).parent("player").child("player-team").val() == "1"){
-				this.value = (kwargs.battleMode == "raid" ? "rb" : "gd");
+				if (kwargs.battleMode == "raid"){
+					if (this.value.toLowerCase() != "rb"){
+						this.value = "rb";
+					}
+				}else{
+					this.value = "gd";
+				}
 				this.onchange();
-				this.disabled = true;
+				//this.disabled = true;
 			}
 		}else if (kwargs.battleMode == "pvp"){
 			this.value = "a";
@@ -517,8 +530,9 @@ function createPokemonNode(){
 	tb1.children[1].children[0].appendChild(createPokemonNameInput());
 	tb1.children[1].children[1].appendChild(createPokemonRoleInput());
 	tb1.children[1].children[2].appendChild(createPokemonCopiesInput());
+	pokemonNode.children[1].appendChild(tb1);
 	
-	var tb2 = createElement("table", "<colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>");
+	var tb2 = createElement("table", "<colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>", {for_roles: "a;gd"});
 	tb2.appendChild(createRow(['', '', '', ''], 'td'));
 	tb2.children[1].children[0].appendChild(createElement("input", "", {
 		placeholder: "Level", name: "pokemon-level"
@@ -532,27 +546,34 @@ function createPokemonNode(){
 	tb2.children[1].children[3].appendChild(createElement("input", "", {
 		placeholder: "Def. IV", name: "pokemon-defiv"
 	}));
+	pokemonNode.children[1].appendChild(tb2);
 	
-	var tb3 = createElement("table", "<colgroup><col width=100%></colgroup>", {hidden: "true"});
+	var tb2b = createElement("table", "<colgroup><col width=100%></colgroup>", {hidden: "true", for_roles: "a_basic;gd_basic"});
+	tb2b.appendChild(createRow(['']));
+	tb2b.children[1].children[0].appendChild(createElement("input", "", {
+		placeholder: "CP", name: "pokemon-cp"
+	}));
+	pokemonNode.children[1].appendChild(tb2b);
+	
+	var tb3 = createElement("table", "<colgroup><col width=100%></colgroup>", {hidden: "true", for_roles: "rb;RB"});
 	tb3.appendChild(createRow(['']));
 	tb3.children[1].children[0].appendChild(createPokemonRaidTierInput());
+	pokemonNode.children[1].appendChild(tb3);
 
-	var tb4 = createElement("table", "<colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>");
-	tb4.appendChild(createRow(['', '', '', ''], 'td'));
+	var tb4 = createElement("table", "<colgroup><col width=50%><col width=50%></colgroup>");
+	tb4.appendChild(createRow(['', ''], 'td'));
 	tb4.children[1].children[0].appendChild(createPokemonMoveInput("fast", "fmove"));
-	tb4.children[1].children[1].appendChild(createPokemonMoveInput("charged", "cmove"));
-	tb4.children[1].children[2].appendChild(createPokemonMoveInput("charged", "cmove2"));
-	tb4.children[1].children[3].appendChild(createPokemonStrategyInput());
+	tb4.children[1].children[1].appendChild(createPokemonStrategyInput());
 	var protectShieldStratInput = createPokemonProtectStrategyInput();
 	protectShieldStratInput.setAttribute("hidden", true);
-	tb4.children[1].children[3].appendChild(protectShieldStratInput);
-	
-	pokemonNode.children[1].appendChild(tb1);
-	pokemonNode.children[1].appendChild(tb2);
-	pokemonNode.children[1].appendChild(tb3);
+	tb4.children[1].children[1].appendChild(protectShieldStratInput);
 	pokemonNode.children[1].appendChild(tb4);
 	
-	// 3. Tail
+	var tb5 = createElement("table", "<colgroup><col width=50%><col width=50%></colgroup>");
+	tb5.appendChild(createRow(['', ''], 'td'));
+	tb5.children[1].children[0].appendChild(createPokemonMoveInput("charged", "cmove"));
+	tb5.children[1].children[1].appendChild(createPokemonMoveInput("charged", "cmove2"));
+	pokemonNode.children[1].appendChild(tb5);
 	
 	return pokemonNode;
 }

@@ -62,6 +62,50 @@ function calculateCP(pkm){
 	return Math.max(10, Math.floor(atk * Math.sqrt(def * stm)/10));
 }
 
+/**
+	Find a combination of {level, atkiv, defiv, stmiv} that yields the given CP for a Pokemon.
+	@param {Pokemon} pkm The Pokemon to infer level and IVs for. Expected to have baseAtk, baseDef and baseStm.
+	@param {number} cp The given CP.
+	@return {Object} A set of {level, atkiv, defiv, stmiv} that yields the given CP. If no combination is found, return null.
+*/
+function inferLevelAndIVs(pkm, cp){
+	var minIV = Data.IndividualValues[0].value, maxIV = Data.IndividualValues[Data.IndividualValues.length - 1].value;
+	var pkm2 = {baseAtk: pkm.baseAtk, baseDef: pkm.baseDef, baseStm: pkm.baseStm};
+	var minLevelIndex = null, maxLevelIndex = null;
+	pkm2.atkiv = pkm2.defiv = pkm2.stmiv = maxIV;
+	for (var i = 0; i < Data.LevelSettings.length; i++){
+		pkm2.cpm = Data.LevelSettings[i].cpm;
+		if (calculateCP(pkm2) <= cp){
+			minLevelIndex = i;
+		}else{
+			break;
+		}
+	}
+	pkm2.atkiv = pkm2.defiv = pkm2.stmiv = minIV;
+	for (var i = Data.LevelSettings.length - 1; i >= 0; i--){
+		pkm2.cpm = Data.LevelSettings[i].cpm;
+		if (calculateCP(pkm2) > cp){
+			maxLevelIndex = i;
+		}else{
+			break;
+		}
+	}
+	if (minLevelIndex == null || maxLevelIndex == null)
+		return null;
+	for (var i = minLevelIndex; i < maxLevelIndex; i++){
+		pkm2.level = Data.LevelSettings[i].value;
+		pkm2.cpm = Data.LevelSettings[i].cpm;
+		for (pkm2.atkiv = minIV; pkm2.atkiv <= maxIV; pkm2.atkiv++){
+			for (pkm2.defiv = minIV; pkm2.defiv <= maxIV; pkm2.defiv++){
+				for (pkm2.stmiv = minIV; pkm2.stmiv <= maxIV; pkm2.stmiv++){
+					if (calculateCP(pkm2) == cp){
+						return pkm2;
+					}
+				}
+			}
+		}
+	}
+}
 
 
 
@@ -88,7 +132,7 @@ function Move(m, moveDatabase){
 */
 function Pokemon(cfg){
 	this.id = cfg.id;
-	this.role = cfg.role || "a";
+	this.role = (cfg.role || "a").split("_")[0];
 	this.raidTier = cfg.raidTier;
 	this.master = cfg.master || null;
 	this.nickname = cfg.nickname || "";
@@ -113,15 +157,27 @@ function Pokemon(cfg){
 	this.baseAtk = speciesData.baseAtk;
 	this.baseDef = speciesData.baseDef;
 	this.baseStm = speciesData.baseStm;
-	this.atkiv = parseInt(cfg.atkiv);
-	this.defiv = parseInt(cfg.defiv);
-	this.stmiv = parseInt(cfg.stmiv);
-	this.level = cfg.level;
-	this.cpm = parseFloat(cfg.cpm);
-	if (isNaN(this.cpm) && this.level != undefined){
-		let levelSetting = getEntry(this.level.toString(), Data.LevelSettings, true);
-		if (levelSetting){
-			this.cpm = levelSetting.cpm;
+	if (cfg.role.includes("_basic")){
+		let inferred = inferLevelAndIVs(this, parseInt(cfg.cp));
+		if (inferred == null){
+			throw Error('No combination of level and IVs are found for ' + this.name);
+		}
+		cfg.atkiv = this.atkiv = inferred.atkiv;
+		cfg.defiv = this.defiv = inferred.defiv;
+		cfg.stmiv = this.stmiv = inferred.stmiv;
+		cfg.level = this.level = inferred.level;
+		this.cpm = inferred.cpm;
+	}else{
+		this.atkiv = parseInt(cfg.atkiv);
+		this.defiv = parseInt(cfg.defiv);
+		this.stmiv = parseInt(cfg.stmiv);
+		this.level = cfg.level;
+		this.cpm = parseFloat(cfg.cpm);
+		if (isNaN(this.cpm) && this.level != undefined){
+			let levelSetting = getEntry(this.level.toString(), Data.LevelSettings, true);
+			if (levelSetting){
+				this.cpm = levelSetting.cpm;
+			}
 		}
 	}
 	this.fmove = new Move(cfg.fmove, Data.FastMoves);
@@ -205,6 +261,14 @@ Pokemon.prototype.calculateStats = function(){
 	*/
 }
 
+/**
+	Check whether the Pokemon is alive (is able to stay in battle).
+	@return {boolean} True if its HP > 0 or it's immortal and false otherwise.
+*/
+Pokemon.prototype.isAlive = function(){
+	return this.HP > 0 || this.immortal;
+}
+
 /** 
 	Fully heal the Pokemon and set its energy to 0
 */
@@ -231,7 +295,7 @@ Pokemon.prototype.gainEnergy = function(energyDelta){
 */
 Pokemon.prototype.takeDamage = function(dmg){
 	this.HP -= dmg;
-	if (this.HP <= 0 && !this.immortal){
+	if (!this.isAlive()){
 		this.numOfDeaths++;
 	}
 }
@@ -360,7 +424,7 @@ Party.prototype.head = function(){
 */
 Party.prototype.selectNextPokemon = function(){
 	for (var i = this.headingPokemonIndex + 1; i < this.pokemon.length; i++){
-		if (this.pokemon[i].HP > 0){
+		if (this.pokemon[i].isAlive()){
 			this.headingPokemonIndex = i;
 			return true;
 		}
@@ -374,7 +438,7 @@ Party.prototype.selectNextPokemon = function(){
 */
 Party.prototype.selectFirstPokemon = function(){
 	for (var i = 0; i < this.pokemon.length; i++){
-		if (this.pokemon[i].HP > 0){
+		if (this.pokemon[i].isAlive()){
 			this.headingPokemonIndex = i;
 			return true;
 		}
@@ -389,7 +453,7 @@ Party.prototype.selectFirstPokemon = function(){
 */
 Party.prototype.switchPokemon = function(index){
 	if (0 <= index && index < this.pokemon.length){
-		if (this.pokemon[index].HP > 0){ // Cannot switch to a fainted Pokemon
+		if (this.pokemon[index].isAlive()){ // Cannot switch to a fainted Pokemon
 			this.headingPokemonIndex = index;
 			return true;
 		}
@@ -511,7 +575,7 @@ Player.prototype.selectBestPokemon = function(){
 	var best_cycle_dps = 0;
 	for (var i = 0; i < party.pokemon.length; i++){
 		let pkm = party.pokemon[i];
-		if (pkm.HP > 0){
+		if (pkm.isAlive()){
 			pkm.adjustDefaultChargedMove(enemy);
 			let fDPS = damage(pkm, enemy, pkm.fmove) / pkm.fmove.duration;
 			let fEPS = pkm.fmove.energyDelta / pkm.fmove.duration;
@@ -815,7 +879,7 @@ World.prototype.isTeamDefeated = function(team){
 	for (let player of this.players){
 		if (player.team == team){
 			let pokemon = player.head();
-			if (pokemon && pokemon.HP > 0){
+			if (pokemon && pokemon.isAlive()){
 				return false;
 			}
 		}
@@ -878,7 +942,7 @@ World.prototype.battle = function(){
 					}
 					target.takeDamage(dmg);
 					e.subject.attributeDamage(dmg, e.move.moveType);
-					if (target.HP <= 0){
+					if (!target.isAlive()){
 						target.active = false;
 						faintedPokemon.push(target);
 					}

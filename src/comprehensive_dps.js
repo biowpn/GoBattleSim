@@ -14,6 +14,7 @@ var DEFAULT_ENEMY_CURRENT_DEFENSE = 160;
 var DEFAULT_ENEMY_POKETYPE1 = 'none';
 var DEFAULT_ENEMY_POKETYPE2 = 'none';
 var DEFAULT_WEATHER = 'EXTREME';
+var DEFAULT_TOTAL_ENERGY_GAINED = 400;
 
 var ConfigurableAttributes = [
 	{'elementId': "pokemon-name", 'qsField': "pkm", 'defaultValue': '', 'iconGetter': getPokemonIcon, 'databaseName': "Pokemon"}, 
@@ -64,7 +65,14 @@ Pokemon.prototype.calculateDPS = function(kwargs){
 	
 	if (kwargs.battleMode == "pvp"){
 		this.st = this.Stm / y;
-		this.dps = FDPS + (FEPS - x/this.Stm * y) * CDmg / CE;
+		let modFEPS = Math.max(0, FEPS - x/this.st);
+		let totalEnergyGained = 3 * this.st * modFEPS;
+		let discountFactor = (totalEnergyGained - 2 * CE) / totalEnergyGained;
+		if (discountFactor < 0 || discountFactor > 1){
+			discountFactor = 0;
+		}
+		CDmg = CDmg * discountFactor;
+		this.dps = FDPS + modFEPS * CDmg / CE;
 		this.tdo = this.dps * this.st;
 		return this.dps;
 	}else{
@@ -90,10 +98,17 @@ Pokemon.prototype.calculateDPS = function(kwargs){
 
 Pokemon.prototype.calculateDPSIntake = function(kwargs){
 	if (kwargs.isEnemyNeutral){
-		return {
-			x: -this.cmove.energyDelta * 0.5 + this.fmove.energyDelta * 0.5,
-			y: DEFAULT_ENEMY_DPS1 / this.Def
-		};
+		if (kwargs.battleMode == "pvp"){
+			return {
+				x: -this.cmove.energyDelta * 0.5,
+				y: DEFAULT_ENEMY_DPS1 * 1.5 / this.Def
+			};
+		}else{
+			return {
+				x: -this.cmove.energyDelta * 0.5 + this.fmove.energyDelta * 0.5,
+				y: DEFAULT_ENEMY_DPS1 / this.Def
+			};
+		}
 	}else{
 		var FDmg = damage2(kwargs.enemy, this, kwargs.enemy.fmove, kwargs.weather);
 		var CDmg = damage2(kwargs.enemy, this, kwargs.enemy.cmove, kwargs.weather);
