@@ -139,9 +139,13 @@ function Pokemon(cfg){
 		speciesData = Data.Pokemon[cfg.index];
 	}else if (typeof cfg.name == typeof ""){
 		speciesData = getEntry(cfg.name.toLowerCase(), Data.Pokemon);
+		if (!speciesData){
+			throw Error("Unknown pokemon: " + cfg.name);
+		}
 	}else{
 		speciesData = cfg;
 	}
+	
 	this.name = speciesData.name;
 	this.pokeType1 = speciesData.pokeType1;
 	this.pokeType2 = speciesData.pokeType2;
@@ -721,6 +725,10 @@ function World(cfg){
 		for (party of player.parties){
 			for (pokemon of party.pokemon){
 				pokemon.id = pokemon_id++;
+				if (this.battleMode == "pvp"){
+					pokemon.fastAttackBonus = Data.BattleSettings.fastAttackBonusMultiplier;
+					pokemon.chargedAttackBonus = Data.BattleSettings.chargedAttackBonusMultiplier;
+				}
 			}
 		}
 	}
@@ -745,6 +753,16 @@ function World(cfg){
 World.prototype.init = function(){
 	for (let player of this.players){
 		player.init();
+	}
+	if (this.battleMode == "pvp"){
+		for (player of this.players){
+			for (party of player.parties){
+				for (pokemon of party.pokemon){
+					pokemon.fastAttackBonus = Data.BattleSettings.fastAttackBonusMultiplier;
+					pokemon.chargedAttackBonus = Data.BattleSettings.chargedAttackBonusMultiplier;
+				}
+			}
+		}
 	}
 	this.timeline = new Timeline();
 	this.battleDuration = 0;
@@ -828,7 +846,6 @@ World.prototype.registerAction = function(pkm, t, action){
 				this.timeline.insert({
 					name: EVENT_TYPE.Announce, t: t + Math.round(Data.BattleSettings.minigameDurationMs * 0.5), subject: pkm, move: cmove
 				});
-				pkm.chargedAttackBonus = Data.BattleSettings.chargedAttackBonusMultiplier;
 				for (let rival of pkm.master.rivals){ // Ask each enemy whether to use Protect Shield
 					var enemy = rival.head();
 					if (enemy && rival.protectShieldLeft > 0 && enemy.protectStrategy.decide()){

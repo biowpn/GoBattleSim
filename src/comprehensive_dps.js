@@ -16,24 +16,12 @@ var DEFAULT_ENEMY_POKETYPE2 = 'none';
 var DEFAULT_WEATHER = 'EXTREME';
 var DEFAULT_TOTAL_ENERGY_GAINED = 400;
 
-var ConfigurableAttributes = [
-	{'elementId': "pokemon-name", 'qsField': "pkm", 'defaultValue': '', 'iconGetter': getPokemonIcon, 'databaseName': "Pokemon"}, 
-	{'elementId': "pokemon-pokeType1", 'qsField': "type1", 'defaultValue': DEFAULT_ENEMY_POKETYPE1}, 
-	{'elementId': "pokemon-pokeType2", 'qsField': "type2", 'defaultValue': DEFAULT_ENEMY_POKETYPE2}, 
-	{'elementId': "pokemon-fmove", 'qsField': "fm", 'defaultValue': '', 'iconGetter': getTypeIcon, 'databaseName': "FastMoves"}, 
-	{'elementId': "pokemon-cmove", 'qsField': "cm", 'defaultValue': '', 'iconGetter': getTypeIcon, 'databaseName': "ChargedMoves"}, 
-	{'elementId': "weather", 'qsField': "wt", 'defaultValue': DEFAULT_WEATHER}, 
-	{'elementId': "searchInput", 'qsField': "qs", 'defaultValue': ''},
-	{'qsField': "by", defaultValue: "DPS"},
-	{'qsField': "order", defaultValue: "desc"},
-	{'qsField': "swpdsct", defaultValue: "off"},
-];
 
 var Context = {
 	weather: DEFAULT_WEATHER,
 	enemy: {},
 	isEnemyNeutral: false,
-	swapDiscount: 'off',
+	swapDiscount: false,
 	battleMode: 'regular'
 };
 
@@ -88,7 +76,7 @@ Pokemon.prototype.calculateDPS = function(kwargs){
 			this.tdo = this.dps * this.st;
 		}
 		
-		if (kwargs.swapDiscount == 'on'){
+		if (kwargs.swapDiscount){
 			this.dps = this.dps * (this.st / (this.st + Data.BattleSettings.swapDurationMs/1000));
 		}
 		return this.dps;

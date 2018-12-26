@@ -190,7 +190,6 @@
 </style>
 
 
-
 <div id='menu'>
 	<table style="position: relative; height: 40px"><colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>
 		<tr>
@@ -213,7 +212,9 @@
 				<button class='sub-menu-opener'><i class="fa fa-wrench" aria-hidden="true"></i> Tools</button>
 				<div class='sub-menu'>
 					<button class='player_button' id='MVLTableOpener'>MVL Table</button>
+					<button class='player_button' id='battleMatrixOpener'>Battle Matrix</button>
 					<button class='player_button' id='teamBuilderOpener'>Team Builder</button>
+					<button class='player_button' id='typeCheckerOpener'>Type Checker</button>
 				</div>
 			</td>
 			
@@ -348,7 +349,7 @@ timelimitInput.value = Data.BattleSettings.timelimitLegendaryRaidMs;
 
 
 dropdownMenuInit();
-teamBuilderInit();
+
 try{
 	welcomeDialogInit();
 	moveEditFormInit();
@@ -357,7 +358,9 @@ try{
 	modEditFormInit();
 	userEditFormInit();
 	MVLTableInit();
-	
+	teamBuilderInit();
+	typeCheckerInit();
+	battleMatrixInit();
 }catch(err){
 	console.log(err);
 }

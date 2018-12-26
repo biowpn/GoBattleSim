@@ -563,7 +563,7 @@ function MVLTableCalculate(){
 			while (upper >= lower){
 				var mid = Math.floor((lower + upper)/2);
 				winRates[mid] = getWinRate(Data.LevelSettings[mid].name, baseConfig);
-				if (winRates[mid] >= 60){	
+				if (winRates[mid] >= 0.6){	
 					upper = mid - 1;
 				}else{
 					lower = mid + 1;
@@ -571,7 +571,7 @@ function MVLTableCalculate(){
 			}
 			rowDict[friendLevel] = Data.LevelSettings[Data.LevelSettings.length - 1].name + "*";
 			for (var k = 0; k &lt; winRates.length; k++){
-				if (winRates[k] >= 60){
+				if (winRates[k] >= 0.6){
 					rowDict[friendLevel] = Data.LevelSettings[k].name;
 					break;
 				}
@@ -606,7 +606,6 @@ function getWinRate(level, cfg){
 			}
 		}
 	}
-	runSimulation(cfg);
 	return parseFloat(runSimulation(cfg)[0].output.generalStat.battle_result);
 }
 
@@ -964,7 +963,288 @@ function teamBuilderSaveParty(){
 	insertEntry(bestParty, LocalData.BattleParties);
 	saveLocalData();
 	sendFeedbackDialog('This party has been saved with the name "' + partyName + '"');
-}</code></pre>
+}
+
+
+function typeCheckerInit(){
+	$( "#typeChecker" ).attr("style", "visibility: show;");
+	$( "#typeChecker" ).dialog({ 
+		autoOpen: false,
+		width: 800
+	});
+	$( "#typeCheckerOpener" ).click(function() {
+		$( "#typeChecker" ).dialog( "open" );
+	});
+	
+	var partyTR = document.getElementById("typeChecker-party");
+	for (var i = 0; i &lt; partyTR.children.length; i++){
+		var partyTD = partyTR.children[i];
+		partyTD.setAttribute("name", "pokemon");
+		partyTD.appendChild(createPokemonNameInput());
+		partyTD.appendChild(createPokemonMoveInput("fast", "fmove"));
+		partyTD.appendChild(createPokemonMoveInput("charged", "cmove"));
+		partyTD.appendChild(createPokemonMoveInput("charged", "cmove2"));
+		for (var j = 0; j &lt; partyTD.children.length; j++){
+			$( partyTD.children[j] ).autocomplete( "option", "appendTo", "#typeChecker" );
+			$( partyTD.children[j] ).on( "autocompleteselect", function( event, ui ) {
+				this.value = ui.item.value;
+				typeCheckerSubmit();
+			} );
+		}
+	}
+	
+	var offensiveTable = document.getElementById("typeChecker-offensive");
+	var defensiveTable = document.getElementById("typeChecker-defensive");
+	var count = 0;
+	var tr = [];
+	for (var t1 in Data.TypeEffectiveness){
+		tr.push(toTitleCase(t1));
+		count++;
+		if (count % 6 == 0){
+			offensiveTable.appendChild(createRow(tr));
+			defensiveTable.appendChild(createRow(tr));
+			tr = [];
+		}
+	}
+	
+}
+
+
+function typeCheckerSubmit(){
+	var maxMultiplier = 0, minMultiplier = 0;
+	for (var t1 in Data.TypeEffectiveness){
+		for (var t2 in Data.TypeEffectiveness[t1]){
+			let m = Data.TypeEffectiveness[t1][t2];
+			if (typeof m == typeof 0){
+				maxMultiplier = Math.max(maxMultiplier, Math.log(m));
+				minMultiplier = Math.min(minMultiplier, Math.log(m));
+			}
+		}
+	}
+	
+	var partyConfig = read(document.getElementById("typeChecker-party"));
+	var pokemonReps = [];
+	for (let pokemonConfig of partyConfig.pokemon){
+		var pokemonRep = {
+			pokeType1: "none", pokeType2: "none", attackingTypes: []
+		};
+		if (getEntry(pokemonConfig.name.toLowerCase(), Data.Pokemon)){
+			let p = new Pokemon(pokemonConfig);
+			pokemonRep.pokeType1 = p.pokeType1;
+			pokemonRep.pokeType2 = p.pokeType2;
+			pokemonRep.attackingTypes.push(p.fmove.pokeType || "none");
+			for (let move of p.cmoves){
+				pokemonRep.attackingTypes.push(move.pokeType || "none");
+			}
+		}else{
+			return;
+		}
+		pokemonReps.push(pokemonRep);
+	}
+	
+	// Helper functions
+	function getAggregatedMultiplier(multipliers, aggregation){
+		var summary = {
+			max: multipliers[0],
+			min: multipliers[0],
+			sum: 0
+		};
+		for (let m of multipliers){
+			summary.max = Math.max(m, summary.max);
+			summary.min = Math.min(m, summary.min);
+			summary.sum += m;
+		}
+		summary.avrg = summary.sum / multipliers.length;
+		return summary[aggregation];
+	}
+	
+	function RGBString(r, g, b){
+		return "background: rgb(" + r + "," + g + "," + b + ")";
+	}
+	
+	// Offensive
+	var aggregation = $("#typeChecker-offensive-aggregation").val();
+	var offensiveTable = document.getElementById("typeChecker-offensive");
+	for (var i = 0; i &lt; offensiveTable.children.length; i++){
+		for (var j = 0; j &lt; offensiveTable.children[i].children.length; j++){
+			var td = offensiveTable.children[i].children[j];
+			var multipliers = [];
+			for (let pokemonRep of pokemonReps){
+				for (let attackingType of pokemonRep.attackingTypes){
+					if (Data.TypeEffectiveness[attackingType]){
+						let m = Data.TypeEffectiveness[attackingType][td.innerHTML.toLowerCase()];
+						multipliers.push(Math.log(m));
+					}
+				}
+			}
+			var aggregatedMultiplier = getAggregatedMultiplier(multipliers, aggregation);
+			if (aggregatedMultiplier >= 0){
+				let delta = Math.round(aggregatedMultiplier / maxMultiplier * 255);
+				td.setAttribute("style", RGBString(255 - delta, 255, 255 - delta));
+			}else{
+				let delta = Math.round(aggregatedMultiplier / minMultiplier * 255);
+				td.setAttribute("style", RGBString(255, 255 - delta, 255 - delta));
+			}
+		}
+	}
+	
+	// Defensive
+	var aggregation = $("#typeChecker-defensive-aggregation").val();
+	var defensiveTable = document.getElementById("typeChecker-defensive");
+	for (var i = 0; i &lt; defensiveTable.children.length; i++){
+		for (var j = 0; j &lt; defensiveTable.children[i].children.length; j++){
+			var td = defensiveTable.children[i].children[j];
+			let attackingType = td.innerHTML.toLowerCase();
+			var multipliers = [];
+			for (let pokemonRep of pokemonReps){
+				let m1 = Data.TypeEffectiveness[attackingType][pokemonRep.pokeType1] || 1;
+				let m2 = Data.TypeEffectiveness[attackingType][pokemonRep.pokeType2] || 1;
+				multipliers.push(Math.log(m1 * m2));
+			}
+			var aggregatedMultiplier = getAggregatedMultiplier(multipliers, aggregation);
+			if (aggregatedMultiplier >= 0){
+				let delta = Math.round(aggregatedMultiplier / (2*maxMultiplier) * 255);
+				td.setAttribute("style", RGBString(255, 255 - delta, 255 - delta));
+			}else{
+				let delta = Math.round(aggregatedMultiplier / (minMultiplier - maxMultiplier) * 255);
+				td.setAttribute("style", RGBString(255 - delta, 255, 255 - delta));
+			}
+		}
+	}
+	
+}
+
+
+function battleMatrixInit(){
+	$( "#battleMatrix" ).attr("style", "visibility: show;");
+	$( "#battleMatrix" ).dialog({ 
+		autoOpen: false,
+		width: 1000
+	});
+	$( "#battleMatrixOpener" ).click(function() {
+		$( "#battleMatrix" ).dialog( "open" );
+	});
+	
+	
+	
+}
+
+function parseCSVRow(str, deli, echar){
+	var data = [];
+	var word = "";
+	var escaped = false;
+	for (var i = 0; i &lt; str.length; i++){
+		if (str[i] == echar){
+			if (escaped){
+				data.push(word);
+				word = "";
+				escaped = false;
+			}else{
+				escaped = true;
+			}
+		}else if (str[i] == deli){
+			if (escaped){
+				word += deli;
+			}else{
+				data.push(word);
+				word = "";
+			}
+		}else{
+			word += str[i];
+		}
+	}
+	if (word){
+		data.push(word);
+	}	
+	return data;
+}
+
+
+function battleScore(x, y){
+	var config = {
+	  "players": [
+		{
+		  "team": "0",
+		  "friend": "none",
+		  "parties": [
+			{
+			  "name": "",
+			  "pokemon": [x],
+			  "revive": false
+			}
+		  ]
+		},
+		{
+		  "team": "1",
+		  "friend": "none",
+		  "parties": [
+			{
+			  "name": "",
+			  "pokemon": [y],
+			  "revive": false
+			}
+		  ]
+		}
+	  ],
+	  "battleMode": "pvp",
+	  "timelimit": -1,
+	  "weather": "EXTREME",
+	  "aggregation": "enum"
+	};
+
+	w = new World(config);
+	w.init();
+	w.battle();
+	
+	let battleResult = w.getStatistics();
+	let x_hp_left = Math.max(0, battleResult.pokemonStats[0][0][0].hp), y_hp_left = Math.max(0, battleResult.pokemonStats[1][0][0].hp);
+	let x_hp_max = w.players[0].parties[0].pokemon[0].maxHP, y_hp_max = w.players[1].parties[0].pokemon[0].maxHP;
+	
+	var score = Math.log( ((y_hp_max - y_hp_left)/y_hp_max) / ((x_hp_max - x_hp_left)/x_hp_max) );
+	return score;
+}
+
+function battleMatrixSubmit(){
+	var deli = $("#battleMatrix-delimieter").val();
+	var rawInput = $("#battleMatrix-input").val().split("\n");
+	var attributes = parseCSVRow(rawInput[0], deli, '"');
+	
+	var pokemonVector = [];
+	for (var i = 1; i &lt; rawInput.length; i++){
+		var rowData = parseCSVRow(rawInput[i], deli, '"');
+		var pokemon = {};
+		for (var j = 0; j &lt; attributes.length; j++){
+			pokemon[attributes[j]] = rowData[j];
+		}
+		pokemon.copies = 1;
+		pokemon.level = (isNaN(parseFloat(pokemon.level)) ? 40 : pokemon.level);
+		pokemon.atkiv = (isNaN(parseInt(pokemon.atkiv)) ? 15 : pokemon.atkiv);
+		pokemon.defiv = (isNaN(parseInt(pokemon.defiv)) ? 15 : pokemon.defiv);
+		pokemon.stmiv = (isNaN(parseInt(pokemon.stmiv)) ? 15 : pokemon.stmiv);
+		pokemonVector.push(pokemon);
+	}
+	
+	var n = pokemonVector.length;
+	var matrix = [];
+	for (var i = 0; i &lt; n; i++){
+		matrix.push(new Array(n));
+	}
+	for (var i = 0; i &lt; n; i++){
+		matrix[i][i] = 0;
+		for (var j = i + 1; j &lt; n; j++){
+			let score = battleScore(pokemonVector[i], pokemonVector[j]);
+			matrix[i][j] = score;
+			matrix[j][i] = -score;
+		}
+	}
+	
+	var rawOutput = "";
+	for (var i = 0; i &lt; n; i++){
+		rawOutput += matrix[i].join("\t") + "\n";
+	}
+	document.getElementById("battleMatrix-output").value = rawOutput;
+}
+</code></pre>
         </article>
     </section>
 
@@ -980,7 +1260,7 @@ function teamBuilderSaveParty(){
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Dec 22 2018 21:23:08 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Dec 27 2018 00:06:51 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

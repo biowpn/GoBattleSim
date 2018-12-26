@@ -15,7 +15,7 @@ var DefaultData = {
 	BattleSettings: {
 		'sameTypeAttackBonusMultiplier': 1.2,
 		'weatherAttackBonusMultiplier': 1.2,
-		'fastAttackBonusMultiplier': 1,
+		'fastAttackBonusMultiplier': 1.3,
 		'chargedAttackBonusMultiplier': 1.3,
 		'maximumEnergy': 100, 
 		'energyDeltaPerHealthLost': 0.5, 

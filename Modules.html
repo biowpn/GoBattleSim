@@ -311,7 +311,9 @@
 <div id='teamBuilder' title="Team Builder" style="visibility: hidden;">
 	<p><i><b>Warning</b>: this feature can be very compute-intensive. It is recommended to run it on PC or Metagross. </i></p>
 
-	<br>
+	<p>Build your best team to beat a raid boss! Enter the raid boss information on the main page first, then hit "Find Counters" button in this tool.</p>
+	<p>The best team will be shown in the right box! Drag the Pokemon to adjust the order and see how the team's performance changes.</p>
+	<p>You can also add/remove Pokemon to/from the party by dragging the Pokemon from left/right to right/left.</p>
 	
 	<table>
 		<thead>
@@ -320,7 +322,7 @@
 		</thead>
 		<tbody>
 			<tr>
-				<td><button class="player_button" onclick="teamBuilderSubmit(0)">Analyze Pokemon</button></td>
+				<td><button class="player_button" onclick="teamBuilderSubmit(0)">Find Counters</button></td>
 				<td><button class="player_button" onclick="teamBuilderSubmit(1)">Permutate Party</button></td>
 			</tr>
 			<tr>
@@ -352,4 +354,77 @@
 			</tr>
 		</tbody>
 	</table>
+</div>
+
+
+<div id='typeChecker' title="Type Checker" style="visibility: hidden;">
+	
+	<table id="typeChecker-input">
+		<thead>
+			<colgroup><col width="33.3%"><col width="33.3%"><col width="33.3%"></colgroup>
+			<tr><th>Pokemon 1</th><th>Pokemon 2</th><th>Pokemon 3</th></tr>
+		</thead>
+		<tbody>
+			<tr id="typeChecker-party" name="party-pokemon">
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<button class='player_button' onclick="typeCheckerSubmit()">Check</button>
+	
+	<br>
+	<h5>Offensive Coverage</h5>
+	
+	<select id="typeChecker-offensive-aggregation" onchange="typeCheckerSubmit()">
+		<option value="max">Max</option>
+		<option value="avrg">Average</option>
+		<option value="min">Min</option>
+	</select>
+	
+	<table id="typeChecker-offensive">
+	</table>
+	
+	<br>
+	<h5>Defensive Vulnerabilities</h5>
+	
+	<select id="typeChecker-defensive-aggregation" onchange="typeCheckerSubmit()">
+		<option value="max">Max</option>
+		<option value="avrg">Average</option>
+		<option value="min">Min</option>
+	</select>
+	
+	<table id="typeChecker-defensive">
+	</table>
+	
+</div>
+
+
+
+<div id='battleMatrix' title="Battle Matrix" style="visibility: hidden;">
+
+	<ol>
+		<li>Each Pokemon is a row</li>
+		<li>The first row must be the headers that are the attributes of a Pokemon. E.g., "name"</li>
+		<li>Fields are separated by delimiter <select id="battleMatrix-delimieter">
+												<option value=",">,</option>
+												<option value=";">;</option>
+												<option value="|">|</option>
+											</select>. To escape the delimieter, surround the field by double quotes</li>
+	</ol>
+	
+	<h4>Input</h4>
+	
+	<textarea id="battleMatrix-input" rows="5" style="width:100%">name,fmove,cmove,cmove2,level,atkiv,defiv,stmiv,strategy2</textarea>
+	
+	<br>
+	<button class='player_button' onclick="battleMatrixSubmit()">Run</button>
+	<br>
+	
+	<h4>Output</h4>
+	
+	<textarea id="battleMatrix-output" rows="5" style="width:100%"></textarea>
+	
 </div>

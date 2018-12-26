@@ -14,6 +14,11 @@
 		margin-top: 10px;
 	}
 
+	table.dataTable thead .sorting, 
+	table.dataTable thead .sorting_asc, 
+	table.dataTable thead .sorting_desc {
+		background : none;
+	}
 
 </style>
 
@@ -129,7 +134,7 @@
 
 $( "#ui-swapDiscount" ).controlgroup();
 $( "#ui-swapDiscount-checkbox" ).change(function(){
-	Context.swapDiscount = this.checked ? "on" : "off";
+	Context.swapDiscount = this.checked;
 	requestSpreadsheet(false);
 });
 
