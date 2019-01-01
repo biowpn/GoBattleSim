@@ -964,7 +964,10 @@ function typeCheckerInit(){
 			} );
 		}
 	}
-	
+	var numColumns = 6;
+	if (window.innerWidth <= 800){
+		numColumns = 3;
+	}
 	var offensiveTable = document.getElementById("typeChecker-offensive");
 	var defensiveTable = document.getElementById("typeChecker-defensive");
 	var count = 0;
@@ -972,13 +975,16 @@ function typeCheckerInit(){
 	for (var t1 in Data.TypeEffectiveness){
 		tr.push(toTitleCase(t1));
 		count++;
-		if (count % 6 == 0){
+		if (count % numColumns == 0){
 			offensiveTable.appendChild(createRow(tr));
 			defensiveTable.appendChild(createRow(tr));
 			tr = [];
 		}
 	}
-	
+	if (tr.length > 0){
+		offensiveTable.appendChild(createRow(tr));
+		defensiveTable.appendChild(createRow(tr));
+	}
 }
 
 
@@ -1029,7 +1035,6 @@ function typeCheckerSubmit(){
 		summary.avrg = summary.sum / multipliers.length;
 		return summary[aggregation];
 	}
-	
 	function RGBString(r, g, b){
 		return "background: rgb(" + r + "," + g + "," + b + ")";
 	}
@@ -1091,14 +1096,11 @@ function battleMatrixInit(){
 	$( "#battleMatrix" ).attr("style", "visibility: show;");
 	$( "#battleMatrix" ).dialog({ 
 		autoOpen: false,
-		width: 1000
+		width: 800
 	});
 	$( "#battleMatrixOpener" ).click(function() {
 		$( "#battleMatrix" ).dialog( "open" );
-	});
-	
-	
-	
+	});	
 }
 
 function parseCSVRow(str, deli, echar){
@@ -1193,6 +1195,17 @@ function battleMatrixSubmit(){
 		pokemon.atkiv = (isNaN(parseInt(pokemon.atkiv)) ? 15 : pokemon.atkiv);
 		pokemon.defiv = (isNaN(parseInt(pokemon.defiv)) ? 15 : pokemon.defiv);
 		pokemon.stmiv = (isNaN(parseInt(pokemon.stmiv)) ? 15 : pokemon.stmiv);
+		
+		// Validation
+		if (!pokemon.name || !getEntry(pokemon.name.trim().toLowerCase(), Data.Pokemon)){
+			return sendFeedbackDialog("At row " + i + ": Unknown Pokemon: " + pokemon.name);
+		}
+		if (!pokemon.fmove || !getEntry(pokemon.fmove.trim().toLowerCase(), Data.FastMoves)){
+			return sendFeedbackDialog("At row " + i + ": Unknown Move: " + pokemon.fmove);
+		}
+		if (!pokemon.cmove || !getEntry(pokemon.cmove.trim().toLowerCase(), Data.ChargedMoves)){
+			return sendFeedbackDialog("At row " + i + ": Unknown Move: " + pokemon.cmove);
+		}
 		pokemonVector.push(pokemon);
 	}
 	
