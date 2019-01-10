@@ -1178,39 +1178,9 @@ function battleScore(x, y){
 	return score;
 }
 
-function battleMatrixSubmit(){
-	var deli = $("#battleMatrix-delimieter").val();
-	var rawInput = $("#battleMatrix-input").val().split("\n");
-	var attributes = parseCSVRow(rawInput[0], deli, '"');
-	
-	var pokemonVector = [];
-	for (var i = 1; i < rawInput.length; i++){
-		var rowData = parseCSVRow(rawInput[i], deli, '"');
-		var pokemon = {};
-		for (var j = 0; j < attributes.length; j++){
-			pokemon[attributes[j]] = rowData[j];
-		}
-		pokemon.copies = 1;
-		pokemon.level = (isNaN(parseFloat(pokemon.level)) ? 40 : pokemon.level);
-		pokemon.atkiv = (isNaN(parseInt(pokemon.atkiv)) ? 15 : pokemon.atkiv);
-		pokemon.defiv = (isNaN(parseInt(pokemon.defiv)) ? 15 : pokemon.defiv);
-		pokemon.stmiv = (isNaN(parseInt(pokemon.stmiv)) ? 15 : pokemon.stmiv);
-		
-		// Validation
-		if (!pokemon.name || !getEntry(pokemon.name.trim().toLowerCase(), Data.Pokemon)){
-			return sendFeedbackDialog("At row " + i + ": Unknown Pokemon: " + pokemon.name);
-		}
-		if (!pokemon.fmove || !getEntry(pokemon.fmove.trim().toLowerCase(), Data.FastMoves)){
-			return sendFeedbackDialog("At row " + i + ": Unknown Move: " + pokemon.fmove);
-		}
-		if (!pokemon.cmove || !getEntry(pokemon.cmove.trim().toLowerCase(), Data.ChargedMoves)){
-			return sendFeedbackDialog("At row " + i + ": Unknown Move: " + pokemon.cmove);
-		}
-		pokemonVector.push(pokemon);
-	}
-	
-	var n = pokemonVector.length;
+function generateBattleMatrix(pokemonVector){
 	var matrix = [];
+	var n = pokemonVector.length;
 	for (var i = 0; i < n; i++){
 		matrix.push(new Array(n));
 	}
@@ -1222,9 +1192,96 @@ function battleMatrixSubmit(){
 			matrix[j][i] = -score;
 		}
 	}
+	return matrix;
+}
+
+function battleMatrixReadFromMain(){
+	var deli = $("#battleMatrix-delimieter").val();
+	var rawInput = $("#battleMatrix-input").val().split("\n");
+	var attributes = parseCSVRow(rawInput[0], deli, '"');
+	
+	var config = read();
+	for (let player of config.players){
+		for (let party of player.parties){
+			for (let pokemon of party.pokemon){
+				var pokemonRow = [];
+				for (let a of attributes){
+					var attr = pokemon[a] || "";
+					if (attr.includes(deli)){
+						attr = '"' + attr + '"';
+					}
+					pokemonRow.push(attr);
+				}
+				rawInput.push(pokemonRow.join(deli));
+			}
+		}
+	}
+	$("#battleMatrix-input").val(rawInput.join("\n"));
+}
+
+function battleMatrixSubmit(){
+	assignMoveParameterSet("load", Data.FastMoves, "combat");
+	assignMoveParameterSet("load", Data.ChargedMoves, "combat");
+	
+	var deli = $("#battleMatrix-delimieter").val();
+	var rawInput = $("#battleMatrix-input").val().split("\n");
+	var attributes = parseCSVRow(rawInput[0], deli, '"');
+	
+	var namedRowCol = parseInt($("#battleMatrix-named").val());
+	var subMatrixSpecs = $("#battleMatrix-submatrix").val().split(',');
+	for (var i = 0; i < 4; i++){
+		subMatrixSpecs[i] = parseInt(subMatrixSpecs[i]);
+	}
+	
+	var pokemonVector = [];
+	for (var i = 1; i < rawInput.length; i++){
+		var rowData = parseCSVRow(rawInput[i], deli, '"');
+		var pokemon = {};
+		for (var j = 0; j < attributes.length; j++){
+			pokemon[attributes[j]] = (rowData[j] || "").trim();
+		}
+		pokemon.copies = 1;
+		if (pokemon.hasOwnProperty("cp")){
+			pokemon.role = "a_basic";
+		}
+		
+		// Validation
+		if (!pokemon.name || !getEntry(pokemon.name.toLowerCase(), Data.Pokemon)){
+			return sendFeedbackDialog("At row " + i + ": Unknown Pokemon: " + pokemon.name);
+		}
+		if (!pokemon.fmove || !getEntry(pokemon.fmove.toLowerCase(), Data.FastMoves)){
+			return sendFeedbackDialog("At row " + i + ": Unknown Move: " + pokemon.fmove);
+		}
+		if (!pokemon.cmove || !getEntry(pokemon.cmove.toLowerCase(), Data.ChargedMoves)){
+			return sendFeedbackDialog("At row " + i + ": Unknown Move: " + pokemon.cmove);
+		}
+		pokemonVector.push(pokemon);
+	}
+	
+	var matrix = generateBattleMatrix(pokemonVector);
+	
+	let startRow = Math.max(1, subMatrixSpecs[0] || 1) - 1;
+	let endRow = Math.min(matrix.length, subMatrixSpecs[1] || matrix.length);
+	let startCol = Math.max(1, subMatrixSpecs[2] || 1) - 1;
+	let endCol = Math.min(matrix.length, subMatrixSpecs[3] || matrix.length);
+	matrix = matrix.slice(startRow, endRow);
+	for (var i = 0; i < matrix.length; i++){
+		matrix[i] = matrix[i].slice(startCol, endCol);
+	}
+	
+	if (namedRowCol){
+		for (var i = 0; i < matrix.length; i++){
+			matrix[i].unshift(pokemonVector[i + startRow].name);
+		}
+		var headerRow = [""];
+		for (var i = 0; i < endCol - startCol; i++){
+			headerRow.push(pokemonVector[i + startCol].name);
+		}
+		matrix.unshift(headerRow);
+	}
 	
 	var rawOutput = "";
-	for (var i = 0; i < n; i++){
+	for (var i = 0; i < matrix.length; i++){
 		rawOutput += matrix[i].join("\t") + "\n";
 	}
 	document.getElementById("battleMatrix-output").value = rawOutput;

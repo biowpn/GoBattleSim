@@ -909,17 +909,14 @@ function createBattleLogTable(log){
 	for (let rowEntry of log){
 		let rowData = [round(rowEntry.t/1000, 2)];
 		for (let entry of rowEntry.events){
-			entry = entry || {type: 'text', text: ''};
-			if (entry.type == 'pokemon'){
-				var pkmInfo = getEntry(entry.name, Data.Pokemon);
-				rowData.push(createIconLabelSpan(pkmInfo.icon, entry.nickname, 'species-input-with-icon'));
-			}else if (entry.type == 'fastMove'){
-				var moveInfo = getEntry(entry.name, Data.FastMoves);
+			entry = entry || {text: ''};
+			if (entry.style == 'pokemon'){
+				var pkmInfo = getEntry(entry.text, Data.Pokemon);
+				rowData.push(createIconLabelSpan(pkmInfo.icon, pkmInfo.label, 'species-input-with-icon'));
+			}else if (entry.style == 'move'){
+				var moveInfo = new Move(entry.text);
 				rowData.push(createIconLabelSpan(moveInfo.icon, moveInfo.label, 'move-input-with-icon'));
-			}else if (entry.type == 'chargedMove'){
-				var moveInfo = getEntry(entry.name, Data.ChargedMoves);
-				rowData.push(createIconLabelSpan(moveInfo.icon, moveInfo.label, 'move-input-with-icon'));
-			}else{ // entry.type == 'text'
+			}else{
 				rowData.push(entry.text);
 			}
 		}

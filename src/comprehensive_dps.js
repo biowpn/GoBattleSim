@@ -226,31 +226,31 @@ function applyContext(){
 	Context.weather = document.getElementById('weather').value;
 	
 	Context.isEnemyNeutral = false;
-	var d_index = getEntryIndex($('#pokemon-name').val().trim().toLowerCase(), Data.Pokemon);
-	var d_fmove_index = getEntryIndex($('#pokemon-fmove').val().trim().toLowerCase(), Data.FastMoves);
-	var d_cmove_index = getEntryIndex($('#pokemon-cmove').val().trim().toLowerCase(), Data.ChargedMoves);
-	if (d_index < 0 || d_fmove_index < 0 || d_cmove_index < 0){
+	var enemyPokemon = getEntry($('#pokemon-name').val().trim().toLowerCase(), Data.Pokemon);
+	var enemyFast = getEntry($('#pokemon-fmove').val().trim().toLowerCase(), Data.FastMoves);
+	var enemyCharged = getEntry($('#pokemon-cmove').val().trim().toLowerCase(), Data.ChargedMoves);
+	if (enemyPokemon == null || enemyFast == null || enemyCharged == null){
 		Context.isEnemyNeutral = true;
-		d_index = d_fmove_index = d_cmove_index = 0;
+		enemyPokemon = Data.Pokemon[0];
+		enemyFast = Data.FastMoves[0];
+		enemyCharged = Data.ChargedMoves[0];
 	}
-	
 	Context.enemy = new Pokemon({
-		index: d_index,
-		fmove: d_fmove_index,
-		cmove: d_cmove_index,
+		name: enemyPokemon.name,
+		fmove: enemyFast.name,
+		cmove: enemyCharged.name,
 		level: DEFAULT_ENEMY_LEVEL,
 		atkiv: DEFAULT_ENEMY_IVs[0],
 		defiv: DEFAULT_ENEMY_IVs[1],
 		stmiv: DEFAULT_ENEMY_IVs[2],
-		raidTier: 0
+		role: "a"
 	});
-	Context.enemy.pokeType1 = document.getElementById('pokemon-pokeType1').value;
-	Context.enemy.pokeType2 = document.getElementById('pokemon-pokeType2').value;
+	Context.enemy.pokeType1 = $('#pokemon-pokeType1').val();
+	Context.enemy.pokeType2 = $('#pokemon-pokeType2').val();
 	
 	if (Context.isEnemyNeutral){
 		Context.enemy.Def = DEFAULT_ENEMY_CURRENT_DEFENSE;
 	}
-	
 	var cpcap = parseInt(document.getElementById("ui-cpcap").value);
 	if (!isNaN(cpcap) && cpcap > 0){
 		LeagueCPCap = cpcap;
@@ -265,21 +265,21 @@ function generateSpreadsheet(pokemonCollection){
 	Table.clear();
 	applyContext();
 	for (let p of pokemonCollection){
-		var bestPkm = {dps: -1};
 		var fastMoves_all = p.fmove ? [p.fmove] : p.fastMoves.concat(p.fastMoves_legacy).concat(p.fastMoves_exclusive);
 		var chargedMoves_all = p.cmove ? [p.cmove] : p.chargedMoves.concat(p.chargedMoves_legacy).concat(p.chargedMoves_exclusive);
 		for (let fmove of fastMoves_all){
 			for (let cmove of chargedMoves_all){
-				var pkm = new Pokemon({
-					name: p.name,
-					fmove: fmove,
-					cmove: cmove,
-					level: p.level || DEFAULT_ATTACKER_LEVEL,
-					atkiv: p.atkiv >= 0 ? p.atkiv : DEFAULT_ATTACKER_IVs[0],
-					defiv: p.defiv >= 0 ? p.defiv : DEFAULT_ATTACKER_IVs[1],
-					stmiv: p.stmiv >= 0 ? p.stmiv : DEFAULT_ATTACKER_IVs[2]
-				});
-				if (!pkm.fmove.name || !pkm.cmove.name){ // Move not found in database
+				try{
+					var pkm = new Pokemon({
+						name: p.name,
+						fmove: fmove,
+						cmove: cmove,
+						level: p.level || DEFAULT_ATTACKER_LEVEL,
+						atkiv: p.atkiv >= 0 ? p.atkiv : DEFAULT_ATTACKER_IVs[0],
+						defiv: p.defiv >= 0 ? p.defiv : DEFAULT_ATTACKER_IVs[1],
+						stmiv: p.stmiv >= 0 ? p.stmiv : DEFAULT_ATTACKER_IVs[2]
+					});
+				}catch(err){
 					continue;
 				}
 				for (var attr in p){
@@ -292,13 +292,6 @@ function generateSpreadsheet(pokemonCollection){
 				}
 				
 				pkm.calculateDPS(Context);
-				if (pkm.dps > bestPkm.dps){
-					bestPkm.best = false;
-					pkm.best = true;
-					bestPkm = pkm;
-				}else{
-					pkm.best = false;
-				}
 				
 				pkm.ui_name = createIconLabelSpan(p.icon, p.nickname || p.label, 'species-input-with-icon');
 				pkm.ui_fmove = createIconLabelSpan(pkm.fmove.icon, pkm.fmove.label, 'move-input-with-icon');
@@ -306,6 +299,9 @@ function generateSpreadsheet(pokemonCollection){
 				pkm.ui_dps = round(pkm.dps, 3);
 				pkm.ui_tdo = round(pkm.tdo, 1);
 				pkm.ui_overall = round(pkm.dps**3/1000 * pkm.tdo, 1);
+				if (Context.battleMode == "pvp"){
+					pkm.ui_overall = Math.ceil(-pkm.cmove.energyDelta / (pkm.fmove.energyDelta || 1)) * Math.round(pkm.fmove.duration/500);
+				}
 				pkm.ui_cp = calculateCP(pkm);
 				
 				Table.row.add(pkm);
@@ -321,29 +317,16 @@ function generateSpreadsheet(pokemonCollection){
 function updateSpreadsheet(){
 	var Table = $("#ranking_table").DataTable();
 	applyContext();
-	var bestEachSpecies = {};
 	var dataLength = Table.data().length;
 	for (var i = 0; i < dataLength; i++){
 		var pkm = Table.row(i).data();
-		
 		pkm.calculateDPS(Context);
-		var curBest = bestEachSpecies[pkm.name];
-		if (curBest){
-			if (pkm.dps > curBest.dps){
-				curBest.best = false;
-				bestEachSpecies[pkm.name] = pkm;
-				pkm.best = true;
-			}else{
-				pkm.best = false;
-			}
-		}else{
-			pkm.best = true;
-			bestEachSpecies[pkm.name] = pkm;
-		}
-		
 		pkm.ui_dps = round(pkm.dps, 3);
 		pkm.ui_tdo = round(pkm.tdo, 1);
-		pkm.ui_overall = round(pkm.dps**3/1000 * pkm.tdo, 1)
+		pkm.ui_overall = round(pkm.dps**3/1000 * pkm.tdo, 1);
+		if (Context.battleMode == "pvp"){
+			pkm.ui_overall = Math.ceil(-pkm.cmove.energyDelta / (pkm.fmove.energyDelta || 1)) * Math.round(pkm.fmove.duration/500);
+		}
 		Table.row(i).data(pkm);
 	}
 	console.log(Date() + ": All DPS re-calculated");

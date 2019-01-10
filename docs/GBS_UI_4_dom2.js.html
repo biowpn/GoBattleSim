@@ -992,7 +992,10 @@ function typeCheckerInit(){
 			} );
 		}
 	}
-	
+	var numColumns = 6;
+	if (window.innerWidth &lt;= 800){
+		numColumns = 3;
+	}
 	var offensiveTable = document.getElementById("typeChecker-offensive");
 	var defensiveTable = document.getElementById("typeChecker-defensive");
 	var count = 0;
@@ -1000,13 +1003,16 @@ function typeCheckerInit(){
 	for (var t1 in Data.TypeEffectiveness){
 		tr.push(toTitleCase(t1));
 		count++;
-		if (count % 6 == 0){
+		if (count % numColumns == 0){
 			offensiveTable.appendChild(createRow(tr));
 			defensiveTable.appendChild(createRow(tr));
 			tr = [];
 		}
 	}
-	
+	if (tr.length > 0){
+		offensiveTable.appendChild(createRow(tr));
+		defensiveTable.appendChild(createRow(tr));
+	}
 }
 
 
@@ -1057,7 +1063,6 @@ function typeCheckerSubmit(){
 		summary.avrg = summary.sum / multipliers.length;
 		return summary[aggregation];
 	}
-	
 	function RGBString(r, g, b){
 		return "background: rgb(" + r + "," + g + "," + b + ")";
 	}
@@ -1119,14 +1124,11 @@ function battleMatrixInit(){
 	$( "#battleMatrix" ).attr("style", "visibility: show;");
 	$( "#battleMatrix" ).dialog({ 
 		autoOpen: false,
-		width: 1000
+		width: 800
 	});
 	$( "#battleMatrixOpener" ).click(function() {
 		$( "#battleMatrix" ).dialog( "open" );
-	});
-	
-	
-	
+	});	
 }
 
 function parseCSVRow(str, deli, echar){
@@ -1204,28 +1206,9 @@ function battleScore(x, y){
 	return score;
 }
 
-function battleMatrixSubmit(){
-	var deli = $("#battleMatrix-delimieter").val();
-	var rawInput = $("#battleMatrix-input").val().split("\n");
-	var attributes = parseCSVRow(rawInput[0], deli, '"');
-	
-	var pokemonVector = [];
-	for (var i = 1; i &lt; rawInput.length; i++){
-		var rowData = parseCSVRow(rawInput[i], deli, '"');
-		var pokemon = {};
-		for (var j = 0; j &lt; attributes.length; j++){
-			pokemon[attributes[j]] = rowData[j];
-		}
-		pokemon.copies = 1;
-		pokemon.level = (isNaN(parseFloat(pokemon.level)) ? 40 : pokemon.level);
-		pokemon.atkiv = (isNaN(parseInt(pokemon.atkiv)) ? 15 : pokemon.atkiv);
-		pokemon.defiv = (isNaN(parseInt(pokemon.defiv)) ? 15 : pokemon.defiv);
-		pokemon.stmiv = (isNaN(parseInt(pokemon.stmiv)) ? 15 : pokemon.stmiv);
-		pokemonVector.push(pokemon);
-	}
-	
-	var n = pokemonVector.length;
+function generateBattleMatrix(pokemonVector){
 	var matrix = [];
+	var n = pokemonVector.length;
 	for (var i = 0; i &lt; n; i++){
 		matrix.push(new Array(n));
 	}
@@ -1237,9 +1220,96 @@ function battleMatrixSubmit(){
 			matrix[j][i] = -score;
 		}
 	}
+	return matrix;
+}
+
+function battleMatrixReadFromMain(){
+	var deli = $("#battleMatrix-delimieter").val();
+	var rawInput = $("#battleMatrix-input").val().split("\n");
+	var attributes = parseCSVRow(rawInput[0], deli, '"');
+	
+	var config = read();
+	for (let player of config.players){
+		for (let party of player.parties){
+			for (let pokemon of party.pokemon){
+				var pokemonRow = [];
+				for (let a of attributes){
+					var attr = pokemon[a] || "";
+					if (attr.includes(deli)){
+						attr = '"' + attr + '"';
+					}
+					pokemonRow.push(attr);
+				}
+				rawInput.push(pokemonRow.join(deli));
+			}
+		}
+	}
+	$("#battleMatrix-input").val(rawInput.join("\n"));
+}
+
+function battleMatrixSubmit(){
+	assignMoveParameterSet("load", Data.FastMoves, "combat");
+	assignMoveParameterSet("load", Data.ChargedMoves, "combat");
+	
+	var deli = $("#battleMatrix-delimieter").val();
+	var rawInput = $("#battleMatrix-input").val().split("\n");
+	var attributes = parseCSVRow(rawInput[0], deli, '"');
+	
+	var namedRowCol = parseInt($("#battleMatrix-named").val());
+	var subMatrixSpecs = $("#battleMatrix-submatrix").val().split(',');
+	for (var i = 0; i &lt; 4; i++){
+		subMatrixSpecs[i] = parseInt(subMatrixSpecs[i]);
+	}
+	
+	var pokemonVector = [];
+	for (var i = 1; i &lt; rawInput.length; i++){
+		var rowData = parseCSVRow(rawInput[i], deli, '"');
+		var pokemon = {};
+		for (var j = 0; j &lt; attributes.length; j++){
+			pokemon[attributes[j]] = (rowData[j] || "").trim();
+		}
+		pokemon.copies = 1;
+		if (pokemon.hasOwnProperty("cp")){
+			pokemon.role = "a_basic";
+		}
+		
+		// Validation
+		if (!pokemon.name || !getEntry(pokemon.name.toLowerCase(), Data.Pokemon)){
+			return sendFeedbackDialog("At row " + i + ": Unknown Pokemon: " + pokemon.name);
+		}
+		if (!pokemon.fmove || !getEntry(pokemon.fmove.toLowerCase(), Data.FastMoves)){
+			return sendFeedbackDialog("At row " + i + ": Unknown Move: " + pokemon.fmove);
+		}
+		if (!pokemon.cmove || !getEntry(pokemon.cmove.toLowerCase(), Data.ChargedMoves)){
+			return sendFeedbackDialog("At row " + i + ": Unknown Move: " + pokemon.cmove);
+		}
+		pokemonVector.push(pokemon);
+	}
+	
+	var matrix = generateBattleMatrix(pokemonVector);
+	
+	let startRow = Math.max(1, subMatrixSpecs[0] || 1) - 1;
+	let endRow = Math.min(matrix.length, subMatrixSpecs[1] || matrix.length);
+	let startCol = Math.max(1, subMatrixSpecs[2] || 1) - 1;
+	let endCol = Math.min(matrix.length, subMatrixSpecs[3] || matrix.length);
+	matrix = matrix.slice(startRow, endRow);
+	for (var i = 0; i &lt; matrix.length; i++){
+		matrix[i] = matrix[i].slice(startCol, endCol);
+	}
+	
+	if (namedRowCol){
+		for (var i = 0; i &lt; matrix.length; i++){
+			matrix[i].unshift(pokemonVector[i + startRow].name);
+		}
+		var headerRow = [""];
+		for (var i = 0; i &lt; endCol - startCol; i++){
+			headerRow.push(pokemonVector[i + startCol].name);
+		}
+		matrix.unshift(headerRow);
+	}
 	
 	var rawOutput = "";
-	for (var i = 0; i &lt; n; i++){
+	for (var i = 0; i &lt; matrix.length; i++){
 		rawOutput += matrix[i].join("\t") + "\n";
 	}
 	document.getElementById("battleMatrix-output").value = rawOutput;
@@ -1254,13 +1324,13 @@ function battleMatrixSubmit(){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="ProtectShieldStrategy.html">ProtectShieldStrategy</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#assignMoveParameterSet">assignMoveParameterSet</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#calculateLevelUpCost">calculateLevelUpCost</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchAll_then">fetchAll_then</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossList">fetchRaidBossList</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#inferLevelAndIVs">inferLevelAndIVs</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#populateAll">populateAll</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li><li><a href="global.html#strat0">strat0</a></li><li><a href="global.html#strat1">strat1</a></li><li><a href="global.html#strat2">strat2</a></li><li><a href="global.html#strat3">strat3</a></li><li><a href="global.html#strat4">strat4</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#assignMoveParameterSet">assignMoveParameterSet</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#calculateLevelUpCost">calculateLevelUpCost</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchAll_then">fetchAll_then</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossList">fetchRaidBossList</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#inferLevelAndIVs">inferLevelAndIVs</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#populateAll">populateAll</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Dec 27 2018 00:06:51 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 11 2019 02:28:31 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

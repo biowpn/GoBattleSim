@@ -14,9 +14,7 @@
 		margin-top: 10px;
 	}
 
-	table.dataTable thead .sorting, 
-	table.dataTable thead .sorting_asc, 
-	table.dataTable thead .sorting_desc {
+	DataTables_sort_icon {
 		background : none;
 	}
 
@@ -155,10 +153,12 @@ $( "#ui-uniqueSpecies-checkbox" ).change(function(){
 $( "#ui-pvpMode" ).controlgroup();
 $( "#ui-pvpMode-checkbox" ).change(function(){
 	if (this.checked){
+		$($("#ranking_table").DataTable().column(5).header()).text('Activation');
 		Context.battleMode = "pvp";
 		assignMoveParameterSet("load", Data.FastMoves, "combat");
 		assignMoveParameterSet("load", Data.ChargedMoves, "combat");
 	}else{
+		$($("#ranking_table").DataTable().column(5).header()).text('DPS^3*TDO');
 		Context.battleMode = "regular";
 		assignMoveParameterSet("load", Data.FastMoves, "regular");
 		assignMoveParameterSet("load", Data.ChargedMoves, "regular");

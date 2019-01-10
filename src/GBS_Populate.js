@@ -659,7 +659,7 @@ function fetchMoveData(oncomplete){
 					move.combat.power = parseInt(data[i].pvp_fast_power);
 					move.combat.energyDelta = parseInt(data[i].pvp_fast_energy);
 					move.combat.duration = (parseInt(data[i].pvp_fast_duration) + 1) * 500;
-					move.combat.dws = move.combat.duration / 2; // Guessing
+					move.combat.dws = 0;
 					Data.FastMoves.push(move);
 				}else{
 					move.moveType = 'charged';
