@@ -821,27 +821,27 @@ function displayMasterSummaryTable(){
 }
 
 
-function displayDetail(i){
+function displayDetail(arg){
+	var simResult = (typeof arg == typeof 0 ? simResults[arg] : arg);
 	clearFeedbackTables();
 	// Re-configured the input
 	var inputEl = document.getElementById("input");
-	write(inputEl, simResults[i].input);
-	complyBattleMode(simResults[i].input.battleMode);
+	write(inputEl, simResult.input);
+	complyBattleMode(simResult.input.battleMode);
 	formatting(inputEl);
 	relabel();
-	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfig(simResults[i].input));
+	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfig(simResult.input));
 
 	// Add option to go back to Master Summary
 	var b = createElement("button", "Back");
 	b.onclick = function(){
 		$( "#feedback_table1" ).accordion("destroy");
-		$( "#feedback_table2" ).accordion("destroy");
 		displayMasterSummaryTable();
 	}
 	document.getElementById("feedback_buttons").appendChild(b);
 	
 	// Prepare Player/Party/Pokemon summary
-	var output = simResults[i].output;
+	var output = simResult.output;
 	var fbSection = document.getElementById("feedback_table1");
 	for (var i = 0; i < output.pokemonStats.length; i++){
 		fbSection.appendChild(createElement('h4', createPlayerStatisticsString(output.playerStats[i]), 
@@ -869,12 +869,13 @@ function displayDetail(i){
 	
 	// Battle Log
 	var fbSection = document.getElementById("feedback_table2");
-	fbSection.appendChild(createElement('h3', 'Battle Log'));
+	fbSection.appendChild(createElement('h3', 'Interactive Battle Log'));
 	var battleLogDiv = document.createElement('div');
 	fbSection.appendChild(battleLogDiv);
 	if (output.battleLog.length > 0){
 		var battleLogTable = createBattleLogTable(output.battleLog);
 		battleLogDiv.appendChild(battleLogTable);
+		/*
 		$( battleLogTable ).DataTable({
 			scrollX: true,
 			scrollY: '80vh',
@@ -882,54 +883,139 @@ function displayDetail(i){
 			searching: false,
 			ordering: false
 		});
+		*/
 	}
-	$( fbSection ).accordion({
-		active: false,
-		collapsible: true,
-		heightStyle: 'content'
-	});
-	
-	document.getElementById("copy-button-clipboard").setAttribute("onclick", "copyTableToClipboard('ui-log-table')");
-	document.getElementById("copy-button-csv").setAttribute("onclick", "exportTableToCSV('ui-log-table', 'GoBattleSim_log.csv')");
 }
 
 
 function createBattleLogTable(log){
-	var table = createElement('table', '<thead></thead><tbody></tbody>', {
+	var table = createElement('table', '<thead></thead>', {
 		width: '100%', class: 'display nowrap', id: "ui-log-table"
 	});
-
 	let headers = ["Time"];
-	for (var i = 0; i < log[0].events.length; i++){
+	for (var i = 0; i < log[0].cells.length; i++){
 		headers.push("Player " + (i+1));
 	}
 	table.children[0].appendChild(createRow(headers, "th"));
-	
-	var sameTimeEvents = [];
-	for (let rowEntry of log){
-		let rowData = [round(rowEntry.t/1000, 2)];
-		for (let entry of rowEntry.events){
-			entry = entry || {text: ''};
-			if (entry.style == 'pokemon'){
-				var pkmInfo = getEntry(entry.text, Data.Pokemon);
-				rowData.push(createIconLabelSpan(pkmInfo.icon, pkmInfo.label, 'species-input-with-icon'));
-			}else if (entry.style == 'move'){
-				var moveInfo = new Move(entry.text);
-				rowData.push(createIconLabelSpan(moveInfo.icon, moveInfo.label, 'move-input-with-icon'));
+	var tbody = createElement("tbody");
+	for (let entry of log){
+		var tableRow = createElement("tr");
+		tableRow.dataset.t = entry.t;
+		tableRow.dataset.name = entry.name;
+		tableRow.dataset.value = entry.value;
+		tableRow.dataset.index = entry.index;
+		tableRow.appendChild(createElement("td", round(entry.t/1000, 2)));
+		for (var j = 0; j < entry.cells.length; j++){
+			var tableCell = createElement("td");
+			var cell = entry.cells[j] || {text: ""};
+			if (cell.alternatives && cell.alternatives.length > 0){
+				var selectElement = createElement("select");
+				var options = [cell].concat(cell.alternatives);
+				for (let opt of options){
+					var optionEl = createElement("option", opt.text);
+					optionEl.dataset.t = opt.t;
+					optionEl.dataset.name = opt.name;
+					optionEl.dataset.value = opt.value;
+					if (opt.style == "pokemon"){
+						optionEl.dataset.class = "input-with-icon species-input-with-icon";
+						optionEl.dataset.style = "background-image: url(" + opt.icon + ");"
+					}else if (opt.style == "move"){
+						optionEl.dataset.class = "input-with-icon move-input-with-icon";
+						optionEl.dataset.style = "background-image: url(" + opt.icon + ");"
+					}
+					selectElement.appendChild(optionEl);
+				}
+				tableCell.appendChild(selectElement);
+				
+				$(selectElement).iconselectmenu({
+					change: function(event, ui){
+						var optionSelected = $("option:selected", this)[0];
+						var parentTableRow = this.parentNode.parentNode;
+						parentTableRow.dataset.t = optionSelected.dataset.t;
+						parentTableRow.dataset.name = optionSelected.dataset.name;
+						parentTableRow.dataset.value = optionSelected.dataset.value;
+						parentTableRow.dataset.breakpoint = true;
+						updateFromBattleLog();
+					}
+				}).iconselectmenu("menuWidget").addClass("ui-menu-icons");
+				
 			}else{
-				rowData.push(entry.text);
+				if (cell.style == "pokemon"){
+					tableCell.innerHTML = createIconLabelSpan(cell.icon, cell.text, "species-input-with-icon");
+				}else if (cell.style == "move"){
+					tableCell.innerHTML = createIconLabelSpan(cell.icon, cell.text, "move-input-with-icon");
+				}else{
+					tableCell.innerHTML = cell.text;
+				}
 			}
+			tableCell.setAttribute('style', 'background:' + HSL_COLORS[j % HSL_COLORS.length][0]);
+			tableRow.appendChild(tableCell);
 		}
-		let row = createRow(rowData);
-		for (var k = 0; k < row.children.length - 1; k++){
-			row.children[k+1].setAttribute('style', 'background:' + HSL_COLORS[k%HSL_COLORS.length][0]);
-		}
-		table.children[1].appendChild(row, "td");
+		tbody.appendChild(tableRow);
 	}
+	table.appendChild(tbody);
 	return table;
 }
 
-/* The following two functions are for link sharing */
+function updateFromBattleLog(){
+	// Get the log data up to the breakpoint
+	var logData = [];
+	var table = document.getElementById("ui-log-table");
+	var breakIndex = -1;
+	for (var i = 1; i < table.children.length; i++){
+		var tbody = table.children[i];
+		for (var j = 0; j < tbody.children.length; j++){
+			var tr = tbody.children[j];
+			var e = {
+				t: parseInt(tr.dataset.t),
+				name: tr.dataset.name,
+				value: tr.dataset.value,
+				index: parseInt(tr.dataset.index)
+			};
+			if (tr.dataset.breakpoint){
+				e.breakpoint = true;
+				delete tr.dataset.breakpoint;
+				breakIndex = logData.length;
+			}
+			logData.push(e);
+		}
+	}
+	// Sort the log because the breakpoint event could have its time changed
+	for (; breakIndex < logData.length - 1; breakIndex++){
+		let cur = logData[breakIndex], next = logData[breakIndex + 1];
+		if (cur.t > next.t){
+			logData[breakIndex] = next;
+			logData[breakIndex + 1] = cur;
+		}else{
+			break;
+		}
+	}
+	for (; breakIndex > 0; breakIndex--){
+		let cur = logData[breakIndex], prev = logData[breakIndex - 1];
+		if (cur.t <= prev.t){
+			logData[breakIndex] = prev;
+			logData[breakIndex - 1] = cur;
+		}else{
+			break;
+		}
+	}
+	logData = logData.slice(0, breakIndex + 1);
+	
+	// Load and resume simulation
+	var cfg = read();
+	var w = new World(cfg);
+	w.timeline.list = [];
+	for (let e of logData){
+		w.readLog(e);
+	}
+	w.resume();
+	$( "#feedback_table1" ).accordion("destroy");
+	displayDetail({
+		input: cfg,
+		output: w.getStatistics()
+	});
+}
+
 
 // Return the encoded URL based on simulation configuration
 function exportConfig(cfg){

@@ -1,5 +1,5 @@
 
-<script src="https://code.jquery.com/jquery-2.2.4.js"  integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/v/ju/dt-1.10.16/r-2.2.1/sc-1.4.4/datatables.min.js"></script>
 
@@ -318,6 +318,26 @@
 
 
 <script>
+
+
+    $.widget( "custom.iconselectmenu", $.ui.selectmenu, {
+      _renderItem: function( ul, item ) {
+        var li = $( "<li>" ),
+          wrapper = $( "<div>", { text: item.label } );
+ 
+        if ( item.disabled ) {
+          li.addClass( "ui-state-disabled" );
+        }
+ 
+        $( "<span>", {
+          style: item.element.attr( "data-style" ),
+          "class": "ui-icon " + item.element.attr( "data-class" )
+        })
+          .appendTo( wrapper );
+ 
+        return li.append( wrapper ).appendTo( ul );
+      }
+    });
 
 const HSL_COLORS = [
 	['hsl(209, 100%, 90%)','hsl(209, 100%, 80%)','hsl(209, 100%, 70%)'],
