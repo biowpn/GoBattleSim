@@ -190,7 +190,7 @@ function createPokemonStrategyInput(){
 
 function createPokemonProtectStrategyInput(){
 	var strategyInput = createElement('input', '0,0', {name: "pokemon-strategy2", placeholder: "Protect Shield Strategy", 
-		title: "{n_1,n_2}: tank n_i attacks then use the i-th Shield. * = infinity, ? = random"
+		title: "{n_1,n_2}: tank n_i attacks then use the i-th Shield. * = infinity"
 	});
 	strategyInput.comply = function(kwargs){
 		if (kwargs.battleMode != "pvp"){
