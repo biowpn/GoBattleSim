@@ -136,7 +136,7 @@ function damage2(dmg_giver, dmg_taker, move, weather){
 }
 
 
-function applicationInit(){
+function DPSCalculatorInit(){
 	acceptedNumericalAttributes = acceptedNumericalAttributes.concat(['dps', 'tdo']);
 	
 	$.fn.dataTable.Api.register( 'rows().generate()', function () {
@@ -268,20 +268,24 @@ function generateSpreadsheet(pokemonCollection){
 		var fastMoves_all = p.fmove ? [p.fmove] : p.fastMoves.concat(p.fastMoves_legacy).concat(p.fastMoves_exclusive);
 		var chargedMoves_all = p.cmove ? [p.cmove] : p.chargedMoves.concat(p.chargedMoves_legacy).concat(p.chargedMoves_exclusive);
 		for (let fmove of fastMoves_all){
+			var fmoveInstance = new Move(fmove, Data.FastMoves);
+			if (!fmoveInstance.name){
+				continue;
+			}
 			for (let cmove of chargedMoves_all){
-				try{
-					var pkm = new Pokemon({
-						name: p.name,
-						fmove: fmove,
-						cmove: cmove,
-						level: p.level || DEFAULT_ATTACKER_LEVEL,
-						atkiv: p.atkiv >= 0 ? p.atkiv : DEFAULT_ATTACKER_IVs[0],
-						defiv: p.defiv >= 0 ? p.defiv : DEFAULT_ATTACKER_IVs[1],
-						stmiv: p.stmiv >= 0 ? p.stmiv : DEFAULT_ATTACKER_IVs[2]
-					});
-				}catch(err){
+				var cmoveInstance = new Move(cmove, Data.ChargedMoves);
+				if (!cmoveInstance.name){
 					continue;
 				}
+				var pkm = new Pokemon({
+					name: p.name,
+					fmove: fmoveInstance,
+					cmove: cmoveInstance,
+					level: p.level || DEFAULT_ATTACKER_LEVEL,
+					atkiv: p.atkiv >= 0 ? p.atkiv : DEFAULT_ATTACKER_IVs[0],
+					defiv: p.defiv >= 0 ? p.defiv : DEFAULT_ATTACKER_IVs[1],
+					stmiv: p.stmiv >= 0 ? p.stmiv : DEFAULT_ATTACKER_IVs[2]
+				});
 				for (var attr in p){
 					if (!pkm.hasOwnProperty(attr)){
 						pkm[attr] = p[attr];

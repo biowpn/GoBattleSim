@@ -144,101 +144,91 @@ function sortDatabase(database){
 }
 
 /**
-	Look up the index of an item by key "name" in an array.
+	Look up an item in an array.
 	@param {string} name The key to look up for.
-	@param {Object[]} database The array to search from.
-	@param {boolean} linearSearch If true, the function will perform linear search. Otherwise, binary search (for sorted array).
-	@return {number} The index of the item matched. -1 if not found.
+	@param {Object[]} arr The array to search from.
+	@param {boolean} linearSearch If true, the function will perform linear search. Otherwise (default), binary search.
+	@return {number} The index of the item whose key matches the given key. -1 if there's no such item.
 */
-function getEntryIndex(name, database, linearSearch){
-	// If entry with the name doesn't exist, return -1
+function getEntryIndex(name, arr, linearSearch){
 	if (linearSearch){
-		for (var i = 0; i < database.length; i++){
-			if (database[i].name == name)
+		for (var i = 0; i < arr.length; i++){
+			if (arr[i].name == name)
 				return i;
 		}
 		return -1;
 	}else{
-		return binarySearch(name, database, 0, database.length, function(arr, idx){
-			return arr[idx] && arr[idx].name == name ? idx : -1;
-		});
+		var index = binarySearch(name, arr);
+		return arr[index] && arr[index].name == name ? index : null;
 	}
 }
 
 /**
-	Look up the item by key "name" in an array.
+	Look up an item in an array.
 	@param {string} name The key to look up for.
-	@param {Object[]} database The array to search from.
-	@param {boolean} linearSearch If true, the function will perform linear search. Otherwise, binary search (for sorted array).
-	@return {Object} The item matched. Null if not found.
+	@param {Object[]} arr The array to search from.
+	@param {boolean} linearSearch If true, the function will perform linear search. Otherwise (default), binary search.
+	@return {Object} The item whose key matches the given key. Null if there's no such item.
 */
-function getEntry(name, database, linearSearch){
-	// If entry with the name doesn't exist, return null
+function getEntry(name, arr, linearSearch){
 	if (linearSearch){
-		for (var i = 0; i < database.length; i++){
-			if (database[i].name == name)
-				return database[i];
+		for (var i = 0; i < arr.length; i++){
+			if (arr[i].name == name)
+				return arr[i];
 		}
 		return null;
 	}else{
-		return binarySearch(name, database, 0, database.length, function(arr, idx, matched){
-			return arr[idx] && arr[idx].name == name ? arr[idx] : null;
-		});
+		var index = binarySearch(name, arr);
+		return arr[index] && arr[index].name == name ? arr[index] : null;
 	}
 }
 
 /**
 	Add a new item to a sorted array and maintain sorted order.
-	If there already an item with the same key, the old item will be replaced.
+	If there is already an item with the same key, the old item will be replaced.
 	@param {Object} entry The item to add.
-	@param {Object[]} database The array to search from.
+	@param {Object[]} arr The array to search from.
 */
-function insertEntry(entry, database){
-	// If entry with the name already exists, replaces the existing entry
-	return binarySearch(entry.name, database, 0, database.length, function(arr, idx){
-		if (arr[idx] && arr[idx].name == entry.name)
-			arr[idx] = entry;
-		else
-			arr.splice(Math.max(0, idx - 1), 0, entry);
-	});
+function insertEntry(entry, arr){
+	var index = binarySearch(entry.name, arr);
+	if (arr[index] && arr[index].name == entry.name)
+		arr[index] = entry;
+	else
+		arr.splice(index, 0, entry);
 }
 
 /**
 	Remove the item by key from a sorted array.
-	@param {string} name The key that any item matches will be removed.
-	@param {Object[]} database The array to search from.
+	@param {string} name The search key.
+	@param {Object[]} arr The array to search from.
+	@return {Object} An object whose key matches the given key or null if there's no such object.
 */
-function removeEntry(name, database){
-	// Returns the entry to be removed
-	// If entry with the name doesn't exist, return null
-	return binarySearch(name, database, 0, database.length, function(arr, idx){
-		if (arr[idx] && arr[idx].name == name)
-			return arr.splice(idx, 1)[0];
-	});
+function removeEntry(name, arr){
+	var index = binarySearch(name, arr);
+	if (arr[index] && arr[index].name == name){
+		return arr.splice(idx, 1)[0];
+	}else{
+		return null;
+	}
 }
 
 /**
 	Generic binary search method.
-	@param {string} name The key to search for.
-	@param {Object[]} database The array to search from.
-	@param {number} start The starting index (including) of the array.
-	@param {number} end The ending index (excluding) of the array.
-	@param {binarySearchCallback} callback The callback that handles the search result.
+	@param {string} name The search key.
+	@param {Object[]} arr The array to search from.
+	@return {number} The index of the first element whose key is no less than the given key.
 */
-function binarySearch(name, database, start, end, callback){
-	if (start >= end)
-		return callback(database, start);
-	var mid = Math.floor((start + end)/2);
-	if (database[mid].name < name)
-		return binarySearch(name, database, mid + 1, end, callback);
-	else
-		return binarySearch(name, database, start, mid, callback);		
+function binarySearch(name, arr){
+	var start = 0, end = arr.length, mid;
+	while (start < end){
+		mid = Math.floor((start + end)/2);
+		if (arr[mid].name < name)
+			start = mid + 1;
+		else
+			end = mid;
+	}
+	return start;
 }
-/**
-	@callback binarySearchCallback
-	@param {Object[]} db The same array to search from.
-	@param {number} idx The index when the search terminates.
-*/
 
 
 /**
