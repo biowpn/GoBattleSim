@@ -686,8 +686,7 @@ function createPokemonMoveInput(moveType, attrName){
 		},
 		change: function(event, ui) {
 			if (!ui.item){ // Change not due to selecting an item from menu
-				let idx = getEntryIndex(this.value.trim().toLowerCase(), Data[toTitleCase(moveType) + "Moves"]);
-				this.setAttribute('style', 'background-image: url(' + getTypeIcon({mtype: moveType, index: idx}) + ')');
+				this.setAttribute('style', 'background-image: url(' + getTypeIcon({mtype: moveType, name: this.value.trim()}) + ')');
 			}
 		}
 	}).autocomplete( "instance" )._renderItem = _renderAutocompleteMoveItem;

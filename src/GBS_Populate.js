@@ -159,8 +159,8 @@ function getEntryIndex(name, database, linearSearch){
 		}
 		return -1;
 	}else{
-		return binarySearch(name, database, 0, database.length, function(db, idx, matched){
-			return matched ? idx : -1;
+		return binarySearch(name, database, 0, database.length, function(arr, idx){
+			return arr[idx] && arr[idx].name == name ? idx : -1;
 		});
 	}
 }
@@ -181,8 +181,8 @@ function getEntry(name, database, linearSearch){
 		}
 		return null;
 	}else{
-		return binarySearch(name, database, 0, database.length, function(db, idx, matched){
-			return matched ? db[idx] : null;
+		return binarySearch(name, database, 0, database.length, function(arr, idx, matched){
+			return arr[idx] && arr[idx].name == name ? arr[idx] : null;
 		});
 	}
 }
@@ -195,11 +195,11 @@ function getEntry(name, database, linearSearch){
 */
 function insertEntry(entry, database){
 	// If entry with the name already exists, replaces the existing entry
-	return binarySearch(entry.name, database, 0, database.length, function(db, idx, matched){
-		if (matched)
-			db[idx] = entry;
+	return binarySearch(entry.name, database, 0, database.length, function(arr, idx){
+		if (arr[idx] && arr[idx].name == entry.name)
+			arr[idx] = entry;
 		else
-			db.splice(idx, 0, entry);
+			arr.splice(Math.max(0, idx - 1), 0, entry);
 	});
 }
 
@@ -211,9 +211,9 @@ function insertEntry(entry, database){
 function removeEntry(name, database){
 	// Returns the entry to be removed
 	// If entry with the name doesn't exist, return null
-	return binarySearch(name, database, 0, database.length, function(db, idx, matched){
-		if (matched)
-			return db.splice(idx, 1)[0];
+	return binarySearch(name, database, 0, database.length, function(arr, idx){
+		if (arr[idx] && arr[idx].name == name)
+			return arr.splice(idx, 1)[0];
 	});
 }
 
@@ -226,22 +226,18 @@ function removeEntry(name, database){
 	@param {binarySearchCallback} callback The callback that handles the search result.
 */
 function binarySearch(name, database, start, end, callback){
-	if (start == end){
-		return callback(database, start, false);
-	}
+	if (start >= end)
+		return callback(database, start);
 	var mid = Math.floor((start + end)/2);
-	if (name == database[mid].name)
-		return callback(database, mid, true);
-	else if (name < database[mid].name)
-		return binarySearch(name, database, start, mid, callback);
-	else
+	if (database[mid].name < name)
 		return binarySearch(name, database, mid + 1, end, callback);
+	else
+		return binarySearch(name, database, start, mid, callback);		
 }
 /**
 	@callback binarySearchCallback
 	@param {Object[]} db The same array to search from.
 	@param {number} idx The index when the search terminates.
-	@param {boolean} matched true if an item with the key searched has been found (whose index is idx) and false otherwise.
 */
 
 
@@ -352,11 +348,9 @@ function getPokemonIcon(kwargs){
 */
 function getTypeIcon(kwargs){
 	let moveDatabase = Data[toTitleCase(kwargs.mtype) + "Moves"];
-	if (kwargs && kwargs.index != undefined){
-		return (moveDatabase[kwargs.index] || {icon: getTypeIcon({pokeType: 'none'})}).icon;
-	}else if (kwargs && kwargs.name != undefined){
+	if (kwargs && kwargs.name != undefined){
 		var move = getEntry(kwargs.name.toLowerCase(), moveDatabase);
-		return move ? move.icon : '';
+		return move ? move.icon : getTypeIcon({pokeType: 'none'});
 	}else if (kwargs && kwargs.pokeType){
 		return "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + kwargs.pokeType.toLowerCase() + ".png";
 	}else{
@@ -376,30 +370,6 @@ function getFriendMultiplier(friend){
 		}
 	}
 	return 1;
-}
-
-/**
-	Calculate the cost of leveling up.
-	@param {string} startLevel The start level.
-	@param {string} endLevel The end level.
-	@return {{stardust: number, candy: number}} The cost.
-*/
-function calculateLevelUpCost(startLevel, endLevel){
-	var hasStarted = false, hasEnded = false;
-	var cost = {
-		'stardust': 0,
-		'candy': 0
-	};
-	for (var i = 0; i < Data.LevelSettings.length; i++){
-		var levelSetting = Data.LevelSettings[i];
-		hasStarted = hasStarted || (levelSetting.name == startLevel);
-		hasEnded = hasEnded || (levelSetting.name == endLevel);
-		if (hasStarted && !hasEnded){
-			cost.stardust += levelSetting.stardust;
-			cost.candy += levelSetting.candy;
-		}
-	}
-	return cost;
 }
 
 /**

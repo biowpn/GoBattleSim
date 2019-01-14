@@ -187,8 +187,8 @@ function getEntryIndex(name, database, linearSearch){
 		}
 		return -1;
 	}else{
-		return binarySearch(name, database, 0, database.length, function(db, idx, matched){
-			return matched ? idx : -1;
+		return binarySearch(name, database, 0, database.length, function(arr, idx){
+			return arr[idx] &amp;&amp; arr[idx].name == name ? idx : -1;
 		});
 	}
 }
@@ -209,8 +209,8 @@ function getEntry(name, database, linearSearch){
 		}
 		return null;
 	}else{
-		return binarySearch(name, database, 0, database.length, function(db, idx, matched){
-			return matched ? db[idx] : null;
+		return binarySearch(name, database, 0, database.length, function(arr, idx, matched){
+			return arr[idx] &amp;&amp; arr[idx].name == name ? arr[idx] : null;
 		});
 	}
 }
@@ -223,11 +223,11 @@ function getEntry(name, database, linearSearch){
 */
 function insertEntry(entry, database){
 	// If entry with the name already exists, replaces the existing entry
-	return binarySearch(entry.name, database, 0, database.length, function(db, idx, matched){
-		if (matched)
-			db[idx] = entry;
+	return binarySearch(entry.name, database, 0, database.length, function(arr, idx){
+		if (arr[idx] &amp;&amp; arr[idx].name == entry.name)
+			arr[idx] = entry;
 		else
-			db.splice(idx, 0, entry);
+			arr.splice(Math.max(0, idx - 1), 0, entry);
 	});
 }
 
@@ -239,9 +239,9 @@ function insertEntry(entry, database){
 function removeEntry(name, database){
 	// Returns the entry to be removed
 	// If entry with the name doesn't exist, return null
-	return binarySearch(name, database, 0, database.length, function(db, idx, matched){
-		if (matched)
-			return db.splice(idx, 1)[0];
+	return binarySearch(name, database, 0, database.length, function(arr, idx){
+		if (arr[idx] &amp;&amp; arr[idx].name == name)
+			return arr.splice(idx, 1)[0];
 	});
 }
 
@@ -254,22 +254,18 @@ function removeEntry(name, database){
 	@param {binarySearchCallback} callback The callback that handles the search result.
 */
 function binarySearch(name, database, start, end, callback){
-	if (start == end){
-		return callback(database, start, false);
-	}
+	if (start >= end)
+		return callback(database, start);
 	var mid = Math.floor((start + end)/2);
-	if (name == database[mid].name)
-		return callback(database, mid, true);
-	else if (name &lt; database[mid].name)
-		return binarySearch(name, database, start, mid, callback);
-	else
+	if (database[mid].name &lt; name)
 		return binarySearch(name, database, mid + 1, end, callback);
+	else
+		return binarySearch(name, database, start, mid, callback);		
 }
 /**
 	@callback binarySearchCallback
 	@param {Object[]} db The same array to search from.
 	@param {number} idx The index when the search terminates.
-	@param {boolean} matched true if an item with the key searched has been found (whose index is idx) and false otherwise.
 */
 
 
@@ -380,11 +376,9 @@ function getPokemonIcon(kwargs){
 */
 function getTypeIcon(kwargs){
 	let moveDatabase = Data[toTitleCase(kwargs.mtype) + "Moves"];
-	if (kwargs &amp;&amp; kwargs.index != undefined){
-		return (moveDatabase[kwargs.index] || {icon: getTypeIcon({pokeType: 'none'})}).icon;
-	}else if (kwargs &amp;&amp; kwargs.name != undefined){
+	if (kwargs &amp;&amp; kwargs.name != undefined){
 		var move = getEntry(kwargs.name.toLowerCase(), moveDatabase);
-		return move ? move.icon : '';
+		return move ? move.icon : getTypeIcon({pokeType: 'none'});
 	}else if (kwargs &amp;&amp; kwargs.pokeType){
 		return "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + kwargs.pokeType.toLowerCase() + ".png";
 	}else{
@@ -404,30 +398,6 @@ function getFriendMultiplier(friend){
 		}
 	}
 	return 1;
-}
-
-/**
-	Calculate the cost of leveling up.
-	@param {string} startLevel The start level.
-	@param {string} endLevel The end level.
-	@return {{stardust: number, candy: number}} The cost.
-*/
-function calculateLevelUpCost(startLevel, endLevel){
-	var hasStarted = false, hasEnded = false;
-	var cost = {
-		'stardust': 0,
-		'candy': 0
-	};
-	for (var i = 0; i &lt; Data.LevelSettings.length; i++){
-		var levelSetting = Data.LevelSettings[i];
-		hasStarted = hasStarted || (levelSetting.name == startLevel);
-		hasEnded = hasEnded || (levelSetting.name == endLevel);
-		if (hasStarted &amp;&amp; !hasEnded){
-			cost.stardust += levelSetting.stardust;
-			cost.candy += levelSetting.candy;
-		}
-	}
-	return cost;
 }
 
 /**
@@ -1011,13 +981,13 @@ function populateAll(dataReady){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#assignMoveParameterSet">assignMoveParameterSet</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#calculateLevelUpCost">calculateLevelUpCost</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchAll_then">fetchAll_then</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossList">fetchRaidBossList</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#inferLevelAndIVs">inferLevelAndIVs</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#populateAll">populateAll</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#assignMoveParameterSet">assignMoveParameterSet</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchAll_then">fetchAll_then</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossList">fetchRaidBossList</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#inferLevelAndIVs">inferLevelAndIVs</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#populateAll">populateAll</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Jan 12 2019 23:45:53 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Jan 14 2019 19:11:27 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

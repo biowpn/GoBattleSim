@@ -771,7 +771,7 @@ Strategy.prototype.actionStrategyDefender = function(kwargs){
 	let actionName, delay;
 	let actualAttackCount = this.attackCount + (kwargs.currentAction ? 1 : 0);
 	if (actualAttackCount >= 2){
-		let projectedEnergy = this.energy;
+		let projectedEnergy = this.subject.energy;
 		if (kwargs.currentAction){
 			if (kwargs.currentAction.name == ACTION.Fast){
 				projectedEnergy += this.subject.fmove.energyDelta;
