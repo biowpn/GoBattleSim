@@ -112,6 +112,7 @@ function batchSim(cfg, start){
 									let a = ae.name;
 									pokemon[a] = (pokemon[a] || match[a]).toString().replace("#", match[a]);
 								}
+								pokemon.label = match.label;
 							}
 							branches = branches.concat(batchSim(cfg_copy, [i, j, k, m+1]));
 						}

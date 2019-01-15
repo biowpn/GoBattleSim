@@ -159,7 +159,7 @@ function getEntryIndex(name, arr, linearSearch){
 		return -1;
 	}else{
 		var index = binarySearch(name, arr);
-		return arr[index] && arr[index].name == name ? index : null;
+		return arr[index] && arr[index].name == name ? index : -1;
 	}
 }
 

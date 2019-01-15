@@ -162,8 +162,8 @@ function Pokemon(cfg){
 	}
 	// Initialize Basic stats
 	this.name = speciesData.name;
-	this.icon = speciesData.icon;
-	this.label = speciesData.label;
+	this.icon = cfg.icon || speciesData.icon;
+	this.label = cfg.label || speciesData.label;
 	this.pokeType1 = speciesData.pokeType1;
 	this.pokeType2 = speciesData.pokeType2;
 	this.baseAtk = speciesData.baseAtk;
@@ -242,6 +242,8 @@ Pokemon.prototype.init = function(){
 	this.numOfDeaths = 0;
 	this.tdo = 0;
 	this.tdoFast = 0;
+	this.numFastAttacks = 0;
+	this.numChargedAttacks = 0;
 	
 	this.calculateStats();
 	this.heal();
@@ -355,7 +357,9 @@ Pokemon.prototype.getStatistics = function(){
 		tdo: this.tdo,
 		tdoFast: this.tdoFast,
 		duration: this.activeDurationMs/1000,
-		dps: this.tdo / (this.activeDurationMs/1000)
+		dps: this.tdo / (this.activeDurationMs/1000),
+		numFastAttacks: this.numFastAttacks,
+		numChargedAttacks: this.numChargedAttacks
 	};
 }
 /* End of Class <Pokemon> */
@@ -1058,6 +1062,11 @@ World.prototype.handleDamage = function(e){
 		return;
 	e.subject.gainEnergy(e.move.energyDelta);
 	e.subject.strategy.attackCount++;
+	if (e.move.moveType == "fast"){
+		e.subject.numFastAttacks++;
+	}else{
+		e.subject.numChargedAttacks++;
+	}
 	for (let rival of e.subject.master.rivals){
 		let target = rival.getHead();
 		if (!(target && target.active)){ 

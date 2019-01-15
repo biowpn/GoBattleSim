@@ -530,6 +530,7 @@ function createPokemonNode(){
 	var tb1 = createElement("table", "<colgroup><col width=50%><col width=25%><col width=25%></colgroup>");
 	tb1.appendChild(createRow(['', '', ''], 'td'));
 	tb1.children[1].children[0].appendChild(createPokemonNameInput());
+	tb1.children[1].children[0].appendChild(createElement("input", "", {name: "pokemon-label", hidden: true}));
 	tb1.children[1].children[1].appendChild(createPokemonRoleInput());
 	tb1.children[1].children[2].appendChild(createPokemonCopiesInput());
 	pokemonNode.children[1].appendChild(tb1);
@@ -723,9 +724,9 @@ function createMasterSummaryTable(){
 				m = m.slice(1);
 				var pkmInfo = getPokemonConfig(sim.input, m.split('.')[0]);
 				var attr = m.split('.')[1];
-				if (attr == 'name' || attr == 'nickname'){
+				if (attr == 'name'){
 					var pkmData = getEntry(pkmInfo.name, Data.Pokemon);
-					row.push(createIconLabelSpan(pkmData.icon, pkmInfo.nickname || pkmData.label, 'species-input-with-icon'));
+					row.push(createIconLabelSpan(pkmData.icon, pkmInfo.label || pkmData.label, 'species-input-with-icon'));
 				}else if (attr == 'fmove'){
 					var moveData = getEntry(pkmInfo.fmove, Data.FastMoves);
 					row.push(createIconLabelSpan(moveData.icon, moveData.label, 'move-input-with-icon'));
@@ -1034,6 +1035,7 @@ function exportConfig(cfg){
 				}
 			}
 			for (let pokemon of party.pokemon){
+				delete pokemon.label;
 				for (var attr in pokemon){
 					if (!pokemon[attr]){
 						delete pokemon[attr];
