@@ -1174,7 +1174,7 @@ function battleScore(x, y){
 	let x_hp_left = Math.max(0, battleResult.pokemonStats[0][0][0].hp), y_hp_left = Math.max(0, battleResult.pokemonStats[1][0][0].hp);
 	let x_hp_max = w.players[0].parties[0].pokemon[0].maxHP, y_hp_max = w.players[1].parties[0].pokemon[0].maxHP;
 	
-	var score = Math.log( ((y_hp_max - y_hp_left)/y_hp_max) / ((x_hp_max - x_hp_left)/x_hp_max) );
+	var score = ((y_hp_max - y_hp_left)/y_hp_max) - ((x_hp_max - x_hp_left)/x_hp_max);
 	return score;
 }
 
@@ -1280,9 +1280,9 @@ function battleMatrixSubmit(){
 		matrix.unshift(headerRow);
 	}
 	
-	var rawOutput = "";
+	var rawOutputRows = [];
 	for (var i = 0; i < matrix.length; i++){
-		rawOutput += matrix[i].join("\t") + "\n";
+		rawOutputRows.push(matrix[i].join("\t"));
 	}
-	document.getElementById("battleMatrix-output").value = rawOutput;
+	document.getElementById("battleMatrix-output").value = rawOutputRows.join("\n");
 }

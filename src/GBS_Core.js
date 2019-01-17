@@ -156,7 +156,7 @@ function Pokemon(cfg){
 	this.chargedMoveLagMs = (this.role == "a" ? Data.BattleSettings.chargedMoveLagMs : 0);
 	this.energyDeltaPerHealthLost = Data.BattleSettings.energyDeltaPerHealthLost;
 	
-	var speciesData = getEntry(cfg.name.toString().toLowerCase(), Data.Pokemon);
+	var speciesData = (typeof cfg.species == typeof {} ? cfg.species : getEntry(cfg.name.toString().toLowerCase(), Data.Pokemon));
 	if (speciesData == null){
 		throw Error("Unknown Pokemon: " + cfg.name);
 	}
