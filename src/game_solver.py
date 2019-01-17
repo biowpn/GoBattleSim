@@ -197,8 +197,15 @@ def solve_meta(inF, outF=sys.stdout):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        inF_name = sys.argv[1]
+    else:
+        inF_name = input("Enter the name of input file: ")
+    if not os.path.isfile(inF_name):
+        input(f"File '{inF_name}' does not exist")
+        exit()
 
-    inF = open(sys.argv[1]) if len(sys.argv) > 1 else open("matrix.txt")
+    inF = open(inF_name)
     outF = open(sys.argv[2], 'w') if len(sys.argv) > 2 else sys.stdout
     solve_meta(inF, outF)
     inF.close()
