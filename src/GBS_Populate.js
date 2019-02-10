@@ -85,9 +85,9 @@ var DefaultData = {
 	RaidTierSettings: [
 		{"name": "1", "label": "Tier 1", "cpm": 0.6, "HP": 600},
 		{"name": "2", "label": "Tier 2", "cpm": 0.67, "HP": 1800},
-		{"name": "3", "label": "Tier 3", "cpm": 0.7300000190734863, "HP": 3000},
-		{"name": "4", "label": "Tier 4", "cpm": 0.7900000214576721, "HP": 7500},
-		{"name": "5", "label": "Tier 5", "cpm": 0.7900000214576721, "HP": 12500},
+		{"name": "3", "label": "Tier 3", "cpm": 0.7300000190734863, "HP": 3600},
+		{"name": "4", "label": "Tier 4", "cpm": 0.7900000214576721, "HP": 9000},
+		{"name": "5", "label": "Tier 5", "cpm": 0.7900000214576721, "HP": 15000},
 		{"name": "6", "label": "Tier 6", "cpm": 0.7900000214576721, "HP": 18750}
 	],
 	
@@ -221,7 +221,7 @@ function removeEntry(name, arr){
 function binarySearch(name, arr){
 	var start = 0, end = arr.length, mid;
 	while (start < end){
-		mid = Math.floor((start + end)/2);
+		mid = ~~((start + end)/2);
 		if (arr[mid].name < name)
 			start = mid + 1;
 		else

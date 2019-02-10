@@ -91,29 +91,27 @@ class Game:
             
 
             # 2. Pivoting
-            T = [row.copy() for row in self.T]
+            # 2.1. Replace each entry, a(i, j), not in the row or column of the pivot
+            # by a(i, j)− a(p, j) * a(i, q)/a(p, q)
             for i in range(1, m + 2):
                 for j in range(1, n + 2):
-                    
-                    # 2.1. Replace each entry, a(i, j), not in the row or column of the pivot
-                    # by a(i, j)− a(p, j) * a(i, q)/a(p, q)
                     if i != p and j != q:
-                        T[i][j] = self.T[i][j] - self.T[p][j] * self.T[i][q] / self.T[p][q]
+                        self.T[i][j] = self.T[i][j] - self.T[p][j] * self.T[i][q] / self.T[p][q]
             
-                    # 2.2. Replace each entry in the pivot row, except for the pivot,
-                    # by its value divided by the pivot value.
-                    elif i == p and j != q:
-                        T[i][j] = self.T[i][j] / self.T[p][q]
+            # 2.2. Replace each entry in the pivot row, except for the pivot,
+            # by its value divided by the pivot value.
+            for j in range(1, n + 2):
+                if j != q:
+                    self.T[p][j] = self.T[p][j] / self.T[p][q]
             
-                    # 2.3. Replace each entry in the pivot column, except for the pivot,
-                    # by the negative of its value divided by the pivot value.
-                    elif i != p and j == q:
-                        T[i][j] = -self.T[i][j] / self.T[p][q]
+            # 2.3. Replace each entry in the pivot column, except for the pivot,
+            # by the negative of its value divided by the pivot value.
+            for i in range(1, m + 2):
+                if i != p:
+                    self.T[i][q] = -self.T[i][q] / self.T[p][q]
             
-                    # 2.4 Replace the pivot value by its reciprocal.
-                    else:
-                        T[i][j] = 1 / self.T[p][q]
-            self.T = T
+            # 2.4 Replace the pivot value by its reciprocal.
+            self.T[p][q] = 1 / self.T[p][q]
                         
 
             # 3. Exchange the label on the left of the pivot row
@@ -165,7 +163,7 @@ def example():
         ["R", "P", "S"],
         ["R", "P", "S"],
         [
-            [0,2,-1],
+            [0,-2,1],
             [2,0,-1],
             [-1,1,0]
         ]
@@ -190,7 +188,7 @@ def solve_meta(inF, outF=sys.stdout):
     g = Game(Pokemon, Pokemon, BSM)
     g.solve()
     print("Pokemon", "Weight", sep='\t', file=outF)
-    for pokemon, prob in g.read_out()[0]:
+    for pokemon, prob in sorted(g.read_out()[0], key=lambda x: -x[1]):
         if prob > 0:
             print(pokemon, round(prob, 5), sep='\t', file=outF)
 

@@ -1135,6 +1135,22 @@ function parseCSVRow(str, deli, echar){
 
 
 function battleScore(x, y){
+	if (x.strategy2 == "?"){
+		x.strategy2 = "*";
+		let score1 = battleScore(x, y);
+		x.strategy2 = "0,*";
+		let score2 = battleScore(x, y);
+		x.strategy2 = "?";
+		return (score1 + score2)/2;
+	}
+	if (y.strategy2 == "?"){
+		y.strategy2 = "*";
+		let score1 = battleScore(x, y);
+		y.strategy2 = "0,*";
+		let score2 = battleScore(x, y);
+		y.strategy2 = "?";
+		return (score1 + score2)/2;
+	}
 	var config = {
 	  "players": [
 		{
@@ -1243,22 +1259,14 @@ function battleMatrixSubmit(){
 		pokemon.copies = 1;
 		if (pokemon.hasOwnProperty("cp")){
 			pokemon.role = "a_basic";
-		}
-		
-		// Validation
-		if (!pokemon.name || !getEntry(pokemon.name.toLowerCase(), Data.Pokemon)){
-			return sendFeedbackDialog("At row " + i + ": Unknown Pokemon: " + pokemon.name);
-		}
-		if (!pokemon.fmove || !getEntry(pokemon.fmove.toLowerCase(), Data.FastMoves)){
-			return sendFeedbackDialog("At row " + i + ": Unknown Move: " + pokemon.fmove);
-		}
-		if (!pokemon.cmove || !getEntry(pokemon.cmove.toLowerCase(), Data.ChargedMoves)){
-			return sendFeedbackDialog("At row " + i + ": Unknown Move: " + pokemon.cmove);
-		}
+		}		
 		pokemonVector.push(pokemon);
 	}
-	
-	var matrix = generateBattleMatrix(pokemonVector);
+	try{
+		var matrix = generateBattleMatrix(pokemonVector);
+	} catch (err){
+		return sendFeedbackDialog(err.toString());
+	}	
 	
 	let startRow = Math.max(1, subMatrixSpecs[0] || 1) - 1;
 	let endRow = Math.min(matrix.length, subMatrixSpecs[1] || matrix.length);
@@ -1271,11 +1279,13 @@ function battleMatrixSubmit(){
 	
 	if (namedRowCol){
 		for (var i = 0; i < matrix.length; i++){
-			matrix[i].unshift(pokemonVector[i + startRow].name);
+			let pkm = pokemonVector[i + startRow];
+			matrix[i].unshift(pkm.nickname || pkm.name);
 		}
 		var headerRow = [""];
 		for (var i = 0; i < endCol - startCol; i++){
-			headerRow.push(pokemonVector[i + startCol].name);
+			let pkm = pokemonVector[i + startCol];
+			headerRow.push(pkm.nickname || pkm.name);
 		}
 		matrix.unshift(headerRow);
 	}

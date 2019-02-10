@@ -268,13 +268,15 @@ function generateSpreadsheet(pokemonCollection){
 		var fastMoves_all = p.fmove ? [p.fmove] : p.fastMoves.concat(p.fastMoves_legacy).concat(p.fastMoves_exclusive);
 		var chargedMoves_all = p.cmove ? [p.cmove] : p.chargedMoves.concat(p.chargedMoves_legacy).concat(p.chargedMoves_exclusive);
 		for (let fmove of fastMoves_all){
-			var fmoveInstance = new Move(fmove, Data.FastMoves);
-			if (!fmoveInstance.name){
+			try{
+				var fmoveInstance = new Move(fmove, Data.FastMoves);
+			} catch (err){
 				continue;
 			}
 			for (let cmove of chargedMoves_all){
-				var cmoveInstance = new Move(cmove, Data.ChargedMoves);
-				if (!cmoveInstance.name){
+				try{
+					var cmoveInstance = new Move(cmove, Data.ChargedMoves);
+				} catch (err){
 					continue;
 				}
 				var pkm = new Pokemon({
