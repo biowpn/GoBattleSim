@@ -1180,7 +1180,7 @@ World.prototype.handleMinigame = function(e){
 			continue;
 		}
 		this.timeline.enqueue({
-			name: (enemy.strategy.getShieldDecision() ? EVENT.Protect : EVENT.Nothing), t: this.t, subject: enemy
+			name: (enemy.master.protectShieldLeft > 0 && enemy.strategy.getShieldDecision() ? EVENT.Protect : EVENT.Nothing), t: this.t, subject: enemy
 		});
 	}
 	this.timeline.enqueue({
