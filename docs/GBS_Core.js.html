@@ -83,13 +83,18 @@ function damage(dmgGiver, dmgReceiver, move, weather){
 
 /**
 	The CP formula, calculating the current CP of a Pokemon.
-	@param {Pokemon} pkm The Pokemon to calculate CP for. Expected to have Atk, Def and Stm. If not, then must have base stats, IV stats and cpm.
+	@param {Object|Pokemon} pkm The Pokemon to calculate CP for. Expected to have Atk, Def and Stm. If not, then must have base stats, IV stats and cpm/level.
 	@return {number} The CP value
 */
 function calculateCP(pkm){
-	var atk = pkm.Atk || (pkm.baseAtk + pkm.atkiv) * pkm.cpm;
-	var def = pkm.Def || (pkm.baseDef + pkm.defiv) * pkm.cpm;
-	var stm = pkm.Stm || (pkm.baseStm + pkm.stmiv) * pkm.cpm;
+	var cpm = parseFloat(pkm.cpm);
+	if (isNaN(cpm)){
+		let levelSetting = getEntry(pkm.level.toString(), Data.LevelSettings, true);
+		cpm = levelSetting.cpm;
+	}
+	var atk = pkm.Atk || (pkm.baseAtk + pkm.atkiv) * cpm;
+	var def = pkm.Def || (pkm.baseDef + pkm.defiv) * cpm;
+	var stm = pkm.Stm || (pkm.baseStm + pkm.stmiv) * cpm;
 	return Math.max(10, Math.floor(atk * Math.sqrt(def * stm)/10));
 }
 
@@ -141,18 +146,16 @@ function Move(cfg, database){
 		leftMerge(this, cfg);
 		return;
 	}
-	var moveName = cfg.toString().toLowerCase();
+	var moveName = (cfg || "").toString().toLowerCase();
 	var moveData = null;
 	if (database){
 		moveData = getEntry(moveName, database);
 	}else{
 		moveData = getEntry(moveName, Data.FastMoves) || getEntry(moveName, Data.ChargedMoves);
 	}
-	/*
 	if (moveData == null){
 		throw Error("Unknown Move: " + moveName);
 	}
-	*/
 	leftMerge(this, moveData);
 }
 
@@ -184,7 +187,7 @@ function Pokemon(cfg){
 	this.chargedMoveLagMs = (this.role == "a" ? Data.BattleSettings.chargedMoveLagMs : 0);
 	this.energyDeltaPerHealthLost = Data.BattleSettings.energyDeltaPerHealthLost;
 	
-	var speciesData = getEntry(cfg.name.toString().toLowerCase(), Data.Pokemon);
+	var speciesData = (typeof cfg.species == typeof {} ? cfg.species : getEntry(cfg.name.toString().toLowerCase(), Data.Pokemon));
 	if (speciesData == null){
 		throw Error("Unknown Pokemon: " + cfg.name);
 	}
@@ -224,21 +227,26 @@ function Pokemon(cfg){
 	}
 	
 	// Initialize Moves
-	this.fmove = new Move(cfg.fmove, Data.FastMoves);
-	this.cmove = new Move(cfg.cmove, Data.ChargedMoves);
-	this.cmoves = [];
-	if (cfg.cmoves){
-		let unique_cmoves = cfg.cmoves.filter(function(item, pos){
-			return cfg.cmoves.indexOf(item) == pos;
-		});
-		for (let cmove of unique_cmoves){
-			this.cmoves.push(new Move(cmove, Data.ChargedMoves));
-		}
-	}else{
-		this.cmoves.push(this.cmove);
+	if (cfg.fmove){
+		this.fmove = new Move(cfg.fmove, Data.FastMoves);
 	}
-	if (cfg.cmove2){
-		this.cmoves.push(new Move(cfg.cmove2, Data.ChargedMoves));
+	if (cfg.cmove || cfg.cmoves){
+		this.cmoves = [];
+		if (cfg.cmoves){
+			let unique_cmoves = cfg.cmoves.filter(function(item, pos){
+				return cfg.cmoves.indexOf(item) == pos;
+			});
+			for (let cmove of unique_cmoves){
+				this.cmoves.push(new Move(cmove, Data.ChargedMoves));
+			}
+			this.cmove = this.cmoves[0];
+		}else{
+			this.cmove = new Move(cfg.cmove, Data.ChargedMoves);
+			this.cmoves.push(this.cmove);
+		}
+		if (cfg.cmove2){
+			this.cmoves.push(new Move(cfg.cmove2, Data.ChargedMoves));
+		}
 	}
 	
 	// Initialize strategies
@@ -707,7 +715,7 @@ function Strategy(kwargs){
 Strategy.prototype.bind = function(pokemon){
 	this.subject = pokemon;
 	this.dodgeAttackTypes = [];
-	this.burstAttack = false;
+	this.burstAttackStatus = 0; // 0: never burst; -1: burst, inactive;  1: burst, active
 }
 
 /**
@@ -736,7 +744,7 @@ Strategy.prototype.setActionStrategy = function(str){
 		this.dodgeAttackTypes = [ACTION.Fast, ACTION.Charged];
 		this.actionStrategy = this.actionStrategyDodge;
 	}else if (str == "strat4"){
-		this.burstAttack = true;
+		this.burstAttackStatus = -1;
 		this.actionStrategy = this.actionStrategyNoDodge;
 	}
 }
@@ -748,6 +756,32 @@ Strategy.prototype.setActionStrategy = function(str){
 */
 Strategy.prototype.getActionDecision = function(kwargs){
 	return this.actionStrategy(kwargs);
+}
+
+/**
+	Get the burst charge attack decision.
+	@param {Object} kwargs Keyword arguments as parameters for making decision.
+	@return {Boolean} True for using a charge right away, false for holding it (and burst later).
+*/
+Strategy.prototype.getBurstDecision = function(kwargs){
+	if (this.burstAttackStatus == 0){
+		return true;
+	} else if (this.burstAttackStatus == 1){
+		if (this.projectedEnergy + this.subject.cmove.energyDelta * 2 &lt; 0){
+			this.burstAttackStatus = -1;
+		}
+		return true;
+	} else { // this.burstAttackStatus == -1
+		if (this.projectedEnergy >= Data.BattleSettings.maximumEnergy){
+			this.burstAttackStatus = 1;
+			return true;
+		} else if (this.subject.master.rivals[0].getHead().energy >= Data.BattleSettings.maximumEnergy) {
+			this.burstAttackStatus = 1;
+			return true;
+		} else {
+			return false;
+		}
+	}
 }
 
 /**
@@ -803,15 +837,15 @@ Strategy.prototype.actionStrategyDefender = function(kwargs){
 	let actionName, delay;
 	let actualAttackCount = this.attackCount + (kwargs.currentAction ? 1 : 0);
 	if (actualAttackCount >= 2){
-		let projectedEnergy = this.subject.energy;
+		this.projectedEnergy = this.subject.energy;
 		if (kwargs.currentAction){
 			if (kwargs.currentAction.name == ACTION.Fast){
-				projectedEnergy += this.subject.fmove.energyDelta;
+				this.projectedEnergy += this.subject.fmove.energyDelta;
 			}else if (kwargs.currentAction.name == ACTION.Charged){
-				projectedEnergy += this.subject.cmove.energyDelta;
+				this.projectedEnergy += this.subject.cmove.energyDelta;
 			}
 		}
-		if (projectedEnergy + this.subject.cmove.energyDelta >= 0 &amp;&amp; Math.random() &lt;= 0.5){
+		if (this.projectedEnergy + this.subject.cmove.energyDelta >= 0 &amp;&amp; Math.random() &lt;= 0.5){
 			actionName = ACTION.Charged;
 		}else{
 			actionName = ACTION.Fast;
@@ -834,16 +868,16 @@ Strategy.prototype.actionStrategyDefender = function(kwargs){
 	Attacker strategy: No dodge
 */
 Strategy.prototype.actionStrategyNoDodge = function(kwargs){
-	let projectedEnergy = this.subject.energy;
+	this.projectedEnergy = this.subject.energy;
 	let currentAction = kwargs.currentAction;
 	if (currentAction){
 		if (currentAction.name == ACTION.Fast){
-			projectedEnergy += this.subject.fmove.energyDelta;
+			this.projectedEnergy += this.subject.fmove.energyDelta;
 		}else if (currentAction.name == ACTION.Charged){
-			projectedEnergy += this.subject.cmove.energyDelta;
+			this.projectedEnergy += this.subject.cmove.energyDelta;
 		}
 	}
-	if (projectedEnergy + this.subject.cmove.energyDelta >= 0 &amp;&amp; (!this.burstAttack || projectedEnergy >= Data.BattleSettings.maximumEnergy)){
+	if (this.projectedEnergy + this.subject.cmove.energyDelta >= 0 &amp;&amp; this.getBurstDecision(kwargs)){
 		return {name: ACTION.Charged, delay: 0};
 	}else{
 		return {name: ACTION.Fast, delay: 0};
@@ -1086,8 +1120,10 @@ World.prototype.handleFree = function(e){
 	@param {Object} e The event to handle.
 */
 World.prototype.handleDamage = function(e){
-	if (!e.subject.active)
+	if (!e.subject.active){
+		e.name = ""; // To ignore it
 		return;
+	}
 	e.subject.gainEnergy(e.move.energyDelta);
 	e.subject.strategy.attackCount++;
 	if (e.move.moveType == "fast"){
@@ -1594,7 +1630,7 @@ World.prototype.getStatistics = function(){
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jan 15 2019 17:11:21 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Feb 10 2019 22:47:52 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

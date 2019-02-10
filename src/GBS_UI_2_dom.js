@@ -982,23 +982,26 @@ function updateFromBattleLog(){
 		}
 	}
 	// Sort the log because the breakpoint event could have its time changed
+	var breakEvent = logData[breakIndex];
 	for (; breakIndex < logData.length - 1; breakIndex++){
-		let cur = logData[breakIndex], next = logData[breakIndex + 1];
-		if (cur.t > next.t){
+		let next = logData[breakIndex + 1];
+		if (breakEvent.t > next.t){
 			logData[breakIndex] = next;
-			logData[breakIndex + 1] = cur;
 		}else{
 			break;
 		}
 	}
 	for (; breakIndex > 0; breakIndex--){
-		let cur = logData[breakIndex], prev = logData[breakIndex - 1];
-		if (cur.t <= prev.t){
+		let prev = logData[breakIndex - 1];
+		if (breakEvent.t < prev.t || (breakEvent.t == prev.t && breakEvent.name != EVENT.Protect && breakEvent.name != EVENT.Nothing)){
 			logData[breakIndex] = prev;
-			logData[breakIndex - 1] = cur;
 		}else{
 			break;
 		}
+	}
+	logData[breakIndex] = breakEvent;
+	if (breakEvent.name == EVENT.Protect || breakEvent.name == EVENT.Nothing){
+		breakIndex++; // Include the opponent's charge damage Event
 	}
 	logData = logData.slice(0, breakIndex + 1);
 	
