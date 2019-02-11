@@ -1195,6 +1195,16 @@ function battleScore(x, y){
 }
 
 function generateBattleMatrix(pokemonVector){
+	for (let pkm of pokemonVector){
+		if (pkm.role == "a_basic"){
+			let pkmInstance = new Pokemon(pkm);
+			pkm.level = pkmInstance.level;
+			pkm.atkiv = pkmInstance.atkiv;
+			pkm.defiv = pkmInstance.defiv;
+			pkm.stmiv = pkmInstance.stmiv;
+			pkm.role = "a";
+		}
+	}
 	var matrix = [];
 	var n = pokemonVector.length;
 	for (var i = 0; i < n; i++){
