@@ -1136,17 +1136,17 @@ function parseCSVRow(str, deli, echar){
 
 function battleScore(x, y){
 	if (x.strategy2 == "?"){
-		x.strategy2 = "*";
+		x.strategy2 = "0";
 		let score1 = battleScore(x, y);
-		x.strategy2 = "0,*";
+		x.strategy2 = "1";
 		let score2 = battleScore(x, y);
 		x.strategy2 = "?";
 		return (score1 + score2)/2;
 	}
 	if (y.strategy2 == "?"){
-		y.strategy2 = "*";
+		y.strategy2 = "0";
 		let score1 = battleScore(x, y);
-		y.strategy2 = "0,*";
+		y.strategy2 = "1";
 		let score2 = battleScore(x, y);
 		y.strategy2 = "?";
 		return (score1 + score2)/2;
@@ -1177,7 +1177,7 @@ function battleScore(x, y){
 		}
 	  ],
 	  "battleMode": "pvp",
-	  "timelimit": -1,
+	  "timelimit": 240000,
 	  "weather": "EXTREME",
 	  "aggregation": "enum"
 	};
@@ -1194,8 +1194,9 @@ function battleScore(x, y){
 	return score;
 }
 
-function generateBattleMatrix(pokemonVector){
-	for (let pkm of pokemonVector){
+function generateBattleMatrix(P){
+	for (let pkm of P){
+		pkm.strategy = "strat5";
 		if (pkm.role == "a_basic"){
 			let pkmInstance = new Pokemon(pkm);
 			pkm.level = pkmInstance.level;
@@ -1206,14 +1207,14 @@ function generateBattleMatrix(pokemonVector){
 		}
 	}
 	var matrix = [];
-	var n = pokemonVector.length;
+	var n = P.length;
 	for (var i = 0; i < n; i++){
 		matrix.push(new Array(n));
 	}
 	for (var i = 0; i < n; i++){
 		matrix[i][i] = 0;
 		for (var j = i + 1; j < n; j++){
-			let score = battleScore(pokemonVector[i], pokemonVector[j]);
+			let score = (battleScore(P[i], P[j]) - battleScore(P[j], P[i])) / 2;
 			matrix[i][j] = score;
 			matrix[j][i] = -score;
 		}

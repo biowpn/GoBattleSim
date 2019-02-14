@@ -12,12 +12,9 @@ const MAX_NUM_OF_PLAYERS = 21;
 const EVENT = {
 	Free: "Free",
 	Damage: "Damage",
-	MoveEffect: "MoveEffect",
 	Dodge: "Dodge",
-	Protect: "Protect",
 	Enter: "Enter",
 	Switch: "Switch",
-	Nothing: "Nothing",
 	Minigame: "Minigame"
 };
 
@@ -110,23 +107,23 @@ function inferLevelAndIVs(pkm, cp){
 
 /** 
 	@class
-	@param {string|Move} cfg Information of the move.
+	@param {string|Move|Object} cfg Information of the move.
 	@param {Object[]} database The database to look up for the move stats. If omitted, will look up all databases
 */
 function Move(cfg, database){
-	if (Move.prototype.isPrototypeOf(cfg)){ // Copy Construction
-		leftMerge(this, cfg);
-		return;
-	}
-	var moveName = (cfg || "").toString().toLowerCase();
 	var moveData = null;
-	if (database){
-		moveData = getEntry(moveName, database);
-	}else{
-		moveData = getEntry(moveName, Data.FastMoves) || getEntry(moveName, Data.ChargedMoves);
+	if (typeof cfg == typeof ""){
+		var moveName = cfg.toLowerCase();
+		if (database){
+			moveData = getEntry(moveName, database);
+		}else{
+			moveData = getEntry(moveName, Data.FastMoves) || getEntry(moveName, Data.ChargedMoves);
+		}
+	} else {
+		moveData = cfg || null;
 	}
 	if (moveData == null){
-		throw Error("Unknown Move: " + moveName);
+		throw Error("Unknown Move: " + cfg);
 	}
 	leftMerge(this, moveData);
 }
@@ -163,7 +160,7 @@ function Pokemon(cfg){
 	if (speciesData == null){
 		throw Error("Unknown Pokemon: " + cfg.name);
 	}
-	// Initialize Basic stats
+	// Initialize basic stats
 	this.name = speciesData.name;
 	this.icon = cfg.icon || speciesData.icon;
 	this.label = cfg.label || speciesData.label;
@@ -215,9 +212,12 @@ function Pokemon(cfg){
 		}else{
 			this.cmove = new Move(cfg.cmove, Data.ChargedMoves);
 			this.cmoves.push(this.cmove);
-		}
-		if (cfg.cmove2){
-			this.cmoves.push(new Move(cfg.cmove2, Data.ChargedMoves));
+			if (cfg.cmove2){
+				let cmove2 = new Move(cfg.cmove2, Data.ChargedMoves);
+				if (cmove2.name != this.cmove.name){
+					this.cmoves.push(cmove2);
+				}
+			}
 		}
 	}
 	
@@ -245,9 +245,8 @@ Pokemon.prototype.init = function(){
 	this.strategy.init();
 	
 	// Performance metrics. Does not affect battle outcome
-	this.timeEnterMs = 0;
 	this.activeDurationMs = 0;
-	this.numOfDeaths = 0;
+	this.numDeaths = 0;
 	this.tdo = 0;
 	this.tdoFast = 0;
 	this.numFastAttacks = 0;
@@ -284,7 +283,7 @@ Pokemon.prototype.calculateStats = function(){
 	Check whether the Pokemon is alive (is able to stay in battle).
 	@return {boolean} True if its HP > 0 or it's immortal and false otherwise.
 */
-Pokemon.prototype.isAlive = function(){
+Pokemon.prototype.alive = function(){
 	return this.HP > 0 || this.immortal;
 }
 
@@ -304,7 +303,6 @@ Pokemon.prototype.heal = function(){
 Pokemon.prototype.gainEnergy = function(energyDelta){
 	this.energy += energyDelta;
 	if (this.energy > Data.BattleSettings.maximumEnergy){
-		this.totalEnergyOvercharged += this.energy - Data.BattleSettings.maximumEnergy;
 		this.energy = Data.BattleSettings.maximumEnergy;
 	}
 }
@@ -314,24 +312,26 @@ Pokemon.prototype.gainEnergy = function(energyDelta){
 	@param {number} dmg The amount of HP to lose.
 */
 Pokemon.prototype.takeDamage = function(dmg){
-	this.HP -= dmg;
-	this.gainEnergy(Math.ceil(dmg * this.energyDeltaPerHealthLost));
-	if (!this.isAlive()){
-		this.numOfDeaths++;
+	if (this.alive()){
+		this.HP -= dmg;
+		this.gainEnergy(Math.ceil(dmg * this.energyDeltaPerHealthLost));
+	}
+	if (!this.alive()){
+		this.numDeaths++;
 	}
 }
 
 
 /** 
-	Decides which charged move to use based on an opponent.
-	@enemy {Pokemon} The opponent based on which to select charged move.
+	Decides the primary charged move to use against an opponent.
+	@enemy {Pokemon} The opponent.
 	@weather {string} The current weather.
 */
-Pokemon.prototype.chooseDefaultChargedMove = function(enemy, weather){
-	var best_cmove = this.cmoves[0];
+Pokemon.prototype.choosePrimaryChargedMove = function(enemy, weather){
+	var best_cmove = null;
 	var best_dpe = 0;
 	for (let cmove of this.cmoves){
-		let dpe = damage(this, enemy, cmove, weather) / (-cmove.energyDelta)**2;
+		let dpe = damage(this, enemy, cmove, weather) / (-cmove.energyDelta);
 		if (dpe > best_dpe){
 			best_cmove = cmove;
 			best_dpe = dpe;
@@ -454,7 +454,7 @@ Party.prototype.setHeadById = function(id){
 */
 Party.prototype.setHeadToNext = function(){
 	for (var i = (this.headingPokemonIndex + 1) % this.pokemon.length; i != this.headingPokemonIndex; i = (i + 1) % this.pokemon.length){
-		if (this.pokemon[i].isAlive()){
+		if (this.pokemon[i].alive()){
 			this.headingPokemonIndex = i;
 			return true;
 		}
@@ -477,14 +477,14 @@ Party.prototype.heal = function (){
 	@return {Object} Battle performance metrics.
 */
 Party.prototype.getStatistics = function(){
-	let sum_tdo = 0, sum_numOfDeaths = 0;
+	let sum_tdo = 0, sum_numDeaths = 0;
 	for (let pokemon of this.pokemon){
 		sum_tdo += pokemon.tdo;
-		sum_numOfDeaths += pokemon.numOfDeaths;
+		sum_numDeaths += pokemon.numDeaths;
 	}
 	return {
 		tdo: sum_tdo,
-		numOfDeaths: sum_numOfDeaths
+		numDeaths: sum_numDeaths
 	};
 }
 
@@ -613,17 +613,17 @@ Player.prototype.setHeadPartyToNext = function(){
 	@return {Object} Battle performance metrics.
 */
 Player.prototype.getStatistics = function(battleDurationMs){
-	let sum_tdo = 0, sum_numOfDeaths = 0;
+	let sum_tdo = 0, sum_numDeaths = 0;
 	for (let party of this.parties){
 		let party_stat = party.getStatistics();
 		sum_tdo += party_stat.tdo;
-		sum_numOfDeaths += party_stat.numOfDeaths;
+		sum_numDeaths += party_stat.numDeaths;
 	}
 	return {
 		name: "Player " + (this.index + 1),
 		tdo: sum_tdo,
 		dps: sum_tdo / battleDurationMs,
-		numOfDeaths: sum_numOfDeaths
+		numDeaths: sum_numDeaths
 	};
 }
 
@@ -638,20 +638,23 @@ function Timeline(){
 }
 
 /** 
+	Clear all the items.
+*/
+Timeline.prototype.clear = function(){
+	this.list = [];
+}
+
+/** 
 	Add an item.
 	@param {Object} e The item to add.
 */
 Timeline.prototype.enqueue = function(e){
-	this.list.push(e);
-	for (var i = this.list.length - 1, j = i - 1; j >= 0; j = --i - 1){
-		if (this.list[j].t > this.list[i].t){
-			let temp = this.list[i];
-			this.list[i] = this.list[j];
-			this.list[j] = temp;
-		}else{
+	for (var i = this.list.length - 1; i >= 0; i--){
+		if (e.t >= this.list[i].t){
 			break;
 		}
 	}
+	this.list.splice(i + 1, 0, e);
 }
 
 /**
@@ -659,9 +662,6 @@ Timeline.prototype.enqueue = function(e){
 	@return {Object} The item with the smallest key.
 */
 Timeline.prototype.dequeue = function(){
-	if (this.list.length == 0){
-		return null;
-	}
 	return this.list.shift();
 }
 
@@ -674,9 +674,14 @@ Timeline.prototype.dequeue = function(){
 */
 function Strategy(kwargs){
 	this.subject = null;
-	this.actionStrategy = this.actionStrategyNoDodge;
-	this.shieldStrategyString = "";
-	this.shieldStrategy = (kwargs => true);
+	this.dodgeAttackTypes = [];
+	this.burstAttackStatus = 0; // 0: never burst; -1: burst, inactive;  1: burst, active
+	this.numShieldsUsed = 0;
+	this.numShieldsAllowed = 0;
+	if (kwargs){
+		this.setActionStrategy(kwargs.strategy);
+		this.setShieldStrategy(kwargs.strategy2);
+	}
 	this.init();
 }
 
@@ -685,19 +690,17 @@ function Strategy(kwargs){
 	@param {Pokemon} pokemon The pokemon to bind.
 */
 Strategy.prototype.bind = function(pokemon){
-	this.subject = pokemon;
-	this.dodgeAttackTypes = [];
-	this.burstAttackStatus = 0; // 0: never burst; -1: burst, inactive;  1: burst, active
+	this.subject = pokemon;	
 }
 
 /**
 	Initialize the parameters for keeping track of strategy.
 */
 Strategy.prototype.init = function(){
-	// For action strategy
-	this.attackCount = 0;
-	// For shield strategy
-	this.setShieldStrategy(this.shieldStrategyString);
+	this.numShieldsUsed = 0;
+	if (this.burstAttackStatus == 1){
+		this.burstAttackStatus = -1;
+	}
 }
 
 /**
@@ -706,28 +709,31 @@ Strategy.prototype.init = function(){
 */
 Strategy.prototype.setActionStrategy = function(str){
 	if (str == "strat0"){
-		this.actionStrategy = this.actionStrategyDefender;
+		this.getActionDecision = this.actionStrategyDefender;
 	}else if (str == "strat1"){
-		this.actionStrategy = this.actionStrategyNoDodge;
+		this.getActionDecision = this.actionStrategyNoDodge;
 	}else if (str == "strat2"){
 		this.dodgeAttackTypes = [ACTION.Charged];
-		this.actionStrategy = this.actionStrategyDodge;
+		this.getActionDecision = this.actionStrategyDodge;
 	}else if (str == "strat3"){
 		this.dodgeAttackTypes = [ACTION.Fast, ACTION.Charged];
-		this.actionStrategy = this.actionStrategyDodge;
+		this.getActionDecision = this.actionStrategyDodge;
 	}else if (str == "strat4"){
 		this.burstAttackStatus = -1;
-		this.actionStrategy = this.actionStrategyNoDodge;
+		this.getActionDecision = this.actionStrategyNoDodge;
+	}else if (str == "strat5"){
+		this.getActionDecision = this.actionStrategyPvP;
 	}
 }
 
 /**
 	Get the action decision.
+	This function is meant to be an interface only. To be overrided later.
 	@param {Object} kwargs Keyword arguments as parameters for making decision.
 	@return {Object} An action object.
 */
 Strategy.prototype.getActionDecision = function(kwargs){
-	return this.actionStrategy(kwargs);
+	return {name: ACTION.Fast, delay: 0};
 }
 
 /**
@@ -761,23 +767,11 @@ Strategy.prototype.getBurstDecision = function(kwargs){
 	@param {String} str A string representing the strategy.
 */
 Strategy.prototype.setShieldStrategy = function(str){
-	this.shieldStrategyString = str || "";
-	var arr = this.shieldStrategyString.split(",");
-	if (arr.length < 2){
-		arr.push("0");
-	}else if (arr.length >= 2){
-		arr = arr.slice(0, 2);
-	}
-	this.attacksToTank = [];
-	for (let a of arr){
-		var n = parseInt(a);
-		if (n >= 0){
-			this.attacksToTank.push(n);
-		}else if (a == '*'){
-			this.attacksToTank.push(a);
-		}else{
-			this.attacksToTank.push(0);
-		}
+	str = str || "";
+	if (str.includes(',')){
+		this.numShieldsAllowed = str.split('0').length;
+	} else {
+		this.numShieldsAllowed = parseInt(str) || 0;
 	}
 }
 
@@ -787,19 +781,29 @@ Strategy.prototype.setShieldStrategy = function(str){
 	@return {Boolean} True for deciding to use shield and false otherwise.
 */
 Strategy.prototype.getShieldDecision = function(kwargs){
-	if (this.attacksToTank.length == 0){
-		return false;
-	}
-	var a = this.attacksToTank[0];
-	if (a > 0){
-		this.attacksToTank[0]--;
-		return false;
-	}else if (a == 0){
-		this.attacksToTank.shift();
+	if (this.numShieldsUsed < this.numShieldsAllowed){
+		++this.numShieldsUsed;
 		return true;
-	}else if (a == '*'){
+	} else {
 		return false;
 	}
+}
+
+/**
+	Get the projected when this action is to be executed.
+	@param {Object} kwargs Keyword arguments as parameters for making decision.
+	@return {number} The projected energy.
+*/
+Strategy.prototype.getProjectedEnergy = function(kwargs){
+	var projectedEnergy = this.subject.energy;
+	if (kwargs.currentAction){
+		if (kwargs.currentAction.name == ACTION.Fast){
+			projectedEnergy += this.subject.fmove.energyDelta;
+		}else if (kwargs.currentAction.name == ACTION.Charged){
+			projectedEnergy += this.subject.cmove.energyDelta;
+		}
+	}
+	return projectedEnergy;
 }
 
 /**
@@ -807,23 +811,16 @@ Strategy.prototype.getShieldDecision = function(kwargs){
 */
 Strategy.prototype.actionStrategyDefender = function(kwargs){
 	let actionName, delay;
-	let actualAttackCount = this.attackCount + (kwargs.currentAction ? 1 : 0);
-	if (actualAttackCount >= 2){
-		this.projectedEnergy = this.subject.energy;
-		if (kwargs.currentAction){
-			if (kwargs.currentAction.name == ACTION.Fast){
-				this.projectedEnergy += this.subject.fmove.energyDelta;
-			}else if (kwargs.currentAction.name == ACTION.Charged){
-				this.projectedEnergy += this.subject.cmove.energyDelta;
-			}
-		}
-		if (this.projectedEnergy + this.subject.cmove.energyDelta >= 0 && Math.random() <= 0.5){
+	let numFastAttacks = this.subject.numFastAttacks + (kwargs.currentAction ? 1 : 0);
+	if (numFastAttacks >= 2){
+		let projectedEnergy = this.getProjectedEnergy(kwargs);
+		if (projectedEnergy + this.subject.cmove.energyDelta >= 0 && Math.random() <= 0.5){
 			actionName = ACTION.Charged;
 		}else{
 			actionName = ACTION.Fast;
 		}
 		delay = 1500 + round(1000 * Math.random()); // Add the standard defender delay
-	}else if (actualAttackCount == 1){ // The second action
+	}else if (numFastAttacks == 1){ // The second action
 		actionName = ACTION.Fast;
 		delay = Math.max(0, 1000 - this.subject.fmove.duration);
 	}else{ // The first action
@@ -840,16 +837,8 @@ Strategy.prototype.actionStrategyDefender = function(kwargs){
 	Attacker strategy: No dodge
 */
 Strategy.prototype.actionStrategyNoDodge = function(kwargs){
-	this.projectedEnergy = this.subject.energy;
-	let currentAction = kwargs.currentAction;
-	if (currentAction){
-		if (currentAction.name == ACTION.Fast){
-			this.projectedEnergy += this.subject.fmove.energyDelta;
-		}else if (currentAction.name == ACTION.Charged){
-			this.projectedEnergy += this.subject.cmove.energyDelta;
-		}
-	}
-	if (this.projectedEnergy + this.subject.cmove.energyDelta >= 0 && this.getBurstDecision(kwargs)){
+	let projectedEnergy = this.getProjectedEnergy(kwargs);
+	if (projectedEnergy + this.subject.cmove.energyDelta >= 0 && this.getBurstDecision(kwargs)){
 		return {name: ACTION.Charged, delay: 0};
 	}else{
 		return {name: ACTION.Fast, delay: 0};
@@ -902,6 +891,29 @@ Strategy.prototype.actionStrategyDodge = function(kwargs){
 	}
 }
 
+/**
+	Attacker strategy: PvP
+	1. The primary charge move is the move with the highest DPE
+	2. If a charge move can kill the opponent right away, use it
+*/
+Strategy.prototype.actionStrategyPvP = function(kwargs){
+	let projectedEnergy = this.getProjectedEnergy(kwargs);
+	for (let move of this.subject.cmoves){
+		if (projectedEnergy + move.energyDelta >= 0){
+			if (move.name == this.subject.cmove.name){ // Primary move
+				return {name: ACTION.Charged, delay: 0};
+			} else { // Secondary move
+				let enemy = this.subject.master.rivals[0].getHead();
+				if (damage(this.subject, enemy, move) >= enemy.HP){
+					this.subject.cmove = move;
+					return {name: ACTION.Charged, delay: 0};
+				}
+			}
+		}
+	}
+	return {name: ACTION.Fast, delay: 0};
+}
+
 
 
 /**
@@ -911,11 +923,12 @@ Strategy.prototype.actionStrategyDodge = function(kwargs){
 */
 function World(cfg){
 	// Configure general parameters
-	this.battleMode = cfg.battleMode;
-	this.timelimit = parseInt(cfg.timelimit);
-	if (!this.timelimit > 0){
-		this.timelimit = -1;
+	this.battleMode = cfg.battleMode;	
+	this.timelimitOriginal = parseInt(cfg.timelimit);
+	if (!this.timelimitOriginal > 0){
+		this.timelimitOriginal = -1;
 	}
+	this.timelimit = this.timelimitOriginal;
 	this.weather = cfg.weather || "EXTREME";
 	this.hasLog = cfg.hasLog || cfg.aggregation == "enum";
 	this.dodgeBugActive = parseInt(cfg.dodgeBugActive) || false;
@@ -942,13 +955,6 @@ function World(cfg){
 			for (pokemon of party.pokemon){
 				pokemon.id = pokemon_id++;
 				pokemon.fab = player.fab;
-				if (this.battleMode == "pvp"){
-					pokemon.fastAttackBonus = Data.BattleSettings.fastAttackBonusMultiplier;
-					pokemon.chargedAttackBonus = Data.BattleSettings.chargedAttackBonusMultiplier;
-					pokemon.energyDeltaPerHealthLost = 0;
-					pokemon.fastMoveLagMs = 0;
-					pokemon.chargedMoveLagMs = 0;
-				}
 			}
 		}
 	}
@@ -962,7 +968,50 @@ function World(cfg){
 			}
 		}
 	}
+	if (this.battleMode == "pvp"){
+		this.overridePvP();
+	}
+	
 	this.init();
+}
+
+/** 
+	Override certain methods for PvP.
+*/
+World.prototype.overridePvP = function(){
+	for (player of this.players){
+		for (party of player.parties){
+			for (pokemon of party.pokemon){
+				pokemon.fastAttackBonus = Data.BattleSettings.fastAttackBonusMultiplier;
+				pokemon.chargedAttackBonus = Data.BattleSettings.chargedAttackBonusMultiplier;
+				pokemon.energyDeltaPerHealthLost = 0;
+				pokemon.fastMoveLagMs = 0;
+				pokemon.chargedMoveLagMs = 0;
+			}
+		}
+	}
+	
+	this.registerCharged = function(pkm, action){
+		this.timeline.enqueue({
+			name: EVENT.Minigame, t: this.t + 250, subject: pkm, move: pkm.cmove
+		});
+		return this.t + 500;
+	}
+	
+	this.getAttackOptions = function(e){
+		var options = [];
+		var curMove = e.move || {dws: 0, energyDelta: 0};
+		var pkm = e.object || e.subject;
+		for (let move of [pkm.fmove].concat(pkm.cmoves)){
+			if (e.subject.energy - curMove.energyDelta + move.energyDelta >= 0){
+				options.push({
+					t: e.t, name: (move.moveType == "fast" ? EVENT.Damage : EVENT.Minigame), value: move.name,
+					style: "move", text: move.label, icon: move.icon
+				});
+			}
+		}
+		return options;
+	}
 }
 
 /** 
@@ -973,9 +1022,9 @@ World.prototype.init = function(){
 		player.init();
 	}
 	this.t = Data.BattleSettings.arenaEntryLagMs;
+	this.timelimit = this.timelimitOriginal - Data.BattleSettings.arenaEarlyTerminationMs;
 	this.battleStartMs = this.t;
 	this.battleDurationMs = 0;
-	this.minigameEndMs = 0;
 	
 	this.defeatedTeam = "";
 	this.faintedPokemon = [];
@@ -1025,21 +1074,10 @@ World.prototype.registerFast = function(pkm, action){
 */
 World.prototype.registerCharged = function(pkm, action){
 	var tAction = this.t + action.delay || 0 + pkm.chargedMoveLagMs;
-	if (pkm.energy + pkm.cmove.energyDelta < 0){ // Energy requirement check
-		console.log(pkm, this.t);
-		throw Error("Insufficient energy");
-	}
-	if (this.battleMode == "pvp"){
-		this.timeline.enqueue({
-			name: EVENT.Minigame, t: tAction, subject: pkm, move: pkm.cmove
-		});
-		return tAction + Data.BattleSettings.minigameDurationMs;
-	}else{
-		this.timeline.enqueue({
-			name: EVENT.Damage, t: tAction + pkm.cmove.dws, subject: pkm, move: pkm.cmove
-		});
-		return tAction + pkm.cmove.duration;
-	}
+	this.timeline.enqueue({
+		name: EVENT.Damage, t: tAction + pkm.cmove.dws, subject: pkm, move: pkm.cmove
+	});
+	return tAction + pkm.cmove.duration;
 }
 
 /**
@@ -1093,11 +1131,10 @@ World.prototype.handleFree = function(e){
 */
 World.prototype.handleDamage = function(e){
 	if (!e.subject.active){
-		e.name = ""; // To ignore it
+		e.name = "";
 		return;
 	}
 	e.subject.gainEnergy(e.move.energyDelta);
-	e.subject.strategy.attackCount++;
 	if (e.move.moveType == "fast"){
 		e.subject.numFastAttacks++;
 	}else{
@@ -1105,7 +1142,7 @@ World.prototype.handleDamage = function(e){
 	}
 	for (let rival of e.subject.master.rivals){
 		let target = rival.getHead();
-		if (!(target && target.active)){ 
+		if (!target.active){
 			continue;
 		}
 		let dmg = damage(e.subject, target, e.move, this.weather);
@@ -1114,19 +1151,12 @@ World.prototype.handleDamage = function(e){
 		}
 		e.subject.attributeDamage(dmg, e.move.moveType);
 		target.takeDamage(dmg);
-		if (!target.isAlive()){
+		if (!target.alive()){
 			target.active = false;
 			this.faintedPokemon.push(target);
 		}
 	}
-}
-
-/**
-	Handles MoveEffect Event.
-	@param {Object} e The event to handle.
-*/
-World.prototype.handleMoveEffect = function(e){
-	// Not Yet implemented
+	this.processFaintedPokemon();
 }
 
 /**
@@ -1143,82 +1173,62 @@ World.prototype.handleDodge = function(e){
 	@param {Object} e The event to handle.
 */
 World.prototype.handleMinigame = function(e){
-	if (!e.subject.active)
+	if (!e.subject.active){
+		e.name = "";
 		return;
-	var delayedEvents = [], concurrentMinigamesCount = 1;
+	}
 	for (let e2 of this.timeline.list){
-		if (e2.t == this.t && e2.name == EVENT.Minigame){
-			e2.t = e2.t + concurrentMinigamesCount * Data.BattleSettings.minigameDurationMs;
-			concurrentMinigamesCount++;
-		}else if (e2.name == EVENT.Free){
-			delayedEvents.push(e2);
-		}else if (e2.name == EVENT.Enter || e2.name == EVENT.Switch){
-			// Re-schedule the minigame to the time when the opponent becomes active
-			e.t = e2.t;
-			return this.timeline.enqueue(e);
-		}else if (e2.t == this.t && e2.name == EVENT.Damage && e2.move.moveType == "fast"){
-			// Give priority to rival fast attack event since it could KO the subject
-			return this.timeline.enqueue(e);
+		if (e2.name == EVENT.Free){ // Reset cool down
+			e2.t = this.t + 250;
 		}
 	}
-	this.minigameEndMs = this.t + concurrentMinigamesCount * Data.BattleSettings.minigameDurationMs;
-	for (let e2 of delayedEvents){
-		e2.t = this.minigameEndMs;
-	}
-	for (let rival of e.subject.master.rivals){ // Ask each enemy whether to use Protect Shield
+	e.subject.gainEnergy(e.move.energyDelta);
+	// Ask each enemy whether to use Shield if not already specified, and do damage
+	e.reactions = e.reactions || {};
+	for (let rival of e.subject.master.rivals){
 		var enemy = rival.getHead();
-		var hasMadeShieldDecision = false;
-		for (var j = this.log.length - 1; j >= 0; j--){
-			let e2 = this.log[j];
-			if (e2.t < this.t){
-				break;
-			}else if (e2.index == rival.index && (e2.name == EVENT.Protect || e2.name == EVENT.Nothing)){
-				hasMadeShieldDecision = true; break;
-			}
+		var reaction = e.reactions[rival.index];
+		if (!reaction){
+			reaction = {
+				shield: rival.protectShieldLeft > 0 && enemy.strategy.getShieldDecision()
+			};
+			e.reactions[rival.index] = reaction;
 		}
-		if (hasMadeShieldDecision){
-			continue;
+		reaction.damage = damage(e.subject, enemy, e.move);
+		if (reaction.shield){ // Shield
+			enemy.takeDamage(1);
+			e.subject.attributeDamage(1, e.move.moveType);
+			rival.protectShieldLeft--;
+		}else{ // Not shield
+			enemy.takeDamage(reaction.damage);
+			e.subject.attributeDamage(reaction.damage, e.move.moveType);
 		}
-		this.timeline.enqueue({
-			name: (enemy.master.protectShieldLeft > 0 && enemy.strategy.getShieldDecision() ? EVENT.Protect : EVENT.Nothing), t: this.t, subject: enemy
-		});
+		if (!enemy.alive()){
+			this.faintedPokemon.push(enemy);
+		}
 	}
-	this.timeline.enqueue({
-		name: EVENT.Damage, t: this.t + Math.round(0.5 * Data.BattleSettings.minigameDurationMs), subject: e.subject, move: e.subject.cmove
-	});
+	this.processFaintedPokemon();
 }
 
-/**
-	Handles Protect Event.
-	@param {Object} e The event to handle.
-*/
-World.prototype.handleProtect = function(e){
-	if (!(e.subject.master.protectShieldLeft > 0)){
-		throw Error("No protect shield left");
-	}
-	e.subject.damageReductionExpiration = this.t + Data.BattleSettings.minigameDurationMs;
-	e.subject.damageReductionPercent = Data.BattleSettings.protectShieldDamageReductionPercent;
-	e.subject.master.protectShieldLeft--;
-}
 
 /**
 	Handles Enter Event.
 	@param {Object} e The event to handle.
 */
 World.prototype.handleEnter = function(e){
-	e.subject.master.getHead().active = false;
-	e.subject.master.setHead(e.subject);
-	e.subject.timeEnterMs = this.t;
+	var player = e.subject.master;
+	player.getHead().active = false;
+	player.setHead(e.subject);
 	e.subject.active = true;
 	e.subject.queuedAction = null;
+	for (let rival of player.rivals){
+		var enemy = rival.getHead();
+		e.subject.choosePrimaryChargedMove(enemy, this.weather);
+		enemy.choosePrimaryChargedMove(e.subject, this.weather);
+	}
 	this.timeline.enqueue({
 		name: EVENT.Free, t: this.t, subject: e.subject
 	});
-	for (let rival of e.subject.master.rivals){
-		var enemy = rival.getHead();
-		e.subject.chooseDefaultChargedMove(enemy, this.weather);
-		enemy.chooseDefaultChargedMove(e.subject, this.weather);
-	}
 }
 
 /**
@@ -1227,25 +1237,11 @@ World.prototype.handleEnter = function(e){
 */
 World.prototype.handleSwitch = function(e){
 	var player = e.subject.master;
-	e.subject.active = false;
-	player.setHead(e.object);
-	e.object.timeEnterMs = this.t;
-	e.object.active = true;
-	this.timeline.enqueue({
-		name: EVENT.Free, t: this.t, subject: e.object
-	});
-	for (let rival of e.subject.master.rivals){
-		rival.getHead().chooseDefaultChargedMove(e.object, this.weather);
-	}
+	e.object = player.getHead();
+	if (e.object.id == e.subject.id)
+		return;
 	player.switchingCooldownExpiration = this.t + Data.BattleSettings.switchingCooldownDurationMs;
-}
-
-/**
-	Handles Nothing Event.
-	@param {Object} e The event to handle.
-*/
-World.prototype.handleNothing = function(e){
-	// Do nothing
+	this.handleEnter(e);
 }
 
 /**
@@ -1255,20 +1251,10 @@ World.prototype.processFaintedPokemon = function(){
 	for (let pkm of this.faintedPokemon){
 		let player = pkm.master;
 		let party = player.getHeadParty();
-		pkm.activeDurationMs += this.t - pkm.timeEnterMs;
-		if (pkm.role == "gd"){
-			// A gym defender's fainting will reset the clock
-			let curBattleDuration = this.t - this.battleStartMs;
-			for (let e of this.timeline.list){
-				e.t -= curBattleDuration;
-			}
-			this.battleDurationMs += curBattleDuration;
-			this.t = 0;
-			this.battleStartMs = 0;
-		}
+		pkm.active = false;
 		if (player.setHeadToNext()){ // Select next Pokemon from current party
 			this.timeline.enqueue({
-				name: EVENT.Enter, t: Math.max(this.t + Data.BattleSettings.swapDurationMs, this.minigameEndMs), subject: player.getHead()
+				name: EVENT.Enter, t: this.t + Data.BattleSettings.swapDurationMs, subject: player.getHead()
 			});
 		}else if (party.revive){ // Max revive current party and re-lobby
 			party.heal();
@@ -1284,7 +1270,7 @@ World.prototype.processFaintedPokemon = function(){
 				subject: player.getHead()
 			});
 		}else{ // This player is done. Check if his team is defeated
-			if (this.isTeamDefeated(player.team)){
+			if (this.isDefeated(player.team)){
 				this.defeatedTeam = player.team;
 			}
 		}
@@ -1293,17 +1279,14 @@ World.prototype.processFaintedPokemon = function(){
 }
 
 /**
-	Check if any player of the team is still in game.
+	Check if the given team is defeated. That is, if no player of the team is still in game.
 	@param {string} team The team to check whether it's defeated or not.
-	@return {boolean} true if it's defeated and false otherwise.
+	@return {boolean} true if defeated and false otherwise.
 */
-World.prototype.isTeamDefeated = function(team){
+World.prototype.isDefeated = function(team){
 	for (let player of this.players){
-		if (player.team == team){
-			let pokemon = player.getHead();
-			if (pokemon && pokemon.isAlive()){
-				return false;
-			}
+		if (player.team == team && player.getHead().alive()){
+			return false;
 		}
 	}
 	return true;
@@ -1313,230 +1296,234 @@ World.prototype.isTeamDefeated = function(team){
 	Check whether the battle has ended.
 	@return {boolean} true if the battle should end.
 */
-World.prototype.hasBattleEnded = function(){
-	return this.defeatedTeam || (this.t + Data.BattleSettings.arenaEarlyTerminationMs > this.timelimit && this.timelimit > 0);
+World.prototype.end = function(){
+	return this.defeatedTeam || (this.t > this.timelimit && this.timelimit > 0);
 }
 
 /**
-	Simulate a new battle.
+	Process the event and update the interal state.
+	@param {Object} event The event to process.
 */
-World.prototype.battle = function(){
-	while (!this.hasBattleEnded()){
-		let e = this.timeline.dequeue();
-		this.t = e.t;
-		// Process the event
-		this["handle" + e.name](e);
-		// Append to log if hasLog is true
-		if (this.hasLog){
-			this.writeLog(e);
-		}
-		// Check if some Pokemon fainted and handle it
-		this.processFaintedPokemon();
-	}
-	
-	// Battle has ended, some leftovers to handle	
-	this.battleDurationMs += this.t - this.battleStartMs;
+World.prototype.next = function(event){
+	let timeDiff = event.t - this.t;
+	this.t = event.t;
+	this.battleDurationMs += timeDiff;
 	for (let player of this.players){
 		let pkm = player.getHead();
-		if (pkm && pkm.active){
-			pkm.activeDurationMs += this.t - pkm.timeEnterMs;
+		if (pkm.active){
+			pkm.activeDurationMs += timeDiff;
 		}
+	}
+	this["handle" + event.name](event);
+	if (this.hasLog){
+		this.dump(event);
 	}
 }
 
 /**
-	Load and process the event from log
-	@param {Object} e Event to read.
+	Start simulation.
 */
-World.prototype.readLog = function(e){
-	if (!(e.t >= this.t)){
-		throw Error("Invalid event time: " + e.t);
+World.prototype.battle = function(){
+	while (!this.end()){
+		let event = this.timeline.dequeue();
+		this.next(event);
 	}
-	this.t = e.t;
-	while (this.timeline.list.length > 0 && this.timeline.list[0].t < this.t){
-		this.timeline.list.shift(); // Remove all outdated events
-	}
-	if (e.name == EVENT.Enter){
-		e.subject = this.getPokemonById(parseInt(e.value));
-	}else if (e.name == EVENT.Switch){
-		e.subject = this.players[e.index].getHead();
-		e.object = this.getPokemonById(parseInt(e.value));
-	}else if (e.name == EVENT.Damage || e.name == EVENT.Minigame){
-		e.subject = this.players[e.index].getHead();
-		if (e.value == e.subject.fmove.name){
-			e.move = e.subject.fmove;
-		}else{
-			for (let move of e.subject.cmoves){
-				if (e.value == move.name){
-					e.move = move;
-					e.subject.cmove = move; // Overwrite default charged
+}
+
+/**
+	Load, translate and process a log entry.
+	@param {Object} entry Log entry to load.
+*/
+World.prototype.load = function(entry){
+	var event = {t: entry.t};
+	var subjectEvent = entry.events[entry.index];
+	var curOption = subjectEvent.options[subjectEvent.index];
+	event.name = curOption.name;
+	if (curOption.name == EVENT.Enter){
+		event.subject = this.getPokemonById(parseInt(curOption.value));
+	}else if (curOption.name == EVENT.Switch){
+		event.subject = this.getPokemonById(parseInt(curOption.value));
+	}else if (curOption.name == EVENT.Damage || curOption.name == EVENT.Minigame){
+		event.subject = this.players[entry.index].getHead();
+		for (let move of [event.subject.fmove].concat(event.subject.cmoves)){
+			if (curOption.value == event.subject.fmove.name){
+				event.move = event.subject.fmove; break;
+			}
+		}
+		if (curOption.name == EVENT.Minigame){
+			event.reactions = {};
+			for (var i = 0; i < this.players.length; i++){
+				let entryEvent = entry.events[i];
+				if (entryEvent){
+					let curOption = entryEvent.options[entryEvent.index];
+					if (curOption.name == "Shield"){
+						event.reactions[i] = {shield: curOption.value};
+					}
 				}
 			}
 		}
-	}else if (e.name == EVENT.Dodge){
-		e.subject = this.players[e.index].getHead();
-	}else if (e.name == EVENT.Protect){
-		e.subject = this.players[e.index].getHead();
-	}else if (e.name == EVENT.Nothing){
-		e.subject = this.players[e.index].getHead();
+	}else if (curOption.name == EVENT.Dodge){
+		event.subject = this.players[entry.index].getHead();
 	}else{
-		throw Error("Unreadable Event Type: " + e.name);
+		throw Error("Unloadable Entry: ", entry);
 	}
-	this["handle" + e.name](e);
-	if (this.hasLog){
-		this.writeLog(e);
-	}
-	this.processFaintedPokemon();
+	this.next(event);
 }
 
 /**
-	Resume the battle after reading and loading some log events.
+	Load and process a list of log entries.
+	@param {Object[]} entries Log entries to load.
+*/
+World.prototype.loadList = function(entries){
+	for (var i = 0; i < entries.length; i++){
+		entries[i]._pos_ = i;
+	}
+	entries.sort((a, b) => (a.t != b.t ? a.t - b.t : a._pos_ - b._pos_));
+	for (let entry of entries){
+		this.load(entry);
+		if (entry.breakpoint)
+			break;
+	}
+}
+
+/**
+	Resume the battle after reading and loading some log entries.
 */
 World.prototype.resume = function(){
-	var hasFreeEvent = new Array(this.players.length);
-	for (let e of this.timeline.list){
-		if (e.name == EVENT.Free || e.name == EVENT.Enter || e.name == EVENT.Switch){
-			hasFreeEvent[e.subject.master.index] = true;
-			e.t = Math.max(e.t, this.minigameEndMs);
-		}
-	}
-	// For players without explicit FREE events, infer from battle log and enqueue FREE events for them
+	this.timeline.clear();
+	var hasFreeEvent = {};
 	for (var i = 0; i < this.players.length; i++){ 
-		if (hasFreeEvent[i])
+		if (hasFreeEvent[i]){
 			continue;
-		let tFree = this.t;
-		let pkm = this.players[i].getHead(); 
-		for (var j = this.log.length - 1; j >= 0; j--){
-			var e = this.log[j];
-			if (e.index == i){
-				if (e.name == EVENT.Damage){
-					let move = new Move(e.value);
-					tFree = e.t - move.dws + move.duration;
-					if (this.battleMode == "pvp" && move.moveType == "charged"){
-						tFree += Math.round(0.5 * Data.BattleSettings.minigameDurationMs);
+		} else {
+			hasFreeEvent[i] = true;
+			let tFree = this.t;
+			let pkm = this.players[i].getHead(); 
+			for (var j = this.log.length - 1; j >= 0; j--){
+				let entry = this.log[j];
+				if (entry.index == i){
+					let subjectEvent = entry.events[i];
+					let curOption = subjectEvent.options[subjectEvent.index];
+					if (curOption.name == EVENT.Damage){
+						let move = new Move(curOption.value);
+						tFree = entry.t - move.dws + move.duration;
+					}else if (curOption.name == EVENT.Minigame){
+						tFree = entry.t;
+					}else if (curOption.name == EVENT.Dodge){
+						tFree = entry.t + Data.BattleSettings.dodgeDurationMs;
 					}
-					if (pkm.role == "gd" || pkm.role == "rb"){
-						tFree += 1500 + round(1000 * Math.random());
-					}
-				}else if (e.name == EVENT.Minigame || e.name == EVENT.Protect || e.name == EVENT.Nothing){
-					tFree = e.t + Data.BattleSettings.minigameDurationMs;
-				}else if (e.name == EVENT.Dodge){
-					tFree = e.t + Data.BattleSettings.dodgeDurationMs;
+					break;
 				}
-				break;
 			}
+			this.timeline.enqueue({
+				name: (pkm.active ? EVENT.Free : EVENT.Enter), t: tFree, subject: pkm
+			});
 		}
-		tFree = Math.max(tFree, this.minigameEndMs);
-		this.timeline.enqueue({
-			name: (pkm.active ? EVENT.Free : EVENT.Enter), t: tFree, subject: pkm
-		});
 	}
 	this.battle();
 }
 
 /**
-	Get the alternative events of a given event, for interactive batte log.
-	@param {Object} e The primary event.
-	@return {Object[]} A list of all valid alternative events (the primary event excluded).
+	Get the Enter/Switch options for interactive batte log.
+	@param {Object} e The current event/option.
+	@return {Object[]} A list of all valid options, including the current option.
 */
-World.prototype.getAlternativeEvents = function(e){
-	var alternatives = [];
-	var alternativePokemon = [];
-	var alternativeMoves = [];
+World.prototype.getPokemonOptions = function(e){
+	var options = [];
+	var eventName = e.name;
+	var curValue = "";
+	if (e.name == EVENT.Enter || e.name == EVENT.Switch){
+		options.push({
+			t: e.t, name: e.name, value: e.subject.id,
+			style: "pokemon", text: e.subject.label, icon: e.subject.icon
+		});
+	} else {
+		eventName = EVENT.Switch;
+		if (e.subject.master.switchingCooldownExpiration > e.t){
+			return [];
+		}
+	}
 	for (let pkm of e.subject.party.pokemon){
-		if (pkm.id != e.subject.id && pkm.isAlive()){
-			alternativePokemon.push({
-				t: e.t, name: (e.name == EVENT.Enter ? EVENT.Enter : EVENT.Switch), value: pkm.id, 
+		if (pkm.id != e.subject.id && (!e.object || pkm.id != e.object.id) && pkm.alive()){
+			options.push({
+				t: e.t, name: eventName, value: pkm.id, 
 				style: "pokemon", text: pkm.label, icon: pkm.icon
 			});
 		}
 	}
-	let curMove = e.move || {dws: 0, energyDelta: 0};
-	for (let altMove of [e.subject.fmove].concat(e.subject.cmoves)){
-		if (altMove.name != curMove.name && e.subject.energy - curMove.energyDelta + altMove.energyDelta >= 0){
-			var altDamageEvent = {
-				t: e.t + altMove.dws - curMove.dws, name: EVENT.Damage, value: altMove.name,
-				style: "move", text: altMove.label, icon: altMove.icon
-			};
-			if (this.battleMode == "pvp"){
-				if (curMove.moveType == "charged" && altMove.moveType == "fast"){
-					altDamageEvent.t -= Math.round(0.5 * Data.BattleSettings.minigameDurationMs);
-				}else if (curMove.moveType == "fast" && altMove.moveType == "charged"){
-					altDamageEvent.name = EVENT.Minigame;
-				}
-			}
-			alternativeMoves.push(altDamageEvent);
-		}
-	}
-	if (e.name == EVENT.Enter){
-		alternatives = alternativePokemon;
-	}else if (e.name == EVENT.Switch){
-		alternatives = alternativePokemon.concat(alternativeMoves);
-	}else if (e.name == EVENT.Damage){
-		if (e.subject.master.switchingCooldownExpiration <= e.t && !(this.battleMode == "pvp" && e.move.moveType == "charged")){
-			alternatives = alternativePokemon;
-		}
-		alternatives = alternatives.concat(alternativeMoves);
-	}else if (e.name == EVENT.Dodge){
-		alternatives = alternativeMoves;
-	}else if (e.name == EVENT.Protect){
-		alternatives.push({
-			t: e.t, name: EVENT.Nothing, value: "",
-			text: "No Shield"
-		});
-	}else if (e.name == EVENT.Nothing){
-		if (e.subject.master.protectShieldLeft > 0){
-			alternatives.push({
-				t: e.t, name: EVENT.Protect, value: "",
-				text: "Protect Shield"
-			});
-		}
-	}
-	return alternatives;
+	return options;
 }
 
 /**
-	Log the simulator event.
-	@param {Object} e Event to write.
+	Get the Attack actions for interactive batte log.
+	@param {Object} e The current event/option.
+	@return {Object[]} A list of all valid options, including the current option.
 */
-World.prototype.writeLog = function(e){
+World.prototype.getAttackOptions = function(e){
+	var options = [];
+	var curMove = e.move || {dws: 0, energyDelta: 0};
+	var pkm = e.object || e.subject;
+	for (let move of [pkm.fmove].concat(pkm.cmoves)){
+		if (pkm.energy - curMove.energyDelta + move.energyDelta >= 0){
+			options.push({
+				t: e.t + move.dws - curMove.dws, name: EVENT.Damage, value: move.name,
+				style: "move", text: move.label, icon: move.icon
+			});
+		}
+	}
+	return options;
+}
+
+/**
+	Translate a simulator event into a log entry.
+	@param {Object} e Simulation event to log.
+*/
+World.prototype.dump = function(e){
 	var entry = {
-		t: e.t, name: e.name, value: "", index: e.subject.master.index,
-		cells: new Array(this.players.length)
+		t: e.t, index: e.subject.master.index, events: new Array(this.players.length)
 	};
-	var subjectCell = {
-		alternatives: this.getAlternativeEvents(e)
+	var subjectEvent = {
+		index: null, options: []
 	};
+	let curValue = null;
 	if (e.name == EVENT.Enter){
-		entry.value = e.subject.id;
-		subjectCell.style = "pokemon";
-		subjectCell.text = e.subject.label;
-		subjectCell.icon = e.subject.icon;
+		curValue = e.subject.id;
+		subjectEvent.options = this.getPokemonOptions(e);
 	}else if (e.name == EVENT.Switch){
-		entry.value = e.object.id;
-		subjectCell.style = "pokemon";
-		subjectCell.text = e.object.label;
-		subjectCell.icon = e.object.icon;
+		curValue = e.subject.id;
+		subjectEvent.options = this.getPokemonOptions(e).concat(this.getAttackOptions(e));
 	}else if (e.name == EVENT.Damage){
-		entry.value = e.move.name;
-		subjectCell.style = "move";
-		subjectCell.text = e.move.label;
-		subjectCell.icon = e.move.icon;
+		curValue = e.move.name;
+		subjectEvent.options = this.getPokemonOptions(e).concat(this.getAttackOptions(e));
 		for (let rival of e.subject.master.rivals){
-			entry.cells[rival.index] = {
-				text: (rival.getHead() || {HP: ""}).HP.toString()
+			entry.events[rival.index] = {
+				index: 0, options: [{text: rival.getHead().HP.toString()}]
 			};
 		}
 	}else if (e.name == EVENT.Dodge){
-		subjectCell.text = "Dodge";
-	}else if (e.name == EVENT.Protect){
-		subjectCell.text = "Protect Shield";
-	}else if (e.name == EVENT.Nothing){
-		subjectCell.text = "No Shield";
+		curValue = 1;
+		subjectEvent.options = [{name: EVENT.Dodge, value: 1, text: "Dodge"}].concat(this.getAttackOptions(e));
+	}else if (e.name == EVENT.Minigame){
+		curValue = e.move.name;
+		subjectEvent.options = this.getPokemonOptions(e).concat(this.getAttackOptions(e));
+		for (var i in e.reactions){
+			entry.events[i] = {
+				index: e.reactions[i].shield ? 1: 0,
+				options: [
+					{name: "Shield", value: 0, text: "No Shield (-" + e.reactions[i].damage + ")"}, 
+					{name: "Shield", value: 1, text: "Shield (-1)"}
+				]
+			};
+		}
 	}else{ // Ignore other events
 		return;
 	}
-	entry.cells[entry.index] = subjectCell;
+	for (var i = 0; i < subjectEvent.options.length; i++){
+		if (subjectEvent.options[i].name == e.name && subjectEvent.options[i].value == curValue){
+			subjectEvent.index = i; break;
+		}
+	}
+	entry.events[entry.index] = subjectEvent;
 	this.log.push(entry);
 }
 
@@ -1549,13 +1536,13 @@ World.prototype.getStatistics = function(){
 	var player_stats = [];
 	var pokemon_stats = [];
 	general_stat['duration'] = this.battleDurationMs/1000;
-	general_stat['battle_result'] = (this.isTeamDefeated("1") ? 1 : 0);
+	general_stat['battle_result'] = (this.isDefeated("1") ? 1 : 0);
 	let sumTDO = 0, sumMaxHP = 0;
-	general_stat['numOfDeaths'] = 0;
+	general_stat['numDeaths'] = 0;
 	for (let player of this.players){
 		let ts = player.getStatistics(general_stat['duration']);
 		if (player.team == "0"){
-			general_stat['numOfDeaths'] += ts['numOfDeaths'];
+			general_stat['numDeaths'] += ts['numDeaths'];
 		}
 		player_stats.push(ts);
 		let playerStat = [];
@@ -1584,5 +1571,4 @@ World.prototype.getStatistics = function(){
 		battleLog: this.log
 	};	
 }
-
 

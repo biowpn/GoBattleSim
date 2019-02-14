@@ -109,7 +109,7 @@ function createPokemonRoleInput(){
 			}
 		}
 		var strategyNode = $$$(pokemonNode).child("pokemon-strategy").node;
-		if ((this.value == "a" || this.value == "a_basic")){
+		if (this.value == "a" || this.value == "a_basic"){
 			if (strategyNode.value == "strat0")
 				strategyNode.value = "strat1";
 		}else{
@@ -131,8 +131,10 @@ function createPokemonRoleInput(){
 				//this.disabled = true;
 			}
 		}else if (kwargs.battleMode == "pvp"){
-			this.value = "a";
-			this.onchange();
+			if (this.value != "a" &amp;&amp; this.value != "a_basic"){
+				this.value = "a";
+				this.onchange();
+			}
 		}
 	}
 	return roleInput;
@@ -198,6 +200,7 @@ function createPokemonStrategyInput(){
 	strategyInput.appendChild(createElement('option', 'Dodge Charged', {value: "strat2"}));
 	strategyInput.appendChild(createElement('option', 'Dodge All', {value: "strat3"}));
 	strategyInput.appendChild(createElement('option', 'Defender AI', {value: "strat0"}));
+	strategyInput.appendChild(createElement('option', 'PvP Smart', {value: "strat5"}));
 	strategyInput.comply = function(kwargs){
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
@@ -206,7 +209,7 @@ function createPokemonStrategyInput(){
 				this.disabled = true;
 			}
 		}else if (kwargs.battleMode == "pvp"){
-			this.value = "strat1";
+			this.value = "strat5";
 			var strat2 = $$$(this).parent("pokemon").child("pokemon-strategy2").node;
 			this.setAttribute("hidden", true);
 			strat2.removeAttribute("hidden");
@@ -401,6 +404,7 @@ function createPlayerTeamInput(){
 	playerTeamInput.appendChild(createElement('option', "Opposite Team", {value: "1"}));
 	playerTeamInput.onchange = function(){
 		/* TODO: Validation - different team
+		// Something buggy on this section of codes
 		var different = false;
 		for (let player of read().players){
 			if (player.team != this.value){
@@ -904,15 +908,6 @@ function displayDetail(arg){
 	if (output.battleLog.length > 0){
 		var battleLogTable = createBattleLogTable(output.battleLog);
 		battleLogDiv.appendChild(battleLogTable);
-		/*
-		$( battleLogTable ).DataTable({
-			scrollX: true,
-			scrollY: '80vh',
-			scroller: true,
-			searching: false,
-			ordering: false
-		});
-		*/
 	}
 }
 
@@ -922,59 +917,58 @@ function createBattleLogTable(log){
 		width: '100%', class: 'display nowrap', id: "ui-log-table"
 	});
 	let headers = ["Time"];
-	for (var i = 0; i &lt; log[0].cells.length; i++){
+	for (let i = 0; i &lt; log[0].events.length; i++){
 		headers.push("Player " + (i+1));
 	}
 	table.children[0].appendChild(createRow(headers, "th"));
 	var tbody = createElement("tbody");
-	for (let entry of log){
-		var tableRow = createElement("tr");
-		tableRow.dataset.t = entry.t;
-		tableRow.dataset.name = entry.name;
-		tableRow.dataset.value = entry.value;
-		tableRow.dataset.index = entry.index;
+	for (let i = 0; i &lt; log.length; i++){
+		let entry = log[i];
+		let tableRow = createElement("tr");
 		tableRow.appendChild(createElement("td", round(entry.t/1000, 2)));
-		for (var j = 0; j &lt; entry.cells.length; j++){
-			var tableCell = createElement("td");
-			var cell = entry.cells[j] || {text: ""};
-			if (cell.alternatives &amp;&amp; cell.alternatives.length > 0){
-				var selectElement = createElement("select");
-				var options = [cell].concat(cell.alternatives);
-				for (let opt of options){
-					var optionEl = createElement("option", opt.text);
-					optionEl.dataset.t = opt.t;
-					optionEl.dataset.name = opt.name;
-					optionEl.dataset.value = opt.value;
-					if (opt.style == "pokemon"){
+		for (let j = 0; j &lt; entry.events.length; j++){
+			let tableCell = createElement("td");
+			let singleEvent = entry.events[j] || {index: 0, options: [{text: ""}]};
+			if (singleEvent.options.length > 1){
+				let selectElement = createElement("select");
+				for (let k = 0; k &lt; singleEvent.options.length; k++){
+					let option = singleEvent.options[k];
+					let optionEl = createElement("option", option.text);
+					optionEl.value = k;
+					if (option.style == "pokemon"){
 						optionEl.dataset.class = "input-with-icon species-input-with-icon";
-						optionEl.dataset.style = "background-image: url(" + opt.icon + ");"
-					}else if (opt.style == "move"){
+						optionEl.dataset.style = "background-image: url(" + option.icon + ");"
+					}else if (option.style == "move"){
 						optionEl.dataset.class = "input-with-icon move-input-with-icon";
-						optionEl.dataset.style = "background-image: url(" + opt.icon + ");"
+						optionEl.dataset.style = "background-image: url(" + option.icon + ");"
 					}
 					selectElement.appendChild(optionEl);
 				}
+				selectElement.value = singleEvent.index;
 				tableCell.appendChild(selectElement);
-				
 				$(selectElement).iconselectmenu({
 					change: function(event, ui){
-						var optionSelected = $("option:selected", this)[0];
-						var parentTableRow = this.parentNode.parentNode;
-						parentTableRow.dataset.t = optionSelected.dataset.t;
-						parentTableRow.dataset.name = optionSelected.dataset.name;
-						parentTableRow.dataset.value = optionSelected.dataset.value;
-						parentTableRow.dataset.breakpoint = true;
-						updateFromBattleLog();
+						singleEvent.index = ui.item.index;
+						entry.breakpoint = true;
+						var cfg = read();
+						var w = new World(cfg);
+						w.loadList(log);
+						w.resume();
+						$( "#feedback_table1" ).accordion("destroy");
+						displayDetail({
+							input: cfg,
+							output: w.getStatistics()
+						});
 					}
 				}).iconselectmenu("menuWidget").addClass("ui-menu-icons");
-				
-			}else{
-				if (cell.style == "pokemon"){
-					tableCell.innerHTML = createIconLabelSpan(cell.icon, cell.text, "species-input-with-icon");
-				}else if (cell.style == "move"){
-					tableCell.innerHTML = createIconLabelSpan(cell.icon, cell.text, "move-input-with-icon");
+			} else {
+				let curOption = singleEvent.options[singleEvent.index];
+				if (curOption.style == "pokemon"){
+					tableCell.innerHTML = createIconLabelSpan(curOption.icon, curOption.text, "species-input-with-icon");
+				}else if (curOption.style == "move"){
+					tableCell.innerHTML = createIconLabelSpan(curOption.icon, curOption.text, "move-input-with-icon");
 				}else{
-					tableCell.innerHTML = cell.text;
+					tableCell.innerHTML = curOption.text;
 				}
 			}
 			tableCell.setAttribute('style', 'background:' + HSL_COLORS[j % HSL_COLORS.length][0]);
@@ -985,69 +979,6 @@ function createBattleLogTable(log){
 	table.appendChild(tbody);
 	return table;
 }
-
-function updateFromBattleLog(){
-	// Get the log data up to the breakpoint
-	var logData = [];
-	var table = document.getElementById("ui-log-table");
-	var breakIndex = -1;
-	for (var i = 1; i &lt; table.children.length; i++){
-		var tbody = table.children[i];
-		for (var j = 0; j &lt; tbody.children.length; j++){
-			var tr = tbody.children[j];
-			var e = {
-				t: parseInt(tr.dataset.t),
-				name: tr.dataset.name,
-				value: tr.dataset.value,
-				index: parseInt(tr.dataset.index)
-			};
-			if (tr.dataset.breakpoint){
-				e.breakpoint = true;
-				delete tr.dataset.breakpoint;
-				breakIndex = logData.length;
-			}
-			logData.push(e);
-		}
-	}
-	// Sort the log because the breakpoint event could have its time changed
-	var breakEvent = logData[breakIndex];
-	for (; breakIndex &lt; logData.length - 1; breakIndex++){
-		let next = logData[breakIndex + 1];
-		if (breakEvent.t > next.t){
-			logData[breakIndex] = next;
-		}else{
-			break;
-		}
-	}
-	for (; breakIndex > 0; breakIndex--){
-		let prev = logData[breakIndex - 1];
-		if (breakEvent.t &lt; prev.t || (breakEvent.t == prev.t &amp;&amp; breakEvent.name != EVENT.Protect &amp;&amp; breakEvent.name != EVENT.Nothing)){
-			logData[breakIndex] = prev;
-		}else{
-			break;
-		}
-	}
-	logData[breakIndex] = breakEvent;
-	if (breakEvent.name == EVENT.Protect || breakEvent.name == EVENT.Nothing){
-		breakIndex++; // Include the opponent's charge damage Event
-	}
-	logData = logData.slice(0, breakIndex + 1);
-	
-	// Load and resume simulation
-	var cfg = read();
-	var w = new World(cfg);
-	w.timeline.list = [];
-	for (let e of logData){
-		w.readLog(e);
-	}
-	w.resume();
-	$( "#feedback_table1" ).accordion("destroy");
-	displayDetail({
-		input: cfg,
-		output: w.getStatistics()
-	});
-}
-
 
 // Return the encoded URL based on simulation configuration
 function exportConfig(cfg){
@@ -1161,7 +1092,7 @@ function importConfig(url){
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Feb 10 2019 22:47:52 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Feb 15 2019 00:25:11 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -30,7 +30,6 @@ var DefaultData = {
 		'arenaEarlyTerminationMs': 3000,
 		'fastMoveLagMs': 25,
 		'chargedMoveLagMs': 100,
-		'minigameDurationMs': 6000,
 		'timelimitGymMs': 100000,
 		'timelimitRaidMs': 180000,
 		'timelimitLegendaryRaidMs': 300000,

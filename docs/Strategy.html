@@ -248,7 +248,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line808">line 808</a>
+        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line812">line 812</a>
     </li></ul></dd>
     
 
@@ -334,7 +334,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line862">line 862</a>
+        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line851">line 851</a>
     </li></ul></dd>
     
 
@@ -420,7 +420,95 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line842">line 842</a>
+        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line839">line 839</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="actionStrategyPvP"><span class="type-signature"></span>actionStrategyPvP<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Attacker strategy: PvP
+	1. The primary charge move is the move with the highest DPE
+	2. If a charge move can kill the opponent right away, use it
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line899">line 899</a>
     </li></ul></dd>
     
 
@@ -555,7 +643,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line687">line 687</a>
+        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line692">line 692</a>
     </li></ul></dd>
     
 
@@ -598,6 +686,7 @@
 
 <div class="description">
     Get the action decision.
+	This function is meant to be an interface only. To be overrided later.
 </div>
 
 
@@ -690,7 +779,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line729">line 729</a>
+        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line735">line 735</a>
     </li></ul></dd>
     
 
@@ -847,7 +936,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line738">line 738</a>
+        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line744">line 744</a>
     </li></ul></dd>
     
 
@@ -886,6 +975,163 @@
     <dd>
         
 <span class="param-type">Boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getProjectedEnergy"><span class="type-signature"></span>getProjectedEnergy<span class="signature">(kwargs)</span><span class="type-signature"> &rarr; {number}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Get the projected when this action is to be executed.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>kwargs</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Keyword arguments as parameters for making decision.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line797">line 797</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The projected energy.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
 
 
     </dd>
@@ -1004,7 +1250,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line789">line 789</a>
+        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line783">line 783</a>
     </li></ul></dd>
     
 
@@ -1112,7 +1358,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line696">line 696</a>
+        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line699">line 699</a>
     </li></ul></dd>
     
 
@@ -1247,7 +1493,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line707">line 707</a>
+        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line710">line 710</a>
     </li></ul></dd>
     
 
@@ -1382,7 +1628,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line763">line 763</a>
+        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line769">line 769</a>
     </li></ul></dd>
     
 
@@ -1432,7 +1678,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Feb 10 2019 22:47:52 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Feb 15 2019 00:25:11 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
