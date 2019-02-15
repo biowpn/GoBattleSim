@@ -313,8 +313,8 @@ function parameterEditFormInit(){
 
 	var parameterTable = document.getElementById('parameterEditForm-Table');
 	for (var attr in Data.BattleSettings){
-		var row = createRow([attr, "<input type='number' id='parameterEditForm-" + attr + "'></input>"],'td');
-		row.children[1].children[0].value = Data.BattleSettings[attr];
+		var row = createRow([attr, "<input id='parameterEditForm-" + attr + "'></input>"], 'td');
+		row.children[1].children[0].value = JSON.stringify(Data.BattleSettings[attr]);
 		parameterTable.children[1].appendChild(row);
 	};
 }
@@ -323,7 +323,11 @@ function parameterEditFormInit(){
 function parameterEditFormSubmit(){
 	var EDITABLE_PARAMETERS = {};
 	for (var attr in Data.BattleSettings){
-		Data.BattleSettings[attr] = parseFloat(document.getElementById('parameterEditForm-'+attr).value) || 0;
+		try{
+			Data.BattleSettings[attr] = JSON.parse($('#parameterEditForm-'+attr).val());
+		} catch (err){
+			return sendFeedbackDialog("When parsing parameter: " + attr + '; ' + err.toString());
+		}
 	};
 	saveLocalData();
 	sendFeedbackDialog("Battle settings have been updated");
@@ -1113,23 +1117,18 @@ function parseCSVRow(str, deli, echar){
 				data.push(word);
 				word = "";
 				escaped = false;
+				++i;
 			}else{
 				escaped = true;
 			}
-		}else if (str[i] == deli){
-			if (escaped){
-				word += deli;
-			}else{
-				data.push(word);
-				word = "";
-			}
+		}else if (str[i] == deli && !escaped){
+			data.push(word);
+			word = "";
 		}else{
 			word += str[i];
 		}
 	}
-	if (word){
-		data.push(word);
-	}	
+	data.push(word);
 	return data;
 }
 
@@ -1155,30 +1154,23 @@ function battleScore(x, y){
 	  "players": [
 		{
 		  "team": "0",
-		  "friend": "none",
 		  "parties": [
 			{
-			  "name": "",
-			  "pokemon": [x],
-			  "revive": false
+			  "name": "", "pokemon": [x], "revive": false
 			}
 		  ]
 		},
 		{
 		  "team": "1",
-		  "friend": "none",
 		  "parties": [
 			{
-			  "name": "",
-			  "pokemon": [y],
-			  "revive": false
+			  "name": "", "pokemon": [y], "revive": false
 			}
 		  ]
 		}
 	  ],
 	  "battleMode": "pvp",
 	  "timelimit": 240000,
-	  "weather": "EXTREME",
 	  "aggregation": "enum"
 	};
 
@@ -1265,13 +1257,34 @@ function battleMatrixSubmit(){
 		var rowData = parseCSVRow(rawInput[i], deli, '"');
 		var pokemon = {};
 		for (var j = 0; j < attributes.length; j++){
-			pokemon[attributes[j]] = (rowData[j] || "").trim();
+			pokemon[attributes[j]] = (rowData[j] || "");
+			if (pokemon[attributes[j]] == "*"){
+				pokemon[attributes[j]] = "";
+			}
 		}
-		pokemon.copies = 1;
 		if (pokemon.hasOwnProperty("cp")){
 			pokemon.role = "a_basic";
-		}		
-		pokemonVector.push(pokemon);
+		}
+		pokemon.copies = 1;
+		var wrapperConfig = {
+			players: [{parties: [{pokemon: [pokemon]}]}]
+		};
+		var batchedConfigs = batchSim(wrapperConfig);
+		function initials(str){
+			var firsts = [];
+			for (let word of (str || "").split(' ')){
+				firsts.push(word[0].toUpperCase());
+			}
+			return firsts.join('');
+		}
+		
+		for (let cfg of batchedConfigs){
+			let p = cfg.players[0].parties[0].pokemon[0];
+			if (p.nickname == ""){
+				p.nickname = [initials(p.fmove), initials(p.cmove), initials(p.cmove2)].join('.') + ' ' + p.name;
+			}
+			pokemonVector.push(p);
+		}
 	}
 	try{
 		var matrix = generateBattleMatrix(pokemonVector);

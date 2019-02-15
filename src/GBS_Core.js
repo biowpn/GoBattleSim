@@ -15,7 +15,8 @@ const EVENT = {
 	Dodge: "Dodge",
 	Enter: "Enter",
 	Switch: "Switch",
-	Minigame: "Minigame"
+	Minigame: "Minigame",
+	Effect: "Effect"
 };
 
 const ACTION = {
@@ -68,12 +69,13 @@ function calculateCP(pkm){
 }
 
 /**
-	Find a combination of {level, atkiv, defiv, stmiv} that yields the given CP for a Pokemon.
+	Find a combination of {level, atkiv, defiv, stmiv} that yields the target CP for a Pokemon.
 	@param {Pokemon} pkm The Pokemon to infer level and IVs for. Expected to have baseAtk, baseDef and baseStm.
-	@param {number} cp The given CP.
-	@return {Object} A set of {level, atkiv, defiv, stmiv} that yields the given CP. If no combination is found, return null.
+	@param {number} cp The target CP.
+	@param {boolean} exact If no combination yields the target CP, it return the combination that gets the closest but is less than the target CP.
+	@return {Object} A combination that yields the target CP.
 */
-function inferLevelAndIVs(pkm, cp){
+function inferLevelAndIVs(pkm, cp, exact){
 	var minIV = Data.IndividualValues[0].value, maxIV = Data.IndividualValues[Data.IndividualValues.length - 1].value;
 	var pkm2 = {baseAtk: pkm.baseAtk, baseDef: pkm.baseDef, baseStm: pkm.baseStm};
 	var minLevelIndex = null;
@@ -88,19 +90,28 @@ function inferLevelAndIVs(pkm, cp){
 	}
 	if (minLevelIndex == null)
 		return null;
+	let pkm3 = {cp: 10, level: Data.LevelSettings[0].value, atkiv: minIV, defiv: minIV, stmiv: minIV};
 	for (var i = minLevelIndex; i < Data.LevelSettings.length; i++){
 		pkm2.level = Data.LevelSettings[i].value;
 		pkm2.cpm = Data.LevelSettings[i].cpm;
 		for (pkm2.atkiv = minIV; pkm2.atkiv <= maxIV; pkm2.atkiv++){
 			for (pkm2.defiv = minIV; pkm2.defiv <= maxIV; pkm2.defiv++){
 				for (pkm2.stmiv = minIV; pkm2.stmiv <= maxIV; pkm2.stmiv++){
-					if (calculateCP(pkm2) == cp){
+					pkm2.cp = calculateCP(pkm2);
+					if (pkm2.cp == cp){
 						return pkm2;
+					} else if (pkm2.cp > pkm3.cp && pkm2.cp < cp){
+						pkm3.level = pkm2.level;
+						pkm3.atkiv = pkm3.atkiv;
+						pkm3.defiv = pkm3.defiv;
+						pkm3.stmiv = pkm3.stmiv;
 					}
 				}
 			}
 		}
 	}
+	if (!exact)
+		return pkm3;
 }
 
 
@@ -160,6 +171,7 @@ function Pokemon(cfg){
 	if (speciesData == null){
 		throw Error("Unknown Pokemon: " + cfg.name);
 	}
+	
 	// Initialize basic stats
 	this.name = speciesData.name;
 	this.icon = cfg.icon || speciesData.icon;
@@ -234,8 +246,6 @@ function Pokemon(cfg){
 	Initialize the Pokemon's battle states. Call this method before a new battle.
 */
 Pokemon.prototype.init = function(){
-	this.calculateStats();
-	
 	// Battle state variables
 	this.active = false;
 	this.damageReductionExpiration = -1;
@@ -243,6 +253,8 @@ Pokemon.prototype.init = function(){
 	this.queuedAction = null;
 	this.projectedRivalActions = new Timeline();
 	this.strategy.init();
+	this.AtkStatStage = 0;
+	this.DefStatStage = 0;
 	
 	// Performance metrics. Does not affect battle outcome
 	this.activeDurationMs = 0;
@@ -257,7 +269,7 @@ Pokemon.prototype.init = function(){
 }
 
 /** 
-	Re-calculate and set the core stats of the Pokemon.
+	Re-calculate and set the battle stats of the Pokemon.
 */
 Pokemon.prototype.calculateStats = function(){
 	if (this.role == "gd"){ // gym defender
@@ -277,6 +289,21 @@ Pokemon.prototype.calculateStats = function(){
 		this.Stm = (this.baseStm + this.stmiv) * this.cpm;
 		this.maxHP = Math.floor(this.Stm);
 	}
+}
+
+/**
+	Buff/debuff battle stats.
+	@param {string} statName The name of the stat. "Atk" or "Def".
+	@param {number} stageDelta The stage change. Positive for buff. If omitted, the stage will be reset to 0.
+*/
+Pokemon.prototype.buffStat = function(statName, stageDelta){
+	var multiplier = 1;
+	if (stageDelta !== undefined){
+		var stage = Math.max(Data.BattleSettings.minimumStatStage, Math.min(Data.BattleSettings.maximumStatStage, this[statName + "StatStage"] + stageDelta));
+		this[statName + "StatStage"] = stage;
+		multiplier = Data.BattleSettings[statName + "BuffMultiplier"][stage - Data.BattleSettings.minimumStatStage];
+	}
+	this[statName] = (this['base' + statName] + this[statName.toLowerCase() + 'iv']) * this.cpm * multiplier;
 }
 
 /**
@@ -524,7 +551,7 @@ Player.prototype.init = function(){
 		party.init();
 	}
 	this.headingPartyIndex = 0;
-	this.protectShieldLeft = 2;
+	this.numShieldsLeft = 2;
 	this.switchingCooldownExpiration = -1;
 }
 
@@ -533,8 +560,7 @@ Player.prototype.init = function(){
 	@return {Pokemon} The heading Pokemon.
 */
 Player.prototype.getHead = function(){
-	let party = this.getHeadParty();
-	return party ? party.getHead() : null;
+	return this.getHeadParty().getHead();
 }
 
 /** 
@@ -769,7 +795,7 @@ Strategy.prototype.getBurstDecision = function(kwargs){
 Strategy.prototype.setShieldStrategy = function(str){
 	str = str || "";
 	if (str.includes(',')){
-		this.numShieldsAllowed = str.split('0').length;
+		this.numShieldsAllowed = str.split('0').length - 1;
 	} else {
 		this.numShieldsAllowed = parseInt(str) || 0;
 	}
@@ -781,12 +807,7 @@ Strategy.prototype.setShieldStrategy = function(str){
 	@return {Boolean} True for deciding to use shield and false otherwise.
 */
 Strategy.prototype.getShieldDecision = function(kwargs){
-	if (this.numShieldsUsed < this.numShieldsAllowed){
-		++this.numShieldsUsed;
-		return true;
-	} else {
-		return false;
-	}
+	return this.numShieldsUsed < this.numShieldsAllowed;
 }
 
 /**
@@ -993,7 +1014,7 @@ World.prototype.overridePvP = function(){
 	
 	this.registerCharged = function(pkm, action){
 		this.timeline.enqueue({
-			name: EVENT.Minigame, t: this.t + 250, subject: pkm, move: pkm.cmove
+			name: EVENT.Minigame, t: this.t + 200, subject: pkm, move: pkm.cmove
 		});
 		return this.t + 500;
 	}
@@ -1112,7 +1133,7 @@ World.prototype.handleFree = function(e){
 		currentAction.from = e.subject;
 		for (let rival of e.subject.master.rivals){
 			let target = rival.getHead();
-			if (target && target.active){
+			if (target.active){
 				target.projectedRivalActions.enqueue(currentAction);
 			}
 		}
@@ -1179,7 +1200,7 @@ World.prototype.handleMinigame = function(e){
 	}
 	for (let e2 of this.timeline.list){
 		if (e2.name == EVENT.Free){ // Reset cool down
-			e2.t = this.t + 250;
+			e2.t = this.t + 300;
 		}
 	}
 	e.subject.gainEnergy(e.move.energyDelta);
@@ -1190,7 +1211,7 @@ World.prototype.handleMinigame = function(e){
 		var reaction = e.reactions[rival.index];
 		if (!reaction){
 			reaction = {
-				shield: rival.protectShieldLeft > 0 && enemy.strategy.getShieldDecision()
+				shield: rival.numShieldsLeft > 0 && enemy.strategy.getShieldDecision()
 			};
 			e.reactions[rival.index] = reaction;
 		}
@@ -1198,7 +1219,8 @@ World.prototype.handleMinigame = function(e){
 		if (reaction.shield){ // Shield
 			enemy.takeDamage(1);
 			e.subject.attributeDamage(1, e.move.moveType);
-			rival.protectShieldLeft--;
+			enemy.strategy.numShieldsUsed++;
+			rival.numShieldsLeft--;
 		}else{ // Not shield
 			enemy.takeDamage(reaction.damage);
 			e.subject.attributeDamage(reaction.damage, e.move.moveType);
@@ -1208,8 +1230,36 @@ World.prototype.handleMinigame = function(e){
 		}
 	}
 	this.processFaintedPokemon();
+	if (e.move.effect){
+		this.timeline.enqueue({
+			name: EVENT.Effect, t: this.t + 100, subject: e.subject, move: e.move
+		});
+	}
 }
 
+/**
+	Handles Effect Event.
+	@param {Object} e The event to handle.
+*/
+World.prototype.handleEffect = function(e){
+	if (!e.activated){
+		e.activated = Math.random() < e.move.effect.probability ? 1 : -1;
+	}
+	let effect = e.move.effect;
+	if (e.activated == 1){
+		if (effect.name == "StatMod"){
+			for (var i = 0; i < effect.subject.length; i++){
+				if (effect.subject[i] == "self"){
+					e.subject.buffStat(effect.stat[i], effect.stageDelta[i]);
+				} else if (effect.subject[i] == "enemy"){
+					for (let rival of e.subject.master.rivals){
+						rival.getHead().buffStat(effect.stat[i], effect.stageDelta[i]);
+					}
+				}
+			}
+		}
+	}
+}
 
 /**
 	Handles Enter Event.
@@ -1343,25 +1393,26 @@ World.prototype.load = function(entry){
 		event.subject = this.getPokemonById(parseInt(curOption.value));
 	}else if (curOption.name == EVENT.Switch){
 		event.subject = this.getPokemonById(parseInt(curOption.value));
-	}else if (curOption.name == EVENT.Damage || curOption.name == EVENT.Minigame){
+	}else if (curOption.name == EVENT.Damage){
 		event.subject = this.players[entry.index].getHead();
-		for (let move of [event.subject.fmove].concat(event.subject.cmoves)){
-			if (curOption.value == event.subject.fmove.name){
-				event.move = event.subject.fmove; break;
-			}
-		}
-		if (curOption.name == EVENT.Minigame){
-			event.reactions = {};
-			for (var i = 0; i < this.players.length; i++){
-				let entryEvent = entry.events[i];
-				if (entryEvent){
-					let curOption = entryEvent.options[entryEvent.index];
-					if (curOption.name == "Shield"){
-						event.reactions[i] = {shield: curOption.value};
-					}
+		event.move = new Move(curOption.value);
+	}else if (curOption.name == EVENT.Minigame){
+		event.subject = this.players[entry.index].getHead();
+		event.move = new Move(curOption.value);
+		event.reactions = {};
+		for (var i = 0; i < this.players.length; i++){
+			let entryEvent = entry.events[i];
+			if (entryEvent){
+				let curOption = entryEvent.options[entryEvent.index];
+				if (curOption.name == "Shield"){
+					event.reactions[i] = {shield: curOption.value};
 				}
 			}
 		}
+	}else if (curOption.name == EVENT.Effect){
+		event.subject = this.players[entry.index].getHead();
+		event.move = new Move(curOption.value2);
+		event.activated = curOption.value;
 	}else if (curOption.name == EVENT.Dodge){
 		event.subject = this.players[entry.index].getHead();
 	}else{
@@ -1381,8 +1432,9 @@ World.prototype.loadList = function(entries){
 	entries.sort((a, b) => (a.t != b.t ? a.t - b.t : a._pos_ - b._pos_));
 	for (let entry of entries){
 		this.load(entry);
-		if (entry.breakpoint)
+		if (entry.breakpoint){
 			break;
+		}	
 	}
 }
 
@@ -1390,9 +1442,9 @@ World.prototype.loadList = function(entries){
 	Resume the battle after reading and loading some log entries.
 */
 World.prototype.resume = function(){
-	this.timeline.clear();
+	this.timeline.list = this.timeline.list.filter(e => (e.t > this.t && e.name != EVENT.Free));
 	var hasFreeEvent = {};
-	for (var i = 0; i < this.players.length; i++){ 
+	for (var i = 0; i < this.players.length; i++){
 		if (hasFreeEvent[i]){
 			continue;
 		} else {
@@ -1408,7 +1460,9 @@ World.prototype.resume = function(){
 						let move = new Move(curOption.value);
 						tFree = entry.t - move.dws + move.duration;
 					}else if (curOption.name == EVENT.Minigame){
-						tFree = entry.t;
+						tFree = entry.t + 300;
+					}else if (curOption.name == EVENT.Effect){
+						tFree = entry.t + 200;
 					}else if (curOption.name == EVENT.Dodge){
 						tFree = entry.t + Data.BattleSettings.dodgeDurationMs;
 					}
@@ -1515,6 +1569,12 @@ World.prototype.dump = function(e){
 				]
 			};
 		}
+	}else if (e.name == EVENT.Effect){
+		curValue = e.activated;
+		subjectEvent.options = [
+			{t: e.t, name: EVENT.Effect, value: 1, value2: e.move.name, text: "Activate Effect: " + e.move.effect.name},
+			{t: e.t, name: EVENT.Effect, value: -1, value2: e.move.name, text: "Deactivate Effect"}
+		];
 	}else{ // Ignore other events
 		return;
 	}
