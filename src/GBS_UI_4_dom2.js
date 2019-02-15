@@ -119,6 +119,13 @@ function moveEditFormSubmit(){
 	var move = read(moveInput);
 	move.name = move.name.trim().toLowerCase();
 	move.icon = getTypeIcon({pokeType: move.pokeType});
+	if (move.effect){
+		try{
+			move.effect = JSON.parse(move.effect);
+		} catch(err){
+			delete move.effect;
+		}
+	}
 	assignMoveParameterSet("save", [move], move.scope);
 	delete move.scope;
 

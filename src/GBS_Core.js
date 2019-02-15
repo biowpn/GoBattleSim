@@ -351,8 +351,8 @@ Pokemon.prototype.takeDamage = function(dmg){
 
 /** 
 	Decides the primary charged move to use against an opponent.
-	@enemy {Pokemon} The opponent.
-	@weather {string} The current weather.
+	@param {Pokemon} enemy The opponent.
+	@param {string} weather The current weather.
 */
 Pokemon.prototype.choosePrimaryChargedMove = function(enemy, weather){
 	var best_cmove = null;
@@ -1422,7 +1422,7 @@ World.prototype.load = function(entry){
 }
 
 /**
-	Load and process a list of log entries.
+	Load, translate and process a list of log entries.
 	@param {Object[]} entries Log entries to load.
 */
 World.prototype.loadList = function(entries){
@@ -1439,7 +1439,7 @@ World.prototype.loadList = function(entries){
 }
 
 /**
-	Resume the battle after reading and loading some log entries.
+	Resume the battle after loading log entries.
 */
 World.prototype.resume = function(){
 	this.timeline.list = this.timeline.list.filter(e => (e.t > this.t && e.name != EVENT.Free));
@@ -1480,7 +1480,7 @@ World.prototype.resume = function(){
 /**
 	Get the Enter/Switch options for interactive batte log.
 	@param {Object} e The current event/option.
-	@return {Object[]} A list of all valid options, including the current option.
+	@return {Object[]} A list of valid options, including the current option.
 */
 World.prototype.getPokemonOptions = function(e){
 	var options = [];
@@ -1511,7 +1511,7 @@ World.prototype.getPokemonOptions = function(e){
 /**
 	Get the Attack actions for interactive batte log.
 	@param {Object} e The current event/option.
-	@return {Object[]} A list of all valid options, including the current option.
+	@return {Object[]} A list of valid options, including the current option.
 */
 World.prototype.getAttackOptions = function(e){
 	var options = [];
@@ -1589,7 +1589,7 @@ World.prototype.dump = function(e){
 
 /** 
 	Get the battle results of the simulation.
-	@return {{generalStat, playerStats, pokemonStats, battleLog}} Battle outcome metrics.
+	@return {Object} Battle outcome metrics.
 */
 World.prototype.getStatistics = function(){
 	var general_stat = {};

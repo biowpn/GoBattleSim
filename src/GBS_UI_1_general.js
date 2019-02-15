@@ -297,7 +297,7 @@ function read(node){
 		if (tagName == "input" || tagName == "select"){
 			output[attrName] = (node.type == "checkbox" ? node.checked : node.value);
 			if (node.type == "number"){
-				output[attrName] = parseFloat(output[attrName]);
+				output[attrName] = parseFloat(output[attrName]) || 0;
 			}
 		}else{
 			let childOutputs = [];
@@ -329,7 +329,15 @@ function write(node, config, forced){
 				if (node.type == "checkbox"){
 					node.checked = config[attrName] || false;
 				}else{
-					node.value = (config[attrName] != undefined ? config[attrName] : "");
+					if (typeof config[attrName] == typeof {}){
+						try{
+							node.value = JSON.stringify(config[attrName]);
+						}catch(err){
+							node.value = "";
+						}
+					} else {
+						node.value = config[attrName] || "";
+					}
 				}
 				if (node.onchange){
 					node.onchange();

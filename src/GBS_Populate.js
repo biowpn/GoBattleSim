@@ -603,6 +603,7 @@ function fetchMoveData(oncomplete){
 					dws: 0,
 					duration: 0,
 					energyDelta: 0,
+					effect: "",
 					regular: {
 						power: parseInt(data[i].power),
 						dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
