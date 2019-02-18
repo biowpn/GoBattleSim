@@ -21,8 +21,8 @@ var DefaultData = {
 		'energyDeltaPerHealthLost': 0.5, 
 		'dodgeDamageReductionPercent': 0.75,
 		
-		'AtkBuffMultiplier': [0.33, 0.4, 0.5, 0.67, 1.0, 1.5, 2.0, 2.5, 3.0],
-		'DefBuffMultiplier': [0.33, 0.4, 0.5, 0.67, 1.0, 1.5, 2.0, 2.5, 3.0],
+		'AtkBuffMultiplier': [0.5, 0.5714286, 0.66666669, 0.8, 1.0, 1.25, 1.5, 1.75, 2],
+		'DefBuffMultiplier': [0.5, 0.5714286, 0.66666669, 0.8, 1.0, 1.25, 1.5, 1.75, 2],
 		'minimumStatStage': -4,
 		'maximumStatStage': 4,
 		

@@ -191,44 +191,6 @@
 </style>
 
 
-<div id='battleMatrix' title="Battle Matrix" style="visibility: hidden;">
-
-	<ol>
-		<li>Each Pokemon is a row</li>
-		<li>The first row must be the headers that are the attributes of a Pokemon. E.g., "name"</li>
-		<li>Fields are separated by delimiter <select id="battleMatrix-delimieter" style="width:10%; display:inline">
-												<option value=",">,</option>
-												<option value=";">;</option>
-												<option value="|">|</option>
-											</select>. To escape the delimieter, surround the field by double quotes</li>
-		<li><a href="https://docs.google.com/spreadsheets/d/1ULkDRkVJJbjzA83WflawGaNz_7tMrKRWUKSi7WeV5v8/edit?usp=sharing"><b>Sample I/O</b></a></li>
-		<li><a href="https://youtu.be/Dw2Cw3ybeVs"><b>Video Tutorial</b></a></li>
-	</ol>
-	
-	<h3>Input</h3>
-	
-	<textarea id="battleMatrix-input" rows="5" style="width:100%">name,fmove,cmove,cmove2,level,atkiv,defiv,stmiv,strategy2</textarea>
-	
-	<br>
-	<button class='player_button' onclick="battleMatrixReadFromMain()">Read From Simulator Input</button>
-	<table>
-		<thead><col width="50%"><col width="50%"></thead>
-		<tbody>
-			<tr>
-				<td><select id="battleMatrix-named"><option value="0">Unnamed Row/Col</option><option value="1">Named Row/Col</option></select></td>
-				<td><input id="battleMatrix-submatrix" placeholder="startRow, endRow, startCol, endCol"></input></td>
-			</tr>
-		</tbody>
-	</table>
-	<button class='player_button' onclick="battleMatrixSubmit()">Run</button>
-	<br>
-	
-	<h3>Output</h3>
-	
-	<textarea id="battleMatrix-output" rows="5" style="width:100%"></textarea>
-	
-</div>
-
 <div id='menu'>
 	<table style="position: relative; height: 40px"><colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>
 		<tr>
@@ -321,6 +283,7 @@
 				<select name="input-aggregation">
 					<option value="enum">Enumerate</option>
 					<option value="avrg">Average</option>
+					<option value="tree">Tree Average</option>
 				</select>
 			</td>
 		</tr>
@@ -339,21 +302,25 @@
 <button onclick="requestSimulation()" id="GoButton">Go</button>
 
 
-<h2>Feedback</h2>
-<div id="feedback_message">
-</div>
+<h2>Simulation Result</h2>
+<div id="feedback_message"></div>
 
-<div id="feedback_buttons"></div>
+<h4>Master Summary Table</h4>
+<div id="feedback_buttons"><button onclick='clearAllSims()'>Clear All</button></div>
 <div id="feedback_table1"></div>
-<div id="feedback_table2"></div>
-
 <table>
 	<colgroup><col width="50%"><col width="50%"></colgroup>
 	<tr>
-		<td><button class="player_button" id="copy-button-clipboard" onclick="">Copy to Clipboard</button></td>
-		<td><button class="player_button" id="copy-button-csv" onclick="">Export To CSV</button></td>
+		<td><button class="player_button" id="copy-button-clipboard" onclick="copyTableToClipboard('ui-mastersummarytable')">Copy to Clipboard</button></td>
+		<td><button class="player_button" id="copy-button-csv" onclick="exportTableToCSV('ui-mastersummarytable', 'GoBattleSim_result.csv')">Export To CSV</button></td>
 	</tr>
 </table>
+
+<h4>Detailed Battle Statistics</h4>
+<div id="feedback_table2"></div>
+
+<h4>Interactive Battle Log</h4>
+<div id="feedback_table3"></div>
 
 
 <script>
@@ -385,9 +352,9 @@ const HSL_COLORS = [
 	['hsl(120, 60%, 90%)','hsl(120, 60%, 70%)','hsl(120, 60%, 50%)']
 ];
 
-const DEFAULT_SUMMARY_TABLE_METRICS = {battle_result:'Outcome', duration:'Time', tdo_percent:'TDO%', dps:'DPS', numDeaths:'#Death'};
+const DEFAULT_SUMMARY_TABLE_METRICS = {outcome:'Outcome', duration:'Time', tdo_percent:'TDO%', dps:'DPS', numDeaths:'#Death'};
 
-var simResults = [];
+var Simulations = [];
 var MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
 var currentJobSize = 0;
 
@@ -408,7 +375,6 @@ timelimitInput.value = Data.BattleSettings.timelimitLegendaryRaidMs;
 
 
 dropdownMenuInit();
-battleMatrixInit();
 try{
 	welcomeDialogInit();
 	moveEditFormInit();

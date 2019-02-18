@@ -5,9 +5,6 @@
 	@author BIOWP
 */
 
-function initMasterSummaryTableMetrics(){
-	currentJobSize = 0;
-}
 
 function createNewMetric(metric, nameDisplayed){
 	MasterSummaryTableMetrics[metric] = nameDisplayed || metric;
@@ -132,23 +129,23 @@ function batchSim(cfg, start){
 }
 
 // Simulate a specific configuration
-function runSimulation(cfg){
-	if (cfg.aggregation == "avrg"){
-		cfg.hasLog = false;
+function runSimulation(input){
+	if (input.aggregation != "enum"){
+		input.hasLog = false;
 	}
-	var world = new World(cfg);
-	let simPerConfig = parseInt(cfg.simPerConfig) || 1;
+	var battle = new Battle(input);
+	let simPerConfig = parseInt(input.simPerConfig) || 1;
 	let simulations = [];
 	for (var i = 0; i < simPerConfig; i++){
-		world.init();
-		world.battle();
+		battle.init();
+		battle.go();
 		simulations.push({
-			input: cfg,
-			output: world.getStatistics()
+			input: input,
+			output: battle.getBattleResult()
 		});
 	}
 	currentJobSize += simPerConfig;
-	if (cfg.aggregation == "avrg"){
+	if (input.aggregation == "avrg"){
 		simulations = [averageSimulations(simulations)];
 	}
 	return simulations;
@@ -238,19 +235,19 @@ function GoBattleSim(){
 	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfig(userInput));
 	userInput.hasLog = true;
 	
-	initMasterSummaryTableMetrics();
 	date = new Date();
 	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations started");
 	
 	var configurations = batchSim(userInput, [0,0,0,0]);
 	for (let config of configurations){
-		simResults = simResults.concat(processConfig(config));
+		Simulations = Simulations.concat(processConfig(config));
 	}
 	
 	date = new Date();
 	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations completed");
 
-	displayMasterSummaryTable();
+	updateMasterSummaryTable();
+	updateSimulationDetails(Simulations[Simulations.length - 1]);
 }
 
 

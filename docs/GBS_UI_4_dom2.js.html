@@ -617,7 +617,7 @@ function getWinRate(level, cfg){
 			}
 		}
 	}
-	return parseFloat(runSimulation(cfg)[0].output.generalStat.battle_result);
+	return parseFloat(runSimulation(cfg)[0].output.statistics.outcome);
 }
 
 
@@ -800,8 +800,8 @@ function teamBuilderCalculatePokemon(){
 			intermediateSimResults = intermediateSimResults.concat(processConfig(config));
 		}
 		var avrgSim = averageSimulations(intermediateSimResults);
-		pokemon.dps = round(avrgSim.output.generalStat.dps / numAttacker, 3);
-		pokemon.tdo = round(avrgSim.output.generalStat.tdo / numAttacker / 6, 1);
+		pokemon.dps = round(avrgSim.output.statistics.dps / numAttacker, 3);
+		pokemon.tdo = round(avrgSim.output.statistics.tdo / numAttacker / 6, 1);
 		pokemonDT.row.add(pokemon);
 	}
 	pokemonDT.draw();
@@ -905,7 +905,7 @@ function teamBuilderCalculateParty(){
 		for (let config of batchSim(baseConfig)){
 			intermediateSimResults = intermediateSimResults.concat(processConfig(config));
 		}
-		let curStats = averageSimulations(intermediateSimResults).output.generalStat;
+		let curStats = averageSimulations(intermediateSimResults).output.statistics;
 		curStats.dps = curStats.dps / numAttacker;
 		curStats.tdo_percent = curStats.tdo_percent / numAttacker;
 		if (!bestStats || curStats.dps > bestStats.dps){
@@ -945,7 +945,7 @@ function teamBuilderUpdatePartyStats(){
 		for (let config of batchSim(baseConfig)){
 			intermediateSimResults = intermediateSimResults.concat(processConfig(config));
 		}
-		curStats = averageSimulations(intermediateSimResults).output.generalStat;
+		curStats = averageSimulations(intermediateSimResults).output.statistics;
 		curStats.dps = curStats.dps / numAttacker;
 		curStats.tdo_percent = curStats.tdo_percent / numAttacker;
 		teamBuilderPartyPermutationStats[key] = curStats;
@@ -1206,19 +1206,16 @@ function battleScore(x, y){
 	  ],
 	  "battleMode": "pvp",
 	  "timelimit": 240000,
-	  "aggregation": "enum"
+	  "aggregation": "tree"
 	};
-
-	w = new World(config);
-	w.init();
-	w.battle();
+	battle = new Battle(config);
+	battle.init();
+	battle.go();
 	
-	let battleResult = w.getStatistics();
-	let x_hp_left = Math.max(0, battleResult.pokemonStats[0][0][0].hp), y_hp_left = Math.max(0, battleResult.pokemonStats[1][0][0].hp);
-	let x_hp_max = w.players[0].parties[0].pokemon[0].maxHP, y_hp_max = w.players[1].parties[0].pokemon[0].maxHP;
-	
-	var score = ((y_hp_max - y_hp_left)/y_hp_max) - ((x_hp_max - x_hp_left)/x_hp_max);
-	return score;
+	let statistics = battle.getBattleResult().statistics;
+	let statsX = statistics.players[0].parties[0].pokemon[0];
+	let statsY = statistics.players[1].parties[0].pokemon[0];
+	return ((statsY.maxHP - Math.max(0, statsY.hp))/statsY.maxHP) - ((statsX.maxHP - Math.max(0, statsX.hp))/statsX.maxHP);
 }
 
 function generateBattleMatrix(P){
@@ -1273,6 +1270,32 @@ function battleMatrixReadFromMain(){
 	$("#battleMatrix-input").val(rawInput.join("\n"));
 }
 
+function removeDuplicates(pokemonVector){
+	var uniquePokemonVector = [];
+	for (let pkm of pokemonVector){
+		var unique = true;
+		for (let pkm2 of uniquePokemonVector){
+			unique = false;
+			for (var a in pkm){
+				if (a != "cmove" &amp;&amp; a != "cmove2" &amp;&amp; a != "nickname" &amp;&amp; pkm[a] != pkm2[a]){
+					unique = true;
+					break;
+				}
+			}
+			if (!unique){
+				unique = !(pkm.cmove == pkm2.cmove &amp;&amp; pkm.cmove2 == pkm2.cmove2) &amp;&amp; !(pkm.cmove == pkm2.cmove2 &amp;&amp; pkm.cmove2 == pkm2.cmove);
+			}
+			if (!unique){
+				break;
+			}
+		}
+		if (unique){
+			uniquePokemonVector.push(pkm);
+		}
+	}
+	return uniquePokemonVector;
+}
+
 function battleMatrixSubmit(){
 	assignMoveParameterSet("load", Data.FastMoves, "combat");
 	assignMoveParameterSet("load", Data.ChargedMoves, "combat");
@@ -1321,6 +1344,11 @@ function battleMatrixSubmit(){
 			pokemonVector.push(p);
 		}
 	}
+	
+	console.log("Before:", pokemonVector.length);
+	pokemonVector = removeDuplicates(pokemonVector);
+	console.log("After:", pokemonVector.length);
+		
 	try{
 		var matrix = generateBattleMatrix(pokemonVector);
 	} catch (err){
@@ -1365,13 +1393,13 @@ function battleMatrixSubmit(){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li><li><a href="World.html">World</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#assignMoveParameterSet">assignMoveParameterSet</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchAll_then">fetchAll_then</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossList">fetchRaidBossList</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#inferLevelAndIVs">inferLevelAndIVs</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#populateAll">populateAll</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Battle.html">Battle</a></li><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#assignMoveParameterSet">assignMoveParameterSet</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchAll_then">fetchAll_then</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossList">fetchRaidBossList</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#inferLevelAndIVs">inferLevelAndIVs</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#populateAll">populateAll</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li><li><a href="global.html#sortDatabase">sortDatabase</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Feb 16 2019 02:53:02 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Feb 19 2019 03:07:31 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

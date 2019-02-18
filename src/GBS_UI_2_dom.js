@@ -692,20 +692,15 @@ function countPokemonFromParty(partyNode){
 }
 
 
-function clearFeedbackTables(){
-	document.getElementById("feedback_buttons").innerHTML = "";
-	document.getElementById("feedback_table1").innerHTML = "";
-	document.getElementById("feedback_table2").innerHTML = "";
-}
-
-
 function clearAllSims(){
-	initMasterSummaryTableMetrics();
+	currentJobSize = 0;
 	MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
 	sendFeedback("");
-	simResults = [];
+	Simulations = [];
 	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0]);
-	displayMasterSummaryTable();
+	updateMasterSummaryTable();
+	document.getElementById("feedback_table2").innerHTML = "";
+	document.getElementById("feedback_table3").innerHTML = "";
 }
 
 
@@ -720,47 +715,53 @@ function createMasterSummaryTable(){
 	headers.push('Detail');
 	table.children[0].appendChild(createRow(headers, "th"));
 	table.children[1].appendChild(createRow(headers, "th"));
-	for (var i = 0; i < simResults.length; i++){
-		var sim = simResults[i];
-		var row = [i+1];
-		for (var m in MasterSummaryTableMetrics){
-			if (m[0] == '*'){
-				m = m.slice(1);
-				var pkmInfo = getPokemonConfig(sim.input, m.split('.')[0]);
-				var attr = m.split('.')[1];
+	for (var i = 0; i < Simulations.length; i++){
+		let sim = Simulations[i];
+		var rowData = [i+1];
+		for (var metric in MasterSummaryTableMetrics){
+			if (metric[0] == '*'){
+				metric = metric.slice(1);
+				var pkmInfo = getPokemonConfig(sim.input, metric.split('.')[0]);
+				var attr = metric.split('.')[1];
 				if (attr == 'name'){
-					var pkmData = getEntry(pkmInfo.name, Data.Pokemon);
-					row.push(createIconLabelSpan(pkmData.icon, pkmInfo.label || pkmData.label, 'species-input-with-icon'));
-				}else if (attr == 'fmove'){
-					var moveData = getEntry(pkmInfo.fmove, Data.FastMoves);
-					row.push(createIconLabelSpan(moveData.icon, moveData.label, 'move-input-with-icon'));
-				}else if (attr == 'cmove'){
-					var moveData = getEntry(pkmInfo.cmove, Data.ChargedMoves);
-					row.push(createIconLabelSpan(moveData.icon, moveData.label, 'move-input-with-icon'));
+					let pkmData = getEntry(pkmInfo.name, Data.Pokemon) || {};
+					rowData.push(createIconLabelSpan(pkmData.icon, pkmInfo.label || pkmData.label, 'species-input-with-icon'));
+				}else if (attr == 'fmove' || attr == 'cmove' || attr == 'cmove2'){
+					try{
+						var move = new Move(pkmInfo[attr]);
+					}catch(err){
+						var move = {};
+					}					
+					rowData.push(createIconLabelSpan(move.icon, move.label, 'move-input-with-icon'));
 				}else{
-					row.push(pkmInfo[attr]);
+					rowData.push(pkmInfo[attr]);
 				}
-			}else if (m == 'weather'){
-				row.push(sim.input.weather);
+			}else if (metric == 'weather'){
+				rowData.push(sim.input.weather);
 			}else{
-				let cellData = sim.output.generalStat[m];
+				let cellData = sim.output.statistics[metric];
 				if (typeof cellData == typeof 0){
-					if (m == "battle_result"){
+					if (metric == "outcome"){
 						if (sim.input.aggregation == "enum"){
-							row.push(cellData == 1 ? "Win" : "Lose");
+							rowData.push(cellData == 1 ? "Win" : "Lose");
 						}else{
-							row.push(round(cellData * 100, 2) + "%");
+							rowData.push(round(cellData * 100, 2) + "%");
 						}
 					}else{
-						row.push(round(cellData, 2));
+						rowData.push(round(cellData, 2));
 					}
 				}else{
-					row.push(cellData);
+					rowData.push(cellData);
 				}
 			}
 		}
-		row.push("<a onclick='displayDetail("+i+")' style='cursor: pointer'><i class='fa fa-info-circle' aria-hidden='true'></i></a>");
-		table.children[2].appendChild(createRow(row, "td"));
+		rowData.push("<a style='cursor: pointer'><i class='fa fa-info-circle' aria-hidden='true'></i></a>");
+		var rowEl = createRow(rowData, "td");
+		rowEl.lastChild.onclick = function(){
+			updateSimulationDetails(sim);
+			document.getElementById('feedback_table2').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+		}
+		table.children[2].appendChild(rowEl);
 	}
 	return table;
 }
@@ -768,37 +769,34 @@ function createMasterSummaryTable(){
 
 function createPlayerStatisticsString(playerStat){
 	var pString = playerStat.name;
-	pString += ", TDO: " + playerStat.tdo;
+	pString += ", TDO: " + round(playerStat.tdo, 2);
 	pString += ", DPS: " + round(playerStat.dps, 2);
 	return pString;
 }
 
 
-function createPokemonStatisticsTable(pokemonStats){
+function createPokemonStatisticsTable(pokemonStatistics){
 	var table = document.createElement("table");
 	table.appendChild(createRow(["<img src='" + getPokemonIcon({dex: 0}) + "'></img>",
 								"HP", "Energy", "TDO", "Duration", "DPS", "Detail"], 'th'));
-	for (var i = 0; i < pokemonStats.length; i++){
-		var ps = pokemonStats[i];
-		var row = createRow([
-			"<img src='" + getPokemonIcon({name: ps.name}) + "' class='apitem-pokemon-icon'></img>", 
-			ps.hp, 
-			ps.energy, 
-			ps.tdo, 
-			round(ps.duration, 2), 
-			round(ps.dps, 2), 
-			"<a style='cursor: pointer'><i class='fa fa-info-circle' aria-hidden='true'></i></a>"], 
-		'td');
-		
-		const ps_const = JSON.parse(JSON.stringify(ps));
-		row.children[row.children.length - 1].children[0].onclick = function(){
+	for (var i = 0; i < pokemonStatistics.length; i++){
+		let statistics = pokemonStatistics[i];
+		let row = createRow([
+			"<img src='" + getPokemonIcon({name: statistics.name}) + "' class='apitem-pokemon-icon'></img>", 
+			statistics.hp, statistics.energy, statistics.tdo, round(statistics.duration, 2), round(statistics.dps, 2), 
+			"<a style='cursor: pointer'><i class='fa fa-info-circle' aria-hidden='true'></i></a>"
+		], 'td');
+		row.lastChild.children[0].onclick = function(){
 			var pokemonDialog = createElement('div', '', {title: 'Pokemon Detail'});
 			var pokemonTable = createElement('table', '');
-			for (var attr in ps_const){
-				pokemonTable.appendChild(createElement('tr',"<th>" + attr + "</th><td>" + ps_const[attr] + "</td>"));
+			for (var attr in statistics){
+				pokemonTable.appendChild(createElement('tr',"<th>" + attr + "</th><td>" + statistics[attr] + "</td>"));
 			}
 			pokemonDialog.appendChild(pokemonTable);
-			$(pokemonDialog).dialog({width: 400}).dialog('open');
+			$(pokemonDialog).dialog({
+				width: 400,
+				position: { my: "center", at: "center", 'of': row }
+			}).dialog('open');
 		};
 		table.appendChild(row);
 	}
@@ -806,80 +804,62 @@ function createPokemonStatisticsTable(pokemonStats){
 }
 
 
-function displayMasterSummaryTable(){
-	clearFeedbackTables();
-	document.getElementById("feedback_buttons").innerHTML = "<button onclick='clearAllSims()'>Clear All</button>";
-	
+function updateMasterSummaryTable(){
+	document.getElementById("feedback_table1").innerHTML = "";
 	var table = createMasterSummaryTable();
 	document.getElementById("feedback_table1").appendChild(table);
-	
-	table = $( '#ui-mastersummarytable' ).DataTable({
+	var dt = $( table ).DataTable({
 		scroller: true,
         scrollX: true,
-		scrollY: '60vh'
+		scrollY: '30vh'
 	});
-	
-	addFilterToFooter(table);
-	
-	document.getElementById("copy-button-clipboard").setAttribute("onclick", "copyTableToClipboard('ui-mastersummarytable')");
-	document.getElementById("copy-button-csv").setAttribute("onclick", "exportTableToCSV('ui-mastersummarytable', 'GoBattleSim_result.csv')");
+	addFilterToFooter(dt);
+	document.getElementById("copy-button-clipboard").setAttribute("onclick", "");
+	document.getElementById("copy-button-csv").setAttribute("onclick", "");
 }
 
 
-function displayDetail(arg){
-	var simResult = (typeof arg == typeof 0 ? simResults[arg] : arg);
-	clearFeedbackTables();
-	// Re-configured the input
+function updateSimulationDetails(sim){
+	// Replay the input
 	var inputEl = document.getElementById("input");
-	write(inputEl, simResult.input);
-	complyBattleMode(simResult.input.battleMode);
+	write(inputEl, sim.input);
+	complyBattleMode(sim.input.battleMode);
 	formatting(inputEl);
 	relabel();
-	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfig(simResult.input));
-
-	// Add option to go back to Master Summary
-	var b = createElement("button", "Back");
-	b.onclick = function(){
-		$( "#feedback_table1" ).accordion("destroy");
-		displayMasterSummaryTable();
-	}
-	document.getElementById("feedback_buttons").appendChild(b);
+	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfig(sim.input));
 	
-	// Prepare Player/Party/Pokemon summary
-	var output = simResult.output;
-	var fbSection = document.getElementById("feedback_table1");
-	for (var i = 0; i < output.pokemonStats.length; i++){
-		fbSection.appendChild(createElement('h4', createPlayerStatisticsString(output.playerStats[i]), 
+	// Update Player/Party/Pokemon statistics
+	var section = document.getElementById("feedback_table2");
+	section.innerHTML = "";
+	for (var i = 0; i < sim.output.statistics.players.length; i++){
+		var playerStat = sim.output.statistics.players[i];
+		section.appendChild(createElement('h4', createPlayerStatisticsString(playerStat), 
 			{style: 'background:' + HSL_COLORS[i%HSL_COLORS.length][0]}));
 		var playerDiv = document.createElement('div');
-		for (var j = 0; j < output.pokemonStats[i].length; j++){
+		for (var j = 0; j < playerStat.parties.length; j++){
 			playerDiv.appendChild(createElement('h5', 'Party ' + (j+1)));
 			var partyDiv = document.createElement('div');
-			partyDiv.appendChild(createPokemonStatisticsTable(output.pokemonStats[i][j]));
+			partyDiv.appendChild(createPokemonStatisticsTable(playerStat.parties[j].pokemon));
 			playerDiv.appendChild(partyDiv);
 		}
-		fbSection.appendChild(playerDiv);
+		section.appendChild(playerDiv);
 		$( playerDiv ).accordion({
 			active: false,
 			collapsible: true,
 			heightStyle: 'content'
 		});
 	}
-	
-	$( "#feedback_table1" ).accordion({
+	$( section ).accordion({
 		active: false,
 		collapsible: true,
 		heightStyle: 'content'
 	});
 	
 	// Battle Log
-	var fbSection = document.getElementById("feedback_table2");
-	fbSection.appendChild(createElement('h3', 'Interactive Battle Log'));
-	var battleLogDiv = document.createElement('div');
-	fbSection.appendChild(battleLogDiv);
-	if (output.battleLog.length > 0){
-		var battleLogTable = createBattleLogTable(output.battleLog);
-		battleLogDiv.appendChild(battleLogTable);
+	var section = document.getElementById("feedback_table3");
+	section.innerHTML = "";
+	if (sim.output.battleLog.length > 0){
+		section.appendChild(createBattleLogTable(sim.output.battleLog));
 	}
 }
 
@@ -923,13 +903,12 @@ function createBattleLogTable(log){
 						singleEvent.index = ui.item.index;
 						entry.breakpoint = true;
 						var cfg = read();
-						var w = new World(cfg);
-						w.loadList(log);
-						w.resume();
-						$( "#feedback_table1" ).accordion("destroy");
-						displayDetail({
+						var battle = new Battle(cfg);
+						battle.loadList(log);
+						battle.resume();
+						updateSimulationDetails({
 							input: cfg,
-							output: w.getStatistics()
+							output: battle.getBattleResult()
 						});
 					}
 				}).iconselectmenu("menuWidget").addClass("ui-menu-icons");

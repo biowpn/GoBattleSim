@@ -589,7 +589,7 @@ function getWinRate(level, cfg){
 			}
 		}
 	}
-	return parseFloat(runSimulation(cfg)[0].output.generalStat.battle_result);
+	return parseFloat(runSimulation(cfg)[0].output.statistics.outcome);
 }
 
 
@@ -772,8 +772,8 @@ function teamBuilderCalculatePokemon(){
 			intermediateSimResults = intermediateSimResults.concat(processConfig(config));
 		}
 		var avrgSim = averageSimulations(intermediateSimResults);
-		pokemon.dps = round(avrgSim.output.generalStat.dps / numAttacker, 3);
-		pokemon.tdo = round(avrgSim.output.generalStat.tdo / numAttacker / 6, 1);
+		pokemon.dps = round(avrgSim.output.statistics.dps / numAttacker, 3);
+		pokemon.tdo = round(avrgSim.output.statistics.tdo / numAttacker / 6, 1);
 		pokemonDT.row.add(pokemon);
 	}
 	pokemonDT.draw();
@@ -877,7 +877,7 @@ function teamBuilderCalculateParty(){
 		for (let config of batchSim(baseConfig)){
 			intermediateSimResults = intermediateSimResults.concat(processConfig(config));
 		}
-		let curStats = averageSimulations(intermediateSimResults).output.generalStat;
+		let curStats = averageSimulations(intermediateSimResults).output.statistics;
 		curStats.dps = curStats.dps / numAttacker;
 		curStats.tdo_percent = curStats.tdo_percent / numAttacker;
 		if (!bestStats || curStats.dps > bestStats.dps){
@@ -917,7 +917,7 @@ function teamBuilderUpdatePartyStats(){
 		for (let config of batchSim(baseConfig)){
 			intermediateSimResults = intermediateSimResults.concat(processConfig(config));
 		}
-		curStats = averageSimulations(intermediateSimResults).output.generalStat;
+		curStats = averageSimulations(intermediateSimResults).output.statistics;
 		curStats.dps = curStats.dps / numAttacker;
 		curStats.tdo_percent = curStats.tdo_percent / numAttacker;
 		teamBuilderPartyPermutationStats[key] = curStats;
@@ -1178,19 +1178,16 @@ function battleScore(x, y){
 	  ],
 	  "battleMode": "pvp",
 	  "timelimit": 240000,
-	  "aggregation": "enum"
+	  "aggregation": "tree"
 	};
-
-	w = new World(config);
-	w.init();
-	w.battle();
+	battle = new Battle(config);
+	battle.init();
+	battle.go();
 	
-	let battleResult = w.getStatistics();
-	let x_hp_left = Math.max(0, battleResult.pokemonStats[0][0][0].hp), y_hp_left = Math.max(0, battleResult.pokemonStats[1][0][0].hp);
-	let x_hp_max = w.players[0].parties[0].pokemon[0].maxHP, y_hp_max = w.players[1].parties[0].pokemon[0].maxHP;
-	
-	var score = ((y_hp_max - y_hp_left)/y_hp_max) - ((x_hp_max - x_hp_left)/x_hp_max);
-	return score;
+	let statistics = battle.getBattleResult().statistics;
+	let statsX = statistics.players[0].parties[0].pokemon[0];
+	let statsY = statistics.players[1].parties[0].pokemon[0];
+	return ((statsY.maxHP - Math.max(0, statsY.hp))/statsY.maxHP) - ((statsX.maxHP - Math.max(0, statsX.hp))/statsX.maxHP);
 }
 
 function generateBattleMatrix(P){
@@ -1245,6 +1242,32 @@ function battleMatrixReadFromMain(){
 	$("#battleMatrix-input").val(rawInput.join("\n"));
 }
 
+function removeDuplicates(pokemonVector){
+	var uniquePokemonVector = [];
+	for (let pkm of pokemonVector){
+		var unique = true;
+		for (let pkm2 of uniquePokemonVector){
+			unique = false;
+			for (var a in pkm){
+				if (a != "cmove" && a != "cmove2" && a != "nickname" && pkm[a] != pkm2[a]){
+					unique = true;
+					break;
+				}
+			}
+			if (!unique){
+				unique = !(pkm.cmove == pkm2.cmove && pkm.cmove2 == pkm2.cmove2) && !(pkm.cmove == pkm2.cmove2 && pkm.cmove2 == pkm2.cmove);
+			}
+			if (!unique){
+				break;
+			}
+		}
+		if (unique){
+			uniquePokemonVector.push(pkm);
+		}
+	}
+	return uniquePokemonVector;
+}
+
 function battleMatrixSubmit(){
 	assignMoveParameterSet("load", Data.FastMoves, "combat");
 	assignMoveParameterSet("load", Data.ChargedMoves, "combat");
@@ -1293,6 +1316,11 @@ function battleMatrixSubmit(){
 			pokemonVector.push(p);
 		}
 	}
+	
+	console.log("Before:", pokemonVector.length);
+	pokemonVector = removeDuplicates(pokemonVector);
+	console.log("After:", pokemonVector.length);
+		
 	try{
 		var matrix = generateBattleMatrix(pokemonVector);
 	} catch (err){
