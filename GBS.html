@@ -325,7 +325,6 @@
 
 <script>
 
-
 $.widget( "custom.iconselectmenu", $.ui.selectmenu, {
   _renderItem: function( ul, item ) {
 	var li = $( "<li>" ),
@@ -352,7 +351,7 @@ const HSL_COLORS = [
 	['hsl(120, 60%, 90%)','hsl(120, 60%, 70%)','hsl(120, 60%, 50%)']
 ];
 
-const DEFAULT_SUMMARY_TABLE_METRICS = {outcome:'Outcome', duration:'Time', tdo_percent:'TDO%', dps:'DPS', numDeaths:'#Death'};
+const DEFAULT_SUMMARY_TABLE_METRICS = {outcome: 'Outcome', duration: 'Time', tdo_percent: 'TDO%', dps: 'DPS', numDeaths: '#Death'};
 
 var Simulations = [];
 var MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
@@ -370,8 +369,7 @@ for (let weatherSetting of Data.WeatherSettings){
 	weatherInput.appendChild(createElement('option', weatherSetting.label, {value: weatherSetting.name}));
 }
 
-var timelimitInput = document.getElementById("timelimit");
-timelimitInput.value = Data.BattleSettings.timelimitLegendaryRaidMs;
+$("#timelimit").val(Data.BattleSettings.timelimitLegendaryRaidMs);
 
 
 dropdownMenuInit();

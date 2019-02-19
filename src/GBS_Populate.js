@@ -13,19 +13,6 @@ var FETCHED_STATUS_PASS = 5;
 
 var DefaultData = {
 	BattleSettings: {
-		'sameTypeAttackBonusMultiplier': 1.2,
-		'weatherAttackBonusMultiplier': 1.2,
-		'fastAttackBonusMultiplier': 1.3,
-		'chargedAttackBonusMultiplier': 1.3,
-		'maximumEnergy': 100, 
-		'energyDeltaPerHealthLost': 0.5, 
-		'dodgeDamageReductionPercent': 0.75,
-		
-		'AtkBuffMultiplier': [0.5, 0.5714286, 0.66666669, 0.8, 1.0, 1.25, 1.5, 1.75, 2],
-		'DefBuffMultiplier': [0.5, 0.5714286, 0.66666669, 0.8, 1.0, 1.25, 1.5, 1.75, 2],
-		'minimumStatStage': -4,
-		'maximumStatStage': 4,
-		
 		'dodgeDurationMs': 500, 
 		'dodgeWindowMs': 700,
 		'swapDurationMs': 1000,
@@ -34,13 +21,27 @@ var DefaultData = {
 		'arenaEarlyTerminationMs': 3000,
 		'fastMoveLagMs': 25,
 		'chargedMoveLagMs': 100,
+		'rejoinDurationMs': 10000,
+		'itemMenuAnimationTimeMs': 2000,
+		'maxReviveTimePerPokemonMs': 1000,
 		'timelimitGymMs': 100000,
 		'timelimitRaidMs': 180000,
 		'timelimitLegendaryRaidMs': 300000,
 		'timelimitPvPMs': 240000,
-		'rejoinDurationMs': 10000,
-		'itemMenuAnimationTimeMs': 2000,
-		'maxReviveTimePerPokemonMs': 1000
+		
+		'sameTypeAttackBonusMultiplier': 1.2,
+		'weatherAttackBonusMultiplier': 1.2,
+		'fastAttackBonusMultiplier': 1.3,
+		'chargedAttackBonusMultiplier': 1.3,
+		'AtkBuffMultiplier': [0.5, 0.5714286, 0.66666669, 0.8, 1.0, 1.25, 1.5, 1.75, 2],
+		'DefBuffMultiplier': [0.5, 0.5714286, 0.66666669, 0.8, 1.0, 1.25, 1.5, 1.75, 2],
+		'minimumStatStage': -4,
+		'maximumStatStage': 4,
+		
+		'maximumEnergy': 100, 
+		'energyDeltaPerHealthLost': 0.5, 
+		'dodgeDamageReductionPercent': 0.75,
+		'maximumTreeHeight': 12
 	},
 	
 	FriendSettings: [

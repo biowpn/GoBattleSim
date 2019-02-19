@@ -238,6 +238,7 @@ function GoBattleSim(){
 	date = new Date();
 	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations started");
 	
+	currentJobSize = 0;
 	var configurations = batchSim(userInput, [0,0,0,0]);
 	for (let config of configurations){
 		Simulations = Simulations.concat(processConfig(config));

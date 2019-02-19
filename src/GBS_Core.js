@@ -232,7 +232,8 @@ function Pokemon(config){
 	// Initialize strategies
 	if (Pokemon.prototype.isPrototypeOf(config)){ // Copy Construction
 		this.strategy = new Strategy(config.strategy);
-		this.projectedRivalActions = JSON.parse(JSON.stringify(config.projectedRivalActions));
+		this.projectedRivalActions = new Timeline();
+		this.projectedRivalActions.list = JSON.parse(JSON.stringify(config.projectedRivalActions.list));
 		this.active = config.active;
 		this.damageReductionExpiration = config.damageReductionExpiration;
 		this.damageReductionPercent = config.damageReductionPercent;
@@ -863,27 +864,23 @@ Strategy.prototype.getProjectedEnergy = function(kwargs){
 	Defender AI strategy.
 */
 Strategy.prototype.actionStrategyDefender = function(kwargs){
-	var actionName = ACTION.Fast;
-	var moveName = this.subject.fmove.name;
-	var delay = 0;
 	var numFastAttacks = this.subject.numFastAttacks + (kwargs.currentAction ? 1 : 0);
 	if (numFastAttacks >= 2){
+		var delay = 1500 + round(1000 * Math.random()); // Add the standard defender delay
 		let projectedEnergy = this.getProjectedEnergy(kwargs);
-		if (projectedEnergy + this.subject.cmove.energyDelta >= 0 && Math.random() <= 0.5){
-			actionName = ACTION.Charged;
-			moveName = this.subject.cmove.name;
+		if (projectedEnergy + this.subject.cmove.energyDelta >= 0){
+			return [
+				{name: ACTION.Fast, move: this.subject.fmove.name, delay: delay, weight: 0.5},
+				{name: ACTION.Charged, move: this.subject.cmove.name, delay: delay, weight: 0.5}
+			];
+		} else {
+			return {name: ACTION.Fast, move: this.subject.fmove.name, delay: delay};
 		}
-		delay = 1500 + round(1000 * Math.random()); // Add the standard defender delay
 	}else if (numFastAttacks == 1){ // The second action
-		delay = Math.max(0, 1000 - this.subject.fmove.duration);
+		return {name: ACTION.Fast, move: this.subject.fmove.name, delay: Math.max(0, 1000 - this.subject.fmove.duration)};
 	}else{ // The first action
-		delay = 500;
+		return {name: ACTION.Fast, move: this.subject.fmove.name, delay: 500};
 	}
-	return {
-		name: actionName,
-		move: moveName,
-		delay: delay
-	};
 }
 
 /**
@@ -914,12 +911,18 @@ Strategy.prototype.actionStrategyDodge = function(kwargs){
 	if (!rivalAttackAction){
 		return this.actionStrategyNoDodge(kwargs);
 	}
-	var enemy_move = (rivalAttackAction.name == ACTION.Fast ? rivalAttackAction.from.fmove : rivalAttackAction.from.cmove);
+	var enemy = null;
+	for (let rival of this.subject.master.rivals){
+		enemy = rival.getPokemonById(rivalAttackAction.from);
+		if (enemy)
+			break;
+	}
+	var enemy_move = enemy.getMoveByName(rivalAttackAction.move);
 	var hurtTime = rivalAttackAction.t + enemy_move.dws;
 	if (this.damageReductionExpiration >= hurtTime){
 		return this.actionStrategyNoDodge(kwargs);
 	}
-	let dmg = damage(rivalAttackAction.from, this.subject, enemy_move, kwargs.weather)
+	let dmg = damage(enemy, this.subject, enemy_move, kwargs.weather)
 	let dodgedDmg = kwargs.dodgeBugActive ? dmg : Math.max(1, Math.floor(dmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent)));
 	if (dodgedDmg >= this.subject.HP){
 		return this.actionStrategyNoDodge(kwargs);
@@ -1029,6 +1032,7 @@ function Battle(config){
 		this.overridePvP();
 	}
 	// Tree average
+	this.treeHeight = config.treeHeight || 0;
 	this.branches = [];
 	
 }
@@ -1091,6 +1095,7 @@ Battle.prototype.init = function(){
 		});
 	}
 	this.log = [];
+	this.branches = [];
 }
 
 /**
@@ -1162,7 +1167,7 @@ Battle.prototype.handleFree = function(event){
 	if (currentAction && (subject.role == "gd" || subject.role == "rb")){
 		// Gym Defenders and Raid Bosses are forced to broadcast
 		currentAction.t = this.t + currentAction.delay || 0;
-		currentAction.from = subject;
+		currentAction.from = subject.id;
 		for (let rival of subject.master.rivals){
 			let target = rival.getHead();
 			if (target.active){
@@ -1176,6 +1181,25 @@ Battle.prototype.handleFree = function(event){
 	this.timeline.enqueue({
 		name: EVENT.Free, t: tFree, subject: subject.id, index: subject.master.index
 	});
+	if (Array.isArray(subject.queuedAction)){
+		if (this.aggregation == "tree" && this.treeHeight < Data.BattleSettings.maximumTreeHeight){
+			let subject_id = subject.id;
+			this.branch(subject.queuedAction, function(battle, action){
+				battle.getPokemonById(subject_id).queuedAction = action;
+				battle.go();
+			});
+		} else {
+			var randomNumber = Math.random();
+			for (let action of subject.queuedAction){
+				if (randomNumber < action.weight){
+					subject.queuedAction = action;
+					break;
+				} else {
+					randomNumber -= action.weight;
+				}
+			}
+		}
+	}
 }
 
 /**
@@ -1281,11 +1305,16 @@ Battle.prototype.handleEffect = function(event){
 	var subject = this.getPokemonById(event.subject);
 	var move = subject.getMoveByName(event.move);
 	if (!event.activated){
-		if (this.aggregation == "tree"){
+		if (this.aggregation == "tree" && this.treeHeight < Data.BattleSettings.maximumTreeHeight){
 			var event2 = JSON.parse(JSON.stringify(event));
 			event.activated = 1;
+			event.weight = move.effect.probability;
 			event2.activated = -1;
-			return this.branch([event, event2], [move.effect.probability, 1 - move.effect.probability]);
+			event2.weight = 1 - move.effect.probability;
+			return this.branch([event, event2], function(battle, event){ 
+				battle.next(event);
+				battle.go();
+			});
 		} else {
 			event.activated = Math.random() < move.effect.probability ? 1 : -1;
 		}
@@ -1640,22 +1669,25 @@ Battle.prototype.getAttackOptions = function(event){
 	return options;
 }
 
-/** 
+/**
 	Terminate current simulation and evaluate branch outcomes.
-	@param {Object[]} events A list of alternative events.
-	@param {number[]} weights The associated weigths for each event. Their sum should be 1.
+	@param {Object[]} options A list of branch options. Each must have a weight and all weights must sum to 1.
+	@param {Battle~branchCallback} callback The operation to perform on each new battle instance.
 */
-Battle.prototype.branch = function(events, weights){
-	this.childBattles = [];
-	for (var i = 0; i < events.length; i++){
+Battle.prototype.branch = function(options, callback){
+	for (let option of options){
 		var battle = new Battle(this);
-		this.childBattles.push(battle);
-		battle.next(events[i]);
-		battle.go();
-		this.branches.push({weight: weights[i], statistics: battle.getStatistics("0", "1")});
+		battle.treeHeight += 1;
+		callback(battle, option);
+		this.branches.push({weight: option.weight, statistics: battle.getStatistics("0", "1")});
 	}
-	this.end = () => true; // Force end
 }
+/**
+ * @callback Battle~branchCallback
+ * @param {Battle} battle The cloned battle instance.
+ * @param {Object} option One of the option provided by the options parameter in the branch function.
+ */
+
 
 /** 
 	Get the battle statistics.
