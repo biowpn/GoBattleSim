@@ -1299,6 +1299,7 @@ function battleMatrixSubmit(){
 		var wrapperConfig = {
 			players: [{parties: [{pokemon: [pokemon]}]}]
 		};
+		console.log(wrapperConfig);
 		var batchedConfigs = batchSim(wrapperConfig);
 		function initials(str){
 			var firsts = [];

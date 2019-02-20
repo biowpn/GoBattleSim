@@ -1352,7 +1352,7 @@ Battle.prototype.handleEnter = function(event){
 		enemy.choosePrimaryChargedMove(subject, this.weather);
 	}
 	this.timeline.enqueue({
-		name: EVENT.Free, t: this.t, subject: subject.id, index: player.index
+		name: EVENT.Free, t: this.t + 500, subject: subject.id, index: player.index
 	});
 }
 
@@ -1604,6 +1604,8 @@ Battle.prototype.resume = function(){
 						tFree = entry.t + 200;
 					}else if (curOption.name == EVENT.Dodge){
 						tFree = entry.t + Data.BattleSettings.dodgeDurationMs;
+					}else if (curOption.name == EVENT.Enter || curOption.name == EVENT.Switch){
+						tFree = entry.t + 500;
 					}
 					break;
 				}

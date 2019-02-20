@@ -15,7 +15,7 @@ var DefaultData = {
 	BattleSettings: {
 		'dodgeDurationMs': 500, 
 		'dodgeWindowMs': 700,
-		'swapDurationMs': 1000,
+		'swapDurationMs': 500,
 		'switchingCooldownDurationMs': 60000,
 		'arenaEntryLagMs': 3000,
 		'arenaEarlyTerminationMs': 3000,
