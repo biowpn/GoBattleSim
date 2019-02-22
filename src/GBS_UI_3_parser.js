@@ -248,7 +248,9 @@ function GoBattleSim(){
 	console.log(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds()  + ": Simulations completed");
 
 	updateMasterSummaryTable();
-	updateSimulationDetails(Simulations[Simulations.length - 1]);
+	if (currentJobSize == 1){
+		updateSimulationDetails(Simulations[Simulations.length - 1]);
+	}
 }
 
 
@@ -259,6 +261,56 @@ function applicationInit(){
 	addPlayerNode();
 	write(playersNode.children[1], {team: "1", parties: [{pokemon: [{role: "rb"}]}]});
 	//comply();
+	
+	if (window.location.href.includes('?')){
+		write(document.getElementById("input"), importConfig(window.location.href));
+	}else if (!LocalData.WelcomeDialogNoShow){
+		$( "#WelcomeDialog" ).dialog( "open" );
+	}
+	
+	formatting(playersNode);
+	relabel();
+}
+
+
+/** 
+	Application entry point. Must be called after all required JSONs are fetched.
+*/
+function GoBattleSimInit(){
+	$(document).ready(function(){
+		if (window['userID2'] && userID2 != '0'){
+			fetchUserData(userID2);
+		}
+	});
+
+	dropdownMenuInit();
+	try{
+		welcomeDialogInit();
+		moveEditFormInit();
+		pokemonEditFormInit();
+		parameterEditFormInit();
+		modEditFormInit();
+		userEditFormInit();
+		MVLTableInit();
+		teamBuilderInit();
+		typeCheckerInit();
+		battleMatrixInit();
+	}catch(err){
+		console.log(err);
+	}
+
+	var playersNode = $$$(document.getElementById("input")).child("input-players").node;
+	$(playersNode).sortable({axis: 'y'});
+	addPlayerNode();
+	addPlayerNode();
+	write(playersNode.children[1], {team: "1", parties: [{pokemon: [{role: "rb"}]}]});
+	//comply();
+	
+	var weatherInput = $$$(document.getElementById("input")).child("input-weather").node;
+	for (let weatherSetting of Data.WeatherSettings){
+		weatherInput.appendChild(createElement('option', weatherSetting.label, {value: weatherSetting.name}));
+	}
+	$("#timelimit").val(Data.BattleSettings.timelimitLegendaryRaidMs);
 
 	if (window.location.href.includes('?')){
 		write(document.getElementById("input"), importConfig(window.location.href));

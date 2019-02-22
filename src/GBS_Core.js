@@ -5,11 +5,11 @@
 	@author BIOWP
 */
 
-const MAX_NUM_POKEMON_PER_PARTY = 6;
-const MAX_NUM_PARTIES_PER_PLAYER = 5;
-const MAX_NUM_OF_PLAYERS = 21;
+var MAX_NUM_POKEMON_PER_PARTY = 6;
+var MAX_NUM_PARTIES_PER_PLAYER = 5;
+var MAX_NUM_OF_PLAYERS = 21;
 
-const EVENT = {
+var EVENT = {
 	Free: "Free",
 	Damage: "Damage",
 	Dodge: "Dodge",
@@ -19,7 +19,7 @@ const EVENT = {
 	Effect: "Effect"
 };
 
-const ACTION = {
+var ACTION = {
 	Fast: "Fast",
 	Charged: "Charged",
 	Dodge: "Dodge"
@@ -137,7 +137,7 @@ function Move(config, database){
 	if (moveData == null){
 		throw Error("Unknown Move: " + config);
 	}
-	leftMerge(this, moveData);
+	$.extend(this, moveData);
 }
 
 

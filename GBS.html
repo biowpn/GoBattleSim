@@ -191,7 +191,7 @@
 </style>
 
 
-<div id='menu'>
+<div id='menu' style="visibility: hidden;">
 	<table style="position: relative; height: 40px"><colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>
 		<tr>
 			<td style='vertical-align: top'>
@@ -344,50 +344,17 @@ $.widget( "custom.iconselectmenu", $.ui.selectmenu, {
   }
 });
 
-const HSL_COLORS = [
+var HSL_COLORS = [
 	['hsl(209, 100%, 90%)','hsl(209, 100%, 80%)','hsl(209, 100%, 70%)'],
 	['hsl(0, 100%, 90%)','hsl(0, 100%, 80%)','hsl(0, 100%, 70%)'],
 	['hsl(48, 100%, 90%)','hsl(48, 100%, 70%)','hsl(48, 100%, 50%)'],
 	['hsl(120, 60%, 90%)','hsl(120, 60%, 70%)','hsl(120, 60%, 50%)']
 ];
 
-const DEFAULT_SUMMARY_TABLE_METRICS = {outcome: 'Outcome', duration: 'Time', tdo_percent: 'TDO%', dps: 'DPS', numDeaths: '#Death'};
+var DEFAULT_SUMMARY_TABLE_METRICS = {outcome: 'Outcome', duration: 'Time', tdo_percent: 'TDO%', dps: 'DPS', numDeaths: '#Death'};
 
 var Simulations = [];
 var MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
 var currentJobSize = 0;
-
-
-/* Initialize Modules*/
-$("#removePartyDialog").dialog({
-	autoOpen: false,
-	modal: true
-});
-
-var weatherInput = $$$(document.getElementById("input")).child("input-weather").node;
-for (let weatherSetting of Data.WeatherSettings){
-	weatherInput.appendChild(createElement('option', weatherSetting.label, {value: weatherSetting.name}));
-}
-
-$("#timelimit").val(Data.BattleSettings.timelimitLegendaryRaidMs);
-
-
-dropdownMenuInit();
-try{
-	welcomeDialogInit();
-	moveEditFormInit();
-	pokemonEditFormInit();
-	parameterEditFormInit();
-	modEditFormInit();
-	userEditFormInit();
-	MVLTableInit();
-	teamBuilderInit();
-	typeCheckerInit();
-	battleMatrixInit();
-}catch(err){
-	console.log(err);
-}
-
-populateAll(applicationInit);
 
 </script>

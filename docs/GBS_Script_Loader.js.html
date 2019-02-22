@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Timeline</title>
+    <title>JSDoc: Source: GBS_Script_Loader.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,382 +17,108 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Timeline</h1>
-
-    
-
-
-
-
-<section>
-
-<header>
-    
-        <h2><span class="attribs"><span class="type-signature"></span></span>Timeline<span class="signature">()</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description">A priority queue using 't' as key.</div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-
-    
-    <h2>Constructor</h2>
-    
-
-    
-    <h4 class="name" id="Timeline"><span class="type-signature"></span>new Timeline<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line699">line 699</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="dequeue"><span class="type-signature"></span>dequeue<span class="signature">()</span><span class="type-signature"> &rarr; {Object}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Remove the item with the smallest key.
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line720">line 720</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    The item with the smallest key.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Object</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="enqueue"><span class="type-signature"></span>enqueue<span class="signature">(e)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Add an item.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>e</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The item to add.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line707">line 707</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    <h1 class="page-title">Source: GBS_Script_Loader.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* GBS_Script_Loader.js */
+
+/**
+	@file Load the scripts dynamically and manage the JSONs loading status.
+	@author BIOWP
+*/
+
+var curTime = Date.now();
+var raidBossListURL = "", pokemonDataFullURL = "", moveDataFullURL = "";
+var requiredJSONStatus = { 
+	// 0: Not loaded, 1: Started loading, 2: Successfully loaded
+	'Pokemon': 0,
+	'PokemonForms': 0,
+	'RaidBosses': 0,
+	'Moves': 0,
+	'LevelSettings': 0
+};
+
+/** 
+	This function will be called after all required JSONs and scripts are loaded.
+*/
+function onfinishLoadingAll(){
+	GoBattleSimInit(); // DPSCalculatorInit();
+};
+
+$.ajax({ 
+	url: "https://gamepress.gg/json-list?_format=json&amp;game_tid=1&amp;" + curTime, 
+	dataType: 'json', 
+	success: function(data){
+		for(var i = 0; i &lt; data.length; i++){
+			var curr = data[i];
+			if (curr.title == "raid-boss-list-PoGO"){
+				raidBossListURL = curr.url;
+			}
+			if (curr.title == "pokemon-data-full-en-PoGO"){
+				pokemonDataFullURL = curr.url;
+			}
+			if (curr.title == "move-data-full-PoGO"){
+				moveDataFullURL = curr.url;
+			}
+		}
+	},
+	complete: function(){
+		if (window.fetchSpeciesData){
+			fetchSpeciesData();
+			fetchMoveData();
+			fetchRaidBossData();
+		}
+	}
+});
+
+var scriptsToLoad = [
+	"https://pokemongo.gamepress.gg/sites/pokemongo/files/js_files/GBS_Populate.js",
+
+	"https://pokemongo.gamepress.gg/sites/pokemongo/files/js_files/GBS_Core.js",
+	"https://pokemongo.gamepress.gg/sites/pokemongo/files/js_files/GBS_Populate_extras.js",
+	"https://pokemongo.gamepress.gg/sites/pokemongo/files/js_files/GBS_UI_1_general.js",
+	"https://pokemongo.gamepress.gg/sites/pokemongo/files/js_files/GBS_UI_2_dom.js",
+	"https://pokemongo.gamepress.gg/sites/pokemongo/files/js_files/GBS_UI_3_parser.js",
+	"https://pokemongo.gamepress.gg/sites/pokemongo/files/js_files/GBS_UI_4_dom2.js",
+	"https://pokemongo.gamepress.gg/sites/pokemongo/files/js_files/comprehensive_dps.js"
+];
+
+var numScriptsToLoad = scriptsToLoad.length;
+var numScriptsLoaded = 0;
+
+
+// Load this script first because we need this script to load JSONs
+$.getScript(scriptsToLoad[0] + "?" + curTime, function(){
+	numScriptsLoaded++;
+	fetchAll(function(){
+		if (numScriptsLoaded >= numScriptsToLoad){
+			onfinishLoadingAll();
+		}
+	});
+});
+
+
+for (var i = 1; i &lt; numScriptsToLoad; i++){
+	$.getScript(scriptsToLoad[i] + "?" + curTime, function(){
+		numScriptsLoaded++;
+		if (numScriptsLoaded >= numScriptsToLoad){
+			for (var json_name in requiredJSONStatus){
+				if (requiredJSONStatus[json_name] != 2){
+					return;
+				}
+			}
+			onfinishLoadingAll();
+		}
+	});
+}</code></pre>
+        </article>
+    </section>
 
 
 

@@ -187,19 +187,6 @@ function toTitleCase(str){
 }
 
 
-function leftMerge(objL, objR, attrs){
-	if (attrs){
-		attrs.forEach(function(attr){
-			objL[attr] = objR[attr];
-		});
-			
-	}else{
-		for (var attr in objR)
-			objL[attr] = objR[attr];
-	}
-}
-
-
 function traverseLeaf(json, callback, path){
 	path = path || [];
 	if (typeof json == typeof "" || typeof json == typeof 0){
@@ -245,7 +232,7 @@ function getParameterByName(name, url) {
 }
 
 // https://hackernoon.com/copying-text-to-clipboard-with-javascript-df4d4988697f
-const copyToClipboard = str => {
+var copyToClipboard = str => {
   const el = document.createElement('textarea');  // Create a <textarea> element
   el.value = str;                                 // Set its value to the string that you want copied
   el.setAttribute('readonly', '');                // Make it readonly to be tamper-proof

@@ -25,7 +25,7 @@ function welcomeDialogSubmit(configIndex, advanced){
 	$( "#WelcomeDialog" ).dialog( "close" );
 	if (!advanced){
 		document.getElementById('GoButton').scrollIntoView({block: "center", inline: "center"});
-		sendFeedbackDialog('Nice choice! Now, click "GO" to start the simulation.');
+		sendFeedbackDialog('Nice choice! Now, review the configuration and click "GO" to start the simulation.');
 	}
 }
 
@@ -40,6 +40,7 @@ function welcomeDialogRespond(resp){
 
 
 function dropdownMenuInit(){
+	$( "#menu" ).attr("style", "visibility: show;");
 	var SubMenuContainers = document.getElementsByClassName('sub-menu-container');
 	for (var i = 0; i < SubMenuContainers.length; i++){
 		var container = SubMenuContainers[i];
@@ -131,7 +132,7 @@ function moveEditFormSubmit(){
 
 	var move2 = getEntry(move.name, Data[toTitleCase(move.moveType) + "Moves"]);
 	if (move2){
-		leftMerge(move2, move);
+		$.extend(move2, move);
 		move = move2;
 		sendFeedbackDialog('Move: ' + move.label + ' has been updated.');
 	}else{
@@ -264,7 +265,7 @@ function pokemonEditFormSubmit(){
 	
 	var pokemon2 = getEntry(pokemon.name, Data.Pokemon);
 	if (pokemon2){
-		leftMerge(pokemon2, pokemon);
+		$.extend(pokemon2, pokemon);
 		pokemon = pokemon2;
 		sendFeedbackDialog('Pokemon: ' + pokemon.label + ' has been updated.');
 	}else{
@@ -377,7 +378,6 @@ function userEditFormInit(){
 function userEditFormAddUser(){
 	var userID = document.getElementById('userEditForm-userID-1').value.trim();
 	fetchUserData(userID, function(){
-		fetchUserTeamData(userID);
 		sendFeedbackDialog("Imported user " + userID);
 		updateUserTable();
 	});

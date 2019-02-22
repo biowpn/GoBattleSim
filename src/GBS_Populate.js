@@ -5,11 +5,6 @@
 	@author BIOWP
 */
 
-var raidBossListURL = "", pokemonDataFullURL = "", moveDataFullURL = "";
-
-var FETCHED_STATUS = 0;
-var FETCHED_STATUS_PASS = 5;
-
 
 var DefaultData = {
 	BattleSettings: {
@@ -105,8 +100,6 @@ var DefaultData = {
 	
 	ChargedMoves: [],
 	
-	MoveEffects: [],
-	
 	LevelSettings: [],
 	
 	IndividualValues: [],
@@ -134,18 +127,6 @@ var LocalData = {
 var Data = JSON.parse(JSON.stringify(DefaultData));
 
 
-
-/**
-	Sort an array of items with key "name" in ascending order in place.
-	@param {Object[]} database The array to sort.
-	@return {Object[]} The same database.
-*/
-function sortDatabase(database){
-	database.sort(function(a, b){
-		return a.name == b.name ? 0 : (a.name < b.name ? -1 : 1);
-	});
-	return database;
-}
 
 /**
 	Look up an item in an array.
@@ -274,16 +255,6 @@ function mergeDatabase(database1, database2, conflictSolver){
 	@return {Object} The entry that will be kept. It can be a new entry.
 */
 
-
-
-/*
-	Utilities functions
-*/
-
-// If function {manuallyModifyData} is not defined, define here
-if (window['manuallyModifyData'] == undefined){
-	manuallyModifyData = function(data){};
-}
 
 /**
 	Parse two Pokemon types from a string.
@@ -422,7 +393,7 @@ function parseUserPokebox(data){
 			uid: data[i].uid
 		};
 		let species = getEntry(pkm.name, Data.Pokemon) || {};
-		leftMerge(pkm, species);
+		$.extend(pkm, species);
 		pkm.nid = data[i].nid;
 		pkm.label = pkm.nickname;
 		box.push(pkm);
@@ -458,13 +429,15 @@ function assignMoveParameterSet(direction, moves, setName){
 }
 
 
+
 /** 
 	Fetch Level Settings from GP server.
 	@param oncomplete The callback after the fetching is complete.
 */
 function fetchLevelData(oncomplete){
-	oncomplete = oncomplete || function(){return;};
-	
+	if (requiredJSONStatus.LevelSettings != 0)
+		return;
+	requiredJSONStatus.LevelSettings = 1;
 	$.ajax({ 
 		url: 'https://pokemongo.gamepress.gg/assets/data/cpm.json?v2', 
 		dataType: 'json', 
@@ -479,10 +452,9 @@ function fetchLevelData(oncomplete){
 					"candy": parseInt(data[i].field_candy_cost)
 				});
 			}
+			requiredJSONStatus.LevelSettings = 2;
 		},
-		complete: function(jqXHR, textStatus){
-			oncomplete();
-		}
+		complete: oncomplete || function(){}
 	});
 }
 
@@ -491,9 +463,12 @@ function fetchLevelData(oncomplete){
 	Fetch raid boss list from GP server.
 	@param oncomplete The callback after the fetching is complete.
 */
-function fetchRaidBossList(oncomplete){
-	oncomplete = oncomplete || function(){return;};
-	
+function fetchRaidBossData(oncomplete){
+	if (!window.raidBossListURL)
+		return;
+	if (requiredJSONStatus.RaidBosses != 0)
+		return;
+	requiredJSONStatus.RaidBosses = 1;
 	$.ajax({ 
 		url: raidBossListURL, 
 		dataType: 'json', 
@@ -509,10 +484,9 @@ function fetchRaidBossList(oncomplete){
 				};
 				Data.RaidBosses.push(parsedBossInfo);
 			});
+			requiredJSONStatus.RaidBosses = 2;
 		},
-		complete: function(jqXHR, textStatus){
-			oncomplete();
-		}
+		complete: oncomplete || function(){}
 	});
 }
 
@@ -521,8 +495,11 @@ function fetchRaidBossList(oncomplete){
 	@param oncomplete The callback after the fetching is complete.
 */
 function fetchSpeciesData(oncomplete){
-	oncomplete = oncomplete || function(){return;};
-	
+	if (!window.pokemonDataFullURL)
+		return;
+	if (requiredJSONStatus.Pokemon != 0)
+		return;
+	requiredJSONStatus.Pokemon = 1;
 	$.ajax({ 
 		url: pokemonDataFullURL,
 		dataType: 'json', 
@@ -553,11 +530,10 @@ function fetchSpeciesData(oncomplete){
 				};
 				Data.Pokemon.push(pkm);
 			}
-			sortDatabase(Data.Pokemon);
+			Data.Pokemon.sort((a, b) => (a.name == b.name ? 0 : (a.name < b.name ? -1 : 1)));
+			requiredJSONStatus.Pokemon = 2;
 		},
-		complete: function(jqXHR, textStatus){
-			oncomplete();
-		}
+		complete: oncomplete || function(){}
 	});
 }
 
@@ -566,18 +542,17 @@ function fetchSpeciesData(oncomplete){
 	@param oncomplete The callback after the fetching is complete.
 */
 function fetchSpeciesFormData(oncomplete){
-	oncomplete = oncomplete || function(){return;};
-	var currTime = new Date().getTime();
+	if (requiredJSONStatus.PokemonForms != 0)
+		return;
+	requiredJSONStatus.PokemonForms = 1;
 	$.ajax({ 
-		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json?_format=json&' + currTime,
-		dataType: 'json', 
+		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json?_format=json&' + curTime,
+		dataType: 'json',
 		success: function(data){
-			Data.PokemonForms = data;
-			sortDatabase(Data.PokemonForms);
+			Data.PokemonForms = data.sort((a, b) => (a.name == b.name ? 0 : (a.name < b.name ? -1 : 1)));
+			requiredJSONStatus.PokemonForms = 2;
 		},
-		complete: function(jqXHR, textStatus){
-			oncomplete();
-		}
+		complete: oncomplete || function(){}
 	});
 }
 
@@ -586,8 +561,11 @@ function fetchSpeciesFormData(oncomplete){
 	@param oncomplete The callback after the fetching is complete.
 */
 function fetchMoveData(oncomplete){
-	oncomplete = oncomplete || function(){return;};
-	
+	if (!window.moveDataFullURL)
+		return;
+	if (requiredJSONStatus.Moves != 0)
+		return;
+	requiredJSONStatus.Moves = 1;
 	$.ajax({
 		url: moveDataFullURL,
 		dataType: 'json', 
@@ -638,12 +616,11 @@ function fetchMoveData(oncomplete){
 			}
 			assignMoveParameterSet("load", Data.FastMoves, "regular");
 			assignMoveParameterSet("load", Data.ChargedMoves, "regular");
-			sortDatabase(Data.FastMoves);
-			sortDatabase(Data.ChargedMoves);
+			Data.FastMoves.sort((a, b) => (a.name == b.name ? 0 : (a.name < b.name ? -1 : 1)));
+			Data.ChargedMoves.sort((a, b) => (a.name == b.name ? 0 : (a.name < b.name ? -1 : 1)));
+			requiredJSONStatus.Moves = 2;
 		},
-		complete: function(jqXHR, textStatus){
-			oncomplete();
-		}
+		complete: oncomplete || function(){}
 	});
 }
 
@@ -652,8 +629,6 @@ function fetchMoveData(oncomplete){
 	@param oncomplete The callback after the fetching is complete.
 */
 function fetchUserData(userid, oncomplete){
-	oncomplete = oncomplete || function(){return;};
-	
 	$.ajax({
 		url: 'https://pokemongo.gamepress.gg/user-pokemon-json-list?_format=json&new&uid_raw=' + userid,
 		dataType: 'json',
@@ -668,10 +643,9 @@ function fetchUserData(userid, oncomplete){
 				parties: []
 			};
 			insertEntry(user, Data.Users);
+			fetchUserTeamData(userid);
 		},
-		complete: function(){
-			oncomplete();
-		}
+		complete: oncomplete || function(){}
 	});
 }
 
@@ -680,8 +654,6 @@ function fetchUserData(userid, oncomplete){
 	@param oncomplete The callback after the fetching is complete.
 */
 function fetchUserTeamData(userid, oncomplete){
-	oncomplete = oncomplete || function(){return;};
-	
 	$.ajax({
 		url: 'https://pokemongo.gamepress.gg/user-pokemon-team?_format=json&uid=' + userid,
 		dataType: 'json',
@@ -712,59 +684,20 @@ function fetchUserTeamData(userid, oncomplete){
 					}
 					user.parties.push(party);
 				}
-				sortDatabase(user.parties);
+				user.parties.sort((a, b) => (a.name == b.name ? 0 : (a.name < b.name ? -1 : 1)));
 			}
 		},
-		complete: function(){
-			oncomplete();
-		}
+		complete: oncomplete || function(){}
 	});
 }
 
 /** 
-	Fetch browser local data.
+	Fetch client local data.
 */
 function fetchLocalData(){
 	if (localStorage){
 		if (localStorage.LocalData){ // new
 			LocalData = JSON.parse(localStorage.LocalData);
-		}else{ // old, deprecated
-			if (localStorage.POKEMON_SPECIES_DATA_LOCAL){
-				LocalData.Pokemon = sortDatabase(JSON.parse(localStorage.POKEMON_SPECIES_DATA_LOCAL));
-				delete localStorage.POKEMON_SPECIES_DATA_LOCAL;
-			}
-			if (localStorage.FAST_MOVE_DATA_LOCAL){
-				LocalData.FastMoves = sortDatabase(JSON.parse(localStorage.FAST_MOVE_DATA_LOCAL));
-				delete localStorage.FAST_MOVE_DATA_LOCAL;
-			}
-			if (localStorage.CHARGED_MOVE_DATA_LOCAL){
-				LocalData.ChargedMoves = sortDatabase(JSON.parse(localStorage.CHARGED_MOVE_DATA_LOCAL));
-				delete localStorage.CHARGED_MOVE_DATA_LOCAL;
-			}
-			if (localStorage.BATTLE_SETTINGS_LOCAL){
-				LocalData.BattleSettings = JSON.parse(localStorage.BATTLE_SETTINGS_LOCAL);
-				delete localStorage.BATTLE_SETTINGS_LOCAL;
-			}
-			if (localStorage.PARTIES_LOCAL){
-				LocalData.BattleParties = [];
-				var battleParties = JSON.parse(localStorage.PARTIES_LOCAL);
-				for (var name in battleParties){
-					var party = battleParties[name];
-					party.name = name;
-					party.label = name;
-					party.isLocal = true;
-					insertEntry(party, LocalData.BattleParties);
-				}
-				delete localStorage.PARTIES_LOCAL;
-			}
-			if (localStorage.QUICK_START_WIZARD_NO_SHOW){
-				LocalData.QuickStartWizardNoShow = JSON.parse(localStorage.QUICK_START_WIZARD_NO_SHOW);
-				delete localStorage.QUICK_START_WIZARD_NO_SHOW;
-			}
-			if (localStorage.CLIPBOARD_LOCAL){
-				LocalData.PokemonClipboard = JSON.parse(localStorage.CLIPBOARD_LOCAL);
-				delete localStorage.CLIPBOARD_LOCAL;
-			}
 		}
 		// Removing the deprecated "index" attribute
 		if (LocalData.PokemonClipboard){
@@ -805,7 +738,7 @@ function fetchLocalData(){
 }
 
 /** 
-	Write to browser local data.
+	Write to client local data.
 */
 function saveLocalData(){
 	if (localStorage){
@@ -814,78 +747,17 @@ function saveLocalData(){
 }
 
 /** 
-	Fetch all data.
-	@param oncomplete The callback when the fetching is completed.
-	@isInit {boolean} isInit If true, then will fetch user Pokemon data.
+	Fetch all required JSONs for the application.
+	@param oncomplete The callback when all JSONs are fetched.
 */
-function fetchAll(oncomplete, isInit){
-	FETCHED_STATUS = 0;
-	
-	fetchLevelData();
-	
-	fetchSpeciesFormData(function(){
-		FETCHED_STATUS++;
-		fetchAll_then(oncomplete);
-	});
-	
-	var currTime = new Date().getTime();
-	$.ajax({ 
-		url: "https://gamepress.gg/json-list?_format=json&game_tid=1&" + currTime, 
-		dataType: 'json', 
-		success: function(data){
-			for(var i = 0; i < data.length; i++){
-				var curr = data[i];
-				if (curr.title == "raid-boss-list-PoGO"){
-					raidBossListURL = curr.url;
-				}
-				if (curr.title == "pokemon-data-full-en-PoGO"){
-					pokemonDataFullURL = curr.url;
-				}
-				if (curr.title == "move-data-full-PoGO"){
-					moveDataFullURL = curr.url;
-				}
-			}
-		},
-		complete: function(jqXHR, textStatus){
-			fetchMoveData(function(){ 
-				FETCHED_STATUS++;
-				fetchAll_then(oncomplete);
-			});
-			fetchRaidBossList(function(){
-				FETCHED_STATUS++;
-				fetchAll_then(oncomplete);
-			});
-			fetchSpeciesData(function(){
-				FETCHED_STATUS++;
-				fetchAll_then(oncomplete);
-			});
+function fetchAll(oncomplete){
+	function oncompleteWrapper(){
+		for (var json_name in requiredJSONStatus){
+			if (requiredJSONStatus[json_name] != 2)
+				return;
 		}
-	});
-	
-	if (isInit && window['userID2'] && userID2 != '0'){
-		fetchUserData(userID2, function(){
-			FETCHED_STATUS++;
-			fetchAll_then(oncomplete);
-		}, true);
-	}else{
-		FETCHED_STATUS++;
-	}
-}
-
-/** 
-	Procedured called after fetching all data.
-	The fetchAll() function makes many ajax calls simultaneously. This function will proceed only when all ajax are done.
-	@param onfinish The callback when the fetching is completed.
-*/
-function fetchAll_then(onfinish){
-	if (FETCHED_STATUS == FETCHED_STATUS_PASS){
 		handleSpeciesDatabase(Data.Pokemon);
 		handleSpeciesDatabase(Data.PokemonForms);
-		for (let user of Data.Users){
-			user.box = parseUserPokebox(user.box);
-			fetchUserTeamData(user.uid);
-		}
-		
 		for (let pkm of Data.PokemonForms){
 			var pkm2 = getEntry(pkm.name, Data.Pokemon);
 			if (pkm2){
@@ -903,39 +775,32 @@ function fetchAll_then(onfinish){
 				insertEntry(pkm, Data.Pokemon);
 			}
 		}
-		
 		Data.Pokemon = mergeDatabase(Data.Pokemon, LocalData.Pokemon);
 		Data.FastMoves = mergeDatabase(Data.FastMoves, LocalData.FastMoves);
 		Data.ChargedMoves = mergeDatabase(Data.ChargedMoves, LocalData.ChargedMoves);
-		leftMerge(Data.BattleSettings, LocalData.BattleSettings);
-		
-		manuallyModifyData(Data);
-
-		if (onfinish)
-			onfinish();
+		$.extend(Data.BattleSettings, LocalData.BattleSettings)
+		if (window.manuallyModifyData){
+			manuallyModifyData(Data);
+		}
+		oncomplete();
 	}
-}
-
-/** 
-	Application entry point. Highest-level procedure to fetch all data. 
-	@param dataReady The callback when the fetching is completed.
-*/
-function populateAll(dataReady){
-	dataReady = dataReady || function(){};
 	
+	// No ajax call
+	fetchLocalData();
 	for (let weather of Data.WeatherSettings){
 		for (let type of weather.boostedTypes){
 			Data.TypeEffectiveness[type]['boostedIn'] = weather.name;
 		}
 	}
-
 	Data.IndividualValues = [];
 	for (var i = 0; i < 16; i++){
 		Data.IndividualValues.push({value: i});
 	}
 	
-	$(document).ready(function(){
-		fetchLocalData(LocalData);
-		fetchAll(dataReady, true);
-	});
+	// Required JSONs, ajax calls
+	fetchLevelData(oncompleteWrapper);
+	fetchSpeciesFormData(oncompleteWrapper);
+	fetchMoveData(oncompleteWrapper);
+	fetchRaidBossData(oncompleteWrapper);
+	fetchSpeciesData(oncompleteWrapper);
 }

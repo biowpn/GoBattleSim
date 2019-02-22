@@ -25,22 +25,21 @@ var Context = {
 	battleMode: 'regular'
 };
 
-
-Pokemon.prototype.calculateDPS = function(kwargs){
+function calculateDPS(pokemon, kwargs){
 	var x = kwargs.x, y = kwargs.y;
 	if (x == undefined || y == undefined){
-		var intakeProfile = this.calculateDPSIntake(kwargs);
+		var intakeProfile = calculateDPSIntake(pokemon, kwargs);
 		x = (x == undefined ? intakeProfile.x : x);
 		y = (y == undefined ? intakeProfile.y : y);
 	}
 	
-	var FDmg = damage2(this, kwargs.enemy, this.fmove, kwargs.weather);
-	var CDmg = damage2(this, kwargs.enemy, this.cmove, kwargs.weather);
-	var FDur = this.fmove.duration/1000;
-	var CDur = this.cmove.duration/1000;
-	var CDWS = this.cmove.dws/1000;
-	var FE = this.fmove.energyDelta;
-	var CE = -this.cmove.energyDelta;
+	var FDmg = damage2(pokemon, kwargs.enemy, pokemon.fmove, kwargs.weather);
+	var CDmg = damage2(pokemon, kwargs.enemy, pokemon.cmove, kwargs.weather);
+	var FDur = pokemon.fmove.duration/1000;
+	var CDur = pokemon.cmove.duration/1000;
+	var CDWS = pokemon.cmove.dws/1000;
+	var FE = pokemon.fmove.energyDelta;
+	var CE = -pokemon.cmove.energyDelta;
 	
 	if (CE >= 100 && kwargs.battleMode != "pvp"){
 		CE = CE + 0.5 * FE + 0.5 * y * CDWS;
@@ -52,54 +51,54 @@ Pokemon.prototype.calculateDPS = function(kwargs){
 	var CEPS = CE/CDur;
 	
 	if (kwargs.battleMode == "pvp"){
-		this.st = this.Stm / y;
-		let modFEPS = Math.max(0, FEPS - x/this.st);
-		let totalEnergyGained = 3 * this.st * modFEPS;
+		pokemon.st = pokemon.Stm / y;
+		let modFEPS = Math.max(0, FEPS - x/pokemon.st);
+		let totalEnergyGained = 3 * pokemon.st * modFEPS;
 		let discountFactor = (totalEnergyGained - 2 * CE) / totalEnergyGained;
 		if (discountFactor < 0 || discountFactor > 1){
 			discountFactor = 0;
 		}
 		CDmg = CDmg * discountFactor;
-		this.dps = FDPS + modFEPS * CDmg / CE;
-		this.tdo = this.dps * this.st;
-		return this.dps;
+		pokemon.dps = FDPS + modFEPS * CDmg / CE;
+		pokemon.tdo = pokemon.dps * pokemon.st;
+		return pokemon.dps;
 	}else{
-		this.st = this.Stm / y;
-		this.dps = (FDPS * CEPS + CDPS * FEPS)/(CEPS + FEPS) + (CDPS - FDPS)/(CEPS + FEPS) * (1/2 - x/this.Stm) * y;
-		this.tdo = this.dps * this.st;
+		pokemon.st = pokemon.Stm / y;
+		pokemon.dps = (FDPS * CEPS + CDPS * FEPS)/(CEPS + FEPS) + (CDPS - FDPS)/(CEPS + FEPS) * (1/2 - x/pokemon.Stm) * y;
+		pokemon.tdo = pokemon.dps * pokemon.st;
 		
-		if (this.dps > CDPS){
-			this.dps = CDPS;
-			this.tdo = this.dps * this.st;
-		}else if (this.dps < FDPS){
-			this.dps = FDPS;
-			this.tdo = this.dps * this.st;
+		if (pokemon.dps > CDPS){
+			pokemon.dps = CDPS;
+			pokemon.tdo = pokemon.dps * pokemon.st;
+		}else if (pokemon.dps < FDPS){
+			pokemon.dps = FDPS;
+			pokemon.tdo = pokemon.dps * pokemon.st;
 		}
 		
 		if (kwargs.swapDiscount){
-			this.dps = this.dps * (this.st / (this.st + Data.BattleSettings.swapDurationMs/1000));
+			pokemon.dps = pokemon.dps * (pokemon.st / (pokemon.st + Data.BattleSettings.swapDurationMs/1000));
 		}
-		return this.dps;
+		return pokemon.dps;
 	}
 }
 
 
-Pokemon.prototype.calculateDPSIntake = function(kwargs){
+function calculateDPSIntake(pokemon, kwargs){
 	if (kwargs.isEnemyNeutral){
 		if (kwargs.battleMode == "pvp"){
 			return {
-				x: -this.cmove.energyDelta * 0.5,
-				y: DEFAULT_ENEMY_DPS1 * 1.5 / this.Def
+				x: -pokemon.cmove.energyDelta * 0.5,
+				y: DEFAULT_ENEMY_DPS1 * 1.5 / pokemon.Def
 			};
 		}else{
 			return {
-				x: -this.cmove.energyDelta * 0.5 + this.fmove.energyDelta * 0.5,
-				y: DEFAULT_ENEMY_DPS1 / this.Def
+				x: -pokemon.cmove.energyDelta * 0.5 + pokemon.fmove.energyDelta * 0.5,
+				y: DEFAULT_ENEMY_DPS1 / pokemon.Def
 			};
 		}
 	}else{
-		var FDmg = damage2(kwargs.enemy, this, kwargs.enemy.fmove, kwargs.weather);
-		var CDmg = damage2(kwargs.enemy, this, kwargs.enemy.cmove, kwargs.weather);
+		var FDmg = damage2(kwargs.enemy, pokemon, kwargs.enemy.fmove, kwargs.weather);
+		var CDmg = damage2(kwargs.enemy, pokemon, kwargs.enemy.cmove, kwargs.weather);
 		var FDur = kwargs.enemy.fmove.duration/1000 + 2;
 		var CDur = kwargs.enemy.cmove.duration/1000 + 2;
 		var FE = kwargs.enemy.fmove.energyDelta;
@@ -112,7 +111,7 @@ Pokemon.prototype.calculateDPSIntake = function(kwargs){
 		}else{
 			var n = Math.max(1, 3 * CE / 100);
 			return {
-				x: -this.cmove.energyDelta * 0.5 + this.fmove.energyDelta * 0.5 + 0.5 * (n * FDmg + CDmg)/(n + 1),
+				x: -pokemon.cmove.energyDelta * 0.5 + pokemon.fmove.energyDelta * 0.5 + 0.5 * (n * FDmg + CDmg)/(n + 1),
 				y: (n * FDmg + CDmg)/(n * FDur + CDur)
 			};
 		}
@@ -137,6 +136,51 @@ function damage2(dmg_giver, dmg_taker, move, weather){
 
 
 function DPSCalculatorInit(){
+	$( "#ui-swapDiscount" ).controlgroup();
+	$( "#ui-swapDiscount-checkbox" ).change(function(){
+		Context.swapDiscount = this.checked;
+		requestSpreadsheet(false);
+	});
+
+	$( "#ui-use-box" ).controlgroup();
+	$( "#ui-use-box-checkbox" ).change(function(){
+		requestSpreadsheet(true);
+	});
+
+	$( "#ui-uniqueSpecies" ).controlgroup();
+	$( "#ui-uniqueSpecies-checkbox" ).change(function(){
+		uniqueSpecies = this.checked;
+		if (uniqueSpecies){
+			markFirstInstancePerSpecies();
+		}
+		$("#ranking_table").DataTable().draw();
+	});
+
+	$( "#ui-pvpMode" ).controlgroup();
+	$( "#ui-pvpMode-checkbox" ).change(function(){
+		if (this.checked){
+			$($("#ranking_table").DataTable().column(5).header()).text('Activation');
+			Context.battleMode = "pvp";
+			assignMoveParameterSet("load", Data.FastMoves, "combat");
+			assignMoveParameterSet("load", Data.ChargedMoves, "combat");
+		}else{
+			$($("#ranking_table").DataTable().column(5).header()).text('DPS^3*TDO');
+			Context.battleMode = "regular";
+			assignMoveParameterSet("load", Data.FastMoves, "regular");
+			assignMoveParameterSet("load", Data.ChargedMoves, "regular");
+		}
+		requestSpreadsheet(true);
+	});
+	// Refresh button
+	$ ( "#refresher" ).click(function(){
+		requestSpreadsheet(true);
+	});
+
+	dropdownMenuInit();
+	moveEditFormInit();
+	pokemonEditFormInit();
+	modEditFormInit();
+
 	acceptedNumericalAttributes = acceptedNumericalAttributes.concat(['dps', 'tdo']);
 	
 	$.fn.dataTable.Api.register( 'rows().generate()', function () {
@@ -166,7 +210,7 @@ function DPSCalculatorInit(){
 	$( enemySpeciesNode ).on( "autocompleteselect", function(event, ui){
 		$('#pokemon-pokeType1').val(ui.item.pokeType1);
 		$('#pokemon-pokeType2').val(ui.item.pokeType2);
-		leftMerge(Context.enemy, ui.item);
+		$.extend(Context.enemy, ui.item);
 		if (getEntry(enemyFastMoveNode.value.toLowerCase(), Data.FastMoves) && getEntry(enemyChargedMoveNode.value.toLowerCase(), Data.ChargedMoves)){
 			this.blur();
 			requestSpreadsheet(false);
@@ -229,7 +273,7 @@ function applyContext(){
 	var enemyPokemon = getEntry($('#pokemon-name').val().trim().toLowerCase(), Data.Pokemon);
 	var enemyFast = getEntry($('#pokemon-fmove').val().trim().toLowerCase(), Data.FastMoves);
 	var enemyCharged = getEntry($('#pokemon-cmove').val().trim().toLowerCase(), Data.ChargedMoves);
-	if (enemyPokemon == null || enemyFast == null || enemyCharged == null){
+	if (!enemyPokemon || !enemyFast || !enemyCharged){
 		Context.isEnemyNeutral = true;
 		enemyPokemon = Data.Pokemon[0];
 		enemyFast = Data.FastMoves[0];
@@ -297,7 +341,7 @@ function generateSpreadsheet(pokemonCollection){
 					adjustStatsUnderCPCap(pkm, LeagueCPCap);
 				}
 				
-				pkm.calculateDPS(Context);
+				calculateDPS(pkm, Context);
 				
 				pkm.ui_name = createIconLabelSpan(p.icon, p.nickname || p.label, 'species-input-with-icon');
 				pkm.ui_fmove = createIconLabelSpan(pkm.fmove.icon, pkm.fmove.label, 'move-input-with-icon');
@@ -326,7 +370,7 @@ function updateSpreadsheet(){
 	var dataLength = Table.data().length;
 	for (var i = 0; i < dataLength; i++){
 		var pkm = Table.row(i).data();
-		pkm.calculateDPS(Context);
+		calculateDPS(pkm, Context);
 		pkm.ui_dps = round(pkm.dps, 3);
 		pkm.ui_tdo = round(pkm.tdo, 1);
 		pkm.ui_overall = round(pkm.dps**3/1000 * pkm.tdo, 1);
@@ -459,7 +503,7 @@ function generateSpectrum(pkm, settings){
 	for (var x = X_min; x < X_max; x += X_step){
 		var row = [];
 		for (var y = Y_min; y < Y_max; y += Y_step){
-			row.push(pkm.calculateDPS({
+			row.push(calculateDPS(pkm, {
 				'x': x, 'y': y, 'enemy': Context.enemy, 'weather': Context.weather, 'swapDiscount': Context.swapDiscount
 			}));
 		}

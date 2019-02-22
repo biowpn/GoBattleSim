@@ -693,7 +693,6 @@ function countPokemonFromParty(partyNode){
 
 
 function clearAllSims(){
-	currentJobSize = 0;
 	MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
 	sendFeedback("");
 	Simulations = [];
