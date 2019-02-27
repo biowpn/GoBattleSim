@@ -20,7 +20,7 @@ var attributesEnumeration = [
 	{
 		name: "name",
 		matcher: x => getEntryIndex(x, Data.Pokemon),
-		database: a => getPokemonOptions(true),
+		database: a => getPokemonPool(),
 		default: "latios"
 	},{
 		name: "level",
@@ -255,7 +255,7 @@ function GoBattleSim(){
 
 
 function applicationInit(){
-	var playersNode = $$$(document.getElementById("input")).child("input-players").node;
+	var playersNode = $("#input").find("[name=input-players]")[0];
 	$(playersNode).sortable({axis: 'y'});
 	addPlayerNode();
 	addPlayerNode();
@@ -299,14 +299,14 @@ function GoBattleSimInit(){
 		console.log(err);
 	}
 
-	var playersNode = $$$(document.getElementById("input")).child("input-players").node;
+	var playersNode = $("#input").find("[name=input-players]")[0];
 	$(playersNode).sortable({axis: 'y'});
 	addPlayerNode();
 	addPlayerNode();
 	write(playersNode.children[1], {team: "1", parties: [{pokemon: [{role: "rb"}]}]});
 	//comply();
 	
-	var weatherInput = $$$(document.getElementById("input")).child("input-weather").node;
+	var weatherInput = $("#input").find("[name=input-weather]")[0];
 	for (let weatherSetting of Data.WeatherSettings){
 		weatherInput.appendChild(createElement('option', weatherSetting.label, {value: weatherSetting.name}));
 	}

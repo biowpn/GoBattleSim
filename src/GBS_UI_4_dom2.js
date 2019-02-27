@@ -76,28 +76,28 @@ function moveEditFormInit(){
 	
 	var moveInput = document.getElementById("moveEditForm-table");
 	
-	var movePokeTypeInput = $$$(moveInput).child("move-pokeType").node;
+	var movePokeTypeInput = $(moveInput).find("[name=move-pokeType]")[0];
 	movePokeTypeInput.innerHTML = "";
 	for (var type in Data.TypeEffectiveness){
 		movePokeTypeInput.appendChild(createElement("option", toTitleCase(type), {value: type}));
 	}
 	
-	$( $$$(moveInput).child("move-name").node ).autocomplete({
+	$(moveInput).find("[name=move-name]").autocomplete({
 		appendTo: '#moveEditForm',
 		minLength: 0,
 		delay: 0,
 		source: function(request, response){
-			var matches = Data[toTitleCase($$$(moveInput).child("move-moveType").val()) + "Moves"].filter(Predicate(request.term));
+			var matches = Data[toTitleCase($(moveInput).find("[name=move-moveType]").val()) + "Moves"].filter(Predicate(request.term));
 			response(matches);
 		},
 		select: function(event, ui){
 			$(this).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item: ui.item});
 		},
 		change: function(event, ui){
-			var moveDatabase = Data[toTitleCase($$$(moveInput).child("move-moveType").val()) + "Moves"];
+			var moveDatabase = Data[toTitleCase($(moveInput).find("[name=move-moveType]").val()) + "Moves"];
 			var move = ui.item || getEntry(this.value.trim().toLowerCase(), moveDatabase);
 			if (move){
-				assignMoveParameterSet("load", [move], $$$(moveInput).child("move-scope").val());
+				assignMoveParameterSet("load", [move], $(moveInput).find("[name=move-scope]").val());
 				this.setAttribute('style', 'background-image: url(' + move.icon + ')');
 				write(moveInput, move);
 				this.value = toTitleCase(this.value);
@@ -105,13 +105,13 @@ function moveEditFormInit(){
 		}
 	}).autocomplete( "instance" )._renderItem = _renderAutocompleteMoveItem;
 	
-	$$$(moveInput).child("move-pokeType").node.onchange = function(){
-		$$$(moveInput).child("move-name").node.setAttribute("style", "background-image: url(" + getTypeIcon({pokeType: this.value}) + ")");
-	}
+	$(moveInput).find("[name=move-pokeType]").change(function(){
+		$(moveInput).find("[name=move-name]").attr("style", "background-image: url(" + getTypeIcon({pokeType: this.value}) + ")");
+	});
 	
-	$$$(moveInput).child("move-scope").node.onchange = function(){
-		$($$$(moveInput).child("move-name").node).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item: null});
-	}
+	$(moveInput).find("[name=move-scope]").change(function(){
+		$(moveInput).find("[name=move-name]").data('ui-autocomplete')._trigger('change', 'autocompletechange', {item: null});
+	});
 }
 
 
@@ -149,6 +149,7 @@ function moveEditFormSubmit(){
 function moveEditFormReset(){
 	Data.FastMoves = [];
 	Data.ChargedMoves = [];
+	requiredJSONStatus.Moves = 0;
 	fetchMoveData(function(){
 		sendFeedbackDialog("Latest Move Data have been fetched");
 		['FastMoves', 'ChargedMoves'].forEach(function(moveDatabaseName){
@@ -164,10 +165,8 @@ function moveEditFormReset(){
 
 
 function moveEditFormDelete(){
-	var moveInput = document.getElementById("moveEditForm-table");
-	var moveDatabaseName = toTitleCase($$$(moveInput).child("move-moveType").val()) + "Moves";
-	var moveName = $$$(moveInput).child("move-name").val().trim().toLowerCase();
-	
+	var moveDatabaseName = toTitleCase($("#moveEditForm-table").find("[name=move-moveType]").val()) + "Moves";
+	var moveName = $("#moveEditForm-table").find("[name=move-name]").val().trim().toLowerCase();
 	if (removeEntry(moveName, Data[moveDatabaseName]) && removeEntry(moveName, LocalData[moveDatabaseName])){
 		saveLocalData();
 		sendFeedbackDialog("Move: " + moveName + " has been removed");
@@ -187,8 +186,8 @@ function pokemonEditFormInit(){
 	
 	var pokemonInput = document.getElementById("pokemonEditForm-table");
 	
-	var pokeType1Input = $$$(pokemonInput).child("pokemon-pokeType1").node;
-	var pokeType2Input = $$$(pokemonInput).child("pokemon-pokeType2").node;
+	var pokeType1Input = $(pokemonInput).find("[name=pokemon-pokeType1]")[0];
+	var pokeType2Input = $(pokemonInput).find("[name=pokemon-pokeType2]")[0];
 	pokeType1Input.innerHTML = "";
 	pokeType2Input.innerHTML = "";
 	pokeType1Input.appendChild(createElement("option", "None", {value: "none"}));
@@ -198,12 +197,12 @@ function pokemonEditFormInit(){
 		pokeType2Input.appendChild(createElement("option", toTitleCase(type), {value: type}));
 	}
 	
-	$( $$$(pokemonInput).child("pokemon-name").node ).autocomplete({
+	$(pokemonInput).find("[name=pokemon-name]").autocomplete({
 		appendTo: '#pokemonEditForm',
 		minLength: 0,
 		delay: 0,
 		source: function(request, response){
-			response(getPokemonOptions(false).filter(Predicate(request.term)));
+			response(Data.Pokemon.filter(Predicate(request.term)));
 		},
 		select: function(event, ui){
 			$(this).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item: ui.item});
@@ -284,6 +283,7 @@ function pokemonEditFormSubmit(){
 
 function pokemonEditFormReset(){
 	Data.Pokemon = [];
+	requiredJSONStatus.Pokemon = 0;
 	fetchSpeciesData(function(){
 		handleSpeciesDatabase(Data.Pokemon);
 		manuallyModifyData(Data);
@@ -299,8 +299,7 @@ function pokemonEditFormReset(){
 
 
 function pokemonEditFormDelete(){
-	var pokemonInput = document.getElementById("pokemonEditForm-table");
-	var pokemonName = $$$(pokemonInput).child("pokemon-name").val();
+	var pokemonName = $("#pokemonEditForm-table").find("[name=pokemon-name]").val();
 	if (removeEntry(pokemonName, Data.Pokemon) && removeEntry(pokemonName, LocalData.Pokemon)){
 		saveLocalData();
 		sendFeedbackDialog("Pokemon: " + pokemonName + " has been removed");

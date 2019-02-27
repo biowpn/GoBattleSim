@@ -11,7 +11,7 @@ function createMinimizeButton(parentName){
 		class: "button-icon", title: "Minimize"
 	});
 	button.onclick = function(){
-		$($$$(this).parent(pName).node.children[1]).slideToggle('fast');
+		$($(this).parents("[name=" + pName + "]")[0].children[1]).slideToggle('fast');
 	}
 	return button;
 }
@@ -22,7 +22,7 @@ function createCopyPokemonButton(){
 		class: "button-icon", title: "Copy"
 	});
 	copyPokemonButton.onclick = function(){
-		LocalData.PokemonClipboard = read($$$(this).parent("pokemon").node);
+		LocalData.PokemonClipboard = read($(this).parents("[name=pokemon]")[0]);
 		saveLocalData();
 	}
 	return copyPokemonButton;
@@ -34,7 +34,7 @@ function createPastePokemonButton(){
 		class: "button-icon", title: "Paste"
 	});
 	pastePokemonButton.onclick = function(){
-		var pokemonNode = $$$(this).parent("pokemon").node;
+		var pokemonNode = $(this).parents("[name=pokemon]")[0];
 		write(pokemonNode, LocalData.PokemonClipboard || {});
 		formatting(pokemonNode);
 	}
@@ -47,7 +47,7 @@ function createRemovePokemonButton(){
 		class: "button-icon", title: "Remove"
 	});
 	removePokemonButton.onclick = function(){
-		var pokemonNode = $$$(this).parent("pokemon").node;
+		var pokemonNode = $(this).parents("[name=pokemon]")[0];
 		if (pokemonNode.parentNode.children.length > 1){
 			pokemonNode.parentNode.removeChild(pokemonNode);
 		}else{
@@ -68,7 +68,7 @@ function createPokemonRoleInput(){
 	roleInput.appendChild(createElement('option', 'Raid Boss', {value: "rb"}));
 	roleInput.appendChild(createElement('option', 'Raid Boss Immortal', {value: "RB"}));
 	roleInput.onchange = function(){
-		var pokemonNode = $$$(this).parent("pokemon").node;
+		var pokemonNode = $(this).parents("[name=pokemon]")[0];
 		for (var i = 0; i < pokemonNode.children[1].children.length; i++){
 			var child = pokemonNode.children[1].children[i];
 			if (child.hasAttribute("for_roles")){
@@ -80,7 +80,7 @@ function createPokemonRoleInput(){
 				}
 			}
 		}
-		var strategyNode = $$$(pokemonNode).child("pokemon-strategy").node;
+		var strategyNode = $(pokemonNode).find("[name=pokemon-strategy]")[0];
 		if (this.value == "a" || this.value == "a_basic"){
 			if (strategyNode.value == "strat0")
 				strategyNode.value = "strat1";
@@ -91,7 +91,7 @@ function createPokemonRoleInput(){
 	roleInput.comply = function(kwargs){
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
-			if ($$$(this).parent("player").child("player-team").val() == "1"){
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1"){
 				if (kwargs.battleMode == "raid"){
 					if (this.value.toLowerCase() != "rb"){
 						this.value = "rb";
@@ -119,7 +119,7 @@ function createPokemonCopiesInput(){
 		min: 1, max: 6, value: 1, name: "pokemon-copies"
 	});
 	copiesInput.onchange = function(){
-		var pokemonCount = countPokemonFromParty($$$(this).parent("party").node);
+		var pokemonCount = countPokemonFromParty($(this).parents("[name=party]")[0]);
 		if (pokemonCount > MAX_NUM_POKEMON_PER_PARTY){
 			this.value -= pokemonCount - MAX_NUM_POKEMON_PER_PARTY;
 		}
@@ -129,7 +129,7 @@ function createPokemonCopiesInput(){
 	copiesInput.comply = function(kwargs){
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
-			if ($$$(this).parent("player").child("player-team").val() == "1"){
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1"){
 				this.value = 1;
 				this.disabled = true;
 			}
@@ -151,7 +151,7 @@ function createPokemonRaidTierInput(){
 	}
 	raidTierInput.comply = function(kwargs){
 		if (kwargs.battleMode == "raid"){
-			if ($$$(this).parent("player").child("player-team").val() == "1"){
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1"){
 				var timelimitInput = document.getElementById("timelimit");
 				if (parseInt(this.value) <= 4){
 					timelimitInput.value = Data.BattleSettings.timelimitRaidMs;
@@ -176,15 +176,14 @@ function createPokemonStrategyInput(){
 	strategyInput.comply = function(kwargs){
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
-			if ($$$(this).parent("player").child("player-team").val() == "1"){
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1"){
 				this.value = "strat0";
 				this.disabled = true;
 			}
 		}else if (kwargs.battleMode == "pvp"){
 			this.value = "strat5";
-			var strat2 = $$$(this).parent("pokemon").child("pokemon-strategy2").node;
-			this.setAttribute("hidden", true);
-			strat2.removeAttribute("hidden");
+			$(this).parents("[name=pokemon]").find("[name=pokemon-strategy2]").show();
+			$(this).hide();
 		}
 	}
 	return strategyInput;
@@ -197,9 +196,8 @@ function createPokemonProtectStrategyInput(){
 	});
 	strategyInput.comply = function(kwargs){
 		if (kwargs.battleMode != "pvp"){
-			var strat1 = $$$(this).parent("pokemon").child("pokemon-strategy").node;
-			this.setAttribute("hidden", true);
-			strat1.removeAttribute("hidden");
+			$(this).parents("[name=pokemon]").find("[name=pokemon-strategy]").show();
+			$(this).hide();
 		}
 	}
 	return strategyInput;
@@ -229,7 +227,7 @@ function createPartyNameInput(){
 			response(matches);
 		},
 		select: function(event, ui){
-			var partyNode = $$$(this).parent("party").node;
+			var partyNode = $(this).parents("[name=party]")[0];
 			write(partyNode, ui.item);
 			comply(partyNode, {battleMode: $("#battleMode").val()});
 			formatting(partyNode);
@@ -238,9 +236,9 @@ function createPartyNameInput(){
 	});
 	partyNameInput.comply = function(kwargs){
 		if (kwargs.battleMode == "raid"){
-			var playerNode = $$$(this).parent("player");
-			if (playerNode.child("player-team").val() == "1"){
-				let pokemonNodes = $$$(this).parent("party").child("party-pokemon").node;
+			$player = $(this).parents("[name=player]");
+			if ($player.find("[name=player-team]").val() == "1"){
+				let pokemonNodes = $player.find("[name=party-pokemon]")[0];
 				while (pokemonNodes.children.length > 1){
 					pokemonNodes.removeChild(pokemonNodes.lastChild);
 				}
@@ -259,8 +257,8 @@ function createSavePartyButton(){
 		class: 'button-icon', title: 'Save'
 	});
 	savePartyButton.onclick = function(){
-		var partyNode = $$$(this).parent("party").node;
-		var partyName = $$$(partyNode).child("party-name").val();
+		var partyNode = $(this).parents("[name=party]")[0];
+		var partyName = $(partyNode).find("[name=party-name]").val();
 		if (partyName.length > 0){
 			let partyConfig = read(partyNode);
 			party.label = partyName;
@@ -278,8 +276,8 @@ function createRemovePartyButton(){
 		class: 'button-icon', title: 'Remove'
 	});
 	removePartyButton.onclick = function(){
-		var partyNode = $$$(this).parent("party").node;
-		var partyName = $$$(partyNode).child("party-name").val();
+		var partyNode = $(this).parents("[name=party]")[0];
+		var partyName = $(partyNode).find("[name=party-name]").val();
 		var askForConfirm = getEntryIndex(partyName, LocalData.BattleParties) >= 0;
 		if (partyNode.parentNode.children.length > 1){
 			partyNode.parentNode.removeChild(partyNode);
@@ -322,7 +320,7 @@ function createPartyReviveCheckbox(){
 	reviveCheckbox.comply = function(kwargs){
 		$(this).button("enable");
 		if (kwargs.battleMode == "raid"){
-			if ($$$(this).parent("player").child("player-team").val() == "1"){
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1"){
 				this.checked = false;
 				$(this).button("refresh");
 				$(this).button("disable");
@@ -341,7 +339,7 @@ function createPartyReviveCheckbox(){
 function createAddPokemonButton(){
 	var addPokemonButton = createElement("button", "Add Pokemon", {style: "width: 50%"});
 	addPokemonButton.onclick = function(){
-		let partyNode = $$$(this).parent("party").node;
+		let partyNode = $(this).parents("[name=party]")[0];
 		let pokemonCount = countPokemonFromParty(partyNode);
 		if (pokemonCount < MAX_NUM_POKEMON_PER_PARTY){
 			let newPokemonNode = createPokemonNode();
@@ -359,7 +357,7 @@ function createAddPokemonButton(){
 	addPokemonButton.comply = function(kwargs){
 		$(this).button("enable");
 		if (kwargs.battleMode == "raid"){
-			if ($$$(this).parent("player").child("player-team").val() == "1"){
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1"){
 				$(this).button("disable");
 			}
 		}
@@ -394,9 +392,9 @@ function createPlayerTeamInput(){
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
 			this.disabled = true;
-			var playerNode = $$$(this).parent("player");
-			if (playerNode.child("player-team").val() == "1" || kwargs.battleMode == "gym"){
-				let partyNodes = playerNode.child("player-parties").node;
+			var $playerNode = $(this).parents("[name=player]");
+			if ($playerNode.find("[name=player-team]").val() == "1" || kwargs.battleMode == "gym"){
+				let partyNodes = $playerNode.find("[name=player-parties]")[0];
 				while (partyNodes.children.length > 1){
 					partyNodes.removeChild(partyNodes.lastChild);
 				}
@@ -417,7 +415,7 @@ function createPlayerFriendInput(){
 	playerFriendInput.comply = function(kwargs){
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
-			if ($$$(this).parent("player").child("player-team").val() == "1"){
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1"){
 				this.value = "none";
 				this.disabled = true;
 			}
@@ -432,9 +430,9 @@ function createRemovePlayerButton(){
 		class: 'button-icon', title: 'Remove'
 	});
 	removePlayerButton.onclick = function(){
-		var playersNode = $$$(document.getElementById("input")).child("input-players").node;
+		var playersNode = $("#input").find("[name=input-players]")[0];
 		if (playersNode.children.length > 2){
-			var playerNode = $$$(this).parent("player").node;
+			var playerNode = $(this).parents("[name=player]")[0];
 			playerNode.parentNode.removeChild(playerNode);
 			document.getElementById('input.addPlayer').disabled = false;
 			relabel();
@@ -451,7 +449,7 @@ function createAddPartyButton(){
 		class: 'player_button'
 	});
 	addPartyButton.onclick = function(){
-		var playerNode = $$$(this).parent("player").node;
+		var playerNode = $(this).parents("[name=player]")[0];
 		if (playerNode.children[1].children.length < MAX_NUM_PARTIES_PER_PLAYER){
 			playerNode.children[1].appendChild(createPartyNode());
 			relabel();
@@ -462,7 +460,7 @@ function createAddPartyButton(){
 	addPartyButton.comply = function(kwargs){
 		$(this).button("enable");
 		if (kwargs.battleMode == "raid"){
-			if ($$$(this).parent("player").child("player-team").val() == "1"){
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1"){
 				$(this).button("disable");
 			}
 		}else if (kwargs.battleMode == "gym"){
@@ -486,11 +484,11 @@ function comply(node, kwargs){
 
 // Trigger when the battle mode input changed
 function complyBattleMode(mode){
-	let playerNodes = $$$(document.getElementById("input")).child("input-players").node;
+	let playerNodes = $("#input").find("[name=input-players]")[0];
 	if (mode == "gym" || mode == "raid"){
 		let hasProcessedDefender = false;
 		for (let playerNode of playerNodes.children){
-			if ($$$(playerNode).child("player-team").val() == "1"){
+			if ($(playerNode).find("[name=player-team]").val() == "1"){
 				if (hasProcessedDefender){
 					playerNodes.removeChild(playerNode);
 				}else{
@@ -651,7 +649,7 @@ function createPlayerNode(){
 
 
 function addPlayerNode(){
-	var playerNodes = $$$(document.getElementById("input")).child("input-players").node;
+	var playerNodes = $("#input").find("[name=input-players]")[0];
 	if (playerNodes.children.length < MAX_NUM_OF_PLAYERS){
 		playerNodes.appendChild(createPlayerNode());
 		relabel();
@@ -663,7 +661,7 @@ function addPlayerNode(){
 
 // Update label and background color of player/party/pokemon nodes based on their position
 function relabel(){
-	var playerNodes = $$$(document.getElementById("input")).child("input-players").node;
+	var playerNodes = $("#input").find("[name=input-players]")[0];
 	let i = 0;
 	for (let playerNode of playerNodes.children){
 		playerNode.setAttribute('style', 'background:' + HSL_COLORS[i%HSL_COLORS.length][0]);
@@ -685,8 +683,8 @@ function relabel(){
 
 function countPokemonFromParty(partyNode){
 	var count = 0;
-	for (let pokemonNode of partyNode.children[1].children){
-		count += parseInt($$$(pokemonNode).child("pokemon-copies").val()) || 0;
+	for (let pokemonCopiesEl of $(partyNode).find("[name=pokemon-copies]")){
+		count += parseInt($(pokemonCopiesEl).val()) || 0;
 	}
 	return count;
 }

@@ -136,6 +136,11 @@ function damage2(dmg_giver, dmg_taker, move, weather){
 
 
 function DPSCalculatorInit(){
+	hasInit = true;
+	if (window['userID2'] && userID2 != '0'){
+		fetchUserData(userID2);
+	}
+		
 	$( "#ui-swapDiscount" ).controlgroup();
 	$( "#ui-swapDiscount-checkbox" ).change(function(){
 		Context.swapDiscount = this.checked;
@@ -359,7 +364,7 @@ function generateSpreadsheet(pokemonCollection){
 		}
 	}
 	console.log(Date() + ": All DPS calculated");
-	pred = createComplexPredicate($('#searchInput').val());
+	pred = $('#searchInput').val() ? createComplexPredicate($('#searchInput').val()) : (arg => true);
 	$("#ranking_table").DataTable().draw();
 }
 
@@ -380,7 +385,7 @@ function updateSpreadsheet(){
 		Table.row(i).data(pkm);
 	}
 	console.log(Date() + ": All DPS re-calculated");
-	pred = createComplexPredicate($('#searchInput').val());
+	pred = $('#searchInput').val() ? createComplexPredicate($('#searchInput').val()) : (arg => true);
 	$("#ranking_table").DataTable().draw();
 }
 
@@ -439,7 +444,7 @@ function search_trigger(){
 	setTimeout(function(){
 		if (Date.now() - lastKeyUpTime >= 600){
 			var DT = $("#ranking_table").DataTable();
-			pred = createComplexPredicate($('#searchInput').val());
+			pred = $('#searchInput').val() ? createComplexPredicate($('#searchInput').val()) : (arg => true);
 			DT.draw();
 		}
 	}, 600);

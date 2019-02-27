@@ -20,51 +20,6 @@ var acceptedNumericalAttributes = [
 var DialogStack = [];
 
 
-
-/**
-	@class
-	@classdesc A wrapper class to manipulate document elements.
-*/
-function GoBattleSimNode(el){
-	this.node = el;
-}
-
-/** 
-	A shortcut for creating GoBattleSimNode
-	@param {Element} el The raw HTML element.
-	@return {GoBattleSimNode}
-*/
-function $$$(el){
-	return new GoBattleSimNode(el);
-}
-
-/**
-	Get the first parent by element name.
-	@param {string} name The name to match.
-	@return {GoBattleSimNode}
-*/
-GoBattleSimNode.prototype.parent = function(name){
-	return new GoBattleSimNode(searchParent(this.node, x => x.getAttribute("name") == name));
-}
-
-/**
-	Get the first child (inorder Depth First traversal) by element name.
-	@param {string} name The name to match.
-	@return {GoBattleSimNode}
-*/
-GoBattleSimNode.prototype.child = function(name){
-	return new GoBattleSimNode(searchChild(this.node, x => x.getAttribute("name") == name));
-}
-
-/**
-	Get the value of the node.
-	@return {string|number}
-*/
-GoBattleSimNode.prototype.val = function(){
-	return $(this.node).val();
-}
-
-
 /**
 	Round the value.
 	@param {number} Value to round.
@@ -146,29 +101,6 @@ function createElement(type, innerHTML, attrsAndValues){
 }
 
 
-function searchParent(node, predicate){
-	while (node.parentNode){
-		node = node.parentNode;
-		if (predicate(node)){
-			return node;
-		}
-	}
-}
-
-
-function searchChild(node, predicate){
-	if (predicate(node)){
-		return node;
-	}
-	for (let child of node.children){
-		let searchResult = searchChild(child, predicate);
-		if (searchResult){
-			return searchResult;
-		}
-	}
-}
-
-
 function createRow(rowData, type){
 	type = type || "td";
 	var row = document.createElement("tr");
@@ -193,14 +125,8 @@ function traverseLeaf(json, callback, path){
 		callback(json, path);
 		return;
 	}
-	if (Array.isArray(json)){
-		for (var i = 0; i < json.length; i++){
-			traverseLeaf(json[i], callback, path.concat([i]));
-		}
-	}else{
-		for (var attr in json){
-			traverseLeaf(json[attr], callback, path.concat([attr]));
-		}
+	for (let key of Object.keys(json)){
+		traverseLeaf(json[key], callback, path.concat([key]));
 	}
 }
 
@@ -218,17 +144,6 @@ function setProperty(json, path, value){
 		json = json[path[i]];
 	}
 	json[path[path.length - 1]] = value;
-}
-
-// https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript/901144#901144
-function getParameterByName(name, url) {
-    if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
 // https://hackernoon.com/copying-text-to-clipboard-with-javascript-df4d4988697f
@@ -379,10 +294,7 @@ function formatting(node){
 
 
 function Predicate(pd, parent, attr){
-	if (typeof pd == typeof "")
-		return createComplexPredicate(pd, parent, attr);
-	else
-		return pd;
+	return createComplexPredicate(pd, parent, attr);
 }
 
 
@@ -490,94 +402,81 @@ function createSimplePredicate(str, parent, attr){
 }
 
 
-function parseNextToken(expression){
-	var position = 0, token = '', hasEscaped = false, startsWithWhiteSpace = true;
-	while(position < expression.length){
-		var c = expression[position];
-		if (c == '^'){
-			if (hasEscaped){
-				c += '^';
-				hasEscaped = false;
-			}else{
-				hasEscaped = true;
+
+function tokenize(str, specialChars, escapeChar){
+	var tokens = [];
+	var cur = "";
+	var escaped = false;
+	for (var i = 0; i < str.length; i++) {
+		var c = str[i];
+		if (escaped) {
+			cur += c;
+			escaped = false;
+		} else if (c == escapeChar) {
+			escaped = true;
+		} else if (specialChars.includes(c)) {
+			cur = cur.trim();
+			if (cur) {
+				tokens.push(cur);
+				cur = "";
 			}
-		}else if (c == '(' || c == ')' || LOGICAL_OPERATORS.hasOwnProperty(c)){
-			if (startsWithWhiteSpace || hasEscaped)
-				token += c;
-			if (!hasEscaped)
-				break;
-			hasEscaped = false;
-		}else{
-			token += c;
-			hasEscaped = false;
-			if (c != ' ')
-				startsWithWhiteSpace = false;
+			tokens.push(c);
+		} else {
+			cur += c;
 		}
-		position++;
 	}
-	return {
-		'token': token,
-		'expression': expression.slice(Math.max(position, token.length))
-	};
+	cur = cur.trim();
+	if (cur) {
+		tokens.push(cur);
+	}
+	return tokens;
 }
 
 
 function createComplexPredicate(expression, parent, attr){
-	var tokensArr = [], stack = [];
-	expression = expression.trim();
+	var defaultPredicate = arg => false;
+	var vstack = [], opstack = [];
 	
-	// 1. Convert infix to postfix
-	while (expression.length > 0){
-		var parsedResult = parseNextToken(expression);
-		var token = parsedResult.token.trim();
-		expression = parsedResult.expression;
-
-		if (token == '('){
-			stack.push(token);
-		}else if (token == ')'){
-			while (stack.length && stack[stack.length-1] != '(')
-				tokensArr.push(stack.pop());
-			stack.pop();
-		}else if (LOGICAL_OPERATORS.hasOwnProperty(token)){
-			while(stack.length && stack[stack.length-1] != '(' && LOGICAL_OPERATORS[token] <= LOGICAL_OPERATORS[stack[stack.length-1]])
-				tokensArr.push(stack.pop());
-			stack.push(token);
-		}else
-			tokensArr.push(token);
-	}
-	while (stack.length > 0){
-		tokensArr.push(stack.pop());
-	}
-
-	// 2. Evaluate the postfix expression using a stack
-	for (var i = 0; i < tokensArr.length; i++){
-		var token = tokensArr[i];
-		if (LOGICAL_OPERATORS.hasOwnProperty(token)){
-			const pred1 = stack.pop();
-			if (token == ',' || token == ':' || token == ';'){
-				const pred2 = stack.pop();
-				stack.push(function(obj){
-					return pred1(obj) || pred2(obj);
-				});
-			}else if (token == '&' || token == '|'){
-				const pred2 = stack.pop();
-				stack.push(function(obj){
-					return pred1(obj) && pred2(obj);
-				});
-			}else if (token == '!'){
-				stack.push(function(obj){
-					return !pred1(obj);
-				});
-			}
-		}else{
-			stack.push(createSimplePredicate(token, parent, attr));
+	function evalSimple(op, stack) {
+		if (op == ',' || op == ':' || op == ';') {
+			var rhs = stack.pop() || defaultPredicate, lhs = stack.pop() || defaultPredicate;
+			return arg => lhs(arg) || rhs(arg);
+		} else if (op == '&' || op == '|') {
+			var rhs = stack.pop() || defaultPredicate, lhs = stack.pop() || defaultPredicate;
+			return arg => lhs(arg) && rhs(arg);
+		} else if (op == '!') {
+			var rhs = stack.pop() || defaultPredicate;
+			return arg => !rhs(arg);
+		} else {
+			return defaultPredicate;
 		}
 	}
 	
-	if (stack.length > 0)
-		return stack[0];
-	else
-		return function(obj){return true;}
+	for (let tk of tokenize(expression, Object.keys(LOGICAL_OPERATORS).concat(['(', ')']), '^')) {
+		if (LOGICAL_OPERATORS.hasOwnProperty(tk)) {
+			var top_op = opstack[opstack.length - 1];
+			if (top_op && top_op != '(' && LOGICAL_OPERATORS[tk] <= LOGICAL_OPERATORS[top_op]) {
+				vstack.push(evalSimple(opstack.pop(), vstack));
+			} 
+			opstack.push(tk);
+		} else if (tk == '(') {
+			opstack.push('(');
+		} else if (tk == ')') {
+			while (opstack.length) {
+				var op = opstack.pop();
+				if (op == ')')
+					break;
+				vstack.push(evalSimple(tk, vstack));
+			}
+		} else {
+			vstack.push(createSimplePredicate(tk, parent, attr));
+		}
+	}
+	while (opstack.length) {
+		vstack.push(evalSimple(opstack.pop(), vstack));
+	}
+	
+	return vstack.pop() || defaultPredicate;
 }
 
 
@@ -592,13 +491,11 @@ function getAllEvolutions(name){
 }
 
 
-function getPokemonOptions(includeUserPokemon){
+function getPokemonPool(){
 	var options = [];
-	if (includeUserPokemon){
-		for (let user of Data.Users){
-			for (let pokemon of user.box){
-				options.push(pokemon);
-			}
+	for (let user of Data.Users){
+		for (let pokemon of user.box){
+			options.push(pokemon);
 		}
 	}
 	return options.concat(Data.Pokemon);
@@ -615,20 +512,20 @@ function createPokemonNameInput(){
 		delay: 200,
 		source: function(request, response){
 			var searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term);
-			var matches = getPokemonOptions(true).filter(Predicate(searchStr));
+			var matches = getPokemonPool().filter(Predicate(searchStr));
 			response(matches);
 		},
 		select: function(event, ui){
 			var pkmInfo = ui.item;
 			ui.item.value = toTitleCase(ui.item.name);
-			let pokemonGBS = $$$(this).parent("pokemon");
+			let pokemonNode = $(this).parents("[name=pokemon]")[0];
 			if (pkmInfo.uid){
-				write(pokemonGBS.node, pkmInfo);
-				formatting(pokemonGBS.node);
+				write(pokemonNode, pkmInfo);
+				formatting(pokemonNode);
 			}
 			this.setAttribute('style', 'background-image: url(' + pkmInfo.icon + ')');
 			if (pkmInfo.raidMarker){
-				let raidTierInput = pokemonGBS.child("pokemon-raidTier").node;
+				let raidTierInput = $(pokemonNode).find("[name=pokemon-raidTier]")[0];
 				if (raidTierInput){
 					raidTierInput.value = pkmInfo.raidMarker.split(" ")[0];
 					raidTierInput.onchange();
@@ -654,7 +551,7 @@ function createPokemonMoveInput(moveType, attrName){
 	}else if (moveType == "charged"){
 		placeholder_ = "Charged Move";
 	}
-	var moveInput = createElement('input', '', {
+	let moveInput = createElement('input', '', {
 		type: 'text', placeholder: placeholder_, name: "pokemon-" + attrName,
 		class: 'input-with-icon move-input-with-icon', style: 'background-image: url()'
 	});
@@ -662,13 +559,7 @@ function createPokemonMoveInput(moveType, attrName){
 		minLength : 0,
 		delay : 0,
 		source: function(request, response){
-			let moveNode = null;
-			for (var i = 0; i < this.bindings.length; i++){
-				if (this.bindings[i].name && this.bindings[i].name.includes("pokemon")){
-					moveNode = this.bindings[i];
-				}
-			}
-			let pokemonInstance = getEntry($$$(moveNode).parent("pokemon").child("pokemon-name").val().trim().toLowerCase(), Data.Pokemon);
+			let pokemonInstance = getEntry($(moveInput).parents("[name=pokemon]").find("[name=pokemon-name]").val().trim().toLowerCase(), Data.Pokemon);
 			let searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term), matches = [];
 			if (searchStr == '' && pokemonInstance){ //special case
 				searchStr = 'current, legacy, exclusive';

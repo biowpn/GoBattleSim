@@ -15,12 +15,16 @@ var requiredJSONStatus = {
 	'Moves': 0,
 	'LevelSettings': 0
 };
+var hasInit = false;
 
 /** 
 	This function will be called after all required JSONs and scripts are loaded.
 */
 function onfinishLoadingAll(){
-	GoBattleSimInit(); // DPSCalculatorInit();
+	if (window.GoBattleSimInit && !hasInit) {
+		hasInit = true;
+		GoBattleSimInit(); // DPSCalculatorInit();
+	}
 };
 
 $.ajax({ 
@@ -75,7 +79,6 @@ $.getScript(scriptsToLoad[0] + "?" + curTime, function(){
 	});
 });
 
-
 for (var i = 1; i < numScriptsToLoad; i++){
 	$.getScript(scriptsToLoad[i] + "?" + curTime, function(){
 		numScriptsLoaded++;
@@ -89,3 +92,22 @@ for (var i = 1; i < numScriptsToLoad; i++){
 		}
 	});
 }
+
+// Ensure that the page will be initialized
+function tryInit(){
+	if (!hasInit){
+		if (numScriptsLoaded >= numScriptsToLoad) {
+			var good = true;
+			for (var json_name in requiredJSONStatus){
+				if (requiredJSONStatus[json_name] != 2){
+					good = false;
+				}
+			}
+		}
+		if (good) {
+			onfinishLoadingAll();
+		}
+		setTimeout(tryInit, 1000);
+	}
+}
+tryInit();

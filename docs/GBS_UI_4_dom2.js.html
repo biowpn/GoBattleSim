@@ -104,28 +104,28 @@ function moveEditFormInit(){
 	
 	var moveInput = document.getElementById("moveEditForm-table");
 	
-	var movePokeTypeInput = $$$(moveInput).child("move-pokeType").node;
+	var movePokeTypeInput = $(moveInput).find("[name=move-pokeType]")[0];
 	movePokeTypeInput.innerHTML = "";
 	for (var type in Data.TypeEffectiveness){
 		movePokeTypeInput.appendChild(createElement("option", toTitleCase(type), {value: type}));
 	}
 	
-	$( $$$(moveInput).child("move-name").node ).autocomplete({
+	$(moveInput).find("[name=move-name]").autocomplete({
 		appendTo: '#moveEditForm',
 		minLength: 0,
 		delay: 0,
 		source: function(request, response){
-			var matches = Data[toTitleCase($$$(moveInput).child("move-moveType").val()) + "Moves"].filter(Predicate(request.term));
+			var matches = Data[toTitleCase($(moveInput).find("[name=move-moveType]").val()) + "Moves"].filter(Predicate(request.term));
 			response(matches);
 		},
 		select: function(event, ui){
 			$(this).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item: ui.item});
 		},
 		change: function(event, ui){
-			var moveDatabase = Data[toTitleCase($$$(moveInput).child("move-moveType").val()) + "Moves"];
+			var moveDatabase = Data[toTitleCase($(moveInput).find("[name=move-moveType]").val()) + "Moves"];
 			var move = ui.item || getEntry(this.value.trim().toLowerCase(), moveDatabase);
 			if (move){
-				assignMoveParameterSet("load", [move], $$$(moveInput).child("move-scope").val());
+				assignMoveParameterSet("load", [move], $(moveInput).find("[name=move-scope]").val());
 				this.setAttribute('style', 'background-image: url(' + move.icon + ')');
 				write(moveInput, move);
 				this.value = toTitleCase(this.value);
@@ -133,13 +133,13 @@ function moveEditFormInit(){
 		}
 	}).autocomplete( "instance" )._renderItem = _renderAutocompleteMoveItem;
 	
-	$$$(moveInput).child("move-pokeType").node.onchange = function(){
-		$$$(moveInput).child("move-name").node.setAttribute("style", "background-image: url(" + getTypeIcon({pokeType: this.value}) + ")");
-	}
+	$(moveInput).find("[name=move-pokeType]").change(function(){
+		$(moveInput).find("[name=move-name]").attr("style", "background-image: url(" + getTypeIcon({pokeType: this.value}) + ")");
+	});
 	
-	$$$(moveInput).child("move-scope").node.onchange = function(){
-		$($$$(moveInput).child("move-name").node).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item: null});
-	}
+	$(moveInput).find("[name=move-scope]").change(function(){
+		$(moveInput).find("[name=move-name]").data('ui-autocomplete')._trigger('change', 'autocompletechange', {item: null});
+	});
 }
 
 
@@ -177,6 +177,7 @@ function moveEditFormSubmit(){
 function moveEditFormReset(){
 	Data.FastMoves = [];
 	Data.ChargedMoves = [];
+	requiredJSONStatus.Moves = 0;
 	fetchMoveData(function(){
 		sendFeedbackDialog("Latest Move Data have been fetched");
 		['FastMoves', 'ChargedMoves'].forEach(function(moveDatabaseName){
@@ -192,10 +193,8 @@ function moveEditFormReset(){
 
 
 function moveEditFormDelete(){
-	var moveInput = document.getElementById("moveEditForm-table");
-	var moveDatabaseName = toTitleCase($$$(moveInput).child("move-moveType").val()) + "Moves";
-	var moveName = $$$(moveInput).child("move-name").val().trim().toLowerCase();
-	
+	var moveDatabaseName = toTitleCase($("#moveEditForm-table").find("[name=move-moveType]").val()) + "Moves";
+	var moveName = $("#moveEditForm-table").find("[name=move-name]").val().trim().toLowerCase();
 	if (removeEntry(moveName, Data[moveDatabaseName]) &amp;&amp; removeEntry(moveName, LocalData[moveDatabaseName])){
 		saveLocalData();
 		sendFeedbackDialog("Move: " + moveName + " has been removed");
@@ -215,8 +214,8 @@ function pokemonEditFormInit(){
 	
 	var pokemonInput = document.getElementById("pokemonEditForm-table");
 	
-	var pokeType1Input = $$$(pokemonInput).child("pokemon-pokeType1").node;
-	var pokeType2Input = $$$(pokemonInput).child("pokemon-pokeType2").node;
+	var pokeType1Input = $(pokemonInput).find("[name=pokemon-pokeType1]")[0];
+	var pokeType2Input = $(pokemonInput).find("[name=pokemon-pokeType2]")[0];
 	pokeType1Input.innerHTML = "";
 	pokeType2Input.innerHTML = "";
 	pokeType1Input.appendChild(createElement("option", "None", {value: "none"}));
@@ -226,12 +225,12 @@ function pokemonEditFormInit(){
 		pokeType2Input.appendChild(createElement("option", toTitleCase(type), {value: type}));
 	}
 	
-	$( $$$(pokemonInput).child("pokemon-name").node ).autocomplete({
+	$(pokemonInput).find("[name=pokemon-name]").autocomplete({
 		appendTo: '#pokemonEditForm',
 		minLength: 0,
 		delay: 0,
 		source: function(request, response){
-			response(getPokemonOptions(false).filter(Predicate(request.term)));
+			response(Data.Pokemon.filter(Predicate(request.term)));
 		},
 		select: function(event, ui){
 			$(this).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item: ui.item});
@@ -312,6 +311,7 @@ function pokemonEditFormSubmit(){
 
 function pokemonEditFormReset(){
 	Data.Pokemon = [];
+	requiredJSONStatus.Pokemon = 0;
 	fetchSpeciesData(function(){
 		handleSpeciesDatabase(Data.Pokemon);
 		manuallyModifyData(Data);
@@ -327,8 +327,7 @@ function pokemonEditFormReset(){
 
 
 function pokemonEditFormDelete(){
-	var pokemonInput = document.getElementById("pokemonEditForm-table");
-	var pokemonName = $$$(pokemonInput).child("pokemon-name").val();
+	var pokemonName = $("#pokemonEditForm-table").find("[name=pokemon-name]").val();
 	if (removeEntry(pokemonName, Data.Pokemon) &amp;&amp; removeEntry(pokemonName, LocalData.Pokemon)){
 		saveLocalData();
 		sendFeedbackDialog("Pokemon: " + pokemonName + " has been removed");
@@ -1394,13 +1393,13 @@ function battleMatrixSubmit(){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Battle.html">Battle</a></li><li><a href="GoBattleSimNode.html">GoBattleSimNode</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$$$">$$$</a></li><li><a href="global.html#assignMoveParameterSet">assignMoveParameterSet</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossData">fetchRaidBossData</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#GoBattleSimInit">GoBattleSimInit</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#inferLevelAndIVs">inferLevelAndIVs</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#onfinishLoadingAll">onfinishLoadingAll</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Battle.html">Battle</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li></ul><h3>Global</h3><ul><li><a href="global.html#assignMoveParameterSet">assignMoveParameterSet</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossData">fetchRaidBossData</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#GoBattleSimInit">GoBattleSimInit</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#inferLevelAndIVs">inferLevelAndIVs</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#onfinishLoadingAll">onfinishLoadingAll</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Feb 22 2019 17:33:41 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 28 2019 03:29:32 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

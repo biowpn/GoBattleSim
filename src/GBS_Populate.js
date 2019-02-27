@@ -191,7 +191,7 @@ function insertEntry(entry, arr){
 function removeEntry(name, arr){
 	var index = binarySearch(name, arr);
 	if (arr[index] && arr[index].name == name){
-		return arr.splice(idx, 1)[0];
+		return arr.splice(index, 1)[0];
 	}else{
 		return null;
 	}
