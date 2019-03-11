@@ -1,9 +1,18 @@
-/* GBS_UI_4_dom2.js */
-
 /**
-	@file Define extension tools.
-	@author BIOWP
+	@file Extension tools
 */
+
+/*
+	Module interface functions
+*/
+
+
+/*
+	Non-interface members
+*/
+var sampleConfigurations = [{"players":[{"team":"0","friend":"none","parties":[{"name":"","pokemon":[{"name":"Machamp","role":"a","copies":6,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Counter","cmove":"Dynamic Punch","strategy":"strat1"}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Blissey","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Zen Headbutt","cmove":"Dazzling Gleam","strategy":"strat0"},{"name":"Chansey","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Zen Headbutt","cmove":"Dazzling Gleam","strategy":"strat0"},{"name":"Snorlax","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Zen Headbutt","cmove":"Body Slam","strategy":"strat0"},{"name":"Tyranitar","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Smack Down","cmove":"Stone Edge","strategy":"strat0"},{"name":"Lapras","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Frost Breath","cmove":"Ice Beam","strategy":"strat0"},{"name":"Milotic","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Waterfall","cmove":"Surf","strategy":"strat0"}],"revive":false}]}],"battleMode":"gym","timelimit":100000,"weather":"EXTREME","dodgeBugActive":"0","simPerConfig":1,"aggregation":"enum"},{"players":[{"team":"0","friend":"none","parties":[{"name":"","pokemon":[{"name":"Moltres","role":"a","copies":6,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Fire Spin","cmove":"Sky Attack","strategy":"strat1"}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Machamp","role":"rb","copies":1,"raidTier":"3","fmove":"Bullet Punch","cmove":"Heavy Slam","strategy":"strat0"}],"revive":false}]}],"battleMode":"raid","timelimit":180000,"weather":"EXTREME","dodgeBugActive":"0","simPerConfig":1,"aggregation":"enum"},{"players":[{"team":"0","friend":"ultra","parties":[{"name":"","pokemon":[{"name":"Tyranitar","role":"a","copies":6,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Smack Down","cmove":"Stone Edge","strategy":"strat1"}],"revive":true}]},{"team":"0","friend":"ultra","parties":[{"name":"","pokemon":[{"name":"Tyranitar","role":"a","copies":6,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Smack Down","cmove":"Stone Edge","strategy":"strat1"}],"revive":true}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Ho-oh","role":"rb","copies":1,"raidTier":"5","fmove":"Steel Wing","cmove":"Solar Beam","strategy":"strat0"}],"revive":false}]}],"battleMode":"raid","timelimit":300000,"weather":"PARTLY_CLOUDY","dodgeBugActive":"0","simPerConfig":100,"aggregation":"avrg"},{"players":[{"team":"0","friend":"none","parties":[{"name":"","pokemon":[{"name":"Latios","role":"a","copies":1,"level":40,"atkiv":15,"defiv":15,"stmiv":15,"fmove":"Dragon Breath","cmove":"Dragon Claw","cmove2":"Solar Beam","strategy2":""}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Latias","role":"a","copies":1,"level":40,"atkiv":15,"defiv":15,"stmiv":15,"fmove":"Dragon Breath","cmove":"Outrage","cmove2":"Thunder","strategy2":""}],"revive":false}]}],"battleMode":"pvp","timelimit":240000,"weather":"EXTREME","dodgeBugActive":"0","simPerConfig":1,"aggregation":"enum"},{"players":[{"team":"0","friend":"ultra","parties":[{"name":"","pokemon":[{"name":"*$","role":"a","copies":6,"level":"","stmiv":"","atkiv":"","defiv":"","fmove":"","cmove":"","strategy":"strat1"}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Mewtwo","role":"rb","copies":1,"raidTier":"6","fmove":"?current","cmove":"?current","strategy":"strat0"}],"revive":false}]}],"battleMode":"raid","timelimit":300000,"weather":"EXTREME","dodgeBugActive":"0","simPerConfig":20,"aggregation":"avrg"},{"players":[{"team":"0","friend":"ultra","parties":[{"name":"","pokemon":[{"name":"Machamp","role":"a","copies":6,"level":"*30-40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Counter","cmove":"Dynamic Punch","strategy":"strat1"}],"revive":false}]},{"team":"0","friend":"ultra","parties":[{"name":"","pokemon":[{"name":"Machamp","role":"a","copies":6,"level":"=1-1-1","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Counter","cmove":"Dynamic Punch","strategy":"strat1"}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Tyranitar","role":"rb","copies":1,"raidTier":"4","fmove":"Bite","cmove":"Crunch","strategy":"strat0"}],"revive":false}]}],"battleMode":"raid","timelimit":180000,"weather":"EXTREME","dodgeBugActive":"0","simPerConfig":200,"aggregation":"avrg"},{"players":[{"team":"0","friend":"none","parties":[{"name":"","pokemon":[{"name":"!evolve & !$","role":"a","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"*fire & (current, legacy, exclusive)","cmove":"*fire & (current, legacy, exclusive)","strategy":"strat1"}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Chansey","role":"rb","copies":1,"raidTier":"5","fmove":"Zen Headbutt","cmove":"Dazzling Gleam","strategy":"strat0"}],"revive":false}]}],"battleMode":"raid","timelimit":300000,"weather":"EXTREME","dodgeBugActive":"0","simPerConfig":100,"aggregation":"avrg"}];
+
+
 
 function welcomeDialogInit(){
 	$( "#WelcomeDialog" ).attr("style", "visibility: show;");
@@ -18,14 +27,12 @@ function welcomeDialogInit(){
 
 
 function welcomeDialogSubmit(configIndex, advanced){
-	var masterInputNode = document.getElementById("input");
-	write(masterInputNode, sampleConfigurations[configIndex] || {});
-	formatting(masterInputNode);
-	relabel();
+	UI.write(sampleConfigurations[configIndex] || {});
+	UI.refresh();
 	$( "#WelcomeDialog" ).dialog( "close" );
 	if (!advanced){
 		document.getElementById('GoButton').scrollIntoView({block: "center", inline: "center"});
-		sendFeedbackDialog('Nice choice! Now, review the configuration and click "GO" to start the simulation.');
+		UI.sendFeedbackDialog('Nice choice! Now, review the configuration and click "GO" to start the simulation.');
 	}
 }
 
@@ -33,7 +40,7 @@ function welcomeDialogSubmit(configIndex, advanced){
 function welcomeDialogRespond(resp){
 	if (resp == 1){
 		LocalData.WelcomeDialogNoShow = 1;
-		saveLocalData();
+		GM.save();
 	}
 	$( "#WelcomeDialog" ).dialog( "close" );
 }
@@ -78,7 +85,9 @@ function moveEditFormInit(){
 	
 	var movePokeTypeInput = $(moveInput).find("[name=move-pokeType]")[0];
 	movePokeTypeInput.innerHTML = "";
-	for (var type in Data.TypeEffectiveness){
+	
+	var Effectiveness = GM.get("battle", "TypeEffectiveness");
+	for (var type in Effectiveness){
 		movePokeTypeInput.appendChild(createElement("option", toTitleCase(type), {value: type}));
 	}
 	
@@ -87,26 +96,28 @@ function moveEditFormInit(){
 		minLength: 0,
 		delay: 0,
 		source: function(request, response){
-			var matches = Data[toTitleCase($(moveInput).find("[name=move-moveType]").val()) + "Moves"].filter(Predicate(request.term));
+			var matches = GM.select($(moveInput).find("[name=move-moveType]").val(), request.term);
 			response(matches);
 		},
 		select: function(event, ui){
 			$(this).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item: ui.item});
 		},
 		change: function(event, ui){
-			var moveDatabase = Data[toTitleCase($(moveInput).find("[name=move-moveType]").val()) + "Moves"];
-			var move = ui.item || getEntry(this.value.trim().toLowerCase(), moveDatabase);
+			var move = ui.item || GM.get($(moveInput).find("[name=move-moveType]").val(), this.value.trim().toLowerCase());
 			if (move){
-				assignMoveParameterSet("load", [move], $(moveInput).find("[name=move-scope]").val());
+				var scope = $(moveInput).find("[name=move-scope]").val();
+				for (var a in move[scope]) {
+					move[a] = move[scope][a];
+				}
 				this.setAttribute('style', 'background-image: url(' + move.icon + ')');
-				write(moveInput, move);
+				UI.write(move, moveInput);
 				this.value = toTitleCase(this.value);
 			}
 		}
 	}).autocomplete( "instance" )._renderItem = _renderAutocompleteMoveItem;
 	
 	$(moveInput).find("[name=move-pokeType]").change(function(){
-		$(moveInput).find("[name=move-name]").attr("style", "background-image: url(" + getTypeIcon({pokeType: this.value}) + ")");
+		$(moveInput).find("[name=move-name]").attr("style", "background-image: url(" + getTypeIcon(this.value) + ")");
 	});
 	
 	$(moveInput).find("[name=move-scope]").change(function(){
@@ -117,9 +128,9 @@ function moveEditFormInit(){
 
 function moveEditFormSubmit(){
 	var moveInput = document.getElementById("moveEditForm-table");
-	var move = read(moveInput);
+	var move = UI.read(moveInput);
 	move.name = move.name.trim().toLowerCase();
-	move.icon = getTypeIcon({pokeType: move.pokeType});
+	move.icon = getTypeIcon(move.pokeType);
 	if (move.effect){
 		try{
 			move.effect = JSON.parse(move.effect);
@@ -127,49 +138,43 @@ function moveEditFormSubmit(){
 			delete move.effect;
 		}
 	}
-	assignMoveParameterSet("save", [move], move.scope);
+	move[move.scope] = {};
+	for (let a of ["power", "energyDelta", "duration", "dws"]) {
+		move[move.scope][a] = move[a];
+	}
 	delete move.scope;
 
-	var move2 = getEntry(move.name, Data[toTitleCase(move.moveType) + "Moves"]);
+	var move2 = GM.get(move.moveType, move.name);
 	if (move2){
 		$.extend(move2, move);
 		move = move2;
-		sendFeedbackDialog('Move: ' + move.label + ' has been updated.');
+		UI.sendFeedbackDialog('Move: ' + move.label + ' has been updated.');
 	}else{
 		move.label = toTitleCase(move.name);
-		insertEntry(move, Data[toTitleCase(move.moveType) + "Moves"]);
-		sendFeedbackDialog('Move: ' + move.label + ' has been added.');
+		GM.set(move.moveType, move.name, move);
+		UI.sendFeedbackDialog('Move: ' + move.label + ' has been added.');
 	}
-	
-	insertEntry(move, LocalData[toTitleCase(move.moveType) + "Moves"]);
-	saveLocalData();
+	GM.set(move.moveType + "_local", move.name, move);
+	GM.save();
 }
 
 
 function moveEditFormReset(){
-	Data.FastMoves = [];
-	Data.ChargedMoves = [];
-	requiredJSONStatus.Moves = 0;
-	fetchMoveData(function(){
-		sendFeedbackDialog("Latest Move Data have been fetched");
-		['FastMoves', 'ChargedMoves'].forEach(function(moveDatabaseName){
-			for (var i = 0; i < LocalData[moveDatabaseName].length; i++){
-				if (getEntry(LocalData[moveDatabaseName][i].name, Data[moveDatabaseName])){
-					LocalData[moveDatabaseName].splice(i--, 1);
-				}
-			}
-		});
-		saveLocalData();
+	GM.erase("fast_local");
+	GM.erase("charged_local");
+	GM.invalidate();
+	GM.fetch(function(){
+		UI.sendFeedbackDialog("Latest move data have been fetched");
 	});
 }
 
 
 function moveEditFormDelete(){
-	var moveDatabaseName = toTitleCase($("#moveEditForm-table").find("[name=move-moveType]").val()) + "Moves";
+	var moveType = $("#moveEditForm-table").find("[name=move-moveType]").val();
 	var moveName = $("#moveEditForm-table").find("[name=move-name]").val().trim().toLowerCase();
-	if (removeEntry(moveName, Data[moveDatabaseName]) && removeEntry(moveName, LocalData[moveDatabaseName])){
-		saveLocalData();
-		sendFeedbackDialog("Move: " + moveName + " has been removed");
+	if (GM.set(moveType, moveName) && GM.set(moveType + "_local", moveName)){
+		GM.save();
+		UI.sendFeedbackDialog("Move: " + moveName + " has been removed");
 	}
 }
 
@@ -192,7 +197,8 @@ function pokemonEditFormInit(){
 	pokeType2Input.innerHTML = "";
 	pokeType1Input.appendChild(createElement("option", "None", {value: "none"}));
 	pokeType2Input.appendChild(createElement("option", "None", {value: "none"}));
-	for (var type in Data.TypeEffectiveness){
+	var Effectiveness = GM.get("battle", "TypeEffectiveness");
+	for (var type in Effectiveness){
 		pokeType1Input.appendChild(createElement("option", toTitleCase(type), {value: type}));
 		pokeType2Input.appendChild(createElement("option", toTitleCase(type), {value: type}));
 	}
@@ -202,13 +208,13 @@ function pokemonEditFormInit(){
 		minLength: 0,
 		delay: 0,
 		source: function(request, response){
-			response(Data.Pokemon.filter(Predicate(request.term)));
+			response(GM.select("pokemon", request.term));
 		},
 		select: function(event, ui){
 			$(this).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item: ui.item});
 		},
 		change: function(event, ui){
-			var pkmInfo = ui.item || getEntry(this.value.trim().toLowerCase(), Data.Pokemon);
+			var pkmInfo = ui.item || GM.get("pokemon", this.value.trim().toLowerCase());
 			if (pkmInfo){
 				pkmInfo = JSON.parse(JSON.stringify(pkmInfo));
 				this.setAttribute('style', 'background-image: url(' + pkmInfo.icon + ')');
@@ -222,7 +228,7 @@ function pokemonEditFormInit(){
 				pkmInfo.fmoves = toTitleCase(fmoves.join(", "));
 				pkmInfo.cmoves = toTitleCase(cmoves.join(", "));
 
-				write(pokemonInput, pkmInfo);
+				UI.write(pkmInfo, pokemonInput);
 			}
 		}
 	}).autocomplete( "instance" )._renderItem = _renderAutocompletePokemonItem;
@@ -232,7 +238,7 @@ function pokemonEditFormInit(){
 function pokemonEditFormSubmit(){
 	var pokemonInput = document.getElementById("pokemonEditForm-table");
 	
-	var pokemon = read(pokemonInput);
+	var pokemon = UI.read(pokemonInput);
 	var orginalLabel = pokemon.name;
 	pokemon.name = pokemon.name.toLowerCase();
 	
@@ -244,7 +250,6 @@ function pokemonEditFormSubmit(){
 	pokemon.chargedMoves_exclusive = [];
 	
 	for (let mType of ['fast', 'charged']){
-		var Database = Data[toTitleCase(mType) + "Moves"];
 		for (let moveName of pokemon[mType[0] + "moves"].split(',')){
 			moveName = moveName.trim().toLowerCase();
 			var poolPostFix = '';
@@ -255,54 +260,46 @@ function pokemonEditFormSubmit(){
 				moveName = moveName.substring(0, moveName.length - 1);
 				poolPostFix = '_legacy';
 			}
-			if (getEntry(moveName, Database)){
+			if (GM.get(mType, moveName)){
 				pokemon[mType + "Moves" + poolPostFix].push(moveName);
 			}
 		}
 		delete pokemon[mType[0] + "moves"];
 	}
 	
-	var pokemon2 = getEntry(pokemon.name, Data.Pokemon);
+	var pokemon2 = GM.get("pokemon", pokemon.name);
 	if (pokemon2){
 		$.extend(pokemon2, pokemon);
 		pokemon = pokemon2;
-		sendFeedbackDialog('Pokemon: ' + pokemon.label + ' has been updated.');
+		UI.sendFeedbackDialog('Pokemon: ' + pokemon.label + ' has been updated.');
 	}else{
 		pokemon.dex = 0;
 		pokemon.icon = "https://pokemongo.gamepress.gg/assets/img/sprites/000MS.png";
 		pokemon.label = orginalLabel;
 		pokemon.rating = 0;
-		insertEntry(pokemon, Data.Pokemon);
-		sendFeedbackDialog('Pokemon: ' + pokemon.label + ' has been added.');
+		GM.set("pokemon", pokemon.name, pokemon);
+		UI.sendFeedbackDialog('Pokemon: ' + pokemon.label + ' has been added.');
 	}
-
-	insertEntry(pokemon, LocalData.Pokemon);
-	saveLocalData();
+	console.log(pokemon);
+	GM.set("Pokemon_local", pokemon.name, pokemon);
+	GM.save();
 }
 
 
 function pokemonEditFormReset(){
-	Data.Pokemon = [];
-	requiredJSONStatus.Pokemon = 0;
-	fetchSpeciesData(function(){
-		handleSpeciesDatabase(Data.Pokemon);
-		manuallyModifyData(Data);
-		for (var i = 0; i < LocalData.Pokemon.length; i++){
-			if (getEntry(LocalData.Pokemon[i].name, Data.Pokemon)){
-				LocalData.Pokemon.splice(i--, 1);
-			}
-		}
-		saveLocalData();
-		sendFeedbackDialog("Latest Pokemon Data have been fetched");
+	GM.erase("pokemon_local");
+	GM.invalidate();
+	GM.fetch(function(){
+		UI.sendFeedbackDialog("Latest Pokemon data have been fetched");
 	});
 }
 
 
 function pokemonEditFormDelete(){
 	var pokemonName = $("#pokemonEditForm-table").find("[name=pokemon-name]").val();
-	if (removeEntry(pokemonName, Data.Pokemon) && removeEntry(pokemonName, LocalData.Pokemon)){
-		saveLocalData();
-		sendFeedbackDialog("Pokemon: " + pokemonName + " has been removed");
+	if (GM.set("pokemon", pokemonName) && GM.set("pokemon", pokemonName)){
+		GM.save();
+		UI.sendFeedbackDialog("Pokemon: " + pokemonName + " has been removed");
 	}
 }
 
@@ -319,33 +316,32 @@ function parameterEditFormInit(){
 	});
 
 	var parameterTable = document.getElementById('parameterEditForm-Table');
-	for (var attr in Data.BattleSettings){
-		var row = createRow([attr, "<input id='parameterEditForm-" + attr + "'></input>"], 'td');
-		row.children[1].children[0].value = JSON.stringify(Data.BattleSettings[attr]);
+	GM.each("battleSetting", function(value, param){
+		var row = createRow([param, "<input id='parameterEditForm-" + param + "'></input>"], 'td');
+		row.children[1].children[0].value = JSON.stringify(value);
 		parameterTable.children[1].appendChild(row);
-	};
+	});
 }
 
 
 function parameterEditFormSubmit(){
 	var EDITABLE_PARAMETERS = {};
-	for (var attr in Data.BattleSettings){
+	GM.each("battleSetting", function(value, param){
 		try{
-			Data.BattleSettings[attr] = JSON.parse($('#parameterEditForm-'+attr).val());
+			GM.set("battleSetting", param, JSON.parse($('#parameterEditForm-'+param).val()));
 		} catch (err){
-			return sendFeedbackDialog("When parsing parameter: " + attr + '; ' + err.toString());
+			UI.sendFeedbackDialog("When parsing parameter: " + param + '; ' + err.toString());
 		}
-	};
-	saveLocalData();
-	sendFeedbackDialog("Battle settings have been updated");
+	});
+	GM.save();
+	UI.sendFeedbackDialog("Battle settings have been updated");
 }
 
 
 function parameterEditFormReset(){
 	LocalData.BattleSettings = {};
-	Data.BattleSettings = JSON.parse(JSON.stringify(DefaultData.BattleSettings));
-	saveLocalData();
-	sendFeedbackDialog("Battle settings have been reset");
+	GM.save();
+	UI.sendFeedbackDialog("Battle settings have been reset. Refresh the page to get default back.");
 }
 
 
@@ -375,23 +371,25 @@ function userEditFormInit(){
 
 
 function userEditFormAddUser(){
-	var userID = document.getElementById('userEditForm-userID-1').value.trim();
-	fetchUserData(userID, function(){
-		sendFeedbackDialog("Imported user " + userID);
+	let primaryUserID = userID2;
+	userID2 = document.getElementById('userEditForm-userID-1').value.trim();
+	GM.invalidate();
+	GM.fetch(function(){
 		updateUserTable();
+		UI.sendFeedbackDialog("Imported user " + userID2, "", updateUserTable);
+		userID2 = primaryUserID;
 	});
 }
 
 
 function userEditFormRemoveUser(){
 	var userID = document.getElementById('userEditForm-userID-1').value.trim();
-	var userIndex = getEntryIndex(userID, Data.Users);
-	if (userIndex >= 0){
-		Data.Users.splice(userIndex, 1);
+	if (GM.get("user", userID) != null){
+		GM.set("user", userID);
 		updateUserTable();
-		sendFeedbackDialog("Successfully removed user " + userID);
+		UI.sendFeedbackDialog("Successfully removed user " + userID);
 	}else{
-		sendFeedbackDialog("No user with ID " + userID + " was found");
+		UI.sendFeedbackDialog("No user with ID " + userID + " was found");
 	}
 }
 
@@ -399,31 +397,31 @@ function userEditFormRemoveUser(){
 function updateUserTable(){
 	var table = document.getElementById('userEditForm-userTable');
 	table.children[1].innerHTML = '';
-	for (var i = 0; i < Data.Users.length; i++){
+	GM.each("user", function(user){
 		table.children[1].appendChild(createRow([
-			Data.Users[i].uid,
-			Data.Users[i].box.length,
-			'<button onclick="updateBoxTable(' + Data.Users[i].uid + ')">View Box</button>'
+			user.uid,
+			user.box.length,
+			'<button onclick="updateBoxTable(' + user.uid + ')">View Box</button>'
 		], 'td'));
-	}
+	});
 }
 
 
 function updateBoxTable(uid){
 	document.getElementById('boxEditForm-title').innerHTML = "User ID: " + uid;
 	var boxEditFormTable = $('#boxEditForm-pokemonTable').DataTable();
-	let user = getEntry(uid, Data.Users);
+	let user = GM.get("user", uid);
 	var box = user.box;
 	
 	$( "#boxEditForm" ).dialog( "open" );
 	boxEditFormTable.clear();
 	for (var i = 0; i < box.length; i++){
-		var fmove = getEntry(box[i].fmove, Data.FastMoves), cmove = getEntry(box[i].cmove, Data.ChargedMoves);
+		var fmove = GM.get("fast", box[i].fmove), cmove = GM.get("charged", box[i].cmove);
 		boxEditFormTable.row.add([
 			i+1,
 			createIconLabelSpan(box[i].icon, box[i].label, 'species-input-with-icon'),
-			createIconLabelSpan(getTypeIcon({pokeType: box[i].pokeType1}), toTitleCase(box[i].pokeType1), 'move-input-with-icon'),
-			createIconLabelSpan(getTypeIcon({pokeType: box[i].pokeType2}), toTitleCase(box[i].pokeType2), 'move-input-with-icon'),
+			createIconLabelSpan(getTypeIcon(box[i].pokeType1), toTitleCase(box[i].pokeType1), 'move-input-with-icon'),
+			createIconLabelSpan(getTypeIcon(box[i].pokeType2), toTitleCase(box[i].pokeType2), 'move-input-with-icon'),
 			box[i].cp,
 			box[i].level,
 			box[i].stmiv,
@@ -453,22 +451,23 @@ function modEditFormInit(){
 		autoOpen: false,
 		width: 600
 	});
-	$( "#modEditFormOpener" ).click(function() {
+	$( "#modEditFormOpener" ).click(function(){
 		$( "#modEditForm" ).dialog( "open" );
 	});
 }
 
 
 function modEditFormSubmit(){
-	fetchAll(function(){
+	GM.invalidate();
+	GM.fetch(function(){
 		for (var i = 0; i < Mods.length; i++){
 			var mod_checkbox = document.getElementById('mod_checkbox_' + i);
 			if (mod_checkbox && mod_checkbox.checked){
-				Mods[i].effect(Data);
+				Mods[i].effect();
 			}
 		}
-		sendFeedbackDialog("Mods have been applied");
-	}, false);
+		UI.sendFeedbackDialog("Mods have been applied");
+	});
 }
 
 
@@ -482,44 +481,37 @@ function MVLTableInit(){
 		$( "#MVLTable" ).dialog( "open" );
 	});
 	var friendStartEl = document.getElementById("MVLTable-friendStart"), friendEndEl = document.getElementById("MVLTable-friendEnd");
-	for (var i = 0; i < Data.FriendSettings.length; i++){
-		friendStartEl.appendChild(createElement("option", Data.FriendSettings[i].name, {"value": i}));
-		friendEndEl.appendChild(createElement("option", Data.FriendSettings[i].name, {"value": i}));
-	}
+	GM.each("friend", function(friendSetting, index){
+		friendStartEl.appendChild(createElement("option", friendSetting.name, {"value": index}));
+		friendEndEl.appendChild(createElement("option", friendSetting.name, {"value": index}));
+	});
 	friendStartEl.value = 0;
-	friendEndEl.value = Data.FriendSettings.length - 1;
-	
+	friendEndEl.value = friendEndEl.lastChild.value;
 }
 
 function MVLTableSubmit(){
-	sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Simulating...");
-	setTimeout(function(){
-		try{
-			MVLTableCalculate();
-			while (DialogStack.length){
-				DialogStack.pop().dialog('close');
-			}
-		}catch(err){
-			while (DialogStack.length){
-				DialogStack.pop().dialog('close');
-			}
-			sendFeedbackDialog("Oops, something went wrong!");
-		}
-	}, 100);
+	UI.wait(MVLTableCalculate);
 }
 
 
 function MVLTableCalculate(){
-	var baseConfig = read();
+	var baseConfig = UI.read();
 	baseConfig.aggregation = 'avrg';
 	baseConfig.simPerConfig = 100;
 	
-	var configurations = batchSim(baseConfig); // Each configuration will take a row
+	var configurations = GBS.parse(baseConfig); // Each configuration will take a row
 	
 	var friends = [], frendStart = parseInt($("#MVLTable-friendStart").val()), friendEnd = parseInt($("#MVLTable-friendEnd").val());
-	for (var i = frendStart; i <= friendEnd; i++){
-		friends.push(Data.FriendSettings[i].name);
-	}
+	GM.each("friend", function(friendSetting, index){
+		if (frendStart <= index && index <= friendEnd) {
+			friends.push(friendSetting.name);
+		}
+	});
+	
+	var levels = [];
+	GM.each("level", function(levelSetting){
+		levels.push(levelSetting);
+	});
 	
 	var data = [];
 	for (let config of configurations){
@@ -541,20 +533,20 @@ function MVLTableCalculate(){
 					player.friend = friendLevel;
 				}
 			}
-			var winRates = new Array(Data.LevelSettings.length), lower = 0, upper = Data.LevelSettings.length - 1;
+			var winRates = new Array(levels.length), lower = 0, upper = levels.length - 1;
 			while (upper >= lower){
 				var mid = Math.floor((lower + upper)/2);
-				winRates[mid] = getWinRate(Data.LevelSettings[mid].name, baseConfig);
+				winRates[mid] = getWinRate(levels[mid].name, baseConfig);
 				if (winRates[mid] >= 0.6){	
 					upper = mid - 1;
 				}else{
 					lower = mid + 1;
 				}
 			}
-			rowDict[friendLevel] = Data.LevelSettings[Data.LevelSettings.length - 1].name + "*";
+			rowDict[friendLevel] = levels[levels.length - 1].name + "*";
 			for (var k = 0; k < winRates.length; k++){
 				if (winRates[k] >= 0.6){
-					rowDict[friendLevel] = Data.LevelSettings[k].name;
+					rowDict[friendLevel] = levels[k].name;
 					break;
 				}
 			}
@@ -588,21 +580,22 @@ function getWinRate(level, cfg){
 			}
 		}
 	}
-	return parseFloat(runSimulation(cfg)[0].output.statistics.outcome);
+	return parseFloat(processConfig(cfg)[0].output.statistics.outcome);
 }
 
 
 var teamBuilderPartyPermutationStats = {};
 
 function getPokemonByNID(nid){
-	for (let user of Data.Users){
-		for (let pokemon of user.box){
-			if (pokemon.nid == nid){
-				return pokemon;
+	var pokemon = null;
+	GM.each("user", function(user){
+		for (let pkm of user.box){
+			if (pkm.nid == nid){
+				pokemon = pkm;
 			}
 		}
-	}
-	return null;
+	});
+	return pokemon;
 }
 
 
@@ -681,30 +674,15 @@ function teamBuilderInit(){
 function teamBuilderSubmit(type){
 	if (type == 0){
 		teamBuilderPartyPermutationStats = {};
-		calculationMethod = teamBuilderCalculatePokemon;
-		sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Evaluating Pokemon...");
+		UI.wait(teamBuilderCalculatePokemon, "Evaluating Pokemon...");
 	}else if (type == 1){
-		calculationMethod = teamBuilderCalculateParty;
-		sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Calculating optimal permuation...");
+		UI.wait(teamBuilderCalculateParty, "Calculating optimal permuation...");
 	}
-	setTimeout(function(){
-		try{
-			calculationMethod();
-			while (DialogStack.length){
-				DialogStack.pop().dialog('close');
-			}
-		}catch(err){
-			while (DialogStack.length){
-				DialogStack.pop().dialog('close');
-			}
-			sendFeedbackDialog("Oops, something went wrong!");
-		}
-	}, 100);
 }
 
 
 function teamBuilderReadConfig(numAttacker){
-	var baseConfig = read();
+	var baseConfig = UI.read();
 	
 	var baseAttackingPlayer = null;
 	var defendingPlayer = null;
@@ -745,15 +723,15 @@ function teamBuilderCalculatePokemon(){
 	
 	// 1. Find out individual Pokemon's performance
 	var allPokemon = [];
-	for (let user of Data.Users){
+	GM.each("user", function(user){
 		for (let pokemon of user.box){
 			var pokemonCopy = JSON.parse(JSON.stringify(pokemon));
 			pokemonCopy.iconLabel = createIconLabelSpan(pokemon.icon, pokemon.label, "species-input-with-icon");
 			allPokemon.push(pokemonCopy);
 		}
-	}
+	});
 	if (allPokemon.length == 0){
-		sendFeedbackDialog("No Pokemon in your box! Please log in and enter some Pokemon.");
+		UI.sendFeedbackDialog("No Pokemon in your box! Please log in and enter some Pokemon.");
 		return;
 	}
 	baseConfig.timelimit = -1;
@@ -767,10 +745,10 @@ function teamBuilderCalculatePokemon(){
 		pokemon.strategy = "strat1";
 		bestParty.pokemon = [pokemon];
 		let intermediateSimResults = [];
-		for (let config of batchSim(baseConfig)){
+		for (let config of GBS.parse(baseConfig)){
 			intermediateSimResults = intermediateSimResults.concat(processConfig(config));
 		}
-		var avrgSim = averageSimulations(intermediateSimResults);
+		var avrgSim = GBS.average(intermediateSimResults);
 		pokemon.dps = round(avrgSim.output.statistics.dps / numAttacker, 3);
 		pokemon.tdo = round(avrgSim.output.statistics.tdo / numAttacker / 6, 1);
 		pokemonDT.row.add(pokemon);
@@ -863,8 +841,29 @@ function teamBuilderCalculateParty(){
 		while (DialogStack.length){
 			DialogStack.pop().dialog('close');
 		}
-		sendFeedbackDialog("Party is empty. Analzye Pokemon first.");
+		UI.sendFeedbackDialog("Party is empty. Analzye Pokemon first.");
 		return;
+	}
+	
+	function Permutation(arr, n, start){
+		start = start || 0;
+		if (n == 0){
+			return [[]];
+		}
+		var permutations = [];
+		for (var i = start; i < arr.length; i++){
+			let temp = arr[start];
+			arr[start] = arr[i];
+			arr[i] = temp;
+			for (let p2 of Permutation(arr, n - 1, start + 1)){
+				var p = [arr[start]];
+				p = p.concat(p2);
+				permutations.push(p);
+			}
+			arr[i] = arr[start];
+			arr[start] = temp;
+		}
+		return permutations;
 	}
 	
 	// Test all permuations of parties
@@ -873,10 +872,10 @@ function teamBuilderCalculateParty(){
 	for (let permutation of Permutation(party, party.length)){ // Did you know that 36 = 6!?
 		bestParty.pokemon = permutation;
 		let intermediateSimResults = [];
-		for (let config of batchSim(baseConfig)){
+		for (let config of GBS.parse(baseConfig)){
 			intermediateSimResults = intermediateSimResults.concat(processConfig(config));
 		}
-		let curStats = averageSimulations(intermediateSimResults).output.statistics;
+		let curStats = GBS.average(intermediateSimResults).output.statistics;
 		curStats.dps = curStats.dps / numAttacker;
 		curStats.tdo_percent = curStats.tdo_percent / numAttacker;
 		if (!bestStats || curStats.dps > bestStats.dps){
@@ -913,10 +912,10 @@ function teamBuilderUpdatePartyStats(){
 		var numAttacker = baseConfig.players.length - 1;
 		bestParty.pokemon = teamBuilderReadPartyTable();
 		let intermediateSimResults = [];
-		for (let config of batchSim(baseConfig)){
+		for (let config of GBS.parse(baseConfig)){
 			intermediateSimResults = intermediateSimResults.concat(processConfig(config));
 		}
-		curStats = averageSimulations(intermediateSimResults).output.statistics;
+		curStats = GBS.average(intermediateSimResults).output.statistics;
 		curStats.dps = curStats.dps / numAttacker;
 		curStats.tdo_percent = curStats.tdo_percent / numAttacker;
 		teamBuilderPartyPermutationStats[key] = curStats;
@@ -928,7 +927,7 @@ function teamBuilderUpdatePartyStats(){
 
 function teamBuilderSaveParty(){
 	var namePostFix = 0;
-	while (getEntry("Best_Party_" + namePostFix, LocalData.BattleParties)){
+	while (GM.get("BattleParties_local", "Best_Party_" + namePostFix)){
 		namePostFix++;
 	}
 	var partyName = "Best_Party_" + namePostFix;
@@ -942,9 +941,9 @@ function teamBuilderSaveParty(){
 	for (var i = 0; i < pokemonData.length; i++){
 		bestParty.pokemon.push(pokemonData[i]);
 	}
-	insertEntry(bestParty, LocalData.BattleParties);
-	saveLocalData();
-	sendFeedbackDialog('This party has been saved with the name "' + partyName + '"');
+	GM.set("BattleParties_local", partyName, bestParty);
+	GM.save();
+	UI.sendFeedbackDialog('This party has been saved with the name "' + partyName + '"');
 }
 
 
@@ -982,7 +981,8 @@ function typeCheckerInit(){
 	var defensiveTable = document.getElementById("typeChecker-defensive");
 	var count = 0;
 	var tr = [];
-	for (var t1 in Data.TypeEffectiveness){
+	var Effectiveness = GM.get("battle", "TypeEffectiveness");
+	for (var t1 in Effectiveness){
 		tr.push(toTitleCase(t1));
 		count++;
 		if (count % numColumns == 0){
@@ -1000,29 +1000,32 @@ function typeCheckerInit(){
 
 function typeCheckerSubmit(){
 	var maxMultiplier = 0, minMultiplier = 0;
-	for (var t1 in Data.TypeEffectiveness){
-		for (var t2 in Data.TypeEffectiveness[t1]){
-			let m = Data.TypeEffectiveness[t1][t2];
-			if (typeof m == typeof 0){
-				maxMultiplier = Math.max(maxMultiplier, Math.log(m));
-				minMultiplier = Math.min(minMultiplier, Math.log(m));
-			}
+	var Effectiveness = GM.get("battle", "TypeEffectiveness");
+	for (var t1 in Effectiveness){
+		for (var t2 in Effectiveness[t1]){
+			let m = Effectiveness[t1][t2];
+			maxMultiplier = Math.max(maxMultiplier, Math.log(m));
+			minMultiplier = Math.min(minMultiplier, Math.log(m));
 		}
 	}
 	
-	var partyConfig = read(document.getElementById("typeChecker-party"));
+	var partyConfig = UI.read(document.getElementById("typeChecker-party"));
 	var pokemonReps = [];
 	for (let pokemonConfig of partyConfig.pokemon){
 		var pokemonRep = {
 			pokeType1: "none", pokeType2: "none", attackingTypes: []
 		};
-		if (getEntry(pokemonConfig.name.toLowerCase(), Data.Pokemon)){
-			let p = new Pokemon(pokemonConfig);
-			pokemonRep.pokeType1 = p.pokeType1;
-			pokemonRep.pokeType2 = p.pokeType2;
-			pokemonRep.attackingTypes.push(p.fmove.pokeType || "none");
-			for (let move of p.cmoves){
-				pokemonRep.attackingTypes.push(move.pokeType || "none");
+		var species = GM.get("pokemon", pokemonConfig.name.trim().toLowerCase());
+		if (species != null){
+			pokemonRep.pokeType1 = species.pokeType1;
+			pokemonRep.pokeType2 = species.pokeType2;
+			var fmove = GM.get("fast", pokemonConfig.fmove.trim().toLowerCase());
+			var cmove = GM.get("charged", pokemonConfig.cmove.trim().toLowerCase());
+			var cmove2 = GM.get("charged", pokemonConfig.cmove2.trim().toLowerCase());
+			for (let move of [fmove, cmove, cmove2]) {
+				if (move) {
+					pokemonRep.attackingTypes.push(move.pokeType);
+				}
 			}
 		}else{
 			return;
@@ -1058,8 +1061,8 @@ function typeCheckerSubmit(){
 			var multipliers = [];
 			for (let pokemonRep of pokemonReps){
 				for (let attackingType of pokemonRep.attackingTypes){
-					if (Data.TypeEffectiveness[attackingType]){
-						let m = Data.TypeEffectiveness[attackingType][td.innerHTML.toLowerCase()];
+					if (Effectiveness[attackingType]){
+						let m = Effectiveness[attackingType][td.innerHTML.toLowerCase()];
 						multipliers.push(Math.log(m));
 					}
 				}
@@ -1084,8 +1087,8 @@ function typeCheckerSubmit(){
 			let attackingType = td.innerHTML.toLowerCase();
 			var multipliers = [];
 			for (let pokemonRep of pokemonReps){
-				let m1 = Data.TypeEffectiveness[attackingType][pokemonRep.pokeType1] || 1;
-				let m2 = Data.TypeEffectiveness[attackingType][pokemonRep.pokeType2] || 1;
+				let m1 = Effectiveness[attackingType][pokemonRep.pokeType1] || 1;
+				let m2 = Effectiveness[attackingType][pokemonRep.pokeType2] || 1;
 				multipliers.push(Math.log(m1 * m2));
 			}
 			var aggregatedMultiplier = getAggregatedMultiplier(multipliers, aggregation);
@@ -1098,7 +1101,6 @@ function typeCheckerSubmit(){
 			}
 		}
 	}
-	
 }
 
 
@@ -1156,7 +1158,7 @@ function battleScore(x, y){
 		y.strategy2 = "?";
 		return (score1 + score2)/2;
 	}
-	var config = {
+	var input = {
 	  "players": [
 		{
 		  "team": "0",
@@ -1179,11 +1181,9 @@ function battleScore(x, y){
 	  "timelimit": 240000,
 	  "aggregation": "tree"
 	};
-	battle = new Battle(config);
-	battle.init();
-	battle.go();
+	var output = GBS.run(input);
 	
-	let statistics = battle.getBattleResult().statistics;
+	let statistics = output.statistics;
 	let statsX = statistics.players[0].parties[0].pokemon[0];
 	let statsY = statistics.players[1].parties[0].pokemon[0];
 	return ((statsY.maxHP - Math.max(0, statsY.hp))/statsY.maxHP) - ((statsX.maxHP - Math.max(0, statsX.hp))/statsX.maxHP);
@@ -1192,13 +1192,13 @@ function battleScore(x, y){
 function generateBattleMatrix(P){
 	for (let pkm of P){
 		pkm.strategy = "strat5";
-		if (pkm.role == "a_basic"){
-			let pkmInstance = new Pokemon(pkm);
-			pkm.level = pkmInstance.level;
-			pkm.atkiv = pkmInstance.atkiv;
-			pkm.defiv = pkmInstance.defiv;
-			pkm.stmiv = pkmInstance.stmiv;
-			pkm.role = "a";
+		if (pkm.hasOwnProperty("cp")){
+			let species = GM.get("pokemon", pkm.name.toLowerCase().trim());
+			let levelAndIVs = inferLevelAndIVs(species, parseInt(pkm.cp));
+			pkm.level = levelAndIVs.level;
+			pkm.atkiv = levelAndIVs.atkiv;
+			pkm.defiv = levelAndIVs.defiv;
+			pkm.stmiv = levelAndIVs.stmiv;
 		}
 	}
 	var matrix = [];
@@ -1222,7 +1222,7 @@ function battleMatrixReadFromMain(){
 	var rawInput = $("#battleMatrix-input").val().split("\n");
 	var attributes = parseCSVRow(rawInput[0], deli, '"');
 	
-	var config = read();
+	var config = UI.read();
 	for (let player of config.players){
 		for (let party of player.parties){
 			for (let pokemon of party.pokemon){
@@ -1268,8 +1268,7 @@ function removeDuplicates(pokemonVector){
 }
 
 function battleMatrixSubmit(){
-	assignMoveParameterSet("load", Data.FastMoves, "combat");
-	assignMoveParameterSet("load", Data.ChargedMoves, "combat");
+	GBS.mode("pvp");
 	
 	var deli = $("#battleMatrix-delimieter").val();
 	var rawInput = $("#battleMatrix-input").val().split("\n");
@@ -1291,15 +1290,11 @@ function battleMatrixSubmit(){
 				pokemon[attributes[j]] = "";
 			}
 		}
-		if (pokemon.hasOwnProperty("cp")){
-			pokemon.role = "a_basic";
-		}
 		pokemon.copies = 1;
 		var wrapperConfig = {
 			players: [{parties: [{pokemon: [pokemon]}]}]
 		};
-		console.log(wrapperConfig);
-		var batchedConfigs = batchSim(wrapperConfig);
+		var batchedConfigs = GBS.parse(wrapperConfig);
 		function initials(str){
 			var firsts = [];
 			for (let word of (str || "").split(' ')){
@@ -1317,41 +1312,36 @@ function battleMatrixSubmit(){
 		}
 	}
 	
-	console.log("Before:", pokemonVector.length);
 	pokemonVector = removeDuplicates(pokemonVector);
-	console.log("After:", pokemonVector.length);
-		
-	try{
+	
+	UI.wait(function(){
 		var matrix = generateBattleMatrix(pokemonVector);
-	} catch (err){
-		return sendFeedbackDialog(err.toString());
-	}	
-	
-	let startRow = Math.max(1, subMatrixSpecs[0] || 1) - 1;
-	let endRow = Math.min(matrix.length, subMatrixSpecs[1] || matrix.length);
-	let startCol = Math.max(1, subMatrixSpecs[2] || 1) - 1;
-	let endCol = Math.min(matrix.length, subMatrixSpecs[3] || matrix.length);
-	matrix = matrix.slice(startRow, endRow);
-	for (var i = 0; i < matrix.length; i++){
-		matrix[i] = matrix[i].slice(startCol, endCol);
-	}
-	
-	if (namedRowCol){
+		let startRow = Math.max(1, subMatrixSpecs[0] || 1) - 1;
+		let endRow = Math.min(matrix.length, subMatrixSpecs[1] || matrix.length);
+		let startCol = Math.max(1, subMatrixSpecs[2] || 1) - 1;
+		let endCol = Math.min(matrix.length, subMatrixSpecs[3] || matrix.length);
+		matrix = matrix.slice(startRow, endRow);
 		for (var i = 0; i < matrix.length; i++){
-			let pkm = pokemonVector[i + startRow];
-			matrix[i].unshift(pkm.nickname || pkm.name);
+			matrix[i] = matrix[i].slice(startCol, endCol);
 		}
-		var headerRow = [""];
-		for (var i = 0; i < endCol - startCol; i++){
-			let pkm = pokemonVector[i + startCol];
-			headerRow.push(pkm.nickname || pkm.name);
+		
+		if (namedRowCol){
+			for (var i = 0; i < matrix.length; i++){
+				let pkm = pokemonVector[i + startRow];
+				matrix[i].unshift(pkm.nickname || pkm.name);
+			}
+			var headerRow = [""];
+			for (var i = 0; i < endCol - startCol; i++){
+				let pkm = pokemonVector[i + startCol];
+				headerRow.push(pkm.nickname || pkm.name);
+			}
+			matrix.unshift(headerRow);
 		}
-		matrix.unshift(headerRow);
-	}
-	
-	var rawOutputRows = [];
-	for (var i = 0; i < matrix.length; i++){
-		rawOutputRows.push(matrix[i].join("\t"));
-	}
-	document.getElementById("battleMatrix-output").value = rawOutputRows.join("\n");
+		
+		var rawOutputRows = [];
+		for (var i = 0; i < matrix.length; i++){
+			rawOutputRows.push(matrix[i].join("\t"));
+		}
+		document.getElementById("battleMatrix-output").value = rawOutputRows.join("\n");
+	}, "Running...");
 }

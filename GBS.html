@@ -3,16 +3,15 @@
 <script type="text/javascript" src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/v/ju/dt-1.10.16/r-2.2.1/sc-1.4.4/datatables.min.js"></script>
 
-<script type="text/javascript" src="src/GBS_Core.js"></script>
-<script type="text/javascript" src="src/GBS_UI_1_general.js"></script>
-<script type="text/javascript" src="src/GBS_UI_2_dom.js"></script>
-<script type="text/javascript" src="src/GBS_UI_3_parser.js"></script>
-<script type="text/javascript" src="src/GBS_UI_4_dom2.js"></script>
-<script type="text/javascript" src="src/GBS_Populate.js"></script>
-<script type="text/javascript" src="src/GBS_Populate_extras.js"></script>
-<script type="text/javascript" src="test/GBS_Populate_local.js"></script>
-<script type="text/javascript" src="test/GBS_Test.js"></script>
-<script type="text/javascript" src="test/Research_PvP_Meta.js"></script>
+<script type="text/javascript" src="src/GBS_Controller.js"></script>
+<script type="text/javascript" src="src/GBS_Data_Factory.js"></script>
+<script type="text/javascript" src="src/GBS_Kernel.js"></script>
+<script type="text/javascript" src="src/GBS_Simulator_Interface.js"></script>
+<script type="text/javascript" src="src/GBS_Tools.js"></script>
+<script type="text/javascript" src="src/GBS_User_Interface.js"></script>
+
+<script type="text/javascript" src="test/data_factory_local.js"></script>
+<script type="text/javascript" src="test/simulator_kernel_test.js"></script>
 
 <link href="https://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
@@ -114,14 +113,14 @@
 	.ui-checkboxradio-label{
 		color: white;
 	}
-	div#ui-mastersummarytable_filter {
+	div#MasterSummaryTable_filter {
 	    float: none;
 	}
 	.dataTables_wrapper .dataTables_filter input {
 	    margin: 5px 0px 0px 0px;
 	}
 
-	div#ui-mastersummarytable_filter {
+	div#MasterSummaryTable_filter {
 	    float: none;
 	    padding: 5px 5px 0px 5px;
 	}
@@ -140,7 +139,7 @@
 	div#feedback_message {
 	    margin-bottom: 10px;
 	}
-	div#ui-mastersummarytable_filter label {
+	div#MasterSummaryTable_filter label {
 		text-align: left;
 	}
 	
@@ -223,8 +222,8 @@
 				<button class='sub-menu-opener'><i class="fa fa-question" aria-hidden="true"></i> Help</button>
 				<div class='sub-menu'>
 					<button class='player_button' id="WelcomeDialogOpener">Quick Start</button>
-					<button class='player_button' onclick="window.open('https://pokemongo.gamepress.gg/comprehensive-guide-GoBattleSim', '_blank')">User Manual</button>
-					<button class='player_button' onclick="window.open('https://pokemongo.gamepress.gg/GoBattleSim-and-comprehensive-dps-spreadsheet-change-log', '_blank')">Change Log</button>
+					<button class='player_button' id="UserGuideOpener">User Guide</button>
+					<button class='player_button' onclick="ChanegLogOpener">Change Log</button>
 				</div>
 			</td>
 			
@@ -291,7 +290,7 @@
 	</div>
 
 	<h2>Player Settings</h2>
-	<button id='input.addPlayer' class='player_button' onclick="addPlayerNode()"><i class="fa fa-user-plus" aria-hidden="true"></i> Add Player</button>
+	<button id="AddPlayerButton" class="player_button"><i class="fa fa-user-plus" aria-hidden="true"></i> Add Player</button>
 	
 	<div name="input-players">
 	</div>
@@ -299,20 +298,20 @@
 </div>
 
 
-<button onclick="requestSimulation()" id="GoButton">Go</button>
+<button id="GoButton">Go</button>
 
 
 <h2>Simulation Result</h2>
 <div id="feedback_message"></div>
 
 <h4>Master Summary Table</h4>
-<div id="feedback_buttons"><button onclick='clearAllSims()'>Clear All</button></div>
+<div id="feedback_buttons"><button id="ClearButton">Clear All</button></div>
 <div id="feedback_table1"></div>
 <table>
 	<colgroup><col width="50%"><col width="50%"></colgroup>
 	<tr>
-		<td><button class="player_button" id="copy-button-clipboard" onclick="copyTableToClipboard('ui-mastersummarytable')">Copy to Clipboard</button></td>
-		<td><button class="player_button" id="copy-button-csv" onclick="exportTableToCSV('ui-mastersummarytable', 'GoBattleSim_result.csv')">Export To CSV</button></td>
+		<td><button class="player_button" id="CopyClipboardButton">Copy to Clipboard</button></td>
+		<td><button class="player_button" id="CopyCSVButton">Export To CSV</button></td>
 	</tr>
 </table>
 
@@ -321,40 +320,3 @@
 
 <h4>Interactive Battle Log</h4>
 <div id="feedback_table3"></div>
-
-
-<script>
-
-$.widget( "custom.iconselectmenu", $.ui.selectmenu, {
-  _renderItem: function( ul, item ) {
-	var li = $( "<li>" ),
-	  wrapper = $( "<div>", { text: item.label } );
-
-	if ( item.disabled ) {
-	  li.addClass( "ui-state-disabled" );
-	}
-
-	$( "<span>", {
-	  style: item.element.attr( "data-style" ),
-	  "class": "ui-icon " + item.element.attr( "data-class" )
-	})
-	  .appendTo( wrapper );
-
-	return li.append( wrapper ).appendTo( ul );
-  }
-});
-
-var HSL_COLORS = [
-	['hsl(209, 100%, 90%)','hsl(209, 100%, 80%)','hsl(209, 100%, 70%)'],
-	['hsl(0, 100%, 90%)','hsl(0, 100%, 80%)','hsl(0, 100%, 70%)'],
-	['hsl(48, 100%, 90%)','hsl(48, 100%, 70%)','hsl(48, 100%, 50%)'],
-	['hsl(120, 60%, 90%)','hsl(120, 60%, 70%)','hsl(120, 60%, 50%)']
-];
-
-var DEFAULT_SUMMARY_TABLE_METRICS = {outcome: 'Outcome', duration: 'Time', tdo_percent: 'TDO%', dps: 'DPS', numDeaths: '#Death'};
-
-var Simulations = [];
-var MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
-var currentJobSize = 0;
-
-</script>

@@ -1,9 +1,6 @@
 *.json
 *.csv
-test/*
 tools/*
 feedback/*
 *.xlsx
-GBS_Populate_extras.js
-GBS_Populate_local.js
-.*/
+test/*

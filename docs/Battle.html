@@ -145,7 +145,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line980">line 980</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line826">line 826</a>
     </li></ul></dd>
     
 
@@ -199,7 +199,183 @@
     
 
     
-    <h4 class="name" id="branch"><span class="type-signature"></span>branch<span class="signature">(options, callback)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".setting"><span class="type-signature">(static) </span>setting<span class="signature">(name, value)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The name of the battle parameter to get/set.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The value of the battle parameter to get/set.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line893">line 893</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The updated value.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="branch"><span class="type-signature"></span>branch<span class="signature">(options, callbackfn)</span><span class="type-signature"></span></h4>
     
 
     
@@ -259,14 +435,14 @@
 
             
 
-            <td class="description last">A list of branch options. Each must have a weight and all weights must sum to 1.</td>
+            <td class="description last">A list of objects representing differrent branch. Each must have a weight and all weights must sum to 1.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>callback</code></td>
+                <td class="name"><code>callbackfn</code></td>
             
 
             <td class="type">
@@ -323,7 +499,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1679">line 1679</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1555">line 1555</a>
     </li></ul></dd>
     
 
@@ -357,7 +533,7 @@
     
 
     
-    <h4 class="name" id="dump"><span class="type-signature"></span>dump<span class="signature">(event)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id="damage"><span class="type-signature"></span>damage<span class="signature">(attacker, receiver, move)</span><span class="type-signature"> &rarr; {number}</span></h4>
     
 
     
@@ -365,7 +541,7 @@
 
 
 <div class="description">
-    Translate a simulator event into a battle log entry.
+    Calculate the damage of an attack.
 </div>
 
 
@@ -401,7 +577,53 @@
 
         <tr>
             
-                <td class="name"><code>event</code></td>
+                <td class="name"><code>attacker</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Pokemon.html">Pokemon</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The Pokemon using the attack.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>receiver</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Pokemon.html">Pokemon</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The Pokemon taking the hit.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>move</code></td>
             
 
             <td class="type">
@@ -417,7 +639,7 @@
 
             
 
-            <td class="description last">Simulation event.</td>
+            <td class="description last">The move being used.</td>
         </tr>
 
     
@@ -458,7 +680,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1463">line 1463</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line970">line 970</a>
     </li></ul></dd>
     
 
@@ -485,7 +707,7 @@
 
         
 <div class="param-desc">
-    Battle log entry.
+    The damage value.
 </div>
 
 
@@ -496,7 +718,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Object</span>
+<span class="param-type">number</span>
 
 
     </dd>
@@ -566,7 +788,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1421">line 1421</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1304">line 1304</a>
     </li></ul></dd>
     
 
@@ -723,7 +945,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1658">line 1658</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1534">line 1534</a>
     </li></ul></dd>
     
 
@@ -880,7 +1102,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1766">line 1766</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1642">line 1642</a>
     </li></ul></dd>
     
 
@@ -1037,7 +1259,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1106">line 1106</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line958">line 958</a>
     </li></ul></dd>
     
 
@@ -1194,7 +1416,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1626">line 1626</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1502">line 1502</a>
     </li></ul></dd>
     
 
@@ -1374,7 +1596,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1700">line 1700</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1576">line 1576</a>
     </li></ul></dd>
     
 
@@ -1482,7 +1704,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1734">line 1734</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1610">line 1610</a>
     </li></ul></dd>
     
 
@@ -1590,7 +1812,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1451">line 1451</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1334">line 1334</a>
     </li></ul></dd>
     
 
@@ -1725,7 +1947,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1209">line 1209</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1088">line 1088</a>
     </li></ul></dd>
     
 
@@ -1860,7 +2082,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1244">line 1244</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1124">line 1124</a>
     </li></ul></dd>
     
 
@@ -1995,7 +2217,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1304">line 1304</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1184">line 1184</a>
     </li></ul></dd>
     
 
@@ -2130,7 +2352,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1342">line 1342</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1225">line 1225</a>
     </li></ul></dd>
     
 
@@ -2265,7 +2487,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1158">line 1158</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1034">line 1034</a>
     </li></ul></dd>
     
 
@@ -2400,7 +2622,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1254">line 1254</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1134">line 1134</a>
     </li></ul></dd>
     
 
@@ -2535,7 +2757,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1363">line 1363</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1246">line 1246</a>
     </li></ul></dd>
     
 
@@ -2621,7 +2843,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1083">line 1083</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line935">line 935</a>
     </li></ul></dd>
     
 
@@ -2756,7 +2978,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1408">line 1408</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1291">line 1291</a>
     </li></ul></dd>
     
 
@@ -2812,164 +3034,7 @@
     
 
     
-    <h4 class="name" id="load"><span class="type-signature"></span>load<span class="signature">(entry)</span><span class="type-signature"> &rarr; {Object}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Load and translate a log entry to simulator event.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>entry</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Battle log entry.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1525">line 1525</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    Simulator event.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Object</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="loadList"><span class="type-signature"></span>loadList<span class="signature">(entries)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="load"><span class="type-signature"></span>load<span class="signature">(entries)</span><span class="type-signature"></span></h4>
     
 
     
@@ -3070,7 +3135,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1566">line 1566</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1449">line 1449</a>
     </li></ul></dd>
     
 
@@ -3205,7 +3270,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1429">line 1429</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1312">line 1312</a>
     </li></ul></dd>
     
 
@@ -3291,7 +3356,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1043">line 1043</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line906">line 906</a>
     </li></ul></dd>
     
 
@@ -3426,7 +3491,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1377">line 1377</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1260">line 1260</a>
     </li></ul></dd>
     
 
@@ -3584,7 +3649,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1131">line 1131</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1007">line 1007</a>
     </li></ul></dd>
     
 
@@ -3764,7 +3829,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1146">line 1146</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1022">line 1022</a>
     </li></ul></dd>
     
 
@@ -3944,7 +4009,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1116">line 1116</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line992">line 992</a>
     </li></ul></dd>
     
 
@@ -4000,7 +4065,7 @@
     
 
     
-    <h4 class="name" id="resume"><span class="type-signature"></span>resume<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="toEntry"><span class="type-signature"></span>toEntry<span class="signature">(event)</span><span class="type-signature"> &rarr; {Object}</span></h4>
     
 
     
@@ -4008,7 +4073,7 @@
 
 
 <div class="description">
-    Resume the battle after loading log entries.
+    Translate a simulator event into a battle log entry.
 </div>
 
 
@@ -4017,6 +4082,55 @@
 
 
 
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Simulation event.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -4052,7 +4166,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1583">line 1583</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1346">line 1346</a>
     </li></ul></dd>
     
 
@@ -4075,6 +4189,185 @@
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Battle log entry.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="toEvent"><span class="type-signature"></span>toEvent<span class="signature">(entry)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Translate a log entry to simulator event.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>entry</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Battle log entry.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1408">line 1408</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Simulator event.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -4171,7 +4464,7 @@
 
             
 
-            <td class="description last">One of the option provided by the options parameter in the branch function.</td>
+            <td class="description last">The object that represents this branch.</td>
         </tr>
 
     
@@ -4212,7 +4505,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line1687">line 1687</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line1563">line 1563</a>
     </li></ul></dd>
     
 
@@ -4254,13 +4547,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Battle.html">Battle</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li></ul><h3>Global</h3><ul><li><a href="global.html#assignMoveParameterSet">assignMoveParameterSet</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossData">fetchRaidBossData</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#GoBattleSimInit">GoBattleSimInit</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#inferLevelAndIVs">inferLevelAndIVs</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#onfinishLoadingAll">onfinishLoadingAll</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-GBS.html">GBS</a></li><li><a href="module-GM.html">GM</a></li><li><a href="module-UI.html">UI</a></li></ul><h3>Classes</h3><ul><li><a href="Battle.html">Battle</a></li><li><a href="module-GBS-BattleInput.html">BattleInput</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 28 2019 03:29:32 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Mar 12 2019 03:15:24 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -1,8 +1,5 @@
-/* Comprehensive_DPS.js */
-
 /**
-	@file Comprehensive DPS Calculator, UI Control and others
-	@author BIOWP
+	@file Comprehensive DPS Calculator
 */
 
 var DEFAULT_ATTACKER_LEVEL = 40;
@@ -20,10 +17,28 @@ var DEFAULT_TOTAL_ENERGY_GAINED = 400;
 var Context = {
 	weather: DEFAULT_WEATHER,
 	enemy: {},
-	isEnemyNeutral: false,
+	genericEnemy: false,
+	genericEnemyFastMove: false,
+	genericEnemyChargedMove: false,
 	swapDiscount: false,
 	battleMode: 'regular'
 };
+
+
+function damage(dmg_giver, dmg_taker, move, weather){
+	var multipliers = 1;
+	if (move.pokeType == dmg_giver.pokeType1 || move.pokeType == dmg_giver.pokeType2){
+		multipliers *= GM.get("battle", "sameTypeAttackBonusMultiplier");
+	}
+	if (GM.get("battle", "TypeBoostedWeather")[move.pokeType] == weather){
+		multipliers *= GM.get("battle", "weatherAttackBonusMultiplier");
+	}
+	var Effectiveness = GM.get("battle", "TypeEffectiveness");
+	multipliers *= Effectiveness[move.pokeType][dmg_taker.pokeType1] || 1;
+	multipliers *= Effectiveness[move.pokeType][dmg_taker.pokeType2] || 1;
+	return 0.5 * dmg_giver.Atk/dmg_taker.Def * move.power * multipliers + 0.5;
+}
+
 
 function calculateDPS(pokemon, kwargs){
 	var x = kwargs.x, y = kwargs.y;
@@ -33,8 +48,8 @@ function calculateDPS(pokemon, kwargs){
 		y = (y == undefined ? intakeProfile.y : y);
 	}
 	
-	var FDmg = damage2(pokemon, kwargs.enemy, pokemon.fmove, kwargs.weather);
-	var CDmg = damage2(pokemon, kwargs.enemy, pokemon.cmove, kwargs.weather);
+	var FDmg = damage(pokemon, kwargs.enemy, pokemon.fmove, kwargs.weather);
+	var CDmg = damage(pokemon, kwargs.enemy, pokemon.cmove, kwargs.weather);
 	var FDur = pokemon.fmove.duration/1000;
 	var CDur = pokemon.cmove.duration/1000;
 	var CDWS = pokemon.cmove.dws/1000;
@@ -76,7 +91,7 @@ function calculateDPS(pokemon, kwargs){
 		}
 		
 		if (kwargs.swapDiscount){
-			pokemon.dps = pokemon.dps * (pokemon.st / (pokemon.st + Data.BattleSettings.swapDurationMs/1000));
+			pokemon.dps = pokemon.dps * (pokemon.st / (pokemon.st + GM.get("battle", "swapDurationMs")/1000));
 		}
 		return pokemon.dps;
 	}
@@ -84,7 +99,7 @@ function calculateDPS(pokemon, kwargs){
 
 
 function calculateDPSIntake(pokemon, kwargs){
-	if (kwargs.isEnemyNeutral){
+	if (kwargs.genericEnemy){
 		if (kwargs.battleMode == "pvp"){
 			return {
 				x: -pokemon.cmove.energyDelta * 0.5,
@@ -96,9 +111,45 @@ function calculateDPSIntake(pokemon, kwargs){
 				y: DEFAULT_ENEMY_DPS1 / pokemon.Def
 			};
 		}
-	}else{
-		var FDmg = damage2(kwargs.enemy, pokemon, kwargs.enemy.fmove, kwargs.weather);
-		var CDmg = damage2(kwargs.enemy, pokemon, kwargs.enemy.cmove, kwargs.weather);
+	} else if (kwargs.genericEnemyFastMove) {
+		let sum_x = 0, sum_y = 0, num = kwargs.enemy.fmoves.length;
+		if (num == 0) {
+			kwargs.genericEnemy = true;
+			return calculateDPSIntake(pokemon, kwargs);
+		}
+		kwargs.genericEnemyFastMove = false;
+		for (let fmove of kwargs.enemy.fmoves) {
+			kwargs.enemy.fmove = fmove;
+			let intake = calculateDPSIntake(pokemon, kwargs);
+			sum_x += intake.x;
+			sum_y += intake.y;
+		}
+		kwargs.genericEnemyFastMove = true;
+		return {
+			x: sum_x / num,
+			y: sum_y / num
+		};
+	} else if (kwargs.genericEnemyChargedMove) {
+		var sum_x = 0, sum_y = 0, num = kwargs.enemy.cmoves.length;
+		if (num == 0) {
+			kwargs.genericEnemy = true;
+			return calculateDPSIntake(pokemon, kwargs);
+		}
+		kwargs.genericEnemyChargedMove = false;
+		for (let cmove of kwargs.enemy.cmoves) {
+			kwargs.enemy.cmove = cmove;
+			let intake = calculateDPSIntake(pokemon, kwargs);
+			sum_x += intake.x;
+			sum_y += intake.y;
+		}
+		kwargs.genericEnemyChargedMove = true;
+		return {
+			x: sum_x / num,
+			y: sum_y / num
+		};
+	} else {
+		var FDmg = damage(kwargs.enemy, pokemon, kwargs.enemy.fmove, kwargs.weather);
+		var CDmg = damage(kwargs.enemy, pokemon, kwargs.enemy.cmove, kwargs.weather);
 		var FDur = kwargs.enemy.fmove.duration/1000 + 2;
 		var CDur = kwargs.enemy.cmove.duration/1000 + 2;
 		var FE = kwargs.enemy.fmove.energyDelta;
@@ -119,28 +170,13 @@ function calculateDPSIntake(pokemon, kwargs){
 }
 
 
-function damage2(dmg_giver, dmg_taker, move, weather){
-	var stab = 1;
-	if (move.pokeType == dmg_giver.pokeType1 || move.pokeType == dmg_giver.pokeType2){
-		stab = Data.BattleSettings.sameTypeAttackBonusMultiplier;
-	}
-	var wab = 1;
-	if (Data.TypeEffectiveness[move.pokeType].boostedIn == weather){
-		wab = Data.BattleSettings.weatherAttackBonusMultiplier;
-	}
-	var fab = dmg_giver.fab || 1;
-	var effe1 = Data.TypeEffectiveness[move.pokeType][dmg_taker.pokeType1] || 1;
-	var effe2 = Data.TypeEffectiveness[move.pokeType][dmg_taker.pokeType2] || 1;
-	return 0.5*dmg_giver.Atk/dmg_taker.Def*move.power*effe1*effe2*stab*wab*fab + 0.5;
-}
 
 
 function DPSCalculatorInit(){
-	hasInit = true;
-	if (window['userID2'] && userID2 != '0'){
-		fetchUserData(userID2);
-	}
-		
+	GM.fetch(function(){
+		requestSpreadsheet(true);
+	});
+	
 	$( "#ui-swapDiscount" ).controlgroup();
 	$( "#ui-swapDiscount-checkbox" ).change(function(){
 		Context.swapDiscount = this.checked;
@@ -166,13 +202,11 @@ function DPSCalculatorInit(){
 		if (this.checked){
 			$($("#ranking_table").DataTable().column(5).header()).text('Activation');
 			Context.battleMode = "pvp";
-			assignMoveParameterSet("load", Data.FastMoves, "combat");
-			assignMoveParameterSet("load", Data.ChargedMoves, "combat");
+			GBS.mode("pvp");
 		}else{
 			$($("#ranking_table").DataTable().column(5).header()).text('DPS^3*TDO');
 			Context.battleMode = "regular";
-			assignMoveParameterSet("load", Data.FastMoves, "regular");
-			assignMoveParameterSet("load", Data.ChargedMoves, "regular");
+			GBS.mode("raid");
 		}
 		requestSpreadsheet(true);
 	});
@@ -185,8 +219,6 @@ function DPSCalculatorInit(){
 	moveEditFormInit();
 	pokemonEditFormInit();
 	modEditFormInit();
-
-	acceptedNumericalAttributes = acceptedNumericalAttributes.concat(['dps', 'tdo']);
 	
 	$.fn.dataTable.Api.register( 'rows().generate()', function () {
 		return this.iterator( 'row', function ( context, index ) {
@@ -195,7 +227,7 @@ function DPSCalculatorInit(){
 	});
 	
 	var weatherSelect = document.getElementById('weather');
-	Data.WeatherSettings.forEach(function(weatherSetting){
+	GM.each("weather", function(weatherSetting){
 		weatherSelect.appendChild(createElement('option', weatherSetting.name, {value: weatherSetting.name}));
 	});
 	weatherSelect.value = DEFAULT_WEATHER;
@@ -216,15 +248,13 @@ function DPSCalculatorInit(){
 		$('#pokemon-pokeType1').val(ui.item.pokeType1);
 		$('#pokemon-pokeType2').val(ui.item.pokeType2);
 		$.extend(Context.enemy, ui.item);
-		if (getEntry(enemyFastMoveNode.value.toLowerCase(), Data.FastMoves) && getEntry(enemyChargedMoveNode.value.toLowerCase(), Data.ChargedMoves)){
-			this.blur();
-			requestSpreadsheet(false);
-		}
+		this.blur();
+		requestSpreadsheet(false);
 	});
 	
 	enemyFastMoveNodeContainer.appendChild(enemyFastMoveNode);
 	$( enemyFastMoveNode ).on( "autocompleteselect", function(event, ui){
-		if (getEntry(enemySpeciesNode.value.toLowerCase(), Data.Pokemon) && getEntry(enemyChargedMoveNode.value.toLowerCase(), Data.ChargedMoves)){
+		if (GM.get("pokemon", enemySpeciesNode.value.toLowerCase()) != null){
 			this.blur();
 			requestSpreadsheet(false);
 		}
@@ -232,7 +262,7 @@ function DPSCalculatorInit(){
 	
 	enemyChargedMoveNodeContainer.appendChild(enemyChargedMoveNode);
 	$( enemyChargedMoveNode ).on( "autocompleteselect", function(event, ui){
-		if (getEntry(enemySpeciesNode.value.toLowerCase(), Data.Pokemon) && getEntry(enemyFastMoveNode.value.toLowerCase(), Data.FastMoves)){
+		if (GM.get("pokemon", enemySpeciesNode.value.toLowerCase()) != null){
 			this.blur();
 			requestSpreadsheet(false);
 		}
@@ -242,7 +272,9 @@ function DPSCalculatorInit(){
 	var enemyPokeType2Select = document.getElementById('pokemon-pokeType2');
 	enemyPokeType1Select.appendChild(createElement('option', toTitleCase(DEFAULT_ENEMY_POKETYPE1), {value: DEFAULT_ENEMY_POKETYPE1}));
 	enemyPokeType2Select.appendChild(createElement('option', toTitleCase(DEFAULT_ENEMY_POKETYPE2), {value: DEFAULT_ENEMY_POKETYPE2}));
-	for (var pokeType in Data.TypeEffectiveness){
+	
+	var Effectiveness = GM.get("battle", "TypeEffectiveness");
+	for (var pokeType in Effectiveness){
 		enemyPokeType1Select.appendChild(createElement('option', toTitleCase(pokeType), {value: pokeType}));
 		enemyPokeType2Select.appendChild(createElement('option', toTitleCase(pokeType), {value: pokeType}));
 	}
@@ -264,44 +296,66 @@ function DPSCalculatorInit(){
 		],
 		scrollX: true
 	});
+	
 	Table.order( [ 3, 'desc' ] );
 	$('#ranking_table_filter').hide();
 
-	generateSpreadsheet(Data.Pokemon);
 }
 
 
 function applyContext(){
-	Context.weather = document.getElementById('weather').value;
+	Context.weather = $('#weather').val();
 	
-	Context.isEnemyNeutral = false;
-	var enemyPokemon = getEntry($('#pokemon-name').val().trim().toLowerCase(), Data.Pokemon);
-	var enemyFast = getEntry($('#pokemon-fmove').val().trim().toLowerCase(), Data.FastMoves);
-	var enemyCharged = getEntry($('#pokemon-cmove').val().trim().toLowerCase(), Data.ChargedMoves);
-	if (!enemyPokemon || !enemyFast || !enemyCharged){
-		Context.isEnemyNeutral = true;
-		enemyPokemon = Data.Pokemon[0];
-		enemyFast = Data.FastMoves[0];
-		enemyCharged = Data.ChargedMoves[0];
+	Context.genericEnemy = false;
+	var enemyPokemon = GM.get("pokemon", $('#pokemon-name').val().trim().toLowerCase());
+	if (!enemyPokemon){
+		Context.genericEnemy = true;
+		enemyPokemon = {};
 	}
-	Context.enemy = new Pokemon({
-		name: enemyPokemon.name,
-		fmove: enemyFast.name,
-		cmove: enemyCharged.name,
-		level: DEFAULT_ENEMY_LEVEL,
-		atkiv: DEFAULT_ENEMY_IVs[0],
-		defiv: DEFAULT_ENEMY_IVs[1],
-		stmiv: DEFAULT_ENEMY_IVs[2],
-		role: "a"
-	});
+	
+	Context.genericEnemyFastMove = false;
+	var enemyFast = GM.get("fast", $('#pokemon-fmove').val().trim().toLowerCase());
+	if (!enemyFast){
+		Context.genericEnemyFastMove = true;
+		enemyFast = {};
+	}
+	
+	Context.genericEnemyChargedMove = false;
+	var enemyCharged = GM.get("charged", $('#pokemon-cmove').val().trim().toLowerCase());
+	if (!enemyCharged){
+		Context.genericEnemyChargedMove = true;
+		enemyCharged = {};
+	}
+	
+	Context.enemy = {
+		fastMoves: [],
+		chargedMoves: []
+	};
+	$.extend(Context.enemy, enemyPokemon);
+	
+	Context.enemy.fmove = enemyFast;
+	Context.enemy.cmove = enemyCharged;
+	var enemy_cpm = GM.get("level", DEFAULT_ENEMY_LEVEL).cpm;
+	Context.enemy.Atk = (Context.enemy.baseAtk + DEFAULT_ENEMY_IVs[0]) * enemy_cpm;
+	Context.enemy.Def = (Context.enemy.baseDef + DEFAULT_ENEMY_IVs[1]) * enemy_cpm;
+	Context.enemy.Stm = (Context.enemy.baseStm + DEFAULT_ENEMY_IVs[2]) * enemy_cpm;
 	Context.enemy.pokeType1 = $('#pokemon-pokeType1').val();
 	Context.enemy.pokeType2 = $('#pokemon-pokeType2').val();
 	
-	if (Context.isEnemyNeutral){
+	Context.enemy.fmoves = [];
+	for (let move of Context.enemy.fastMoves) {
+		Context.enemy.fmoves.push(GM.get("fast", move));
+	}
+	Context.enemy.cmoves = [];
+	for (let move of Context.enemy.chargedMoves) {
+		Context.enemy.cmoves.push(GM.get("charged", move));
+	}
+	
+	if (Context.genericEnemy){
 		Context.enemy.Def = DEFAULT_ENEMY_CURRENT_DEFENSE;
 	}
-	var cpcap = parseInt(document.getElementById("ui-cpcap").value);
-	if (!isNaN(cpcap) && cpcap > 0){
+	var cpcap = parseInt($("#ui-cpcap").val());
+	if (cpcap > 0){
 		LeagueCPCap = cpcap;
 	}else{
 		LeagueCPCap = 0;
@@ -313,58 +367,53 @@ function generateSpreadsheet(pokemonCollection){
 	var Table = $("#ranking_table").DataTable();
 	Table.clear();
 	applyContext();
-	for (let p of pokemonCollection){
-		var fastMoves_all = p.fmove ? [p.fmove] : p.fastMoves.concat(p.fastMoves_legacy).concat(p.fastMoves_exclusive);
-		var chargedMoves_all = p.cmove ? [p.cmove] : p.chargedMoves.concat(p.chargedMoves_legacy).concat(p.chargedMoves_exclusive);
+	for (let pkm of pokemonCollection){
+		var fastMoves_all = pkm.fmove ? [pkm.fmove] : pkm.fastMoves.concat(pkm.fastMoves_legacy).concat(pkm.fastMoves_exclusive);
+		var chargedMoves_all = pkm.cmove ? [pkm.cmove] : pkm.chargedMoves.concat(pkm.chargedMoves_legacy).concat(pkm.chargedMoves_exclusive);
 		for (let fmove of fastMoves_all){
-			try{
-				var fmoveInstance = new Move(fmove, Data.FastMoves);
-			} catch (err){
+			fmoveInstance = GM.get("fast", fmove);
+			if (!fmoveInstance)
 				continue;
-			}
 			for (let cmove of chargedMoves_all){
-				try{
-					var cmoveInstance = new Move(cmove, Data.ChargedMoves);
-				} catch (err){
+				cmoveInstance = GM.get("charged", cmove);
+				if (!cmoveInstance)
 					continue;
-				}
-				var pkm = new Pokemon({
-					name: p.name,
-					fmove: fmoveInstance,
-					cmove: cmoveInstance,
-					level: p.level || DEFAULT_ATTACKER_LEVEL,
-					atkiv: p.atkiv >= 0 ? p.atkiv : DEFAULT_ATTACKER_IVs[0],
-					defiv: p.defiv >= 0 ? p.defiv : DEFAULT_ATTACKER_IVs[1],
-					stmiv: p.stmiv >= 0 ? p.stmiv : DEFAULT_ATTACKER_IVs[2]
-				});
-				for (var attr in p){
-					if (!pkm.hasOwnProperty(attr)){
-						pkm[attr] = p[attr];
-					}
-				}
+				var pkmInstance = {};
+				$.extend(pkmInstance, pkm);
+				
+				var pkm_cpm = GM.get("level", pkm.level || DEFAULT_ATTACKER_LEVEL).cpm;
+				
+				pkmInstance.fmove = fmoveInstance;
+				pkmInstance.cmove = cmoveInstance;
+				pkmInstance.cpm = pkm_cpm;
+				pkmInstance.Atk = (pkmInstance.baseAtk + (pkm.atkiv >= 0 ? pkm.atkiv : DEFAULT_ATTACKER_IVs[0])) * pkm_cpm;
+				pkmInstance.Def = (pkmInstance.baseDef + (pkm.defiv >= 0 ? pkm.defiv : DEFAULT_ATTACKER_IVs[1])) * pkm_cpm;
+				pkmInstance.Stm = (pkmInstance.baseStm + (pkm.stmiv >= 0 ? pkm.stmiv : DEFAULT_ATTACKER_IVs[2])) * pkm_cpm;
+
 				if (LeagueCPCap > 0){
-					adjustStatsUnderCPCap(pkm, LeagueCPCap);
+					adjustStatsUnderCPCap(pkmInstance, LeagueCPCap);
 				}
+				pkmInstance.cp = calculateCP(pkmInstance);
+				calculateDPS(pkmInstance, Context);
 				
-				calculateDPS(pkm, Context);
-				
-				pkm.ui_name = createIconLabelSpan(p.icon, p.nickname || p.label, 'species-input-with-icon');
-				pkm.ui_fmove = createIconLabelSpan(pkm.fmove.icon, pkm.fmove.label, 'move-input-with-icon');
-				pkm.ui_cmove = createIconLabelSpan(pkm.cmove.icon, pkm.cmove.label, 'move-input-with-icon');
-				pkm.ui_dps = round(pkm.dps, 3);
-				pkm.ui_tdo = round(pkm.tdo, 1);
-				pkm.ui_overall = round(pkm.dps**3/1000 * pkm.tdo, 1);
+				pkmInstance.ui_name = createIconLabelSpan(pkm.icon, pkm.nickname || pkm.label, 'species-input-with-icon');
+				pkmInstance.ui_fmove = createIconLabelSpan(fmoveInstance.icon, fmoveInstance.label, 'move-input-with-icon');
+				pkmInstance.ui_cmove = createIconLabelSpan(cmoveInstance.icon, cmoveInstance.label, 'move-input-with-icon');
+				pkmInstance.ui_dps = round(pkmInstance.dps, 3);
+				pkmInstance.ui_tdo = round(pkmInstance.tdo, 1);
 				if (Context.battleMode == "pvp"){
-					pkm.ui_overall = Math.ceil(-pkm.cmove.energyDelta / (pkm.fmove.energyDelta || 1)) * Math.round(pkm.fmove.duration/500);
+					pkmInstance.ui_overall = Math.ceil(-pkmInstance.cmove.energyDelta / (pkmInstance.fmove.energyDelta || 1)) * Math.round(pkmInstance.fmove.duration/500);
+				} else {
+					pkmInstance.ui_overall = round(pkmInstance.dps**3/1000 * pkmInstance.tdo, 1);
 				}
-				pkm.ui_cp = calculateCP(pkm);
+				pkmInstance.ui_cp = pkmInstance.cp;
 				
-				Table.row.add(pkm);
+				Table.row.add(pkmInstance);
 			}
 		}
 	}
 	console.log(Date() + ": All DPS calculated");
-	pred = $('#searchInput').val() ? createComplexPredicate($('#searchInput').val()) : (arg => true);
+	pred = $('#searchInput').val() ? PokeQuery($('#searchInput').val()) : (arg => true);
 	$("#ranking_table").DataTable().draw();
 }
 
@@ -374,18 +423,19 @@ function updateSpreadsheet(){
 	applyContext();
 	var dataLength = Table.data().length;
 	for (var i = 0; i < dataLength; i++){
-		var pkm = Table.row(i).data();
-		calculateDPS(pkm, Context);
-		pkm.ui_dps = round(pkm.dps, 3);
-		pkm.ui_tdo = round(pkm.tdo, 1);
-		pkm.ui_overall = round(pkm.dps**3/1000 * pkm.tdo, 1);
+		var pkmInstance = Table.row(i).data();
+		calculateDPS(pkmInstance, Context);
+		pkmInstance.ui_dps = round(pkmInstance.dps, 3);
+		pkmInstance.ui_tdo = round(pkmInstance.tdo, 1);
 		if (Context.battleMode == "pvp"){
-			pkm.ui_overall = Math.ceil(-pkm.cmove.energyDelta / (pkm.fmove.energyDelta || 1)) * Math.round(pkm.fmove.duration/500);
+			pkmInstance.ui_overall = Math.ceil(-pkmInstance.cmove.energyDelta / (pkmInstance.fmove.energyDelta || 1)) * Math.round(pkmInstance.fmove.duration/500);
+		} else {
+			pkmInstance.ui_overall = round(pkmInstance.dps**3/1000 * pkmInstance.tdo, 1);
 		}
-		Table.row(i).data(pkm);
+		Table.row(i).data(pkmInstance);
 	}
 	console.log(Date() + ": All DPS re-calculated");
-	pred = $('#searchInput').val() ? createComplexPredicate($('#searchInput').val()) : (arg => true);
+	pred = $('#searchInput').val() ? PokeQuery($('#searchInput').val()) : (arg => true);
 	$("#ranking_table").DataTable().draw();
 }
 
@@ -400,39 +450,32 @@ function requestSpreadsheet(startover){
 	if (startover){
 		var pokebox_checkbox = document.getElementById('ui-use-box-checkbox');
 		if (pokebox_checkbox.checked){
-			if (!Data.Users.length || userID2 == '0'){
-				sendFeedbackDialog("To use your Pokemon, please log in");
+			var user = GM.get("user", window.userID2);
+			if (user == null){
+				UI.sendFeedbackDialog("To use your Pokemon, please log in");
 				pokebox_checkbox.checked = false;
 				$(pokebox_checkbox).button('refresh');
 				return;
 			}else{
 				calculationMethod = function(){
-					generateSpreadsheet(Data.Users[0].box);
+					generateSpreadsheet(user.box);
 				};
 			}
 		}else{
 			calculationMethod = function(){
-				generateSpreadsheet(Data.Pokemon);
+				var pokemon = [];
+				GM.each("pokemon", function(pkm){
+					pokemon.push(pkm);
+				});
+				generateSpreadsheet(pokemon);
 			};
 		}
 	}else{
 		calculationMethod = updateSpreadsheet;
 	}
 	
-	sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>Calculating...");
-	setTimeout(function(){
-		try{
-			calculationMethod();
-			while (DialogStack.length){
-				DialogStack.pop().dialog('close');
-			}
-		}catch(err){
-			while (DialogStack.length){
-				DialogStack.pop().dialog('close');
-			}
-			sendFeedbackDialog("Oops, an issue occurred: " + err.toString());
-		}
-	}, 50);
+	UI.wait(calculationMethod, "Calculating...");
+	//calculationMethod();
 }
 
 
@@ -444,7 +487,7 @@ function search_trigger(){
 	setTimeout(function(){
 		if (Date.now() - lastKeyUpTime >= 600){
 			var DT = $("#ranking_table").DataTable();
-			pred = $('#searchInput').val() ? createComplexPredicate($('#searchInput').val()) : (arg => true);
+			pred = $('#searchInput').val() ? PokeQuery($('#searchInput').val()) : (arg => true);
 			DT.draw();
 		}
 	}, 600);
@@ -483,8 +526,9 @@ function adjustStatsUnderCPCap(pkm, cp){
 	var old_cp = calculateCP(pkm);
 	if (old_cp > cp){
 		pkm.cpm = pkm.cpm * Math.sqrt(cp / old_cp);
-		pkm.role = "a";
-		pkm.calculateStats();
+		pkm.Atk = (pkm.baseAtk + pkm.atkiv) * pkm.cpm;
+		pkm.Def = (pkm.baseDef + pkm.defiv) * pkm.cpm;
+		pkm.Stm = (pkm.baseStm + pkm.stmiv) * pkm.cpm;
 	}
 }
 

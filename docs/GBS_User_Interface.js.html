@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: GBS_UI_2_dom.js</title>
+    <title>JSDoc: Source: GBS_User_Interface.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: GBS_UI_2_dom.js</h1>
+    <h1 class="page-title">Source: GBS_User_Interface.js</h1>
 
     
 
@@ -26,12 +26,459 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/* GBS_UI_2_dom.js */
+            <pre class="prettyprint source linenums"><code>
+/**
+	User Interface. This module handles the interaction with the user. It manipulates the HTML DOM objects with the help of jQuery, handles user event such as clicking and inputting, and most importantly, reads user input for simulation and writes back the simulation results.
+	@exports UI
+*/
+var UI = {};
+
 
 /**
-	@file Define major UI Widgets.
-	@author BIOWP
+	Send feedback message to user via a pop-up dialog.
+	@param {string} message The content of the feedback.
+	@param {string} dialogTitle The title of the dialog. Default to document.title
+	@param {function} onOK The callback function that will be called right after the user clicks "OK".
 */
+UI.sendFeedbackDialog = function(message, dialogTitle, onOK){
+	var d = $(createElement('div', message, {
+		title: dialogTitle || document.title
+	})).dialog({
+		buttons: {
+			"OK": function(){
+				$(this).dialog("close");
+				if (onOK) {
+					onOK();
+				}
+			}
+		}
+	});
+	DialogStack.push(d);
+}
+
+/**
+	Display a spinning spinner while waiting a computation job to finish. Remove the spinner upon the job finishes.
+	@param {function} task The job to do.
+	@param {string} message The message displayed next to the spinner. Default to "Running..."
+*/
+UI.wait = function(task, message) {
+	message = message || "Running...";
+	UI.sendFeedbackDialog("&lt;i class='fa fa-spinner fa-spin fa-3x fa-fw'>&lt;\/i>&lt;span class='sr-only'>&lt;\/span>" + message);
+	setTimeout(function(){
+		try{
+			task();
+			while (DialogStack.length){
+				DialogStack.pop().dialog('close');
+			}
+		}catch(err){
+			while (DialogStack.length){
+				DialogStack.pop().dialog('close');
+			}
+			UI.sendFeedbackDialog("&lt;p>Oops, something went wrong!&lt;/p>" + err.toString());
+		}
+	}, 1);
+}
+
+/**
+	Recursively read data from HTML element with "name" attribute.
+	@param {HTMLElement} element The root HTML element to write back to.
+	@return {Object} The data in JSON.
+*/
+UI.read = function(element){
+	element = element || document.getElementById("input");
+	let json = {};
+	let nameSegments = (element.getAttribute("name") || "").split("-");
+	if (nameSegments.length >= 2){
+		let attrName = nameSegments[1];
+		let tagName = element.tagName.toLowerCase();
+		if (tagName == "input" || tagName == "select"){
+			json[attrName] = (element.type == "checkbox" ? element.checked : element.value);
+			if (element.type == "number"){
+				json[attrName] = parseFloat(json[attrName]) || 0;
+			}
+		}else{
+			let childOutputs = [];
+			for (let child of element.children){
+				childOutputs.push(UI.read(child));
+			}
+			json[attrName] = childOutputs;
+		}
+	}else{
+		for (let child of element.children){
+			let childJson = UI.read(child);
+			for (var attr in childJson){
+				json[attr] = childJson[attr];
+			}
+		}
+	}
+	return json;
+}
+
+/**
+	Recursively write data to HTML element with "name" attribute.
+	@param {Object] json The json data source.
+	@param {HTMLElement} element The root HTML element to write back to.
+*/
+UI.write = function(json, element){
+	element = element || document.getElementById("input");
+	let nameSegments = (element.getAttribute("name") || "").split("-");
+	if (nameSegments.length >= 2){
+		let attrName = nameSegments[1];
+		if (json.hasOwnProperty(attrName)){
+			let tagName = element.tagName.toLowerCase();
+			if (tagName == "input" || tagName == "select"){
+				if (element.type == "checkbox"){
+					element.checked = json[attrName] || false;
+				}else{
+					if (typeof json[attrName] == typeof {}){
+						try{
+							element.value = JSON.stringify(json[attrName]);
+						}catch(err){
+							element.value = "";
+						}
+					} else {
+						element.value = json[attrName] || "";
+					}
+				}
+				if (element.onchange){
+					element.onchange();
+				}
+			}else{
+				let nodeConstructor = {"players": createPlayerNode, "parties": createPartyNode, "pokemon": createPokemonNode}[attrName];
+				if (nodeConstructor){
+					element.innerHTML = "";
+					for (let childJson of json[attrName]){
+						let childNode = new nodeConstructor();
+						element.appendChild(childNode);
+						UI.write(childJson, childNode);
+					}
+				}
+			}
+		}
+	}else{
+		for (let child of element.children){
+			UI.write(json, child);
+		}
+	}
+}
+
+/**
+	Refresh the whole UI and make it pretty.
+*/
+UI.refresh = function() {
+	formatting();
+	relabel();
+}
+
+/**
+	Update the master summary table containing completed simulations.
+	@param {Object[]} battles A list of completed simulations.
+	@param {Object} metrics The metrics (columns) to show in the table.
+*/
+UI.updateMasterSummaryTable = function(battles, metrics){
+	document.getElementById("feedback_table1").innerHTML = "";
+	var table = createMasterSummaryTable(battles, metrics);
+	document.getElementById("feedback_table1").appendChild(table);
+	var dt = $( table ).DataTable({
+		scroller: true,
+        scrollX: true,
+		scrollY: '30vh'
+	});
+	addFilterToFooter(dt);
+}
+
+/**
+	Display a specific simulation in the simulation details panel.
+	@param {Object} battle The data of the simulation.
+*/
+UI.updateSimulationDetails = function(battle){
+	var section = document.getElementById("feedback_table2");
+	section.innerHTML = "";
+	
+	var section2 = document.getElementById("feedback_table3");
+	section2.innerHTML = "";
+	
+	if (!battle)
+		return;
+	
+	// Replay the input
+	UI.write(battle.input);
+	complyBattleMode(battle.input.battleMode);
+	UI.refresh();
+	UI.exportConfig(battle.input);
+	
+	// Update Player/Party/Pokemon statistics
+	section.innerHTML = "";
+	for (var i = 0; i &lt; battle.output.statistics.players.length; i++){
+		var playerStat = battle.output.statistics.players[i];
+		section.appendChild(createElement('h4', createPlayerStatisticsString(playerStat), 
+			{style: 'background:' + HSL_COLORS[i%HSL_COLORS.length][0]}));
+		var playerDiv = document.createElement('div');
+		for (var j = 0; j &lt; playerStat.parties.length; j++){
+			playerDiv.appendChild(createElement('h5', 'Party ' + (j+1)));
+			var partyDiv = document.createElement('div');
+			partyDiv.appendChild(createPokemonStatisticsTable(playerStat.parties[j].pokemon));
+			playerDiv.appendChild(partyDiv);
+		}
+		section.appendChild(playerDiv);
+		$( playerDiv ).accordion({
+			active: false,
+			collapsible: true,
+			heightStyle: 'content'
+		});
+	}
+	$( section ).accordion({
+		active: false,
+		collapsible: true,
+		heightStyle: 'content'
+	});
+	
+	// battle log
+	if (battle.output.battleLog.length > 0){
+		section2.appendChild(createBattleLogTable(battle));
+	}
+}
+
+/** 
+	Update the url based on current battle input.
+	@param {Object} input The battle input.
+	@return {string} The updated url.
+*/
+UI.exportConfig = function(battleInput){
+	// Delete redundant attributes to shorten the URL
+	var battleInputMin = {};
+	$.extend(battleInputMin, battleInput);
+	for (let player of battleInputMin.players || []){
+		for (var attr in player){
+			if (!player[attr]){
+				delete player[attr];
+			}
+		}
+		for (let party of player.parties){
+			for (var attr in party){
+				if (!party[attr]){
+					delete party[attr];
+				}
+			}
+			for (let pokemon of party.pokemon){
+				delete pokemon.label;
+				for (var attr in pokemon){
+					if (!pokemon[attr]){
+						delete pokemon[attr];
+					}
+					if ((pokemon.role || "").toLowerCase() == "rb"){
+						delete pokemon.atkiv;
+						delete pokemon.defiv;
+						delete pokemon.stmiv;
+						delete pokemon.level;
+					}else{
+						delete pokemon.raidTier;
+					}
+				}
+			}
+		}
+	}
+	var url = window.location.href.split('?')[0];
+	if (Object.keys(battleInputMin).length > 0) {
+		url += '?' + encodeURIComponent(JSON.stringify(battleInputMin));
+	}
+	window.history.pushState('', "GoBattleSim", url);
+	return url;
+}
+
+/** 
+	Parse simulation input from URL.
+	@param {string} url The URL to parse.
+	@return {Object} The battle input.
+*/
+UI.importConfig = function(url){
+	url = url || window.location.href;
+	return JSON.parse(decodeURIComponent((url.split('?')[1])));
+}
+
+
+/*
+	Non-interface members
+*/
+var MAX_NUM_POKEMON_PER_PARTY = 6;
+var MAX_NUM_PARTIES_PER_PLAYER = 5;
+var MAX_NUM_OF_PLAYERS = 21;
+
+var DialogStack = [];
+
+var HSL_COLORS = [
+	['hsl(209, 100%, 90%)','hsl(209, 100%, 80%)','hsl(209, 100%, 70%)'],
+	['hsl(0, 100%, 90%)','hsl(0, 100%, 80%)','hsl(0, 100%, 70%)'],
+	['hsl(48, 100%, 90%)','hsl(48, 100%, 70%)','hsl(48, 100%, 50%)'],
+	['hsl(120, 60%, 90%)','hsl(120, 60%, 70%)','hsl(120, 60%, 50%)']
+];
+
+
+
+
+/**
+	Round the value.
+	@param {number} Value to round.
+	@param {number} numDigits The number of digits to keep.
+	@return {number} The rounded value.
+*/
+function round(value, numDigits){
+	var multiplier = Math.pow(10, parseInt(numDigits) || 0);
+	return Math.round(value * multiplier) / multiplier;
+}
+
+/**
+	Format input HTML elements.
+	@param {HTMLElement} element The root element to format.
+*/
+function formatting(element){
+	element = element || document.getElementById("input");
+	let name = element.getAttribute("name") || "";
+	if (name.includes("-name") || name.includes("-fmove") || name.includes("-cmove")){
+		element.value = toTitleCase(element.value);
+	}
+	if ($(element).data("ui-autocomplete")){
+		$(element).data("ui-autocomplete")._trigger("change");
+	}else if ($(element).data("ui-checkboxradio")){
+		$(element).button("refresh");
+	}
+	for (let child of element.children){
+		formatting(child);
+	}
+}
+
+/** 
+	Update label and background color of player/party/pokemon nodes based on their position.
+*/
+function relabel(){
+	var playerNodes = $("#input").find("[name=input-players]")[0];
+	let i = 0;
+	for (let playerNode of playerNodes.children){
+		playerNode.setAttribute('style', 'background:' + HSL_COLORS[i%HSL_COLORS.length][0]);
+		playerNode.children[0].children[0].innerHTML = "Player " + (i+1);
+		let j = 0;
+		for (let partyNode of playerNode.children[1].children){
+			partyNode.setAttribute('style', 'background:' + HSL_COLORS[i%HSL_COLORS.length][1]);
+			partyNode.children[0].children[0].innerHTML = "Party " + (++j);
+			let k = 0;
+			for (let pokemonNode of partyNode.children[1].children){
+				pokemonNode.setAttribute('style', 'background:' + HSL_COLORS[i%HSL_COLORS.length][2]);
+				pokemonNode.children[0].children[0].innerHTML = "Pokemon " + (++k);
+			}
+		}
+		i++;
+	}
+}
+
+/**
+	Create a document element.
+	@param {string} type The name tag of the element. E.g., "input", "button", "div"
+	@param {string} innerHTML The initial value of innerHTML of the element to create. Default to empty string "".
+	@param {Object} attrsAndValues Name-value pairs to add additional attributes to the element.
+	@return {HTMLElement} The HTML element created.
+*/
+function createElement(type, innerHTML, attrsAndValues){
+	var e = document.createElement(type);
+	e.innerHTML = innerHTML || "";
+	for (var attr in attrsAndValues){
+		e.setAttribute(attr, attrsAndValues[attr]);
+	}
+	return e;
+}
+
+
+function createRow(rowData, type){
+	type = type || "td";
+	var row = document.createElement("tr");
+	for (var i = 0; i &lt; rowData.length; i++){
+		var d = document.createElement(type);
+		d.innerHTML = rowData[i];
+		row.appendChild(d);
+	}
+	return row;
+}
+
+
+function createPokemonNameInput(){
+	var nameInput = createElement('input', '', {
+		type: 'text', placeholder: 'Species', class: 'input-with-icon species-input-with-icon', 
+		style: 'background-image: url(' + getPokemonIcon() + ')', name: "pokemon-name"
+	});
+	$( nameInput ).autocomplete({
+		minLength: 0,
+		delay: 200,
+		source: function(request, response){
+			var searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term);
+			var matches = GM.select("pokemon_all", searchStr);
+			response(matches);
+		},
+		select: function(event, ui){
+			var pkmInfo = ui.item;
+			ui.item.value = toTitleCase(ui.item.name);
+			let pokemonNode = $(this).parents("[name=pokemon]")[0];
+			if (pkmInfo.uid){
+				UI.write(pkmInfo, pokemonNode);
+				formatting(pokemonNode);
+			}
+			this.setAttribute('style', 'background-image: url(' + pkmInfo.icon + ')');
+			if (pkmInfo.raidMarker){
+				let raidTierInput = $(pokemonNode).find("[name=pokemon-raidTier]")[0];
+				if (raidTierInput){
+					raidTierInput.value = pkmInfo.raidMarker.split(" ")[0];
+					raidTierInput.onchange();
+				}
+			}
+		},
+		change: function(event, ui){
+			if (!ui.item){ // Change not due to selecting an item from menu
+				let species = GM.get("pokemon", this.value.toLowerCase());
+				this.setAttribute('style', 'background-image: url(' + (species ? species.icon : getPokemonIcon()) + ')');
+			}
+		}
+	}).autocomplete( "instance" )._renderItem = _renderAutocompletePokemonItem;
+
+	return nameInput;
+}
+
+
+function createPokemonMoveInput(moveType, attrName){
+	var placeholder_ = "";
+	if (moveType == "fast"){
+		placeholder_ = "Fast Move";
+	}else if (moveType == "charged"){
+		placeholder_ = "Charged Move";
+	}
+	let moveInput = createElement('input', '', {
+		type: 'text', placeholder: placeholder_, name: "pokemon-" + attrName,
+		class: 'input-with-icon move-input-with-icon', style: 'background-image: url()'
+	});
+	$( moveInput ).autocomplete({
+		minLength : 0,
+		delay : 0,
+		source: function(request, response){
+			let pokemonInstance = GM.get("pokemon", $(moveInput).parents("[name=pokemon]").find("[name=pokemon-name]").val().trim().toLowerCase());
+			let searchStr = (SELECTORS.includes(request.term[0]) ? request.term.slice(1) : request.term), matches = [];
+			if (searchStr == '' &amp;&amp; pokemonInstance){ //special case
+				searchStr = 'current, legacy, exclusive';
+			}
+			matches = GM.select(moveType, searchStr, pokemonInstance);
+			response(matches);
+		},
+		select: function(event, ui) {
+			this.setAttribute('style', 'background-image: url(' + ui.item.icon + ')');
+		},
+		change: function(event, ui) {
+			if (!ui.item){ // Change not due to selecting an item from menu
+				let move = GM.get(moveType, this.value.toLowerCase().trim());
+				this.setAttribute('style', 'background-image: url(' + (move ? move.icon : getTypeIcon()) + ')');
+			}
+		}
+	}).autocomplete( "instance" )._renderItem = _renderAutocompleteMoveItem;
+	
+	moveInput.onfocus = function(){$(this).autocomplete("search", "");};
+	
+	return moveInput;
+}
 
 function createMinimizeButton(parentName){
 	const pName = parentName;
@@ -50,8 +497,8 @@ function createCopyPokemonButton(){
 		class: "button-icon", title: "Copy"
 	});
 	copyPokemonButton.onclick = function(){
-		LocalData.PokemonClipboard = read($(this).parents("[name=pokemon]")[0]);
-		saveLocalData();
+		LocalData.PokemonClipboard = UI.read($(this).parents("[name=pokemon]")[0]);
+		GM.save();
 	}
 	return copyPokemonButton;
 }
@@ -63,7 +510,7 @@ function createPastePokemonButton(){
 	});
 	pastePokemonButton.onclick = function(){
 		var pokemonNode = $(this).parents("[name=pokemon]")[0];
-		write(pokemonNode, LocalData.PokemonClipboard || {});
+		UI.write(LocalData.PokemonClipboard || {}, pokemonNode);
 		formatting(pokemonNode);
 	}
 	return pastePokemonButton;
@@ -79,7 +526,7 @@ function createRemovePokemonButton(){
 		if (pokemonNode.parentNode.children.length > 1){
 			pokemonNode.parentNode.removeChild(pokemonNode);
 		}else{
-			sendFeedbackDialog("Cannot remove the only Pokemon of the party.");
+			UI.sendFeedbackDialog("Cannot remove the only Pokemon of the party.");
 		}
 		relabel();
 	}
@@ -171,9 +618,9 @@ function createPokemonRaidTierInput(){
 	var raidTierInput = createElement("select", "", {
 		name: "pokemon-raidTier"
 	});
-	for (let raidTier of Data.RaidTierSettings){
+	GM.each("RaidTier", function(raidTier){
 		raidTierInput.appendChild(createElement('option', raidTier.label, {value: raidTier.name}));
-	}
+	});
 	raidTierInput.onchange = function(){
 		this.comply({battleMode: $("#battleMode").val()});
 	}
@@ -182,9 +629,9 @@ function createPokemonRaidTierInput(){
 			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1"){
 				var timelimitInput = document.getElementById("timelimit");
 				if (parseInt(this.value) &lt;= 4){
-					timelimitInput.value = Data.BattleSettings.timelimitRaidMs;
+					timelimitInput.value = GM.get("battle", "timelimitRaidMs", "battle");
 				}else{
-					timelimitInput.value = Data.BattleSettings.timelimitLegendaryRaidMs;
+					timelimitInput.value = GM.get("battle", "timelimitLegendaryRaidMs");
 				}
 			}
 		}
@@ -197,6 +644,7 @@ function createPokemonStrategyInput(){
 	var strategyInput = createElement('select', '', {name: "pokemon-strategy"});
 	strategyInput.appendChild(createElement('option', 'No Dodge', {value: "strat1"}));
 	strategyInput.appendChild(createElement('option', 'No Dodge Burst', {value: "strat4"}));
+	strategyInput.appendChild(createElement('option', 'No Dodge Fast Only ', {value: "strat6"}));
 	strategyInput.appendChild(createElement('option', 'Dodge Charged', {value: "strat2"}));
 	strategyInput.appendChild(createElement('option', 'Dodge All', {value: "strat3"}));
 	strategyInput.appendChild(createElement('option', 'Defender AI', {value: "strat0"}));
@@ -219,8 +667,7 @@ function createPokemonStrategyInput(){
 
 
 function createPokemonProtectStrategyInput(){
-	var strategyInput = createElement('input', '0,0', {name: "pokemon-strategy2", placeholder: "Protect Shield Strategy", 
-		title: "{n_1,n_2}: tank n_i attacks then use the i-th Shield. * = infinity"
+	var strategyInput = createElement('input', '0,0', {name: "pokemon-strategy2", placeholder: "Number of Shields"
 	});
 	strategyInput.comply = function(kwargs){
 		if (kwargs.battleMode != "pvp"){
@@ -240,13 +687,13 @@ function createPartyNameInput(){
 		delay: 0,
 		source: function(request, response){
 			var matches = [];
-			for (let player of Data.Users){
-				for (let party of player.parties){
+			GM.each("user", function(user){
+				for (let party of user.parties){
 					if (party.name.includes(request.term)){
 						matches.push(party);
 					}
 				}
-			}
+			});
 			for (let party of LocalData.BattleParties){
 				if (party.name.includes(request.term)){
 					matches.push(party);
@@ -256,7 +703,7 @@ function createPartyNameInput(){
 		},
 		select: function(event, ui){
 			var partyNode = $(this).parents("[name=party]")[0];
-			write(partyNode, ui.item);
+			UI.write(ui.item, partyNode);
 			comply(partyNode, {battleMode: $("#battleMode").val()});
 			formatting(partyNode);
 			relabel();
@@ -288,11 +735,11 @@ function createSavePartyButton(){
 		var partyNode = $(this).parents("[name=party]")[0];
 		var partyName = $(partyNode).find("[name=party-name]").val();
 		if (partyName.length > 0){
-			let partyConfig = read(partyNode);
+			let partyConfig = UI.read(partyNode);
 			party.label = partyName;
-			insertEntry(party, LocalData.BattleParties);
-			saveLocalData();
-			sendFeedbackDialog('Local party "' + partyName + '" has been saved!');
+			GM.set("BattleParties_local", partyName, party);
+			GM.save();
+			UI.sendFeedbackDialog('Local party "' + partyName + '" has been saved!');
 		}
 	}
 	return savePartyButton;
@@ -306,11 +753,11 @@ function createRemovePartyButton(){
 	removePartyButton.onclick = function(){
 		var partyNode = $(this).parents("[name=party]")[0];
 		var partyName = $(partyNode).find("[name=party-name]").val();
-		var askForConfirm = getEntryIndex(partyName, LocalData.BattleParties) >= 0;
+		var askForConfirm = GM.get("BattleParties_local", partyName) != null;
 		if (partyNode.parentNode.children.length > 1){
 			partyNode.parentNode.removeChild(partyNode);
 		}else if (!askForConfirm){
-			sendFeedbackDialog("Cannot remove the only party of the player.");
+			UI.sendFeedbackDialog("Cannot remove the only party of the player.");
 		}
 		if (askForConfirm){
 			var removePartyDialog = createElement('div', 'Do you want to remove local party "' + partyName + '"?');
@@ -319,10 +766,10 @@ function createRemovePartyButton(){
 					text: "Yes",
 					style: 'width: 40%; float: left;',
 					click: function() {
-						removeEntry(partyName, LocalData.BattleParties);
-						saveLocalData();
+						GM.set("BattleParties_local", partyName);
+						GM.save();
 						$(this).dialog("close");
-						sendFeedbackDialog('Local party "' + partyName + '" has been removed.');
+						UI.sendFeedbackDialog('Local party "' + partyName + '" has been removed.');
 					}
 				},{
 					text: "No",
@@ -371,15 +818,15 @@ function createAddPokemonButton(){
 		let pokemonCount = countPokemonFromParty(partyNode);
 		if (pokemonCount &lt; MAX_NUM_POKEMON_PER_PARTY){
 			let newPokemonNode = createPokemonNode();
-			let prevPokemonConfig = read(partyNode.children[1].lastChild);
+			let prevPokemonConfig = UI.read(partyNode.children[1].lastChild);
 			prevPokemonConfig.copies = 1;
 			partyNode.children[1].appendChild(newPokemonNode);
-			write(newPokemonNode, prevPokemonConfig);
+			UI.write(prevPokemonConfig, newPokemonNode);
 			formatting(newPokemonNode);
 			comply(newPokemonNode, {battleMode: $("#battleMode").val()});
 			relabel();
 		}else{
-			sendFeedbackDialog("Exceeding Maximum number of Pokemon per party.");
+			UI.sendFeedbackDialog("Exceeding Maximum number of Pokemon per party.");
 		}
 	}
 	addPokemonButton.comply = function(kwargs){
@@ -404,7 +851,7 @@ function createPlayerTeamInput(){
 		/* TODO: Validation - different team
 		// Something buggy on this section of codes
 		var different = false;
-		for (let player of read().players){
+		for (let player of UI.read().players){
 			if (player.team != this.value){
 				different = true;
 				break;
@@ -412,7 +859,7 @@ function createPlayerTeamInput(){
 		}
 		if (!different){
 			this.value = this.value == "0" ? "1": "0";
-			sendFeedbackDialog("There must be two different teams");
+			UI.sendFeedbackDialog("There must be two different teams");
 		}
 		*/
 	}
@@ -437,9 +884,9 @@ function createPlayerFriendInput(){
 	var playerFriendInput = createElement('select', '', {
 		style: 'width: 50%; display: inline-block; text-align: center;', name: "player-friend"
 	});
-	for (let friendSetting of Data.FriendSettings){
+	GM.each("friend", function(friendSetting){
 		playerFriendInput.appendChild(createElement('option', friendSetting.label, {value: friendSetting.name}));
-	}
+	});
 	playerFriendInput.comply = function(kwargs){
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){
@@ -465,7 +912,7 @@ function createRemovePlayerButton(){
 			document.getElementById('input.addPlayer').disabled = false;
 			relabel();
 		}else{
-			sendFeedbackDialog("Need at least two players to fight");
+			UI.sendFeedbackDialog("Need at least two players to fight");
 		}
 	}
 	return removePlayerButton;
@@ -482,7 +929,7 @@ function createAddPartyButton(){
 			playerNode.children[1].appendChild(createPartyNode());
 			relabel();
 		}else{
-			sendFeedbackDialog("Exceeding Maximum number of Parties per player.");
+			UI.sendFeedbackDialog("Exceeding Maximum number of Parties per player.");
 		}
 	}
 	addPartyButton.comply = function(kwargs){
@@ -530,10 +977,11 @@ function complyBattleMode(mode){
 	comply(playerNodes, {battleMode: mode});
 	var timelimitInput = document.getElementById("timelimit");
 	if (mode == "gym"){
-		timelimitInput.value = Data.BattleSettings.timelimitGymMs;
+		timelimitInput.value = GM.get("battle", "timelimitGymMs");
 	}else if (mode == "pvp"){
-		timelimitInput.value = Data.BattleSettings.timelimitPvPMs;
+		timelimitInput.value = GM.get("battle", "timelimitPvPMs");
 	}
+	GBS.mode(mode);
 }
 
 
@@ -683,28 +1131,7 @@ function addPlayerNode(){
 		relabel();
 	}else{
 		document.getElementById('input.addPlayer').setAttribute('disabled', true);
-		sendFeedbackDialog('Exceeding maximum number of players.');
-	}
-}
-
-// Update label and background color of player/party/pokemon nodes based on their position
-function relabel(){
-	var playerNodes = $("#input").find("[name=input-players]")[0];
-	let i = 0;
-	for (let playerNode of playerNodes.children){
-		playerNode.setAttribute('style', 'background:' + HSL_COLORS[i%HSL_COLORS.length][0]);
-		playerNode.children[0].children[0].innerHTML = "Player " + (i+1);
-		let j = 0;
-		for (let partyNode of playerNode.children[1].children){
-			partyNode.setAttribute('style', 'background:' + HSL_COLORS[i%HSL_COLORS.length][1]);
-			partyNode.children[0].children[0].innerHTML = "Party " + (++j);
-			let k = 0;
-			for (let pokemonNode of partyNode.children[1].children){
-				pokemonNode.setAttribute('style', 'background:' + HSL_COLORS[i%HSL_COLORS.length][2]);
-				pokemonNode.children[0].children[0].innerHTML = "Pokemon " + (++k);
-			}
-		}
-		i++;
+		UI.sendFeedbackDialog('Exceeding maximum number of players.');
 	}
 }
 
@@ -718,45 +1145,160 @@ function countPokemonFromParty(partyNode){
 }
 
 
-function clearAllSims(){
-	MasterSummaryTableMetrics = JSON.parse(JSON.stringify(DEFAULT_SUMMARY_TABLE_METRICS));
-	sendFeedback("");
-	Simulations = [];
-	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0]);
-	updateMasterSummaryTable();
-	document.getElementById("feedback_table2").innerHTML = "";
-	document.getElementById("feedback_table3").innerHTML = "";
+function addFilterToFooter(table){
+	table.columns().flatten().each(function (colIdx){
+		table.column(colIdx).footer().innerHTML = "";
+		var select = $('&lt;select />')
+			.appendTo(
+				table.column(colIdx).footer()
+			)
+			.on( 'change', function (){
+				table.column( colIdx ).search( $(this).val() ).draw();
+			});
+		
+		select.append( $("&lt;option value=' '>*&lt;/option>") );
+		table.column( colIdx ).cache( 'search' ).sort().unique()
+			.each( function ( d ) {
+				var op = document.createElement('option');
+				op.value = d;
+				op.innerHTML = d;
+				select.append(op);
+			});
+	});
 }
 
 
-function createMasterSummaryTable(){
-	var table = createElement('table', '&lt;thead>&lt;/thead>&lt;tfoot>&lt;/tfoot>&lt;tbody>&lt;/tbody>', {
-		width: '100%', id: 'ui-mastersummarytable', cellspacing: '0', class: 'display nowrap'
-	});
-	var headers = ['#'];
-	for (var m in MasterSummaryTableMetrics){
-		headers.push(MasterSummaryTableMetrics[m]);
+
+
+// https://hackernoon.com/copying-text-to-clipboard-with-javascript-df4d4988697f
+var copyToClipboard = str => {
+  const el = document.createElement('textarea');  // Create a &lt;textarea> element
+  el.value = str;                                 // Set its value to the string that you want copied
+  el.setAttribute('readonly', '');                // Make it readonly to be tamper-proof
+  el.style.position = 'absolute';                 
+  el.style.left = '-9999px';                      // Move outside the screen to make it invisible
+  document.body.appendChild(el);                  // Append the &lt;textarea> element to the HTML document
+  const selected =            
+    document.getSelection().rangeCount > 0        // Check if there is any content selected previously
+      ? document.getSelection().getRangeAt(0)     // Store selection if found
+      : false;                                    // Mark as false to know no selection existed before
+  el.select();                                    // Select the &lt;textarea> content
+  document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
+  document.body.removeChild(el);                  // Remove the &lt;textarea> element
+  if (selected) {                                 // If a selection existed before copying
+    document.getSelection().removeAllRanges();    // Unselect everything on the HTML document
+    document.getSelection().addRange(selected);   // Restore the original selection
+  }
+};
+
+function getTableContent(dt){
+	var content = [];
+	let r = [];
+	let headers = dt.columns().header();
+	for (var i = 0; i &lt; headers.length; i++){
+		r.push(headers[i].innerText.trim());
 	}
-	headers.push('Detail');
+	content.push(r);
+	
+	let attributes = [];
+	let dataSrc = dt.columns().dataSrc();
+	for (var i = 0; i &lt; dataSrc.length; i++){
+		attributes.push(dataSrc[i]);
+	}
+	var data = dt.rows({search: "applied"}).data();
+	for (var i = 0; i &lt; data.length; i++){
+		let r = [];
+		for (let attr of attributes){
+			r.push(createElement("div", data[i][attr]).innerText.trim());
+		}
+		content.push(r);
+	}
+	return content;
+}
+
+
+function copyTableToClipboard(elementId){
+	var copyStr = "";
+	var content = getTableContent($("#" + elementId).DataTable());
+	var language = window.navigator.userLanguage || window.navigator.language || "en";
+	for (var i = 0; i &lt; content.length; i++){
+		for (var j = 0; j &lt; content[i].length; j++){
+			let num = parseFloat(content[i][j]);
+			if (!isNaN(num)){
+				content[i][j] = num.toLocaleString(language);
+			}
+		}
+		copyStr += content[i].join("\t") + "\n";
+	}
+	copyToClipboard(copyStr);
+	UI.sendFeedbackDialog("Table has been copied to clipboard");
+}
+
+
+function exportTableToCSV(elementId, filename){
+	filename = filename || "table.csv";
+	let csvStr = "data:text/csv;charset=utf-8,";
+	var content = getTableContent($("#" + elementId).DataTable());
+	var language = window.navigator.userLanguage || window.navigator.language || "en";
+	for (var i = 0; i &lt; content.length; i++){
+		for (var j = 0; j &lt; content[i].length; j++){
+			let num = parseFloat(content[i][j]);
+			if (!isNaN(num)){
+				content[i][j] = num.toLocaleString(language);
+			}
+			content[i][j] = '"' + content[i][j] + '"';
+		}
+		csvStr += content[i].join(",") + "\r\n";
+	}
+	var encodedUri = encodeURI(csvStr);
+	var link = document.createElement("a");
+	link.setAttribute("href", encodedUri);
+	link.setAttribute("download", filename);
+	link.innerHTML= "Click Here to download";
+	document.body.appendChild(link);
+	link.click();
+}
+
+
+function createIconLabelSpan(icon, label, cls){
+	return '&lt;span class="input-with-icon ' + cls + '" style="background-image: url(' + icon + ')">' + label + '&lt;/span>';
+}
+
+
+function _renderAutocompletePokemonItem(ul, item){
+    return $( "&lt;li>" )
+        .append( "&lt;div>" + createIconLabelSpan(item.icon, item.label, 'species-input-with-icon') + "&lt;/div>" )
+        .appendTo( ul );
+}
+
+
+function _renderAutocompleteMoveItem(ul, item){
+    return $( "&lt;li>" )
+		.append( "&lt;div>" + createIconLabelSpan(item.icon, item.label, 'move-input-with-icon') + "&lt;/div>" )
+        .appendTo( ul );
+}
+
+
+function createMasterSummaryTable(battles, metrics){
+	var table = createElement('table', '&lt;thead>&lt;/thead>&lt;tfoot>&lt;/tfoot>&lt;tbody>&lt;/tbody>', {
+		width: '100%', id: 'MasterSummaryTable', cellspacing: '0', class: 'display nowrap'
+	});
+	var headers = ['#'].concat(Object.values(metrics)).concat(["Detail"]);
 	table.children[0].appendChild(createRow(headers, "th"));
 	table.children[1].appendChild(createRow(headers, "th"));
-	for (var i = 0; i &lt; Simulations.length; i++){
-		let sim = Simulations[i];
+	for (var i = 0; i &lt; battles.length; i++){
+		let sim = battles[i];
 		var rowData = [i+1];
-		for (var metric in MasterSummaryTableMetrics){
+		for (var metric in metrics){
 			if (metric[0] == '*'){
 				metric = metric.slice(1);
 				var pkmInfo = getPokemonConfig(sim.input, metric.split('.')[0]);
 				var attr = metric.split('.')[1];
 				if (attr == 'name'){
-					let pkmData = getEntry(pkmInfo.name, Data.Pokemon) || {};
+					let pkmData = GM.get("pokemon", pkmInfo.name) || {};
 					rowData.push(createIconLabelSpan(pkmData.icon, pkmInfo.label || pkmData.label, 'species-input-with-icon'));
 				}else if (attr == 'fmove' || attr == 'cmove' || attr == 'cmove2'){
-					try{
-						var move = new Move(pkmInfo[attr]);
-					}catch(err){
-						var move = {};
-					}					
+					var move = GM.get("fast", pkmInfo[attr]) || GM.get("charged", pkmInfo[attr]) || {};	
 					rowData.push(createIconLabelSpan(move.icon, move.label, 'move-input-with-icon'));
 				}else{
 					rowData.push(pkmInfo[attr]);
@@ -783,7 +1325,7 @@ function createMasterSummaryTable(){
 		rowData.push("&lt;a style='cursor: pointer'>&lt;i class='fa fa-info-circle' aria-hidden='true'>&lt;/i>&lt;/a>");
 		var rowEl = createRow(rowData, "td");
 		rowEl.lastChild.onclick = function(){
-			updateSimulationDetails(sim);
+			UI.updateSimulationDetails(sim);
 			document.getElementById('feedback_table2').scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
 		}
 		table.children[2].appendChild(rowEl);
@@ -802,12 +1344,13 @@ function createPlayerStatisticsString(playerStat){
 
 function createPokemonStatisticsTable(pokemonStatistics){
 	var table = document.createElement("table");
-	table.appendChild(createRow(["&lt;img src='" + getPokemonIcon({dex: 0}) + "'>&lt;/img>",
+	table.appendChild(createRow(["&lt;img src='" + getPokemonIcon() + "'>&lt;/img>",
 								"HP", "Energy", "TDO", "Duration", "DPS", "Detail"], 'th'));
 	for (var i = 0; i &lt; pokemonStatistics.length; i++){
 		let statistics = pokemonStatistics[i];
+		let species = GM.get("pokemon", statistics.name);
 		let row = createRow([
-			"&lt;img src='" + getPokemonIcon({name: statistics.name}) + "' class='apitem-pokemon-icon'>&lt;/img>", 
+			"&lt;img src='" + species.icon + "' class='apitem-pokemon-icon'>&lt;/img>", 
 			statistics.hp, statistics.energy, statistics.tdo, round(statistics.duration, 2), round(statistics.dps, 2), 
 			"&lt;a style='cursor: pointer'>&lt;i class='fa fa-info-circle' aria-hidden='true'>&lt;/i>&lt;/a>"
 		], 'td');
@@ -829,69 +1372,13 @@ function createPokemonStatisticsTable(pokemonStatistics){
 }
 
 
-function updateMasterSummaryTable(){
-	document.getElementById("feedback_table1").innerHTML = "";
-	var table = createMasterSummaryTable();
-	document.getElementById("feedback_table1").appendChild(table);
-	var dt = $( table ).DataTable({
-		scroller: true,
-        scrollX: true,
-		scrollY: '30vh'
-	});
-	addFilterToFooter(dt);
-	document.getElementById("copy-button-clipboard").setAttribute("onclick", "");
-	document.getElementById("copy-button-csv").setAttribute("onclick", "");
-}
 
 
-function updateSimulationDetails(sim){
-	// Replay the input
-	var inputEl = document.getElementById("input");
-	write(inputEl, sim.input);
-	complyBattleMode(sim.input.battleMode);
-	formatting(inputEl);
-	relabel();
-	window.history.pushState('', "GoBattleSim", window.location.href.split('?')[0] + '?' + exportConfig(sim.input));
-	
-	// Update Player/Party/Pokemon statistics
-	var section = document.getElementById("feedback_table2");
-	section.innerHTML = "";
-	for (var i = 0; i &lt; sim.output.statistics.players.length; i++){
-		var playerStat = sim.output.statistics.players[i];
-		section.appendChild(createElement('h4', createPlayerStatisticsString(playerStat), 
-			{style: 'background:' + HSL_COLORS[i%HSL_COLORS.length][0]}));
-		var playerDiv = document.createElement('div');
-		for (var j = 0; j &lt; playerStat.parties.length; j++){
-			playerDiv.appendChild(createElement('h5', 'Party ' + (j+1)));
-			var partyDiv = document.createElement('div');
-			partyDiv.appendChild(createPokemonStatisticsTable(playerStat.parties[j].pokemon));
-			playerDiv.appendChild(partyDiv);
-		}
-		section.appendChild(playerDiv);
-		$( playerDiv ).accordion({
-			active: false,
-			collapsible: true,
-			heightStyle: 'content'
-		});
-	}
-	$( section ).accordion({
-		active: false,
-		collapsible: true,
-		heightStyle: 'content'
-	});
-	
-	// Battle Log
-	var section = document.getElementById("feedback_table3");
-	section.innerHTML = "";
-	if (sim.output.battleLog.length > 0){
-		section.appendChild(createBattleLogTable(sim.output.battleLog));
-	}
-}
 
-
-function createBattleLogTable(log){
+function createBattleLogTable(battle){
+	let log = battle.output.battleLog;
 	var table = createElement('table', '&lt;thead>&lt;/thead>', {
-		width: '100%', class: 'display nowrap', id: "ui-log-table"
+		width: '100%', class: 'display nowrap'
 	});
 	let headers = ["Time"];
 	for (let i = 0; i &lt; log[0].events.length; i++){
@@ -927,14 +1414,7 @@ function createBattleLogTable(log){
 					change: function(event, ui){
 						singleEvent.index = ui.item.index;
 						entry.breakpoint = true;
-						var cfg = read();
-						var battle = new Battle(cfg);
-						battle.loadList(log);
-						battle.resume();
-						updateSimulationDetails({
-							input: cfg,
-							output: battle.getBattleResult()
-						});
+						App.onBattleLogChange(battle);
 					}
 				}).iconselectmenu("menuWidget").addClass("ui-menu-icons");
 			} else {
@@ -956,102 +1436,7 @@ function createBattleLogTable(log){
 	return table;
 }
 
-// Return the encoded URL based on simulation configuration
-function exportConfig(cfg){
-	// Delete redundant attributes to shorten the URL
-	let cfg_min = JSON.parse(JSON.stringify(cfg));
-	for (let player of cfg_min.players){
-		for (var attr in player){
-			if (!player[attr]){
-				delete player[attr];
-			}
-		}
-		for (let party of player.parties){
-			for (var attr in party){
-				if (!party[attr]){
-					delete party[attr];
-				}
-			}
-			for (let pokemon of party.pokemon){
-				delete pokemon.label;
-				for (var attr in pokemon){
-					if (!pokemon[attr]){
-						delete pokemon[attr];
-					}
-					if ((pokemon.role || "").toLowerCase() == "rb"){
-						delete pokemon.atkiv;
-						delete pokemon.defiv;
-						delete pokemon.stmiv;
-						delete pokemon.level;
-					}else{
-						delete pokemon.raidTier;
-					}
-				}
-			}
-		}
-	}
-	return jsonToURI(cfg_min);
-}
 
-// Return simulation configuration parsed from URL
-function importConfig(url){
-	var cfg = uriToJSON(url.split('?')[1]);
-	if (cfg.hasOwnProperty("atkrSettings")){ // Backward compatibility to v2
-		cfg.players = [];
-		for (let player of cfg.atkrSettings){
-			player.team = "0";
-			player.parties = player.party_list;
-			delete player.party_list;
-			for (let party of player.parties){
-				party.revive = party.revive_strategy;
-				party.pokemon = party.pokemon_list;
-				delete party.revive_strategy;
-				delete party.pokemon_list;
-				for (let pokemon of party.pokemon){
-					pokemon.role = "a";
-					pokemon.strategy = (pokemon.dodge == "2" ? "strat3" : (pokemon.dodge == "1" ? "strat2" : "strat1"));
-					delete pokemon.dodge;
-				}
-			}
-			cfg.players.push(player);
-		}
-		delete cfg.atkrSettings;
-		
-		var defenderPokemon = cfg.dfdrSettings;
-		defenderPokemon.copies = 1;
-		defenderPokemon.strategy = "strat0";
-		defenderPokemon.raidTier = parseInt(defenderPokemon.raid_tier);
-		delete defenderPokemon.raid_tier;
-		cfg.players.push({
-			team: "1",
-			friend: "none",
-			parties: [
-				{
-					revive: false,
-					pokemon: [defenderPokemon]
-				}
-			]
-		});
-		delete cfg.dfdrSettings;
-		
-		for (var attr in cfg.generalSettings){
-			cfg[attr] = cfg.generalSettings[attr];
-		}		
-		if (cfg.battleMode == "raid" || defenderPokemon.raidTier > 0){
-			cfg.battleMode = "raid";
-			if (defenderPokemon.raidTier > 4){
-				cfg.timelimit = Data.BattleSettings.timelimitLegendaryRaidMs;
-			}else{
-				cfg.timelimit = Data.BattleSettings.timelimitRaidMs;
-			}
-		}else{
-			cfg.battleMode = "gym";
-			cfg.timelimit = Data.BattleSettings.timelimitGymMs;
-		}
-		delete cfg.generalSettings;
-	}
-	return cfg;
-}
 </code></pre>
         </article>
     </section>
@@ -1062,13 +1447,13 @@ function importConfig(url){
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Battle.html">Battle</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li></ul><h3>Global</h3><ul><li><a href="global.html#assignMoveParameterSet">assignMoveParameterSet</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossData">fetchRaidBossData</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#GoBattleSimInit">GoBattleSimInit</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#inferLevelAndIVs">inferLevelAndIVs</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#onfinishLoadingAll">onfinishLoadingAll</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-GBS.html">GBS</a></li><li><a href="module-GM.html">GM</a></li><li><a href="module-UI.html">UI</a></li></ul><h3>Classes</h3><ul><li><a href="Battle.html">Battle</a></li><li><a href="module-GBS-BattleInput.html">BattleInput</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 28 2019 03:29:32 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Mar 12 2019 03:15:24 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

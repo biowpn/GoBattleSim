@@ -100,7 +100,7 @@
 
             
 
-            <td class="description last">Keyword arguments for constructing the Pokemon.</td>
+            <td class="description last">Information for constructing the Pokemon.</td>
         </tr>
 
     
@@ -141,7 +141,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line149">line 149</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line69">line 69</a>
     </li></ul></dd>
     
 
@@ -247,7 +247,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line331">line 331</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line165">line 165</a>
     </li></ul></dd>
     
 
@@ -427,7 +427,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line393">line 393</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line228">line 228</a>
     </li></ul></dd>
     
 
@@ -461,7 +461,7 @@
     
 
     
-    <h4 class="name" id="buffStat"><span class="type-signature"></span>buffStat<span class="signature">(statName, stageDelta)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="buffStat"><span class="type-signature"></span>buffStat<span class="signature">(statName, stageDelta, minStage, buffMultipliers)</span><span class="type-signature"></span></h4>
     
 
     
@@ -544,7 +544,53 @@
 
             
 
-            <td class="description last">The stage change. Positive for buff. If omitted, the stage will be reset to 0.</td>
+            <td class="description last">The stage change.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>minStage</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The minimum stage.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>buffMultipliers</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A list of stat multipliers.</td>
         </tr>
 
     
@@ -585,7 +631,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line317">line 317</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line153">line 153</a>
     </li></ul></dd>
     
 
@@ -671,7 +717,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line292">line 292</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line128">line 128</a>
     </li></ul></dd>
     
 
@@ -705,7 +751,7 @@
     
 
     
-    <h4 class="name" id="choosePrimaryChargedMove"><span class="type-signature"></span>choosePrimaryChargedMove<span class="signature">(enemy, weather)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="choosePrimaryChargedMove"><span class="type-signature"></span>choosePrimaryChargedMove<span class="signature">(enemy, moveDamage)</span><span class="type-signature"></span></h4>
     
 
     
@@ -765,20 +811,20 @@
 
             
 
-            <td class="description last">The opponent.</td>
+            <td class="description last">The enemy.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>weather</code></td>
+                <td class="name"><code>moveDamage</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">callback</span>
 
 
             
@@ -788,7 +834,7 @@
 
             
 
-            <td class="description last">The current weather.</td>
+            <td class="description last">The damage of the move.</td>
         </tr>
 
     
@@ -829,7 +875,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line375">line 375</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line210">line 210</a>
     </li></ul></dd>
     
 
@@ -863,7 +909,7 @@
     
 
     
-    <h4 class="name" id="gainEnergy"><span class="type-signature"></span>gainEnergy<span class="signature">(energyDelta)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="gainEnergy"><span class="type-signature"></span>gainEnergy<span class="signature">(energyDelta, maxEnergy)</span><span class="type-signature"></span></h4>
     
 
     
@@ -927,6 +973,29 @@
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>maxEnergy</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The maximum energy allowed.</td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -964,7 +1033,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line348">line 348</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line183">line 183</a>
     </li></ul></dd>
     
 
@@ -998,7 +1067,7 @@
     
 
     
-    <h4 class="name" id="getMoveByName"><span class="type-signature"></span>getMoveByName<span class="signature">(name)</span><span class="type-signature"> &rarr; {<a href="Move.html">Move</a>}</span></h4>
+    <h4 class="name" id="getMoveByName"><span class="type-signature"></span>getMoveByName<span class="signature">(name)</span><span class="type-signature"> &rarr; {Object}</span></h4>
     
 
     
@@ -1099,7 +1168,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line405">line 405</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line240">line 240</a>
     </li></ul></dd>
     
 
@@ -1137,7 +1206,7 @@
     </dt>
     <dd>
         
-<span class="param-type"><a href="Move.html">Move</a></span>
+<span class="param-type">Object</span>
 
 
     </dd>
@@ -1207,7 +1276,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line418">line 418</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line253">line 253</a>
     </li></ul></dd>
     
 
@@ -1315,7 +1384,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line338">line 338</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line172">line 172</a>
     </li></ul></dd>
     
 
@@ -1401,7 +1470,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line266">line 266</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line102">line 102</a>
     </li></ul></dd>
     
 
@@ -1499,6 +1568,29 @@
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code></code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -1536,7 +1628,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Core.js.html">GBS_Core.js</a>, <a href="GBS_Core.js.html#line359">line 359</a>
+        <a href="GBS_Kernel.js.html">GBS_Kernel.js</a>, <a href="GBS_Kernel.js.html#line195">line 195</a>
     </li></ul></dd>
     
 
@@ -1580,13 +1672,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Battle.html">Battle</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li></ul><h3>Global</h3><ul><li><a href="global.html#assignMoveParameterSet">assignMoveParameterSet</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossData">fetchRaidBossData</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#GoBattleSimInit">GoBattleSimInit</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#inferLevelAndIVs">inferLevelAndIVs</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#onfinishLoadingAll">onfinishLoadingAll</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-GBS.html">GBS</a></li><li><a href="module-GM.html">GM</a></li><li><a href="module-UI.html">UI</a></li></ul><h3>Classes</h3><ul><li><a href="Battle.html">Battle</a></li><li><a href="module-GBS-BattleInput.html">BattleInput</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 28 2019 03:29:32 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Mar 12 2019 03:15:24 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

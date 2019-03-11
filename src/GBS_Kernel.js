@@ -1,41 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>JSDoc: Source: GBS_Core.js</title>
 
-    <script src="scripts/prettify/prettify.js"> </script>
-    <script src="scripts/prettify/lang-css.js"> </script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
-</head>
-
-<body>
-
-<div id="main">
-
-    <h1 class="page-title">Source: GBS_Core.js</h1>
-
-    
-
-
-
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/* GBS_Core.js */
-
-/**
-	@file The GoBattleSim simulator core.
-	@author BIOWP
+/*
+	Non-interface members
 */
-
-var MAX_NUM_POKEMON_PER_PARTY = 6;
-var MAX_NUM_PARTIES_PER_PLAYER = 5;
-var MAX_NUM_OF_PLAYERS = 21;
 
 var EVENT = {
 	Free: "Free",
@@ -54,238 +20,80 @@ var ACTION = {
 };
 
 
-/**
-	The damage formula, calculating how much damage the attack inflicts.
-	@param {Pokemon} dmgGiver The Pokemon using the attack.
-	@param {Pokemon} dmgReceiver The Pokemon taking the hit.
-	@param {Move} move The move being used.
-	@param {string} weather The current weather.
-	@return {number} The damage value.
-*/
-function damage(dmgGiver, dmgReceiver, move, weather){
-	var stab = 1;	// Same Type Attack Bonus
-	if (move.pokeType == dmgGiver.pokeType1 || move.pokeType == dmgGiver.pokeType2){
-		stab = Data.BattleSettings.sameTypeAttackBonusMultiplier;
+function traverseLeaf(json, callback, path){
+	path = path || [];
+	if (typeof json == typeof "" || typeof json == typeof 0){
+		callback(json, path);
+		return;
 	}
-	var wab = 1;	// Weather Attack Bonus
-	if (Data.TypeEffectiveness[move.pokeType].boostedIn == weather){
-		wab = Data.BattleSettings.weatherAttackBonusMultiplier;
-	}
-	var fab = dmgGiver.fab || 1;	// Friend Attack Bonus mutiplier
-	var mab = dmgGiver[move.moveType + "AttackBonus"] || 1;	// Move Attack Bonus mutiplier (for PvP)
-	var effe1 = Data.TypeEffectiveness[move.pokeType][dmgReceiver.pokeType1] || 1;
-	var effe2 = Data.TypeEffectiveness[move.pokeType][dmgReceiver.pokeType2] || 1;
-	return Math.floor(0.5*dmgGiver.Atk/dmgReceiver.Def*move.power*effe1*effe2*stab*wab*fab*mab) + 1;
-}
-
-
-/**
-	The CP formula, calculating the current CP of a Pokemon.
-	@param {Object|Pokemon} pkm The Pokemon to calculate CP for. Expected to have Atk, Def and Stm. If not, then must have base stats, IV stats and cpm/level.
-	@return {number} The CP value
-*/
-function calculateCP(pkm){
-	var cpm = parseFloat(pkm.cpm);
-	if (isNaN(cpm)){
-		let levelSetting = getEntry(pkm.level.toString(), Data.LevelSettings, true);
-		cpm = levelSetting.cpm;
-	}
-	var atk = pkm.Atk || (pkm.baseAtk + pkm.atkiv) * cpm;
-	var def = pkm.Def || (pkm.baseDef + pkm.defiv) * cpm;
-	var stm = pkm.Stm || (pkm.baseStm + pkm.stmiv) * cpm;
-	return Math.max(10, Math.floor(atk * Math.sqrt(def * stm)/10));
-}
-
-/**
-	Find a combination of {level, atkiv, defiv, stmiv} that yields the target CP for a Pokemon.
-	@param {Pokemon} pkm The Pokemon to infer level and IVs for. Expected to have baseAtk, baseDef and baseStm.
-	@param {number} cp The target CP.
-	@param {boolean} exact If no combination yields the target CP, it return the combination that gets the closest but is less than the target CP.
-	@return {Object} A combination that yields the target CP.
-*/
-function inferLevelAndIVs(pkm, cp, exact){
-	var minIV = Data.IndividualValues[0].value, maxIV = Data.IndividualValues[Data.IndividualValues.length - 1].value;
-	var pkm2 = {baseAtk: pkm.baseAtk, baseDef: pkm.baseDef, baseStm: pkm.baseStm};
-	var minLevelIndex = null;
-	pkm2.atkiv = pkm2.defiv = pkm2.stmiv = maxIV;
-	for (var i = 0; i &lt; Data.LevelSettings.length; i++){
-		pkm2.cpm = Data.LevelSettings[i].cpm;
-		if (calculateCP(pkm2) &lt;= cp){
-			minLevelIndex = i;
-		}else{
-			break;
+	if (json) {
+			for (let key of Object.keys(json)){
+			traverseLeaf(json[key], callback, path.concat([key]));
 		}
 	}
-	if (minLevelIndex == null)
-		return null;
-	let pkm3 = {cp: 10, cpm: 0, level: Data.LevelSettings[0].value, atkiv: minIV, defiv: minIV, stmiv: minIV};
-	for (var i = minLevelIndex; i &lt; Data.LevelSettings.length; i++){
-		pkm2.level = Data.LevelSettings[i].value;
-		pkm2.cpm = Data.LevelSettings[i].cpm;
-		for (pkm2.atkiv = minIV; pkm2.atkiv &lt;= maxIV; pkm2.atkiv++){
-			for (pkm2.defiv = minIV; pkm2.defiv &lt;= maxIV; pkm2.defiv++){
-				for (pkm2.stmiv = minIV; pkm2.stmiv &lt;= maxIV; pkm2.stmiv++){
-					pkm2.cp = calculateCP(pkm2);
-					if (pkm2.cp == cp){
-						return pkm2;
-					} else if (pkm2.cp > pkm3.cp &amp;&amp; pkm2.cp &lt; cp){
-						pkm3.level = pkm2.level;
-						pkm3.atkiv = pkm2.atkiv;
-						pkm3.defiv = pkm2.defiv;
-						pkm3.stmiv = pkm2.stmiv;
-						pkm3.cpm = pkm2.cpm;
-					}
-				}
-			}
-		}
-	}
-	if (!exact)
-		return pkm3;
 }
 
+function getProperty(json, path){
+	for (var i = 0; i < path.length; i++){
+		json = json[path[i]];
+	}
+	return json;
+}
+
+function setProperty(json, path, value){
+	for (var i = 0; i < path.length - 1; i++){
+		json = json[path[i]];
+	}
+	json[path[path.length - 1]] = value;
+}
+
+function deepCopy(dst, src) {
+	for (let attr of Object.keys(src)) {
+		if (Array.isArray(src[attr])) {
+			dst[attr] = [];
+			deepCopy(dst[attr], src[attr]);
+		} else if (typeof src[attr] == typeof {}) {
+			dst[attr] = {};
+			deepCopy(dst[attr], src[attr]);
+		} else {
+			dst[attr] = src[attr];
+		}
+	}
+}
 
 
 /** 
 	@class
-	@param {string|Move|Object} config Information of the move.
-	@param {Object[]} database The database to look up for the move stats. If omitted, will look up all databases
-*/
-function Move(config, database){
-	var moveData = null;
-	if (typeof config == typeof ""){
-		var moveName = config.toLowerCase();
-		if (database){
-			moveData = getEntry(moveName, database);
-		}else{
-			moveData = getEntry(moveName, Data.FastMoves) || getEntry(moveName, Data.ChargedMoves);
-		}
-	} else {
-		moveData = config || null;
-	}
-	if (moveData == null){
-		throw Error("Unknown Move: " + config);
-	}
-	$.extend(this, moveData);
-}
-
-
-
-/** 
-	@class
-	@param {Object|Pokemon} config Keyword arguments for constructing the Pokemon.
+	@param {Object|Pokemon} config Information for constructing the Pokemon.
 */
 function Pokemon(config){
-	this.master = config.master || null;
-	this.nickname = config.nickname || "";
-	this.role = (config.role || "a").split("_")[0];
-	this.raidTier = config.raidTier;
-	this.immortal = config.immortal || false;
-	if (this.role.toUpperCase() == this.role){
-		this.immortal = true;
-		this.role = this.role.toLowerCase();
-	}
-	this.fab = config.fab || 1;
-	this.fastAttackBonus = 1;
-	this.chargedAttackBonus = 1;
-	this.fastMoveLagMs = (this.role == "a" ? Data.BattleSettings.fastMoveLagMs : 0);
-	this.chargedMoveLagMs = (this.role == "a" ? Data.BattleSettings.chargedMoveLagMs : 0);
-	this.energyDeltaPerHealthLost = Data.BattleSettings.energyDeltaPerHealthLost;
-	
-	var speciesData = (typeof config.species == typeof {} ? config.species : getEntry(config.name.toString().toLowerCase(), Data.Pokemon));
-	if (speciesData == null){
-		throw Error("Unknown Pokemon: " + config.name);
+	for (var attr in config) {
+		this[attr] = config[attr];
 	}
 	
 	// Initialize basic stats
-	this.name = speciesData.name;
-	this.icon = config.icon || speciesData.icon;
-	this.label = config.label || speciesData.label;
-	this.pokeType1 = speciesData.pokeType1;
-	this.pokeType2 = speciesData.pokeType2;
-	this.baseAtk = speciesData.baseAtk;
-	this.baseDef = speciesData.baseDef;
-	this.baseStm = speciesData.baseStm;
-	if (config.role &amp;&amp; config.role.includes("_basic")){
-		let inferred = inferLevelAndIVs(this, parseInt(config.cp));
-		if (inferred == null){
-			throw Error('No combination of level and IVs are found for ' + this.name);
-		}
-		config.atkiv = this.atkiv = inferred.atkiv;
-		config.defiv = this.defiv = inferred.defiv;
-		config.stmiv = this.stmiv = inferred.stmiv;
-		config.level = this.level = inferred.level;
-		this.cpm = inferred.cpm;
-	}else{
-		this.atkiv = parseInt(config.atkiv);
-		this.defiv = parseInt(config.defiv);
-		this.stmiv = parseInt(config.stmiv);
-		this.level = config.level;
-		this.cpm = parseFloat(config.cpm);
-		if (isNaN(this.cpm)){
-			if (this.level != undefined){
-				let levelSetting = getEntry(this.level.toString(), Data.LevelSettings, true);
-				if (levelSetting){
-					this.cpm = levelSetting.cpm;
-				}
-			}
-		}
-	}
+	this.name = config.name;
+	this.pokeType1 = config.pokeType1;
+	this.pokeType2 = config.pokeType2;
+	this.baseAtk = parseInt(config.baseAtk);
+	this.baseDef = parseInt(config.baseDef);
+	this.baseStm = parseInt(config.baseStm);
+	this.atkiv = parseInt(config.atkiv);
+	this.defiv = parseInt(config.defiv);
+	this.stmiv = parseInt(config.stmiv);
+	this.cpm = parseFloat(config.cpm);
 	
-	// Initialize Moves
-	if (config.fmove){
-		this.fmove = new Move(config.fmove, Data.FastMoves);
-	}
-	if (config.cmove || config.cmoves){
-		this.cmoves = [];
-		if (config.cmoves){
-			let unique_cmoves = config.cmoves.filter(function(item, pos){
-				return config.cmoves.indexOf(item) == pos;
-			});
-			for (let cmove of unique_cmoves){
-				this.cmoves.push(new Move(cmove, Data.ChargedMoves));
-			}
-			this.cmove = this.cmoves[0];
-		}else{
-			this.cmove = new Move(config.cmove, Data.ChargedMoves);
-			this.cmoves.push(this.cmove);
-			if (config.cmove2){
-				let cmove2 = new Move(config.cmove2, Data.ChargedMoves);
-				if (cmove2.name != this.cmove.name){
-					this.cmoves.push(cmove2);
-				}
-			}
-		}
-	}
+	this.fmove = config.fmove;
+	this.cmove = config.cmove;
+	this.cmoves = config.cmoves;
 	
-	// Initialize strategies
-	if (Pokemon.prototype.isPrototypeOf(config)){ // Copy Construction
-		this.strategy = new Strategy(config.strategy);
-		this.projectedRivalActions = new Timeline();
-		this.projectedRivalActions.list = JSON.parse(JSON.stringify(config.projectedRivalActions.list));
-		this.active = config.active;
-		this.damageReductionExpiration = config.damageReductionExpiration;
-		this.damageReductionPercent = config.damageReductionPercent;
-		this.queuedAction = config.queuedAction;
-		this.AtkStatStage = config.AtkStatStage;
-		this.DefStatStage = config.DefStatStage;
-		this.activeDurationMs = config.activeDurationMs;
-		this.numDeaths = config.numDeaths;
-		this.tdo = config.tdo;
-		this.tdoFast = config.tdoFast;
-		this.numFastAttacks = config.numFastAttacks;
-		this.numChargedAttacks = config.numChargedAttacks;
-		this.Atk = config.Atk;
-		this.Def = config.Def;
-		this.Stm = config.Stm;
-		this.maxHP = config.maxHP;
-		this.HP = config.HP;
-		this.energy = config.energy;
-	} else {
-		this.strategy = new Strategy(config);
-		this.init();
-	}
-	this.strategy.bind(this);	
-	
+	this.strategy = new Strategy(config);
+	this.projectedRivalActions = new Timeline();
+	if (Pokemon.prototype.isPrototypeOf(config)) {
+		this.projectedRivalActions.list = [];
+		deepCopy(this.projectedRivalActions.list, config.projectedRivalActions.list);
+	}	
+	this.strategy.bind(this);
 }
 
 /** 
@@ -324,11 +132,9 @@ Pokemon.prototype.calculateStats = function(){
 		this.Stm = (this.baseStm + this.stmiv) * this.cpm;
 		this.maxHP = 2 * Math.floor(this.Stm);
 	}else if (this.role == "rb") { // raid boss
-		let raidTierSetting = getEntry(this.raidTier.toString(), Data.RaidTierSettings, true);
-		this.cpm = raidTierSetting.cpm;
 		this.Atk = (this.baseAtk + 15) * this.cpm;
 		this.Def = (this.baseDef + 15) * this.cpm;
-		this.maxHP = raidTierSetting.HP;
+		// cpm and maxHP should have already been set when constructing this Pokemon
 	}else{ // default, attacker
 		this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
 		this.Def = (this.baseDef + this.defiv) * this.cpm;
@@ -340,15 +146,15 @@ Pokemon.prototype.calculateStats = function(){
 /**
 	Buff/debuff battle stats.
 	@param {string} statName The name of the stat. "Atk" or "Def".
-	@param {number} stageDelta The stage change. Positive for buff. If omitted, the stage will be reset to 0.
+	@param {number} stageDelta The stage change.
+	@param {number} minStage The minimum stage.
+	@param {number[]} buffMultipliers A list of stat multipliers.
 */
-Pokemon.prototype.buffStat = function(statName, stageDelta){
-	var multiplier = 1;
-	if (stageDelta !== undefined){
-		var stage = Math.max(Data.BattleSettings.minimumStatStage, Math.min(Data.BattleSettings.maximumStatStage, this[statName + "StatStage"] + stageDelta));
-		this[statName + "StatStage"] = stage;
-		multiplier = Data.BattleSettings[statName + "BuffMultiplier"][stage - Data.BattleSettings.minimumStatStage];
-	}
+Pokemon.prototype.buffStat = function(statName, stageDelta, minStage, buffMultipliers){
+	var maxStage = minStage + buffMultipliers.length - 1;
+	var stage = Math.max(minStage, Math.min(maxStage, this[statName + "StatStage"] + stageDelta));
+	this[statName + "StatStage"] = stage;
+	var multiplier = buffMultipliers[stage - minStage];
 	this[statName] = (this['base' + statName] + this[statName.toLowerCase() + 'iv']) * this.cpm * multiplier;
 }
 
@@ -372,22 +178,23 @@ Pokemon.prototype.heal = function(){
 /** 
 	The Pokemon gains/loses energy.
 	@param {number} energyDelta The amount of energy change. Positive value indicates energy gain.
+	@param {number} maxEnergy The maximum energy allowed.
 */
-Pokemon.prototype.gainEnergy = function(energyDelta){
+Pokemon.prototype.gainEnergy = function(energyDelta, maxEnergy){
 	this.energy += energyDelta;
-	if (this.energy > Data.BattleSettings.maximumEnergy){
-		this.energy = Data.BattleSettings.maximumEnergy;
+	if (this.energy > maxEnergy){
+		this.energy = maxEnergy;
 	}
 }
 
 /** 
 	The Pokemon takes damage and changes HP.
 	@param {number} dmg The amount of HP to lose.
+	@param {number} 
 */
 Pokemon.prototype.takeDamage = function(dmg){
 	if (this.alive()){
 		this.HP -= dmg;
-		this.gainEnergy(Math.ceil(dmg * this.energyDeltaPerHealthLost));
 	}
 	if (!this.alive()){
 		this.numDeaths++;
@@ -397,14 +204,14 @@ Pokemon.prototype.takeDamage = function(dmg){
 
 /** 
 	Decides the primary charged move to use against an opponent.
-	@param {Pokemon} enemy The opponent.
-	@param {string} weather The current weather.
+	@param {Pokemon} enemy The enemy.
+	@param {callback} moveDamage The damage of the move.
 */
-Pokemon.prototype.choosePrimaryChargedMove = function(enemy, weather){
+Pokemon.prototype.choosePrimaryChargedMove = function(enemy, damageCalc){
 	var best_cmove = null;
 	var best_dpe = 0;
 	for (let cmove of this.cmoves){
-		let dpe = damage(this, enemy, cmove, weather) / (-cmove.energyDelta);
+		let dpe = damageCalc(this, enemy, cmove) / (-cmove.energyDelta);
 		if (dpe > best_dpe){
 			best_cmove = cmove;
 			best_dpe = dpe;
@@ -428,7 +235,7 @@ Pokemon.prototype.attributeDamage = function(dmg, moveType){
 /** 
 	Get the move of the Pokemon by name.
 	@param {string} name The name of the move.
-	@return {Move} The move instance of the Pokemon.
+	@return {Object} The move instance of the Pokemon.
 */
 Pokemon.prototype.getMoveByName = function(name){
 	if (this.fmove.name == name)
@@ -459,7 +266,7 @@ Pokemon.prototype.getStatistics = function(){
 		numChargedAttacks: this.numChargedAttacks
 	};
 }
-/* End of Class &lt;Pokemon> */
+/* End of Class <Pokemon> */
 
 
 
@@ -471,7 +278,7 @@ function Party(config){
 	this.revive = config.revive;
 	this.pokemon = [];
 	for (let pokemon of config.pokemon){
-		for (var r = 0; r &lt; (pokemon.copies || 1); r++){
+		for (var r = 0; r < (pokemon.copies || 1); r++){
 			this.pokemon.push(new Pokemon(pokemon));
 		}
 	}
@@ -522,7 +329,7 @@ Party.prototype.setHead = function(pokemon){
 	@param {number} id The ID to look up.
 */
 Party.prototype.setHeadById = function(id){
-	for (var i = 0; i &lt; this.pokemon.length; i++){
+	for (var i = 0; i < this.pokemon.length; i++){
 		if (this.pokemon[i].id == id){
 			this.headingPokemonIndex = i;
 			return;
@@ -585,7 +392,7 @@ Party.prototype.getStatistics = function(){
 */
 function Player(config){
 	this.index = config.index;
-	this.fab = config.fab || getFriendMultiplier(config.friend);
+	this.fab = config.fab || 1;
 	this.team = config.team;
 	this.rivals = [];
 	this.parties = [];
@@ -685,7 +492,7 @@ Player.prototype.setHeadToNext = function(){
 	@return true if there is next party and false otherwise
 */
 Player.prototype.setHeadPartyToNext = function(){
-	if (++this.headingPartyIndex &lt; this.parties.length){
+	if (++this.headingPartyIndex < this.parties.length){
 		return true;
 	}else{
 		--this.headingPartyIndex;
@@ -733,8 +540,8 @@ function Timeline(){
 	@param {Object} e The item to add.
 */
 Timeline.prototype.enqueue = function(e){
-	for (var i = 0; i &lt; this.list.length; i++){
-		if (e.t &lt; this.list[i].t || (e.t == this.list[i].t &amp;&amp; e.index &lt; this.list[i].index)){
+	for (var i = 0; i < this.list.length; i++){
+		if (e.t < this.list[i].t || (e.t == this.list[i].t && e.index < this.list[i].index)){
 			break;
 		}
 	}
@@ -808,6 +615,8 @@ Strategy.prototype.setActionStrategy = function(str){
 		this.getActionDecision = this.actionStrategyNoDodge;
 	}else if (str == "strat5"){
 		this.getActionDecision = this.actionStrategyPvP;
+	}else if (str == "strat6"){
+		this.getActionDecision = this.actionStrategyNoDodgeFastOnly;
 	}
 }
 
@@ -832,15 +641,17 @@ Strategy.prototype.getBurstDecision = function(kwargs){
 	} 
 	let projectedEnergy = this.getProjectedEnergy(kwargs);
 	if (this.burstAttackStatus == 1){
-		if (projectedEnergy + this.subject.cmove.energyDelta * 2 &lt; 0){
+		if (projectedEnergy + this.subject.cmove.energyDelta * 2 < 0){
 			this.burstAttackStatus = -1;
 		}
 		return true;
 	} else { // this.burstAttackStatus == -1
-		if (projectedEnergy >= Data.BattleSettings.maximumEnergy){
+		if (projectedEnergy >= kwargs.maximumEnergy){
 			this.burstAttackStatus = 1;
 			return true;
-		} else if (this.subject.master.rivals[0].getHead().energy >= Data.BattleSettings.maximumEnergy) {
+		}
+		var enemy = this.subject.master.rivals[0].getHead();
+		if (enemy.energy >= kwargs.maximumEnergy) {
 			this.burstAttackStatus = 1;
 			return true;
 		} else {
@@ -868,7 +679,7 @@ Strategy.prototype.setShieldStrategy = function(str){
 	@return {Boolean} True for deciding to use shield and false otherwise.
 */
 Strategy.prototype.getShieldDecision = function(kwargs){
-	return this.numShieldsUsed &lt; this.numShieldsAllowed;
+	return this.numShieldsUsed < this.numShieldsAllowed;
 }
 
 /**
@@ -894,7 +705,7 @@ Strategy.prototype.getProjectedEnergy = function(kwargs){
 Strategy.prototype.actionStrategyDefender = function(kwargs){
 	var numFastAttacks = this.subject.numFastAttacks + (kwargs.currentAction ? 1 : 0);
 	if (numFastAttacks >= 2){
-		var delay = 1500 + round(1000 * Math.random()); // Add the standard defender delay
+		var delay = 1500 + Math.round(1000 * Math.random()); // Add the standard defender delay
 		let projectedEnergy = this.getProjectedEnergy(kwargs);
 		if (projectedEnergy + this.subject.cmove.energyDelta >= 0){
 			return [
@@ -916,7 +727,7 @@ Strategy.prototype.actionStrategyDefender = function(kwargs){
 */
 Strategy.prototype.actionStrategyNoDodge = function(kwargs){
 	let projectedEnergy = this.getProjectedEnergy(kwargs);
-	if (projectedEnergy + this.subject.cmove.energyDelta >= 0 &amp;&amp; this.getBurstDecision(kwargs)){
+	if (projectedEnergy + this.subject.cmove.energyDelta >= 0 && this.getBurstDecision(kwargs)){
 		return {name: ACTION.Charged, move: this.subject.cmove.name, delay: 0};
 	}else{
 		return {name: ACTION.Fast, move: this.subject.fmove.name, delay: 0};
@@ -924,10 +735,17 @@ Strategy.prototype.actionStrategyNoDodge = function(kwargs){
 }
 
 /**
+	Attacker strategy: No dodge, use fast move only
+*/
+Strategy.prototype.actionStrategyNoDodgeFastOnly = function(kwargs){
+	return {name: ACTION.Fast, move: this.subject.fmove.name, delay: 0};
+}
+
+/**
 	Attacker strategy: Dodge
 */
 Strategy.prototype.actionStrategyDodge = function(kwargs){
-	if (kwargs.t &lt; kwargs.tFree){
+	if (kwargs.t < kwargs.tFree){
 		return;
 	}
 	let rivalAttackAction = this.subject.projectedRivalActions.dequeue();
@@ -950,17 +768,17 @@ Strategy.prototype.actionStrategyDodge = function(kwargs){
 	if (this.damageReductionExpiration >= hurtTime){
 		return this.actionStrategyNoDodge(kwargs);
 	}
-	let dmg = damage(enemy, this.subject, enemy_move, kwargs.weather)
-	let dodgedDmg = kwargs.dodgeBugActive ? dmg : Math.max(1, Math.floor(dmg * (1 - Data.BattleSettings.dodgeDamageReductionPercent)));
+	let dmg = kwargs.damageCalc(enemy, this.subject, enemy_move);
+	let dodgedDmg = kwargs.dodgeBugActive ? dmg : Math.max(1, Math.floor(dmg * (1 - kwargs.dodgeDamageReductionPercent)));
 	if (dodgedDmg >= this.subject.HP){
 		return this.actionStrategyNoDodge(kwargs);
 	}
 	let timeTillHurt = hurtTime - kwargs.tFree;
-	if (this.subject.energy + this.subject.cmove.energyDelta >= 0 &amp;&amp; timeTillHurt > this.subject.cmove.duration + this.subject.chargedMoveLagMs){
+	if (this.subject.energy + this.subject.cmove.energyDelta >= 0 && timeTillHurt > this.subject.cmove.duration){
 		// Fit in another charge move
 		this.subject.projectedRivalActions.enqueue(rivalAttackAction); // Put the broadcasted action for next decision making
 		return {name: ACTION.Charged, move: this.subject.cmove.name, delay: 0};
-	}else if (timeTillHurt > this.subject.fmove.duration + this.subject.fastMoveLagMs){
+	}else if (timeTillHurt > this.subject.fmove.duration){
 		// Fit in another fast move
 		this.subject.projectedRivalActions.enqueue(rivalAttackAction); // Put the broadcasted action for next decision making
 		return {name: ACTION.Fast, move: this.subject.fmove.name, delay: 0};
@@ -968,7 +786,7 @@ Strategy.prototype.actionStrategyDodge = function(kwargs){
 		// Has time to dodge, and delay a little bit to wait for damage window if necessary
 		return {
 			name: ACTION.Dodge,
-			delay: Math.max(0, timeTillHurt - Data.BattleSettings.dodgeWindowMs + 1)
+			delay: Math.max(0, timeTillHurt - kwargs.dodgeWindowMs + 1)
 		};
 	}else {
 		return this.actionStrategyNoDodge(kwargs);
@@ -988,7 +806,7 @@ Strategy.prototype.actionStrategyPvP = function(kwargs){
 				return {name: ACTION.Charged, move: move.name, delay: 0};
 			} else { // Secondary move
 				let enemy = this.subject.master.rivals[0].getHead();
-				if (damage(this.subject, enemy, move) >= enemy.HP){
+				if (kwargs.damageCalc(this.subject, enemy, move) >= enemy.HP){
 					this.subject.cmove = move;
 					return {name: ACTION.Charged, move: move.name, delay: 0};
 				}
@@ -1013,20 +831,20 @@ function Battle(config){
 	if (!this.timelimit > 0){
 		this.timelimit = -1;
 	}
-	this.timelimitAdjusted = config.timelimitAdjusted || this.timelimit - Data.BattleSettings.arenaEarlyTerminationMs;
-	this.weather = config.weather || "EXTREME";
-	this.hasLog = config.hasLog || this.aggregation == "enum";
+	this.timelimitAdjusted = config.timelimitAdjusted || (this.timelimit - Battle.bdata.arenaEarlyTerminationMs);
+	this.weather = config.weather;
+	this.hasLog = config.hasLog;
 	this.dodgeBugActive = parseInt(config.dodgeBugActive) || false;
 	this.pokemon = []; // An array to manage all Pokemon
 	this.timeline = new Timeline();
 	this.log = [];
 	this.battleDurationMs = config.battleDurationMs || 0;
-	this.t = config.t || Data.BattleSettings.arenaEntryLagMs;
+	this.t = config.t || Battle.bdata.arenaEntryLagMs;
 	// For copy constructing
 	if (Battle.prototype.isPrototypeOf(config)){
 		this.defeatedTeam = config.defeatedTeam;
-		this.timeline.list = JSON.parse(JSON.stringify(config.timeline.list));
-		this.log = JSON.parse(JSON.stringify(config.log));
+		deepCopy(this.timeline.list, config.timeline.list);
+		deepCopy(this.log, config.log);
 	}
 	
 	// Configure players
@@ -1065,21 +883,27 @@ function Battle(config){
 	
 }
 
+Battle.bdata = {};
+/**
+	@static Get/set battle parameters.
+	@param {string} name The name of the battle parameter to get/set.
+	@param {Object} value The value of the battle parameter to get/set.
+	@return {Object} The updated value.
+*/
+Battle.setting = function(name, value){
+	if (value != undefined) {
+		var src = {};
+		src[name] = value;
+		deepCopy(Battle.bdata, src);
+	}
+	return Battle.bdata[name];
+}
+
+
 /** 
 	Override certain methods for PvP.
 */
 Battle.prototype.overridePvP = function(){
-	for (player of this.players){
-		for (party of player.parties){
-			for (pokemon of party.pokemon){
-				pokemon.fastAttackBonus = Data.BattleSettings.fastAttackBonusMultiplier;
-				pokemon.chargedAttackBonus = Data.BattleSettings.chargedAttackBonusMultiplier;
-				pokemon.energyDeltaPerHealthLost = 0;
-				pokemon.fastMoveLagMs = 0;
-				pokemon.chargedMoveLagMs = 0;
-			}
-		}
-	}
 	
 	this.registerCharged = function(pokemon, action){
 		this.timeline.enqueue({
@@ -1112,8 +936,8 @@ Battle.prototype.init = function(){
 	for (let player of this.players){
 		player.init();
 	}
-	this.t = Data.BattleSettings.arenaEntryLagMs;
-	this.timelimitAdjusted = this.timelimit - Data.BattleSettings.arenaEarlyTerminationMs;
+	this.t = Battle.bdata.arenaEntryLagMs;
+	this.timelimitAdjusted = this.timelimit - Battle.bdata.arenaEarlyTerminationMs;
 	this.battleDurationMs = 0;
 	this.defeatedTeam = "";
 	this.timeline.list = [];
@@ -1135,6 +959,30 @@ Battle.prototype.getPokemonById = function(id){
 	return this.pokemon[id];
 }
 
+
+/**
+	Calculate the damage of an attack.
+	@param {Pokemon} attacker The Pokemon using the attack.
+	@param {Pokemon} receiver The Pokemon taking the hit.
+	@param {Object} move The move being used.
+	@return {number} The damage value.
+*/
+Battle.prototype.damage = function(attacker, receiver, move){
+	var multiplier = 1;	
+	if (move.pokeType == attacker.pokeType1 || move.pokeType == attacker.pokeType2){
+		multiplier *= Battle.bdata.sameTypeAttackBonusMultiplier; // Same Type Attack Bonus
+	}
+	if (Battle.bdata.TypeBoostedWeather[move.pokeType] == this.weather){
+		multiplier *= Battle.bdata.weatherAttackBonusMultiplier; // Weather Attack Bonus
+	}
+	multiplier *= attacker.fab || 1;	// Friend Attack Bonus multiplier
+	multiplier *= Battle.bdata.globalAttackBonusMultiplier || 1;	// Global Attack Bonus multiplier
+	multiplier *= Battle.bdata.TypeEffectiveness[move.pokeType][receiver.pokeType1] || 1;
+	multiplier *= Battle.bdata.TypeEffectiveness[move.pokeType][receiver.pokeType2] || 1;
+	return Math.floor(0.5 * attacker.Atk / receiver.Def * move.power * multiplier) + 1;
+}
+
+
 /**
 	Register the Fast attack action of a Pokemon by queuing appropriate events.
 	@param {Pokemon} pokemon The pokemon who performs the action.
@@ -1142,7 +990,7 @@ Battle.prototype.getPokemonById = function(id){
 	@return {number} The time when the Pokemon will be free again for another action.
 */
 Battle.prototype.registerFast = function(pokemon, action){
-	var tAction = this.t + action.delay || 0 + pokemon.fastMoveLagMs;
+	var tAction = this.t + action.delay || 0 + Battle.bdata.fastMoveLagMs;
 	var move = pokemon.getMoveByName(action.move);
 	this.timeline.enqueue({
 		name: EVENT.Damage, t: tAction + move.dws, subject: pokemon.id, move: action.move, index: pokemon.master.index
@@ -1157,7 +1005,7 @@ Battle.prototype.registerFast = function(pokemon, action){
 	@return {number} The time when the Pokemon will be free again for another action.
 */
 Battle.prototype.registerCharged = function(pokemon, action){
-	var tAction = this.t + action.delay || 0 + pokemon.chargedMoveLagMs;
+	var tAction = this.t + action.delay || 0 + Battle.bdata.chargedMoveLagMs;
 	var move = pokemon.getMoveByName(action.move);
 	this.timeline.enqueue({
 		name: EVENT.Damage, t: tAction + move.dws, subject: pokemon.id, move: action.move, index: pokemon.master.index
@@ -1176,7 +1024,7 @@ Battle.prototype.registerDodge = function(pokemon, action){
 	this.timeline.enqueue({
 		name: EVENT.Dodge, t: tAction, subject: pokemon.id, index: pokemon.master.index
 	});
-	return tAction + Data.BattleSettings.dodgeDurationMs;
+	return tAction + Battle.bdata.dodgeDurationMs;
 }
 
 /**
@@ -1185,14 +1033,16 @@ Battle.prototype.registerDodge = function(pokemon, action){
 */
 Battle.prototype.handleFree = function(event){
 	var subject = this.getPokemonById(event.subject);
-	if (!subject.active)
+	if (!subject.active){
 		return;
+	}
+		
 	let currentAction = subject.queuedAction;
 	let tFree = this.t;
 	if (currentAction){
 		tFree = this["register" + currentAction.name](subject, currentAction);
 	}
-	if (currentAction &amp;&amp; (subject.role == "gd" || subject.role == "rb")){
+	if (currentAction && (subject.role == "gd" || subject.role == "rb")){
 		// Gym Defenders and Raid Bosses are forced to broadcast
 		currentAction.t = this.t + currentAction.delay || 0;
 		currentAction.from = subject.id;
@@ -1204,13 +1054,14 @@ Battle.prototype.handleFree = function(event){
 		}
 	}
 	subject.queuedAction = subject.strategy.getActionDecision({
-		t: this.t, tFree: tFree, currentAction: currentAction, weather: this.weather, dodgeBugActive: this.dodgeBugActive
+		t: this.t, tFree: tFree, currentAction: currentAction, damageCalc: this.damage, dodgeBugActive: this.dodgeBugActive, 
+		maximumEnergy: Battle.bdata.maximumEnergy, dodgeWindowMs: Battle.bdata.dodgeWindowMs, dodgeDamageReductionPercent: Battle.bdata.dodgeDamageReductionPercent
 	});
 	this.timeline.enqueue({
 		name: EVENT.Free, t: tFree, subject: subject.id, index: subject.master.index
 	});
 	if (Array.isArray(subject.queuedAction)){
-		if (this.aggregation == "tree" &amp;&amp; this.treeHeight &lt; Data.BattleSettings.maximumTreeHeight){
+		if (this.aggregation == "tree" && this.treeHeight < Battle.bdata.maximumTreeHeight){
 			let subject_id = subject.id;
 			this.branch(subject.queuedAction, function(battle, action){
 				battle.getPokemonById(subject_id).queuedAction = action;
@@ -1219,7 +1070,7 @@ Battle.prototype.handleFree = function(event){
 		} else {
 			var randomNumber = Math.random();
 			for (let action of subject.queuedAction){
-				if (randomNumber &lt; action.weight){
+				if (randomNumber < action.weight){
 					subject.queuedAction = action;
 					break;
 				} else {
@@ -1241,7 +1092,7 @@ Battle.prototype.handleDamage = function(event){
 		event.name = "";
 		return;
 	}
-	subject.gainEnergy(move.energyDelta);
+	subject.gainEnergy(move.energyDelta, Battle.bdata.maximumEnergy);
 	if (move.moveType == "fast"){
 		subject.numFastAttacks++;
 	}else{
@@ -1252,12 +1103,13 @@ Battle.prototype.handleDamage = function(event){
 		if (!target.active){
 			continue;
 		}
-		let dmg = damage(subject, target, move, this.weather);
-		if (this.t &lt; target.damageReductionExpiration){
+		let dmg = this.damage(subject, target, move);
+		if (this.t < target.damageReductionExpiration){
 			dmg = Math.max(1, Math.floor(dmg * (1 - target.damageReductionPercent)));
 		}
 		subject.attributeDamage(dmg, move.moveType);
 		target.takeDamage(dmg);
+		target.gainEnergy(Math.ceil(dmg * Battle.bdata.energyDeltaPerHealthLost), Battle.bdata.maximumEnergy);
 		if (!target.alive()){
 			target.active = false;
 			this.processFaintedPokemon(target);
@@ -1271,8 +1123,8 @@ Battle.prototype.handleDamage = function(event){
 */
 Battle.prototype.handleDodge = function(event){
 	var subject = this.getPokemonById(event.subject);
-	subject.damageReductionExpiration = this.t + Data.BattleSettings.dodgeWindowMs;
-	subject.damageReductionPercent = Data.BattleSettings.dodgeDamageReductionPercent;
+	subject.damageReductionExpiration = this.t + Battle.bdata.dodgeWindowMs;
+	subject.damageReductionPercent = Battle.bdata.dodgeDamageReductionPercent;
 }
 
 /**
@@ -1300,11 +1152,11 @@ Battle.prototype.handleMinigame = function(event){
 		var reaction = event.reactions[rival.index];
 		if (!reaction){
 			reaction = {
-				shield: rival.numShieldsLeft > 0 &amp;&amp; enemy.strategy.getShieldDecision()
+				shield: rival.numShieldsLeft > 0 && enemy.strategy.getShieldDecision()
 			};
 			event.reactions[rival.index] = reaction;
 		}
-		reaction.damage = damage(subject, enemy, move);
+		reaction.damage = this.damage(subject, enemy, move);
 		if (reaction.shield){ // Shield
 			enemy.takeDamage(1);
 			subject.attributeDamage(1, move.moveType);
@@ -1333,29 +1185,32 @@ Battle.prototype.handleEffect = function(event){
 	var subject = this.getPokemonById(event.subject);
 	var move = subject.getMoveByName(event.move);
 	if (!event.activated){
-		if (this.aggregation == "tree" &amp;&amp; this.treeHeight &lt; Data.BattleSettings.maximumTreeHeight){
-			var event2 = JSON.parse(JSON.stringify(event));
+		if (this.aggregation == "tree" && this.treeHeight < Battle.bdata.maximumTreeHeight && move.effect.probability < 1){
+			var event2 = {};
+			deepCopy(event2, event);
 			event.activated = 1;
 			event.weight = move.effect.probability;
 			event2.activated = -1;
 			event2.weight = 1 - move.effect.probability;
-			return this.branch([event, event2], function(battle, event){ 
-				battle.next(event);
+			return this.branch([event, event2], function(battle, evt){
+				battle.next(evt);
 				battle.go();
 			});
 		} else {
-			event.activated = Math.random() &lt; move.effect.probability ? 1 : -1;
+			event.activated = Math.random() < move.effect.probability ? 1 : -1;
 		}
 	}
 	let effect = move.effect;
 	if (event.activated == 1){
 		if (effect.name == "StatMod"){
-			for (var i = 0; i &lt; effect.subject.length; i++){
+			for (var i = 0; i < effect.subject.length; i++){
 				if (effect.subject[i] == "self"){
-					subject.buffStat(effect.stat[i], effect.stageDelta[i]);
+					var stat = effect.stat[i];
+					subject.buffStat(stat, effect.stageDelta[i], Battle.bdata.minimumStatStage, Battle.bdata[stat + "BuffMultiplier"]);
 				} else if (effect.subject[i] == "enemy"){
 					for (let rival of subject.master.rivals){
-						rival.getHead().buffStat(effect.stat[i], effect.stageDelta[i]);
+						var stat = effect.stat[i];
+						rival.getHead().buffStat(stat, effect.stageDelta[i], Battle.bdata.minimumStatStage, Battle.bdata[stat + "BuffMultiplier"]);
 					}
 				}
 			}
@@ -1376,8 +1231,8 @@ Battle.prototype.handleEnter = function(event){
 	subject.queuedAction = null;
 	for (let rival of player.rivals){
 		var enemy = rival.getHead();
-		subject.choosePrimaryChargedMove(enemy, this.weather);
-		enemy.choosePrimaryChargedMove(subject, this.weather);
+		subject.choosePrimaryChargedMove(enemy, this.damage);
+		enemy.choosePrimaryChargedMove(subject, this.damage);
 	}
 	this.timeline.enqueue({
 		name: EVENT.Free, t: this.t + 500, subject: subject.id, index: player.index
@@ -1394,7 +1249,7 @@ Battle.prototype.handleSwitch = function(event){
 	event.object = player.getHead();
 	if (event.object.id == subject.id)
 		return;
-	player.switchingCooldownExpiration = this.t + Data.BattleSettings.switchingCooldownDurationMs;
+	player.switchingCooldownExpiration = this.t + Battle.bdata.switchingCooldownDurationMs;
 	this.handleEnter(event);
 }
 
@@ -1408,18 +1263,18 @@ Battle.prototype.processFaintedPokemon = function(pokemon){
 	pokemon.active = false;
 	if (player.setHeadToNext()){ // Select next Pokemon from current party
 		this.timeline.enqueue({
-			name: EVENT.Enter, t: this.t + Data.BattleSettings.swapDurationMs, subject: player.getHead().id, index: player.index
+			name: EVENT.Enter, t: this.t + Battle.bdata.swapDurationMs, subject: player.getHead().id, index: player.index
 		});
 	}else if (party.revive){ // Max revive current party and re-lobby
 		party.heal();
 		this.timeline.enqueue({
 			name: EVENT.Enter, 
-			t: this.t + Data.BattleSettings.rejoinDurationMs + Data.BattleSettings.itemMenuAnimationTimeMs + party.pokemon.length * Data.BattleSettings.maxReviveTimePerPokemonMs,
+			t: this.t + Battle.bdata.rejoinDurationMs + Battle.bdata.itemMenuAnimationTimeMs + party.pokemon.length * Battle.bdata.maxReviveTimePerPokemonMs,
 			subject: player.getHead().id, index: player.index
 		});
 	}else if (player.setHeadPartyToNext()){ // Select next Party and re-lobby
 		this.timeline.enqueue({
-			name: EVENT.Enter, t: this.t + Data.BattleSettings.rejoinDurationMs, subject: player.getHead().id, index: player.index
+			name: EVENT.Enter, t: this.t + Battle.bdata.rejoinDurationMs, subject: player.getHead().id, index: player.index
 		});
 	}else{ // This player is done. Check if his team is defeated
 		if (this.isDefeated(player.team)){
@@ -1435,7 +1290,7 @@ Battle.prototype.processFaintedPokemon = function(pokemon){
 */
 Battle.prototype.isDefeated = function(team){
 	for (let player of this.players){
-		if (player.team == team &amp;&amp; player.getHead().alive()){
+		if (player.team == team && player.getHead().alive()){
 			return false;
 		}
 	}
@@ -1447,7 +1302,7 @@ Battle.prototype.isDefeated = function(team){
 	@return {boolean} true if the battle should end.
 */
 Battle.prototype.end = function(){
-	return this.defeatedTeam || (this.t > this.timelimitAdjusted &amp;&amp; this.timelimit > 0) || this.branches.length;
+	return this.defeatedTeam || (this.t > this.timelimitAdjusted && this.timelimit > 0) || this.branches.length;
 }
 
 /**
@@ -1466,7 +1321,7 @@ Battle.prototype.next = function(event){
 	}
 	this["handle" + event.name](event);
 	if (this.hasLog){
-		var entry = this.dump(event);
+		var entry = this.toEntry(event);
 		if (entry){
 			this.log.push(entry);
 		}
@@ -1488,7 +1343,7 @@ Battle.prototype.go = function(){
 	@param {Object} event Simulation event.
 	@return {Object} Battle log entry.
 */
-Battle.prototype.dump = function(event){
+Battle.prototype.toEntry = function(event){
 	var subject = this.getPokemonById(event.subject);
 	var entry = {
 		t: event.t, index: subject.master.index, events: new Array(this.players.length)
@@ -1536,8 +1391,8 @@ Battle.prototype.dump = function(event){
 	}else{ // Ignore other events
 		return;
 	}
-	for (var i = 0; i &lt; subjectEvent.options.length; i++){
-		if (subjectEvent.options[i].name == event.name &amp;&amp; subjectEvent.options[i].value == curValue){
+	for (var i = 0; i < subjectEvent.options.length; i++){
+		if (subjectEvent.options[i].name == event.name && subjectEvent.options[i].value == curValue){
 			subjectEvent.index = i; break;
 		}
 	}
@@ -1546,11 +1401,11 @@ Battle.prototype.dump = function(event){
 }
 
 /**
-	Load and translate a log entry to simulator event.
+	Translate a log entry to simulator event.
 	@param {Object} entry Battle log entry.
 	@return {Object} Simulator event.
 */
-Battle.prototype.load = function(entry){
+Battle.prototype.toEvent = function(entry){
 	var event = {t: entry.t};
 	var subjectEvent = entry.events[entry.index];
 	var curOption = subjectEvent.options[subjectEvent.index];
@@ -1566,7 +1421,7 @@ Battle.prototype.load = function(entry){
 		event.subject = this.players[entry.index].getHead().id;
 		event.move = curOption.value;
 		event.reactions = {};
-		for (var i = 0; i &lt; this.players.length; i++){
+		for (var i = 0; i < this.players.length; i++){
 			let entryEvent = entry.events[i];
 			if (entryEvent){
 				let curOption = entryEvent.options[entryEvent.index];
@@ -1591,27 +1446,21 @@ Battle.prototype.load = function(entry){
 	Load, translate and process a list of log entries.
 	@param {Object[]} entries Log entries to load.
 */
-Battle.prototype.loadList = function(entries){
-	for (var i = 0; i &lt; entries.length; i++){
+Battle.prototype.load = function(entries){
+	for (var i = 0; i < entries.length; i++){
 		entries[i]._pos_ = i;
 	}
 	entries.sort((a, b) => (a.t != b.t ? a.t - b.t : a._pos_ - b._pos_));
 	for (let entry of entries){
-		var event = this.load(entry);
+		var event = this.toEvent(entry);
 		this.next(event);
 		if (entry.breakpoint){
 			break;
 		}	
 	}
-}
-
-/**
-	Resume the battle after loading log entries.
-*/
-Battle.prototype.resume = function(){
-	this.timeline.list = this.timeline.list.filter(e => (e.t > this.t &amp;&amp; e.name != EVENT.Free));
+	this.timeline.list = this.timeline.list.filter(e => (e.t > this.t && e.name != EVENT.Free));
 	var hasFreeEvent = {};
-	for (var i = 0; i &lt; this.players.length; i++){
+	for (var i = 0; i < this.players.length; i++){
 		if (hasFreeEvent[i]){
 			continue;
 		} else {
@@ -1624,14 +1473,14 @@ Battle.prototype.resume = function(){
 					let subjectEvent = entry.events[i];
 					let curOption = subjectEvent.options[subjectEvent.index];
 					if (curOption.name == EVENT.Damage){
-						let move = new Move(curOption.value);
+						let move = pokemon.getMoveByName(curOption.value);
 						tFree = entry.t - move.dws + move.duration;
 					}else if (curOption.name == EVENT.Minigame){
 						tFree = entry.t + 300;
 					}else if (curOption.name == EVENT.Effect){
 						tFree = entry.t + 200;
 					}else if (curOption.name == EVENT.Dodge){
-						tFree = entry.t + Data.BattleSettings.dodgeDurationMs;
+						tFree = entry.t + Battle.bdata.dodgeDurationMs;
 					}else if (curOption.name == EVENT.Enter || curOption.name == EVENT.Switch){
 						tFree = entry.t + 500;
 					}
@@ -1643,7 +1492,6 @@ Battle.prototype.resume = function(){
 			});
 		}
 	}
-	this.go();
 }
 
 /**
@@ -1668,7 +1516,7 @@ Battle.prototype.getPokemonOptions = function(event){
 		}
 	}
 	for (let pkm of subject.master.getHeadParty().pokemon){
-		if (pkm.id != subject.id &amp;&amp; pkm.id != event.object &amp;&amp; pkm.alive()){
+		if (pkm.id != subject.id && pkm.id != event.object && pkm.alive()){
 			options.push({
 				t: event.t, name: eventName, value: pkm.id, 
 				style: "pokemon", text: pkm.label, icon: pkm.icon
@@ -1701,21 +1549,21 @@ Battle.prototype.getAttackOptions = function(event){
 
 /**
 	Terminate current simulation and evaluate branch outcomes.
-	@param {Object[]} options A list of branch options. Each must have a weight and all weights must sum to 1.
-	@param {Battle~branchCallback} callback The operation to perform on each new battle instance.
+	@param {Object[]} options A list of objects representing differrent branch. Each must have a weight and all weights must sum to 1.
+	@param {Battle~branchCallback} callbackfn The operation to perform on each new battle instance.
 */
-Battle.prototype.branch = function(options, callback){
+Battle.prototype.branch = function(options, callbackfn){
 	for (let option of options){
 		var battle = new Battle(this);
 		battle.treeHeight += 1;
-		callback(battle, option);
+		callbackfn(battle, option);
 		this.branches.push({weight: option.weight, statistics: battle.getStatistics("0", "1")});
 	}
 }
 /**
  * @callback Battle~branchCallback
  * @param {Battle} battle The cloned battle instance.
- * @param {Object} option One of the option provided by the options parameter in the branch function.
+ * @param {Object} option The object that represents this branch.
  */
 
 
@@ -1780,7 +1628,7 @@ Battle.prototype.getTreeAverageStatistics = function(){
 		return result;
 	}
 	var statistics = multiply(this.branches[0].statistics, this.branches[0].weight);
-	for (var i = 1; i &lt; this.branches.length; i++){
+	for (var i = 1; i < this.branches.length; i++){
 		statistics = add(statistics, multiply(this.branches[i].statistics, this.branches[i].weight));
 	}
 	return statistics;
@@ -1799,32 +1647,3 @@ Battle.prototype.getBattleResult = function(primary){
 		battleLog: this.log
 	};	
 }
-
-
-
-
-
-
-</code></pre>
-        </article>
-    </section>
-
-
-
-
-</div>
-
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Battle.html">Battle</a></li><li><a href="Move.html">Move</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li></ul><h3>Global</h3><ul><li><a href="global.html#assignMoveParameterSet">assignMoveParameterSet</a></li><li><a href="global.html#binarySearch">binarySearch</a></li><li><a href="global.html#calculateCP">calculateCP</a></li><li><a href="global.html#Combination">Combination</a></li><li><a href="global.html#createElement">createElement</a></li><li><a href="global.html#damage">damage</a></li><li><a href="global.html#Data">Data</a></li><li><a href="global.html#fetchAll">fetchAll</a></li><li><a href="global.html#fetchLevelData">fetchLevelData</a></li><li><a href="global.html#fetchLocalData">fetchLocalData</a></li><li><a href="global.html#fetchMoveData">fetchMoveData</a></li><li><a href="global.html#fetchRaidBossData">fetchRaidBossData</a></li><li><a href="global.html#fetchSpeciesData">fetchSpeciesData</a></li><li><a href="global.html#fetchSpeciesFormData">fetchSpeciesFormData</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#fetchUserTeamData">fetchUserTeamData</a></li><li><a href="global.html#getEntry">getEntry</a></li><li><a href="global.html#getEntryIndex">getEntryIndex</a></li><li><a href="global.html#getFriendMultiplier">getFriendMultiplier</a></li><li><a href="global.html#getPokemonIcon">getPokemonIcon</a></li><li><a href="global.html#getTypeIcon">getTypeIcon</a></li><li><a href="global.html#GoBattleSimInit">GoBattleSimInit</a></li><li><a href="global.html#handleSpeciesDatabase">handleSpeciesDatabase</a></li><li><a href="global.html#inferLevelAndIVs">inferLevelAndIVs</a></li><li><a href="global.html#insertEntry">insertEntry</a></li><li><a href="global.html#LocalData">LocalData</a></li><li><a href="global.html#mergeDatabase">mergeDatabase</a></li><li><a href="global.html#onfinishLoadingAll">onfinishLoadingAll</a></li><li><a href="global.html#parseMovesFromString">parseMovesFromString</a></li><li><a href="global.html#parsePokemonTypeFromString">parsePokemonTypeFromString</a></li><li><a href="global.html#parseUserPokebox">parseUserPokebox</a></li><li><a href="global.html#Permutation">Permutation</a></li><li><a href="global.html#removeEntry">removeEntry</a></li><li><a href="global.html#round">round</a></li><li><a href="global.html#saveLocalData">saveLocalData</a></li></ul>
-</nav>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Feb 28 2019 03:29:32 GMT+0800 (Hong Kong Standard Time)
-</footer>
-
-<script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
-</body>
-</html>
