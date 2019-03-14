@@ -60,11 +60,11 @@ If you are interested in helping to make GoBattleSim even better, feel free to c
 
 ## Versioning
 
-I use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/BIOWP/GoBattleSim/tags). 
+I use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/ymenghank/GoBattleSim/tags). 
 
 ## Authors
 
-* **Hank Meng** - *Initial work*
+* **Hank Meng** - *Initial work* - [ymenghank](https://github.com/ymenghank)
 
 ## License
 
