@@ -386,9 +386,12 @@ function generateSpreadsheet(pokemonCollection){
 				pkmInstance.fmove = fmoveInstance;
 				pkmInstance.cmove = cmoveInstance;
 				pkmInstance.cpm = pkm_cpm;
-				pkmInstance.Atk = (pkmInstance.baseAtk + (pkm.atkiv >= 0 ? pkm.atkiv : DEFAULT_ATTACKER_IVs[0])) * pkm_cpm;
-				pkmInstance.Def = (pkmInstance.baseDef + (pkm.defiv >= 0 ? pkm.defiv : DEFAULT_ATTACKER_IVs[1])) * pkm_cpm;
-				pkmInstance.Stm = (pkmInstance.baseStm + (pkm.stmiv >= 0 ? pkm.stmiv : DEFAULT_ATTACKER_IVs[2])) * pkm_cpm;
+				pkmInstance.atkiv = pkm.atkiv >= 0 ? pkm.atkiv : DEFAULT_ATTACKER_IVs[0];
+				pkmInstance.defiv = pkm.defiv >= 0 ? pkm.defiv : DEFAULT_ATTACKER_IVs[1];
+				pkmInstance.stmiv = pkm.stmiv >= 0 ? pkm.stmiv : DEFAULT_ATTACKER_IVs[2];
+				pkmInstance.Atk = (pkmInstance.baseAtk + pkmInstance.atkiv) * pkm_cpm;
+				pkmInstance.Def = (pkmInstance.baseDef + pkmInstance.defiv) * pkm_cpm;
+				pkmInstance.Stm = (pkmInstance.baseStm + pkmInstance.stmiv) * pkm_cpm;
 
 				if (LeagueCPCap > 0){
 					adjustStatsUnderCPCap(pkmInstance, LeagueCPCap);

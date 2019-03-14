@@ -1062,10 +1062,10 @@ function PokeQuery(queryStr, pokemonInstance) {
 		return tokens;
 	}
 	
-	for (let tk of tokenize(queryStr, Object.keys(LOGICAL_OPERATORS).concat(['(', ')']), '^')) {
+	for (let tk of tokenize(queryStr, Object.keys(LOGICAL_OPERATORS).concat(['(', ')']), "`")) {
 		if (LOGICAL_OPERATORS.hasOwnProperty(tk)) {
 			var top_op = opstack[opstack.length - 1];
-			while (top_op && top_op != '(' && LOGICAL_OPERATORS[tk] <= LOGICAL_OPERATORS[top_op]) {
+			while (top_op && top_op != '(' && LOGICAL_OPERATORS[top_op] > LOGICAL_OPERATORS[tk]) {
 				vstack.push(evalSimple(opstack.pop(), vstack));
 				top_op = opstack[opstack.length - 1];
 			} 
@@ -1124,24 +1124,31 @@ function BasicPokeQuery(queryStr, pokemonInstance){
 		return function(obj){
 			return ([obj.pokeType, obj.pokeType1, obj.pokeType2].includes(str));
 		};
-	}else if (str[0] == '@'){ // Match moves
+	}else if (str[0] == '@'){ // Match Pokemon's moves
 		str = str.slice(1).toLowerCase();
-		if (str.substring(0,3) == '<f>'){
-			str = str.slice(3);
+		if (str[0] == '1' || str.substring(0,3) == '<f>'){
+			str = (str[0] == '1' ? str.slice(1) : str.slice(3));
 			return function(obj){
 				var fmove = (typeof obj.fmove == typeof "" ? getEntry(obj.fmove, Data.FastMoves) : obj.fmove);
 				pred_move = BasicPokeQuery(str, obj);
 				return fmove && pred_move(fmove);
 			};
-		}else if (str.substring(0,3) == '<c>'){
-			str = str.slice(3);
+		}else if (str[0] == '2' || str.substring(0,3) == '<c>'){
+			str = (str[0] == '2' ? str.slice(1) : str.slice(3));
 			return function(obj){
 				var cmove = (typeof obj.cmove == typeof "" ? getEntry(obj.cmove, Data.ChargedMoves) : obj.cmove);
 				pred_move = BasicPokeQuery(str, obj);
 				return cmove && pred_move(cmove);
 			};
-		}else if (str.substring(0,3) == '<*>'){
-			str = str.slice(3);
+		}else if (str[0] == '3'){
+			str = str.slice(1);
+			return function(obj){
+				var cmove = (typeof obj.cmove2 == typeof "" ? getEntry(obj.cmove2, Data.ChargedMoves) : obj.cmove2);
+				pred_move = BasicPokeQuery(str, obj);
+				return cmove && pred_move(cmove);
+			};
+		}else if (str[0] == '*' || str.substring(0,3) == '<*>'){
+			str = (str[0] == '*' ? str.slice(1) : str.slice(3));
 			return function(obj){
 				var fmove = (typeof obj.fmove == typeof "" ? getEntry(obj.fmove, Data.FastMoves) : obj.fmove);
 				var cmove = (typeof obj.cmove == typeof "" ? getEntry(obj.cmove, Data.ChargedMoves) : obj.cmove);
@@ -1171,6 +1178,15 @@ function BasicPokeQuery(queryStr, pokemonInstance){
 		return function(obj){
 			return evolutions_const.includes(obj.name);
 		};
+	}else if (str[0] == '?'){ // JavaScript Expression
+		str = str.slice(1);
+		return function(x){
+			try {
+				return !!eval(str);
+			} catch (err){
+				return false;
+			}
+		};
 	}else if (str.toLowerCase() == "evolve"){ // The Pokemon has evolution
 		return function(obj){
 			return obj.evolutions && obj.evolutions.length > 0;
@@ -1189,6 +1205,11 @@ function BasicPokeQuery(queryStr, pokemonInstance){
 		return function(obj){
 			var movepool = (pokemonInstance || {})[obj.moveType + "Moves_exclusive"];
 			return movepool && movepool.includes(obj.name);
+		};
+	}else if (str.toLowerCase() == "stab"){ // STAB Move
+		return function(obj){
+			pokemonInstance = pokemonInstance || {};
+			return obj.pokeType == pokemonInstance.pokeType1 || obj.pokeType == pokemonInstance.pokeType2;
 		};
 	}else{ // Match name/nickname/species
 		return function(obj){

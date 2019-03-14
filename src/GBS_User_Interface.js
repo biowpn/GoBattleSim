@@ -70,14 +70,15 @@ UI.read = function(element){
 			}
 		}else{
 			let childOutputs = [];
-			for (let child of element.children){
+			for (var i = 0; i < element.children.length; i++){
+				let child = element.children[i];
 				childOutputs.push(UI.read(child));
 			}
 			json[attrName] = childOutputs;
 		}
 	}else{
-		for (let child of element.children){
-			let childJson = UI.read(child);
+		for (var i = 0; i < element.children.length; i++){
+			let childJson = UI.read(element.children[i]);
 			for (var attr in childJson){
 				json[attr] = childJson[attr];
 			}
@@ -128,8 +129,8 @@ UI.write = function(json, element){
 			}
 		}
 	}else{
-		for (let child of element.children){
-			UI.write(json, child);
+		for (var i = 0; i < element.children.length; i++){
+			UI.write(json, element.children[i]);
 		}
 	}
 }
@@ -314,8 +315,8 @@ function formatting(element){
 	}else if ($(element).data("ui-checkboxradio")){
 		$(element).button("refresh");
 	}
-	for (let child of element.children){
-		formatting(child);
+	for (var i = 0; i < element.children.length; i++){
+		formatting(element.children[i]);
 	}
 }
 
@@ -324,21 +325,20 @@ function formatting(element){
 */
 function relabel(){
 	var playerNodes = $("#input").find("[name=input-players]")[0];
-	let i = 0;
-	for (let playerNode of playerNodes.children){
-		playerNode.setAttribute('style', 'background:' + HSL_COLORS[i%HSL_COLORS.length][0]);
-		playerNode.children[0].children[0].innerHTML = "Player " + (i+1);
-		let j = 0;
-		for (let partyNode of playerNode.children[1].children){
-			partyNode.setAttribute('style', 'background:' + HSL_COLORS[i%HSL_COLORS.length][1]);
-			partyNode.children[0].children[0].innerHTML = "Party " + (++j);
-			let k = 0;
-			for (let pokemonNode of partyNode.children[1].children){
-				pokemonNode.setAttribute('style', 'background:' + HSL_COLORS[i%HSL_COLORS.length][2]);
-				pokemonNode.children[0].children[0].innerHTML = "Pokemon " + (++k);
+	for (var i = 0; i < playerNodes.children.length; i++){
+		let playerNode = playerNodes.children[i];
+		playerNode.setAttribute('style', 'background:' + HSL_COLORS[i % HSL_COLORS.length][0]);
+		playerNode.children[0].children[0].innerHTML = "Player " + (i + 1);
+		for (var j = 0; j < playerNode.children[1].children.length; j++){
+			let partyNode = playerNode.children[1].children[j];
+			partyNode.setAttribute('style', 'background:' + HSL_COLORS[i % HSL_COLORS.length][1]);
+			partyNode.children[0].children[0].innerHTML = "Party " + (j + 1);
+			for (var k = 0; k < partyNode.children[1].children.length; k++){
+				let pokemonNode = partyNode.children[1].children[k];
+				pokemonNode.setAttribute('style', 'background:' + HSL_COLORS[i % HSL_COLORS.length][2]);
+				pokemonNode.children[0].children[0].innerHTML = "Pokemon " + (k + 1);
 			}
 		}
-		i++;
 	}
 }
 
@@ -924,8 +924,8 @@ function comply(node, kwargs){
 	if (node.comply){
 		node.comply(kwargs);
 	}
-	for (let child of node.children){
-		comply(child, kwargs);
+	for (var i = 0; i < node.children.length; i++){
+		comply(node.children[i], kwargs);
 	}
 }
 
@@ -934,7 +934,8 @@ function complyBattleMode(mode){
 	let playerNodes = $("#input").find("[name=input-players]")[0];
 	if (mode == "gym" || mode == "raid"){
 		let hasProcessedDefender = false;
-		for (let playerNode of playerNodes.children){
+		for (var i = 0; i < playerNodes.children.length; i++){
+			let playerNode = playerNodes.children[i];
 			if ($(playerNode).find("[name=player-team]").val() == "1"){
 				if (hasProcessedDefender){
 					playerNodes.removeChild(playerNode);

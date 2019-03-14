@@ -60,7 +60,9 @@ function dropdownMenuInit(){
 				}
 			}
 		}
-		for (let child of container.children[1].children){
+		var children = container.children[1].children;
+		for (var j = 0; j < children.length; j++){
+			let child = children[j];
 			$( child ).click(function(){
 				$(this.parentNode).hide();
 			});
@@ -172,10 +174,10 @@ function moveEditFormReset(){
 function moveEditFormDelete(){
 	var moveType = $("#moveEditForm-table").find("[name=move-moveType]").val();
 	var moveName = $("#moveEditForm-table").find("[name=move-name]").val().trim().toLowerCase();
-	if (GM.set(moveType, moveName) && GM.set(moveType + "_local", moveName)){
-		GM.save();
-		UI.sendFeedbackDialog("Move: " + moveName + " has been removed");
-	}
+	GM.set(moveType, moveName);
+	GM.set(moveType + "_local", moveName);
+	GM.save();
+	UI.sendFeedbackDialog("Move: " + moveName + " has been removed");
 }
 
 
@@ -288,6 +290,7 @@ function pokemonEditFormSubmit(){
 
 function pokemonEditFormReset(){
 	GM.erase("pokemon_local");
+	GM.save();
 	GM.invalidate();
 	GM.fetch(function(){
 		UI.sendFeedbackDialog("Latest Pokemon data have been fetched");
@@ -297,10 +300,10 @@ function pokemonEditFormReset(){
 
 function pokemonEditFormDelete(){
 	var pokemonName = $("#pokemonEditForm-table").find("[name=pokemon-name]").val();
-	if (GM.set("pokemon", pokemonName) && GM.set("pokemon", pokemonName)){
-		GM.save();
-		UI.sendFeedbackDialog("Pokemon: " + pokemonName + " has been removed");
-	}
+	GM.set("pokemon", pokemonName);
+	GM.set("pokemon_local", pokemonName);
+	GM.save();
+	UI.sendFeedbackDialog("Pokemon: " + pokemonName + " has been removed");
 }
 
 
@@ -339,7 +342,7 @@ function parameterEditFormSubmit(){
 
 
 function parameterEditFormReset(){
-	LocalData.BattleSettings = {};
+	GM.erase("BattleSettings_local");
 	GM.save();
 	UI.sendFeedbackDialog("Battle settings have been reset. Refresh the page to get default back.");
 }
