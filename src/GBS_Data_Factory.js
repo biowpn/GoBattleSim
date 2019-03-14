@@ -1025,15 +1025,15 @@ function PokeQuery(queryStr, pokemonInstance) {
 	function evalSimple(op, stack) {
 		if (op == ',' || op == ':' || op == ';') {
 			var rhs = stack.pop() || defaultPredicate, lhs = stack.pop() || defaultPredicate;
-			return arg => lhs(arg) || rhs(arg);
+			stack.push(arg => lhs(arg) || rhs(arg));
 		} else if (op == '&' || op == '|') {
 			var rhs = stack.pop() || defaultPredicate, lhs = stack.pop() || defaultPredicate;
-			return arg => lhs(arg) && rhs(arg);
+			stack.push(arg => lhs(arg) && rhs(arg));
 		} else if (op == '!') {
 			var rhs = stack.pop() || defaultPredicate;
-			return arg => !rhs(arg);
+			stack.push(arg => !rhs(arg));
 		} else {
-			return defaultPredicate;
+			stack.push(defaultPredicate);
 		}
 	}
 	
@@ -1066,7 +1066,7 @@ function PokeQuery(queryStr, pokemonInstance) {
 		if (LOGICAL_OPERATORS.hasOwnProperty(tk)) {
 			var top_op = opstack[opstack.length - 1];
 			while (top_op && top_op != '(' && LOGICAL_OPERATORS[top_op] > LOGICAL_OPERATORS[tk]) {
-				vstack.push(evalSimple(opstack.pop(), vstack));
+				evalSimple(opstack.pop(), vstack);
 				top_op = opstack[opstack.length - 1];
 			} 
 			opstack.push(tk);
@@ -1075,16 +1075,16 @@ function PokeQuery(queryStr, pokemonInstance) {
 		} else if (tk == ')') {
 			while (opstack.length) {
 				var op = opstack.pop();
-				if (op == ')')
+				if (op == '(')
 					break;
-				vstack.push(evalSimple(tk, vstack));
+				evalSimple(op, vstack);
 			}
 		} else {
 			vstack.push(BasicPokeQuery(tk, pokemonInstance));
 		}
 	}
 	while (opstack.length) {
-		vstack.push(evalSimple(opstack.pop(), vstack));
+		evalSimple(opstack.pop(), vstack);
 	}
 	
 	return vstack.pop() || defaultPredicate;
