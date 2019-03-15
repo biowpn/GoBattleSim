@@ -269,6 +269,7 @@ function BattleInput(kwargs) {
 				let role_params = (pokemon.role || "a").split('_');
 				pokemon.role = role_params[0];
 				pokemon.immortal = (pokemon.role == role_params[0].toUpperCase());
+				pokemon.role = pokemon.role.toLowerCase();
 				if (role_params[1] == 'basic') {
 					quartet = inferLevelAndIVs(pokemon, parseInt(pokemon.cp));
 					if (quartet) {
@@ -312,6 +313,7 @@ function BattleInput(kwargs) {
 					}
 				}
 				pokemon.cmoves = Object.values(cmoves);
+				pokemon.cmove = pokemon.cmoves[0];
 				
 				if (this.battleMode == "pvp") {
 					for (let move of [pokemon.fmove].concat(pokemon.cmoves)) {
