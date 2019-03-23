@@ -1200,19 +1200,17 @@ Battle.prototype.handleEffect = function(event){
 			event.activated = Math.random() < move.effect.probability ? 1 : -1;
 		}
 	}
-	let effect = move.effect;
 	if (event.activated == 1){
+		let effect = move.effect;
 		if (effect.name == "StatMod"){
-			for (var i = 0; i < effect.subject.length; i++){
-				if (effect.subject[i] == "self"){
-					var stat = effect.stat[i];
-					subject.buffStat(stat, effect.stageDelta[i], Battle.bdata.minimumStatStage, Battle.bdata[stat + "BuffMultiplier"]);
-				} else if (effect.subject[i] == "enemy"){
-					for (let rival of subject.master.rivals){
-						var stat = effect.stat[i];
-						rival.getHead().buffStat(stat, effect.stageDelta[i], Battle.bdata.minimumStatStage, Battle.bdata[stat + "BuffMultiplier"]);
-					}
-				}
+			let subj = null;
+			if (effect.subject == "Self") {
+				subj = subject;
+			} else {
+				subj = subject.master.rivals[0].getHead();
+			}
+			for (let stat of effect.stat) {
+				subj.buffStat(stat, effect.stageDelta, Battle.bdata.minimumStatStage, Battle.bdata[stat + "BuffMultiplier"]);
 			}
 		}
 	}

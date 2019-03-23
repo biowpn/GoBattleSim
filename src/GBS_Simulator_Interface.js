@@ -251,6 +251,7 @@ function BattleInput(kwargs) {
 	for (let player of this.players) {
 		player.fab = (GM.get("friend", player.friend) || {}).multiplier || 1;
 		for (let party of player.parties) {
+			party.delay = parseInt(party.delay) || 0;
 			for (let pokemon of party.pokemon) {
 				pokemon.name = pokemon.name.toLowerCase();
 				let species = GM.get("pokemon", pokemon.name);

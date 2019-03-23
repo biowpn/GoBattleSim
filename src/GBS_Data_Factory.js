@@ -1,6 +1,6 @@
 
 /**
-	Data Factory. This module manages the game data needed for simulation such as Pokemon stats, Move stats, and type effectiveness matrix. It is basically an extended Game Master.
+	Data Factory. This module manages the game data such as Pokemon stats, Move stats, and type effectiveness matrix. It is basically an extended Game Master.
 	@exports GM
 */
 var GM = {};
@@ -8,55 +8,57 @@ var GM = {};
 
 /** 
 	Fetch all required JSONs for the application.
-	@param oncomplete The callback when all JSONs are fetched.
+	@param kwargs {Object} Keyword arguments. Can specify 'name', 'complete', 'userid'
 */
-GM.fetch = function(oncomplete){
-	// No ajax call needed for this one
+GM.fetch = function(kwargs){
+	if (kwargs.name != undefined) {
+		dbname = kwargs.name.toLowerCase();
+		if (dbname == "pokemon") {
+			return fetchPokemon(kwargs.complete);
+		} else if (dbname == "move" || dbname == "moves") {
+			return fetchMoves(kwargs.complete);
+		} else if (dbname == "user") {
+			return fetchUser(kwargs.complete, kwargs.userid);
+		}
+	}
+
 	fetchLocalData();
 	
-	// Required JSONs, ajax calls
-	if (raidBossListURL == "" || pokemonDataFullURL == "" || moveDataFullURL == "") {
-		// If URLs are not fetched yet, gotta fetch'em all
-		fetchURLs(function(){
-			GM.fetch(oncomplete);
-		});
-	} else {
-		function oncompleteWrapper(){
-			for (var json_name in requiredJSONStatus){
-				if (requiredJSONStatus[json_name] != 2)
-					return;
-			}
-			attachRaidbossInfo();
-			for (let pkm of Data.PokemonForms){
-				var pkm2 = getEntry(pkm.name, Data.Pokemon);
-				if (pkm2){
-					pkm2.icon = pkm.icon;
-				}else{
-					pkm = JSON.parse(JSON.stringify(pkm));
-					pkm.fastMoves = [];
-					pkm.chargedMoves = [];
-					insertEntry(pkm, Data.Pokemon);
-				}
-			}
-			for (let pokemon of LocalData.Pokemon)
-				insertEntry(pokemon, Data.Pokemon);
-			for (let move of LocalData.FastMoves)
-				insertEntry(move, Data.FastMoves);
-			for (let move of Data.ChargedMoves)
-				insertEntry(move, Data.ChargedMoves);
-			manuallyModifyData(Data);
-			(oncomplete || function(){})();
+	function oncompleteWrapper(){
+		for (var json_name in requiredJSONStatus){
+			if (requiredJSONStatus[json_name] != 2)
+				return;
 		}
-		
-		fetchLevelData(oncompleteWrapper);
-		fetchSpeciesFormData(oncompleteWrapper);
-		fetchMoveData(oncompleteWrapper);
-		fetchRaidBossData(oncompleteWrapper);
-		fetchSpeciesData(oncompleteWrapper);
-		
-		if (window.userID2 && window.userID2 != '0'){
-			fetchUserData();
+		attachRaidbossInfo();
+		for (let pkm of Data.PokemonForms){
+			var pkm2 = getEntry(pkm.name, Data.Pokemon);
+			if (pkm2){
+				pkm2.icon = pkm.icon;
+			}else{
+				pkm = JSON.parse(JSON.stringify(pkm));
+				pkm.fastMoves = [];
+				pkm.chargedMoves = [];
+				insertEntry(pkm, Data.Pokemon);
+			}
 		}
+		for (let pokemon of LocalData.Pokemon)
+			insertEntry(pokemon, Data.Pokemon);
+		for (let move of LocalData.FastMoves)
+			insertEntry(move, Data.FastMoves);
+		for (let move of Data.ChargedMoves)
+			insertEntry(move, Data.ChargedMoves);
+		manuallyModifyData(Data);
+		(kwargs.complete || function(){})();
+	}
+	
+	fetchLevelSettings(oncompleteWrapper);
+	fetchPokemonForms(oncompleteWrapper);
+	fetchMoves(oncompleteWrapper);
+	fetchRaidBosses(oncompleteWrapper);
+	fetchPokemon(oncompleteWrapper);
+	
+	if (window.userID2 && window.userID2 != '0'){
+		fetchUser(null, window.userID2);
 	}
 }
 
@@ -388,23 +390,7 @@ function getDatabaseByName(nameDb){
 	Manually modify data.
 	@param {Object} data The master data reference.
 */
-function manuallyModifyData(data){
-	// Add moves effects
-	try{
-		getEntry('transform', data.FastMoves).effect = {
-			name: "Transform"
-		};
-		getEntry('ancient power', data.ChargedMoves).effect = {
-			name: "StatMod", subject: ["self", "self"], stat: ["Atk", "Def"], stageDelta: [2, 2], probability: 0.1
-		};
-		getEntry('silver wind', data.ChargedMoves).effect = {
-			name: "StatMod", subject: ["self", "self"], stat: ["Atk", "Def"], stageDelta: [2, 2], probability: 0.1
-		};
-		getEntry('ominous wind', data.ChargedMoves).effect = {
-			name: "StatMod", subject: ["self", "self"], stat: ["Atk", "Def"], stageDelta: [2, 2], probability: 0.1
-		};
-	}catch(err){}
-	
+function manuallyModifyData(data){	
 	// Hidden Powers
 	var hidden_power = getEntry("hidden power", data.FastMoves);
 	var hidden_power_variations = [];
@@ -422,15 +408,17 @@ function manuallyModifyData(data){
 			insertEntry(hidden_power_variation, hidden_power_variations);
 		}
 	}
-
+	
+	// Handle Castform
 	for (let castform of CASTFORM_FORMS) {
 		insertEntry(castform, data.Pokemon);
 	}
-		
+	
+	// Replace generic hidden power to specific hidden power
 	for (let pokemon of data.Pokemon){
 		let hpindex = pokemon.fastMoves.indexOf("hidden power");
 		if (hpindex >= 0){
-			// Replace generic hidden power to specific hidden power
+			
 			pokemon.fastMoves.splice(hpindex, 1);
 			for (let hp of hidden_power_variations){
 				pokemon.fastMoves.push(hp.name);
@@ -673,7 +661,7 @@ function fetchURLs(oncomplete){
 	Fetch Level Settings from GP server.
 	@param oncomplete The callback after the fetching is complete.
 */
-function fetchLevelData(oncomplete){
+function fetchLevelSettings(oncomplete){
 	if (requiredJSONStatus.LevelSettings != 0)
 		return;
 	requiredJSONStatus.LevelSettings = 1;
@@ -702,9 +690,13 @@ function fetchLevelData(oncomplete){
 	Fetch raid boss list from GP server.
 	@param oncomplete The callback after the fetching is complete.
 */
-function fetchRaidBossData(oncomplete){
-	if (!window.raidBossListURL)
+function fetchRaidBosses(oncomplete){
+	if (!window.raidBossListURL){
+		fetchURLs(function(){
+			fetchRaidBosses(oncomplete);
+		});
 		return;
+	}
 	if (requiredJSONStatus.RaidBosses != 0)
 		return;
 	requiredJSONStatus.RaidBosses = 1;
@@ -736,9 +728,13 @@ function fetchRaidBossData(oncomplete){
 	Fetch Pokemon data from GP server.
 	@param oncomplete The callback after the fetching is complete.
 */
-function fetchSpeciesData(oncomplete){
-	if (!window.pokemonDataFullURL)
+function fetchPokemon(oncomplete){
+	if (!window.pokemonDataFullURL){
+		fetchURLs(function(){
+			fetchPokemon(oncomplete);
+		});
 		return;
+	}
 	if (requiredJSONStatus.Pokemon != 0)
 		return;
 	requiredJSONStatus.Pokemon = 1;
@@ -784,7 +780,7 @@ function fetchSpeciesData(oncomplete){
 	Fetch supplement Pokemon form data (such as icons) from GP server.
 	@param oncomplete The callback after the fetching is complete.
 */
-function fetchSpeciesFormData(oncomplete){
+function fetchPokemonForms(oncomplete){
 	if (requiredJSONStatus.PokemonForms != 0)
 		return;
 	requiredJSONStatus.PokemonForms = 1;
@@ -815,9 +811,13 @@ function fetchSpeciesFormData(oncomplete){
 	Fetch move data from GP server.
 	@param oncomplete The callback after the fetching is complete.
 */
-function fetchMoveData(oncomplete){
-	if (!window.moveDataFullURL)
+function fetchMoves(oncomplete){
+	if (!window.moveDataFullURL){
+		fetchURLs(function(){
+			fetchMoves(oncomplete);
+		});
 		return;
+	}
 	if (requiredJSONStatus.Moves != 0)
 		return;
 	requiredJSONStatus.Moves = 1;
@@ -871,6 +871,16 @@ function fetchMoveData(oncomplete){
 				for (var a in move.regular) {
 					move[a] = move.regular[a];
 				}
+				// Parse move effect
+				if (data[i].subject != undefined) {
+					move.effect = {
+						name: "StatMod",
+						subject: data[i].subject,
+						stat: data[i].stat.split(',').map(x => x.trim()),
+						stageDelta: parseInt(data[i].stage_delta),
+						probability: parseFloat(data[i].probability)
+					};
+				}
 			}
 			Data.FastMoves.sort((a, b) => (a.name < b.name ? -1 : 1));
 			Data.FastMoves.sorted = true;
@@ -884,10 +894,34 @@ function fetchMoveData(oncomplete){
 
 /** 
 	Fetch user Pokemon data from GP server.
-	@param oncomplete The callback after the fetching is complete.
+	@param {function} oncomplete The callback after the fetching is complete.
+	@param {string} userid The user id of the user to fetch.
 */
-function fetchUserData(oncomplete){
-	var userid = userID2;
+function fetchUser(oncomplete, userid){
+	userid = userid || "";
+	var box_fetched = false, parties_fetched = false;
+	var user = {
+		name: userid,
+		uid: userid,
+		box: [],
+		parties: []
+	};
+	
+	function linkPokemon() {
+		for (let party of user.parties) {
+			party.pokemon = [];
+			for (let nid of party.pokemon_nids) {
+				for (let pkm of user.box) {
+					if (pkm.nid = nid.trim()) {
+						party.pokemon.push(pkm);
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	// Fetch box
 	$.ajax({
 		url: 'https://pokemongo.gamepress.gg/user-pokemon-json-list?_format=json&new&uid_raw=' + userid,
 		dataType: 'json',
@@ -895,58 +929,40 @@ function fetchUserData(oncomplete){
 			for (let pokemon of data){
 				pokemon.uid = userid;
 			}
-			var user = {
-				name: userid,
-				uid: userid,
-				box: parseUserPokebox(data),
-				parties: []
-			};
-			insertEntry(user, Data.Users);
-			fetchUserTeamData(userid);
-		},
-		complete: oncomplete || function(){}
+			user.box = parseUserPokebox(data);
+			box_fetched = true;
+			if (parties_fetched) {
+				linkPokemon();
+				insertEntry(user, Data.Users);
+				if (oncomplete)
+					oncomplete();
+			}
+		}
 	});
-}
-
-/** 
-	Fetch user battle party data from GP server.
-	@param oncomplete The callback after the fetching is complete.
-*/
-function fetchUserTeamData(userid, oncomplete){
+	// Fetch parties
 	$.ajax({
 		url: 'https://pokemongo.gamepress.gg/user-pokemon-team?_format=json&uid=' + userid,
 		dataType: 'json',
 		success: function(data){
-			var user = null;
-			for (var i = 0; i < Data.Users.length; i++){
-				if (Data.Users[i].uid == userid)
-					user = Data.Users[i];
+			user.parties = [];
+			for (var i = 0; i < data.length; i++){
+				var party = {
+					name: data[i].title,
+					label: data[i].title,
+					isLocal: false,
+					pokemon_nids: data[i].team_nids.split(',')
+				};
+				user.parties.push(party);
 			}
-			if (user){
-				user.parties = [];
-				for (var i = 0; i < data.length; i++){
-					var party_raw = data[i];
-					var party = {
-						name: party_raw.title,
-						label: party_raw.title,
-						isLocal: false,
-						pokemon: []
-					};
-					var team_nids = party_raw.team_nids.split(',');
-					for (var j = 0; j < team_nids.length; j++){
-						for (var k = 0; k < user.box.length; k++){
-							if (user.box[k].nid == team_nids[j].trim()){
-								party.pokemon.push(user.box[k]);
-								break;
-							}
-						}
-					}
-					user.parties.push(party);
-				}
-				user.parties.sort((a, b) => (a.name < b.name ? -1 : 1));
+			user.parties.sort((a, b) => (a.name < b.name ? -1 : 1));
+			parties_fetched = true;
+			if (box_fetched) {
+				linkPokemon();
+				insertEntry(user, Data.Users);
+				if (oncomplete)
+					oncomplete();
 			}
-		},
-		complete: oncomplete || function(){}
+		}
 	});
 }
 
@@ -1009,8 +1025,14 @@ var SELECTORS = ['*', '?'];
 var acceptedNumericalAttributes = [
 	'cp', 'atkiv', 'defiv', 'stmiv', 'level', 'dex',
 	'baseAtk', 'baseDef', 'baseStm', 'rating',
-	'duration', 'dws', 'energyDelta', 'value'
+	'duration', 'dws', 'energyDelta', 'value', 'dps', 'tdo'
 ];
+
+var LegendaryPokemon = ['regice', 'entei', 'registeel', 'suicune', 'heatran', 'latias', 'rayquaza', 'azelf', 'moltres', 'mewtwo', 'latios', 'groudon', 'regirock', 'dialga', 'giratina', 'mesprit', 'zapdos', 'lugia', 'regigigas', 'articuno', 'ho-oh', 'kyogre', 'uxie', 'palkia', 'cresselia', 'raikou'];
+var MythicalPokemon = ['arceus', 'darkrai', 'phione', 'shaymin', 'deoxys (attack forme)', 'deoxys (defense forme)', 'deoxys (normal forme)', 'deoxys (speed forme)', 'manaphy', 'celebi', 'mew', 'meltan', 'jirachi', 'melmetal'];
+var BabyPokemon = ['pichu', 'cleffa', 'igglybuff', 'togepi', 'tyrogue', 'smoochum', 'elekid', 'magby', 'azurill', 'wynaut', 'budew', 'chingling', 'bonsly', 'mime jr.', 'happiny', 'munchlax', 'mantyke'];
+
+
 
 /**
 	Create a PokeQuery that filters Pokemon, Moves and other attributes of the Pokemon.
@@ -1190,6 +1212,18 @@ function BasicPokeQuery(queryStr, pokemonInstance){
 	}else if (str.toLowerCase() == "evolve"){ // The Pokemon has evolution
 		return function(obj){
 			return obj.evolutions && obj.evolutions.length > 0;
+		};
+	}else if (str.toLowerCase() == "legendary") { // Match legendary Pokemon
+		return function(obj){
+			return LegendaryPokemon.includes(obj.name);
+		};
+	}else if (str.toLowerCase() == "mythical") { // Match mythical Pokemon
+		return function(obj){
+			return MythicalPokemon.includes(obj.name);
+		};
+	}else if (str.toLowerCase() == "baby") { // Match baby Pokemon
+		return function(obj){
+			return BabyPokemon.includes(obj.name);
 		};
 	}else if (str.toLowerCase() == "current"){ // Current Move
 		return function(obj){

@@ -173,8 +173,18 @@ function calculateDPSIntake(pokemon, kwargs){
 
 
 function DPSCalculatorInit(){
-	GM.fetch(function(){
-		requestSpreadsheet(true);
+	GM.fetch({
+		complete: function(){
+			requestSpreadsheet(true);
+		}
+	});
+	$(document).ready(function(){
+		if (window.userID2 && window.userID2 != '0') {
+			GM.fetch({
+				name: 'user',
+				userid: window.userID2
+			});
+		}
 	});
 	
 	$( "#ui-swapDiscount" ).controlgroup();

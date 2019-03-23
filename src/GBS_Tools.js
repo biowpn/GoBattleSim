@@ -165,8 +165,11 @@ function moveEditFormReset(){
 	GM.erase("fast_local");
 	GM.erase("charged_local");
 	GM.invalidate();
-	GM.fetch(function(){
-		UI.sendFeedbackDialog("Latest move data have been fetched");
+	GM.fetch({
+		name: 'move',
+		complete: function(){
+			UI.sendFeedbackDialog("Latest move data have been fetched");
+		}
 	});
 }
 
@@ -292,8 +295,11 @@ function pokemonEditFormReset(){
 	GM.erase("pokemon_local");
 	GM.save();
 	GM.invalidate();
-	GM.fetch(function(){
-		UI.sendFeedbackDialog("Latest Pokemon data have been fetched");
+	GM.fetch({
+		name: "pokemon",
+		complete: function(){
+			UI.sendFeedbackDialog("Latest Pokemon data have been fetched");
+		}
 	});
 }
 
@@ -374,13 +380,15 @@ function userEditFormInit(){
 
 
 function userEditFormAddUser(){
-	let primaryUserID = userID2;
-	userID2 = document.getElementById('userEditForm-userID-1').value.trim();
+	let userid = $("#userEditForm-userID-1").val().trim();
 	GM.invalidate();
-	GM.fetch(function(){
-		updateUserTable();
-		UI.sendFeedbackDialog("Imported user " + userID2, "", updateUserTable);
-		userID2 = primaryUserID;
+	GM.fetch({
+		name: 'user',
+		userid: userid,
+		complete: function(){
+			updateUserTable();
+			UI.sendFeedbackDialog("Imported user " + userid);
+		}
 	});
 }
 
