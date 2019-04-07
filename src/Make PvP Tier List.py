@@ -302,6 +302,20 @@ def make_smogon_tier_list(inF, num_tiers=3):
 
 
 
+def get_all_dominators(index, dominators):
+    '''
+    For a given Pokemon index, find all its direct and indirect dominators.
+    Return a set of indices, including the Pokemon's index.
+    '''
+
+    s = set([index])
+    for dominator_index in dominators[index]:
+        s = s.union(get_all_dominators(dominator_index, dominators))
+    return s
+    
+
+
+
 def make_dominator_tier_list(inF, num_tiers=3):
     '''
     Make dominator style tier list.
@@ -328,7 +342,7 @@ def make_dominator_tier_list(inF, num_tiers=3):
             for pokemon_index in tier_compositions[tier - 1]:
                 
                 # For each Pokemon in the previous tier, remove it and all its dominators
-                pokemon_indices_to_remove = [pokemon_index] + list(dominators[pokemon_index])
+                pokemon_indices_to_remove = get_all_dominators(pokemon_index, dominators)
                 pokemon_indices_remained = [i for i in range(num_pokemon) if i not in pokemon_indices_to_remove]
                 matrix_reduced = copy.deepcopy(matrix)
                 remove_by_indices(matrix_reduced, pokemon_indices_to_remove)
@@ -365,7 +379,7 @@ def make_dominator_tier_list(inF, num_tiers=3):
         
         tier += 1
 
-    print("Dominators:")
+    print("Dominator Sets:")
     for dominatee_index, dominator_indices in enumerate(dominators):
         dominatee_name = pokemon_names[dominatee_index]
         dominator_names = [pokemon_names[i] for i in dominator_indices]
