@@ -285,7 +285,6 @@ function pokemonEditFormSubmit(){
 		GM.set("pokemon", pokemon.name, pokemon);
 		UI.sendFeedbackDialog('Pokemon: ' + pokemon.label + ' has been added.');
 	}
-	console.log(pokemon);
 	GM.set("Pokemon_local", pokemon.name, pokemon);
 	GM.save();
 }
@@ -1123,7 +1122,8 @@ function battleMatrixInit(){
 	});
 	$( "#battleMatrixOpener" ).click(function() {
 		$( "#battleMatrix" ).dialog( "open" );
-	});	
+	});
+	$("#battleMatrix-secondCMove-container").controlgroup();
 }
 
 function parseCSVRow(str, deli, echar){
@@ -1252,22 +1252,34 @@ function battleMatrixReadFromMain(){
 	$("#battleMatrix-input").val(rawInput.join("\n"));
 }
 
-function removeDuplicates(pokemonVector){
+function removeDuplicates(pokemonVector, second_cmove){
 	var uniquePokemonVector = [];
+	
+	function different(x, y){
+		for (var a in x){
+			if (a != "cmove" && a != "cmove2" && a != "nickname" && x[a] != y[a]){
+				return true;
+			}
+		}
+		if (x.cmove == y.cmove && x.cmove2 == y.cmove2){
+			return false;
+		}
+		if (x.cmove == y.cmove2 && x.cmove2 == y.cmove){
+			return false;
+		}
+		return true;
+	}
+	
 	for (let pkm of pokemonVector){
+		pkm.cmove = pkm.cmove.toLowerCase();
+		pkm.cmove2 = pkm.cmove2.toLowerCase();
+		if (second_cmove && pkm.cmove == pkm.cmove2){
+			continue;
+		}
 		var unique = true;
 		for (let pkm2 of uniquePokemonVector){
-			unique = false;
-			for (var a in pkm){
-				if (a != "cmove" && a != "cmove2" && a != "nickname" && pkm[a] != pkm2[a]){
-					unique = true;
-					break;
-				}
-			}
-			if (!unique){
-				unique = !(pkm.cmove == pkm2.cmove && pkm.cmove2 == pkm2.cmove2) && !(pkm.cmove == pkm2.cmove2 && pkm.cmove2 == pkm2.cmove);
-			}
-			if (!unique){
+			if (!different(pkm, pkm2)){
+				unique = false;
 				break;
 			}
 		}
@@ -1323,7 +1335,7 @@ function battleMatrixSubmit(){
 		}
 	}
 	
-	pokemonVector = removeDuplicates(pokemonVector);
+	pokemonVector = removeDuplicates(pokemonVector, $("#battleMatrix-secondCMove")[0].checked);
 	
 	UI.wait(function(){
 		var matrix = generateBattleMatrix(pokemonVector);

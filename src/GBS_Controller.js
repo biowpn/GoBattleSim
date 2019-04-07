@@ -71,7 +71,7 @@ App.init = function() {
 	});
 	$("#timelimit").val(GM.get("battle", "timelimitLegendaryRaidMs"));
 
-	GM.fetch({ 
+	GM.fetch({
 		complete: function(){
 			if (window.location.href.includes('?')){
 				UI.write(UI.importConfig());

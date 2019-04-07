@@ -51,7 +51,12 @@ GBS.parse = function(input, start){
 			let party = player.parties[j];
 			for (var k = start[2]; k < party.pokemon.length; k++){
 				let pokemon = party.pokemon[k];
-				let pokemonInstance = GM.get("pokemon", pokemon.name.trim().toLowerCase()) || {};
+				let species = GM.get("pokemon", pokemon.name.trim().toLowerCase()) || {};
+				for (var a in species){
+					if (!pokemon.hasOwnProperty(a)){
+						pokemon[a] = species[a];
+					}
+				}
 				for (var m = start[3]; m < AttributeDefinition.length; m++){
 					let attrDef = AttributeDefinition[m];
 					let value = (pokemon[attrDef.name] || attrDef.default).toString().toLowerCase();
@@ -72,7 +77,7 @@ GBS.parse = function(input, start){
 						if (SELECTORS.includes(selector)){
 							value = value.slice(1).trim() || attrDef.default;
 						}
-						let matches = GM.select(attrDef.dbname, value, attrDef.name == "name" ? null : pokemonInstance);
+						let matches = GM.select(attrDef.dbname, value, attrDef.name == "name" ? null : pokemon);
 						if (matches.length == 0){
 							return [];
 						}
@@ -242,12 +247,162 @@ var AdditionalSummaryMetrics = {};
 
 
 /**
+	@class A wrapper class to validate and format Pokemon input.
+	@param {Object} kwargs Information defining the Pokemon.
+*/
+function PokemonInput(kwargs) {
+	this.name = (kwargs.name !== undefined ? kwargs.name.toLowerCase() : undefined);
+	let species = null;
+	
+	// 0. Role and immortality
+	let roleArgs = (kwargs.role || "a").split('_');
+	this.role = roleArgs[0].toLowerCase();
+	if (typeof kwargs.immortal == typeof false) {
+		this.immortal = kwargs.immortal;
+	} else {
+		this.immortal = roleArgs[0] == roleArgs[0].toUpperCase();
+	}
+	
+	// 1. The core three stats (Attack, Defense and Stamina)
+	this.Atk = kwargs.Atk;
+	this.Def = kwargs.Def;
+	this.Stm = kwargs.Stm;
+	this.maxHP = kwargs.maxHP;
+	if (typeof this.Atk == typeof 0 && typeof this.Def == typeof 0 && typeof this.Stm == typeof 0) {
+		// If Atk, Def and Stm are all defined, then no need to look up species stats.
+	} else {
+		// Otherwise (at least one of {Atk, Def, Stm} is missing), need to calculate them using Stat = (baseStat + ivStat) * cpm;
+		// 1.1 Find baseAtk, baseDef and baseStm.
+		if (typeof kwargs.baseAtk == typeof 0 && typeof kwargs.baseDef == typeof 0 && typeof kwargs.baseStm == typeof 0) {
+			// If all of them are defined, then no need to look up species stats.
+			this.baseAtk = kwargs.baseAtk;
+			this.baseDef = kwargs.baseDef;
+			this.baseStm = kwargs.baseStm;
+		} else {
+			// Do the look up
+			species = GM.get("pokemon", this.name);
+			if (species == null) {
+				throw new Error("Cannot create Pokemon");
+			}
+			this.baseAtk = species.baseAtk;
+			this.baseDef = species.baseDef;
+			this.baseStm = species.baseStm;
+		}
+		// 1.2 Unless the role of the Pokemon is "rb" (Raid Boss), need to find ivs
+		if (this.role == "rb") {
+			// For raid bosses, attack IV and defense IV are 15. maxHP and cpm are also defined.
+			let raidTier = GM.get("RaidTierSettings", kwargs.raidTier);
+			if (raidTier == null) {
+				throw new Error("Raid Tier not found");
+			}
+			this.atkiv = 15;
+			this.defiv = 15;
+			this.stmiv = 15;
+			this.maxHP = raidTier.maxHP;
+			this.cpm = raidTier.cpm;
+		} else {
+			this.atkiv = kwargs.atkiv;
+			this.defiv = kwargs.defiv;
+			this.stmiv = kwargs.stmiv;
+			if (roleArgs[1] == "basic" || kwargs.atkiv == undefined || kwargs.defiv == undefined || kwargs.stmiv == undefined) {
+				// Infer level and IVs from cp, given base stats.
+				let quartet = inferLevelAndIVs(this, parseInt(kwargs.cp));
+				if (quartet) {
+					this.atkiv = quartet.atkiv;
+					this.defiv = quartet.defiv;
+					this.stmiv = quartet.stmiv;
+					this.level = quartet.level;
+					this.cpm = quartet.cpm;
+				} else {
+					throw new Exception("No combination of IVs and level found");
+				}
+			} else {
+				this.atkiv = parseInt(this.atkiv) || 0;
+				this.defiv = parseInt(this.defiv) || 0;
+				this.stmiv = parseInt(this.stmiv) || 0;
+			}
+		}
+		// 1.3 Find cpm
+		if (typeof this.cpm == typeof 0) {
+			// cpm already defined (such as raid boss), do nothing
+		} else if (typeof kwargs.cpm == typeof 0) {
+			this.cpm = kwargs.cpm;
+		} else {
+			// Find cpm from level
+			this.level = kwargs.level;
+			let levelSetting = GM.get("level", this.level);
+			if (levelSetting == null) {
+				throw new Error("Cannot find level or cpm");
+			}
+			this.cpm = levelSetting.cpm;
+		}
+		// 1.4 With everything ready, calculate the three stats if necessary
+		if (typeof this.Atk != typeof 0) {
+			this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
+		}
+		if (typeof this.Def != typeof 0) {
+			this.Def = (this.baseDef + this.defiv) * this.cpm;
+		}
+		if (typeof this.Stm != typeof 0) {
+			this.Stm = (this.baseStm + this.stmiv) * this.cpm;
+		}
+	}
+	// 1.5 Calculate maxHP
+	if (typeof this.maxHP != typeof 0) {
+		if (this.role == "gd") { // Gym Defender
+			this.maxHP = 2 * Math.floor(this.Stm);
+		} else { // Attacker
+			this.maxHP = Math.floor(this.Stm);
+		}
+	}
+
+	// 2. Moves
+	this.fmove = null;
+	if (typeof kwargs.fmove == typeof "") {
+		this.fmove = GM.get("fast", kwargs.fmove.toLowerCase());
+	} else if (kwargs.fmove) {
+		this.fmove = kwargs.fmove;
+	}
+	
+	this.cmove = null;
+	this.cmoves = [];
+	let cmoves = {};
+	if (Array.isArray(kwargs.cmoves)) {
+		for (let move of kwargs.cmoves) {
+			if (typeof move == typeof "") {
+				move = GM.get("charged", move.toLowerCase());
+			}
+			if (move) {
+				cmoves[move.name] = move;
+			}
+		}
+		this.cmoves = Object.values(cmoves);
+		this.cmove = this.cmoves[0];
+	} else if (typeof kwargs.cmove == typeof "") {
+		let move = GM.get("charged", pokemon.cmove.toLowerCase());
+		if (move) {
+			this.cmove = move;
+			cmoves[move.name] = move;
+		}
+		if (pokemon.cmove2) {
+			if (typeof pokemon.cmove2 == typeof "") {
+				move = GM.get("charged", pokemon.cmove2.toLowerCase());
+			}
+			if (move) {
+				cmoves[move.name] = move;
+			}
+		}
+		this.cmoves = Object.values(cmoves);
+	}
+}
+	
+	
+/**
 	@class A wrapper class to validate and format battle input.
 	@param {Object} kwargs User input for a simulation.
 */
 function BattleInput(kwargs) {
 	deepCopy(this, kwargs);
-	
 	for (let player of this.players) {
 		player.fab = (GM.get("friend", player.friend) || {}).multiplier || 1;
 		for (let party of player.parties) {
@@ -326,7 +481,6 @@ function BattleInput(kwargs) {
 			}
 		}
 	}
-	
 }
 
 
@@ -351,14 +505,41 @@ function calculateCP(pkm){
 	@return {Object} A combination that yields the target CP.
 */
 function inferLevelAndIVs(pkm, cp, exact){
-	var minIV = 0, maxIV = 15;
 	var pkm2 = {baseAtk: pkm.baseAtk, baseDef: pkm.baseDef, baseStm: pkm.baseStm};
+	
 	var levels = [];
-	GM.each("level", function(level){
-		levels.push(level);
-	});
+	if (pkm.level !== undefined) {
+		if (pkm.cpm == undefined) {
+			levels = [GM.get("level", pkm.level)];
+		} else {
+			levels = [{"name": pkm.level.toString(), "cpm": pkm.cpm}];
+		}
+	} else {
+		GM.each("level", function(levelSetting){
+			levels.push(levelSetting);
+		});
+	}	
+	var atkivs = [];
+	if (pkm.atkiv !== undefined) {
+		atkivs = [parseInt(pkm.atkiv)];
+	} else {
+		atkivs = Array(16).fill().map((x, i) => i);
+	}
+	var defivs = [];
+	if (pkm.defiv !== undefined) {
+		defivs = [parseInt(pkm.defiv)];
+	} else {
+		defivs = Array(16).fill().map((x, i) => i);
+	}
+	var stmivs = [];
+	if (pkm.stmiv !== undefined) {
+		stmivs = [parseInt(pkm.stmiv)];
+	} else {
+		stmivs = Array(16).fill().map((x, i) => i);
+	}
+	
 	var minLevelIndex = null;
-	pkm2.atkiv = pkm2.defiv = pkm2.stmiv = maxIV;
+	pkm2.atkiv = pkm2.defiv = pkm2.stmiv = 15;
 	for (var i = 0; i < levels.length; i++){
 		pkm2.cpm = levels[i].cpm;
 		if (calculateCP(pkm2) <= cp)
@@ -368,13 +549,17 @@ function inferLevelAndIVs(pkm, cp, exact){
 	};
 	if (minLevelIndex == null)
 		return null;
-	let pkm3 = {cp: 10, cpm: 0, level: 1, atkiv: minIV, defiv: minIV, stmiv: minIV};
+	
+	let pkm3 = {cpm: levels[0].cpm, level: levels[0].name, atkiv: 0, defiv: 0, stmiv: 0};
 	for (var i = minLevelIndex; i < levels.length; i++){
-		pkm2.level = levels[i].value;
+		pkm2.level = levels[i].name;
 		pkm2.cpm = levels[i].cpm;
-		for (pkm2.atkiv = minIV; pkm2.atkiv <= maxIV; pkm2.atkiv++){
-			for (pkm2.defiv = minIV; pkm2.defiv <= maxIV; pkm2.defiv++){
-				for (pkm2.stmiv = minIV; pkm2.stmiv <= maxIV; pkm2.stmiv++){
+		for (let aktiv of atkivs){
+			pkm2.atkiv = aktiv;
+			for (let defiv of defivs){
+				pkm2.defiv = defiv;
+				for (let stmiv of stmivs){
+					pkm2.stmiv = stmiv;
 					pkm2.cp = calculateCP(pkm2);
 					if (pkm2.cp == cp){
 						return pkm2;

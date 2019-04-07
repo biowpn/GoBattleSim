@@ -432,10 +432,14 @@
 	<textarea id="battleMatrix-input" rows="5" style="width:100%">name,fmove,cmove,cmove2,level,atkiv,defiv,stmiv,strategy2</textarea>
 	
 	<br>
-	<button class='player_button' onclick="battleMatrixReadFromMain()">Read From Simulator Input</button>
+	
 	<table>
 		<thead><col width="50%"><col width="50%"></thead>
 		<tbody>
+			<tr>
+				<td><button class='player_button' onclick="battleMatrixReadFromMain()">Read From Simulator Input</button></td>
+				<td><div id="battleMatrix-secondCMove-container"><label>2nd CMove Filter<input id="battleMatrix-secondCMove" type="checkbox"></input></label></div></td>
+			</tr>
 			<tr>
 				<td><select id="battleMatrix-named"><option value="0">Unnamed Row/Col</option><option value="1">Named Row/Col</option></select></td>
 				<td><input id="battleMatrix-submatrix" placeholder="startRow, endRow, startCol, endCol"></input></td>

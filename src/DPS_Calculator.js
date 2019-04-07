@@ -381,11 +381,11 @@ function generateSpreadsheet(pokemonCollection){
 		var fastMoves_all = pkm.fmove ? [pkm.fmove] : pkm.fastMoves.concat(pkm.fastMoves_legacy).concat(pkm.fastMoves_exclusive);
 		var chargedMoves_all = pkm.cmove ? [pkm.cmove] : pkm.chargedMoves.concat(pkm.chargedMoves_legacy).concat(pkm.chargedMoves_exclusive);
 		for (let fmove of fastMoves_all){
-			fmoveInstance = GM.get("fast", fmove);
+			var fmoveInstance = GM.get("fast", fmove);
 			if (!fmoveInstance)
 				continue;
 			for (let cmove of chargedMoves_all){
-				cmoveInstance = GM.get("charged", cmove);
+				var cmoveInstance = GM.get("charged", cmove);
 				if (!cmoveInstance)
 					continue;
 				var pkmInstance = {};
@@ -409,9 +409,9 @@ function generateSpreadsheet(pokemonCollection){
 				pkmInstance.cp = calculateCP(pkmInstance);
 				calculateDPS(pkmInstance, Context);
 				
-				pkmInstance.ui_name = createIconLabelSpan(pkm.icon, pkm.nickname || pkm.label, 'species-input-with-icon');
-				pkmInstance.ui_fmove = createIconLabelSpan(fmoveInstance.icon, fmoveInstance.label, 'move-input-with-icon');
-				pkmInstance.ui_cmove = createIconLabelSpan(cmoveInstance.icon, cmoveInstance.label, 'move-input-with-icon');
+				pkmInstance.ui_name = createIconLabelSpan(pkm.icon, pkm.labelLinked || pkm.label, 'species-input-with-icon');
+				pkmInstance.ui_fmove = createIconLabelSpan(fmoveInstance.icon, fmoveInstance.labelLinked || fmoveInstance.label, 'move-input-with-icon');
+				pkmInstance.ui_cmove = createIconLabelSpan(cmoveInstance.icon, cmoveInstance.labelLinked || cmoveInstance.label, 'move-input-with-icon');
 				pkmInstance.ui_dps = round(pkmInstance.dps, 3);
 				pkmInstance.ui_tdo = round(pkmInstance.tdo, 1);
 				if (Context.battleMode == "pvp"){
@@ -465,10 +465,16 @@ function requestSpreadsheet(startover){
 		if (pokebox_checkbox.checked){
 			var user = GM.get("user", window.userID2);
 			if (user == null){
+				window.userID2 = prompt("Enter your user ID:").trim();
+				fetchUser(function(){
+					requestSpreadsheet(startover);
+				}, window.userID2);
+				/*
 				UI.sendFeedbackDialog("To use your Pokemon, please log in");
 				pokebox_checkbox.checked = false;
 				$(pokebox_checkbox).button('refresh');
 				return;
+				*/
 			}else{
 				calculationMethod = function(){
 					generateSpreadsheet(user.box);

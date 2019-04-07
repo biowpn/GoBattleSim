@@ -41,6 +41,9 @@ GM.fetch = function(kwargs){
 				insertEntry(pkm, Data.Pokemon);
 			}
 		}
+		for (let user of Data.Users) {
+			user.box = parseUserPokebox(user.box);
+		}
 		for (let pokemon of LocalData.Pokemon)
 			insertEntry(pokemon, Data.Pokemon);
 		for (let move of LocalData.FastMoves)
@@ -390,7 +393,7 @@ function getDatabaseByName(nameDb){
 	Manually modify data.
 	@param {Object} data The master data reference.
 */
-function manuallyModifyData(data){	
+function manuallyModifyData(data){
 	// Hidden Powers
 	var hidden_power = getEntry("hidden power", data.FastMoves);
 	var hidden_power_variations = [];
@@ -623,6 +626,7 @@ function parseUserPokebox(data){
 		$.extend(pkm, species);
 		pkm.nid = data[i].nid;
 		pkm.label = pkm.nickname;
+		pkm.labelLinked = data[i].labelLinked;
 		box.push(pkm);
 	}
 	return box;
@@ -707,7 +711,7 @@ function fetchRaidBosses(oncomplete){
 			Data.RaidBosses = [];
 			data.forEach(function(bossInfo){
 				var parsedBossInfo = {
-					name: (/>(.*?)</.exec(bossInfo.title) || ["", ""])[1],
+					name: bossInfo.title_plain.toLowerCase(),
 					tier: parseInt((/>\s*(\d)\s*</.exec(bossInfo.tier) || [0, 0])[1]),
 					future: (bossInfo.future.toLowerCase() == 'on'),
 					legacy: (bossInfo.legacy.toLowerCase() == 'on'),
@@ -764,6 +768,7 @@ function fetchPokemon(oncomplete){
 					image: data[i].uri,
 					icon: getPokemonIcon(data[i].number),
 					label: data[i].title_1.replace("&#039;", "'"),
+					labelLinked: data[i].title,
 					evolutions: parseMovesFromString(data[i].field_evolutions),
 				};
 				Data.Pokemon.push(pkm);
@@ -832,6 +837,7 @@ function fetchMoves(oncomplete){
 					name: data[i].title.toLowerCase(),
 					pokeType: data[i].move_type.toLowerCase(),
 					label: toTitleCase(data[i].title),
+					labelLinked: data[i].title_linked,
 					icon: getTypeIcon(data[i].move_type),
 					power: 0,
 					dws: 0,
@@ -872,7 +878,7 @@ function fetchMoves(oncomplete){
 					move[a] = move.regular[a];
 				}
 				// Parse move effect
-				if (data[i].subject != undefined) {
+				if (data[i].subject) {
 					move.effect = {
 						name: "StatMod",
 						subject: data[i].subject,
@@ -927,6 +933,7 @@ function fetchUser(oncomplete, userid){
 		dataType: 'json',
 		success: function(data){
 			for (let pokemon of data){
+				pokemon.labelLinked = pokemon.title;
 				pokemon.uid = userid;
 			}
 			user.box = parseUserPokebox(data);
@@ -1202,12 +1209,9 @@ function BasicPokeQuery(queryStr, pokemonInstance){
 		};
 	}else if (str[0] == '?'){ // JavaScript Expression
 		str = str.slice(1);
+		let y = pokemonInstance;
 		return function(x){
-			try {
-				return !!eval(str);
-			} catch (err){
-				return false;
-			}
+			return eval(str);
 		};
 	}else if (str.toLowerCase() == "evolve"){ // The Pokemon has evolution
 		return function(obj){
