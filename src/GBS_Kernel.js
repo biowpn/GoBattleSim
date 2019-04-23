@@ -795,24 +795,27 @@ Strategy.prototype.actionStrategyDodge = function(kwargs){
 
 /**
 	Attacker strategy: PvP
-	1. The primary charge move is the move with the highest DPE
-	2. If a charge move can kill the opponent right away, use it
+	1. If some charge moves can kill the opponent right away, use the one that needs the least energy
+	2. Otherwise, use the primary charge move (highest DPE) if enough energy
+	3. If not enough energy, use fast move
 */
 Strategy.prototype.actionStrategyPvP = function(kwargs){
 	let projectedEnergy = this.getProjectedEnergy(kwargs);
+	let moves_KO_enemy = [];
+	let enemy = this.subject.master.rivals[0].getHead();
 	for (let move of this.subject.cmoves){
-		if (projectedEnergy + move.energyDelta >= 0){
-			if (move.name == this.subject.cmove.name){ // Primary move
-				return {name: ACTION.Charged, move: move.name, delay: 0};
-			} else { // Secondary move
-				let enemy = this.subject.master.rivals[0].getHead();
-				if (kwargs.damageCalc(this.subject, enemy, move) >= enemy.HP){
-					this.subject.cmove = move;
-					return {name: ACTION.Charged, move: move.name, delay: 0};
-				}
-			}
+		if (projectedEnergy + move.energyDelta >= 0 && kwargs.damageCalc(this.subject, enemy, move) >= enemy.HP){
+			moves_KO_enemy.push(move);
 		}
 	}
+	if (moves_KO_enemy.length > 0){ // 1. Moves that can KO enemy right away
+		moves_KO_enemy.sort((x, y) => (Math.abs(x.energyDelta) - Math.abs(y.energyDelta)));
+		return {name: ACTION.Charged, move: moves_KO_enemy[0].name, delay: 0};
+	}
+	if (projectedEnergy + this.subject.cmove.energyDelta >= 0){ // 2. Primary charge move
+		return {name: ACTION.Charged, move: this.subject.cmove.name, delay: 0};
+	}
+	// 3. Fast move
 	return {name: ACTION.Fast, move: this.subject.fmove.name, delay: 0};
 }
 

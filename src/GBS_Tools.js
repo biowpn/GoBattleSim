@@ -1296,7 +1296,6 @@ function battleMatrixSubmit(){
 	var deli = $("#battleMatrix-delimieter").val();
 	var rawInput = $("#battleMatrix-input").val().split("\n");
 	var attributes = parseCSVRow(rawInput[0], deli, '"');
-	
 	var namedRowCol = parseInt($("#battleMatrix-named").val());
 	var subMatrixSpecs = $("#battleMatrix-submatrix").val().split(',');
 	for (var i = 0; i < 4; i++){
@@ -1314,10 +1313,8 @@ function battleMatrixSubmit(){
 			}
 		}
 		pokemon.copies = 1;
-		var wrapperConfig = {
-			players: [{parties: [{pokemon: [pokemon]}]}]
-		};
-		var batchedConfigs = GBS.parse(wrapperConfig);
+		var batchedConfigs = GBS.parse({players: [{parties: [{pokemon: [pokemon]}]}]});
+		
 		function initials(str){
 			var firsts = [];
 			for (let word of (str || "").split(' ')){
