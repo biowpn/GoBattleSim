@@ -617,6 +617,10 @@ Strategy.prototype.setActionStrategy = function(str){
 		this.getActionDecision = this.actionStrategyPvP;
 	}else if (str == "strat6"){
 		this.getActionDecision = this.actionStrategyNoDodgeFastOnly;
+	}else if (str == "strat7"){
+		this.getActionDecision = this.actionStrategyNoDodgeComboOnePlusN;
+	}else if (str == "strat8"){
+		this.getActionDecision = this.actionStrategyNoDodgeComboTwoPlusN;
 	}
 }
 
@@ -742,6 +746,49 @@ Strategy.prototype.actionStrategyNoDodgeFastOnly = function(kwargs){
 }
 
 /**
+	Attacker strategy: No dodge, use the bigger charge move once, then the other
+*/
+Strategy.prototype.actionStrategyNoDodgeComboOnePlusN = function(kwargs){
+	let projectedEnergy = this.getProjectedEnergy(kwargs);
+	this.subject.cmoves.sort((x, y) => (x.energyDelta - y.energyDelta)); // Highest energy cost will be the first
+	if (this.subject.numChargedAttacks < 1) {
+		if (projectedEnergy + this.subject.cmoves[0].energyDelta >= 0){
+			return {name: ACTION.Charged, move: this.subject.cmoves[0].name, delay: 0};
+		}else{
+			return {name: ACTION.Fast, move: this.subject.fmove.name, delay: 0};
+		}
+	} else {
+		if (projectedEnergy + this.subject.cmoves[1].energyDelta >= 0){
+			return {name: ACTION.Charged, move: this.subject.cmoves[1].name, delay: 0};
+		}else{
+			return {name: ACTION.Fast, move: this.subject.fmove.name, delay: 0};
+		}
+	}
+}
+
+/**
+	Attacker strategy: No dodge, use the bigger charge move twice, then the other
+*/
+Strategy.prototype.actionStrategyNoDodgeComboTwoPlusN = function(kwargs){
+	let projectedEnergy = this.getProjectedEnergy(kwargs);
+	this.subject.cmoves.sort((x, y) => (x.energyDelta - y.energyDelta)); // Highest energy cost will be the first
+	if (this.subject.numChargedAttacks < 2) {
+		if (projectedEnergy + this.subject.cmoves[0].energyDelta >= 0){
+			return {name: ACTION.Charged, move: this.subject.cmoves[0].name, delay: 0};
+		}else{
+			return {name: ACTION.Fast, move: this.subject.fmove.name, delay: 0};
+		}
+	} else {
+		if (projectedEnergy + this.subject.cmoves[1].energyDelta >= 0){
+			return {name: ACTION.Charged, move: this.subject.cmoves[1].name, delay: 0};
+		}else{
+			return {name: ACTION.Fast, move: this.subject.fmove.name, delay: 0};
+		}
+	}
+}
+
+
+/**
 	Attacker strategy: Dodge
 */
 Strategy.prototype.actionStrategyDodge = function(kwargs){
@@ -769,7 +816,7 @@ Strategy.prototype.actionStrategyDodge = function(kwargs){
 		return this.actionStrategyNoDodge(kwargs);
 	}
 	let dmg = kwargs.damageCalc(enemy, this.subject, enemy_move);
-	let dodgedDmg = kwargs.dodgeBugActive ? dmg : Math.max(1, Math.floor(dmg * (1 - kwargs.dodgeDamageReductionPercent)));
+	let dodgedDmg = Math.max(1, Math.floor(dmg * (1 - kwargs.dodgeDamageReductionPercent)));
 	if (dodgedDmg >= this.subject.HP){
 		return this.actionStrategyNoDodge(kwargs);
 	}
@@ -795,9 +842,10 @@ Strategy.prototype.actionStrategyDodge = function(kwargs){
 
 /**
 	Attacker strategy: PvP
-	1. If some charge moves can kill the opponent right away, use the one that needs the least energy
-	2. Otherwise, use the primary charge move (highest DPE) if enough energy
-	3. If not enough energy, use fast move
+	TODO:
+	1. If the fast move can KO the enemy, use it right away
+	2. If HP is critical, use the cheaper move
+	3. Use the better move, unless the enemy has shield, or the cheaper move can KO the enemy
 */
 Strategy.prototype.actionStrategyPvP = function(kwargs){
 	let projectedEnergy = this.getProjectedEnergy(kwargs);
@@ -837,7 +885,6 @@ function Battle(config){
 	this.timelimitAdjusted = config.timelimitAdjusted || (this.timelimit - Battle.bdata.arenaEarlyTerminationMs);
 	this.weather = config.weather;
 	this.hasLog = config.hasLog;
-	this.dodgeBugActive = parseInt(config.dodgeBugActive) || false;
 	this.pokemon = []; // An array to manage all Pokemon
 	this.timeline = new Timeline();
 	this.log = [];
@@ -1057,7 +1104,7 @@ Battle.prototype.handleFree = function(event){
 		}
 	}
 	subject.queuedAction = subject.strategy.getActionDecision({
-		t: this.t, tFree: tFree, currentAction: currentAction, damageCalc: this.damage, dodgeBugActive: this.dodgeBugActive, 
+		t: this.t, tFree: tFree, currentAction: currentAction, damageCalc: this.damage,
 		maximumEnergy: Battle.bdata.maximumEnergy, dodgeWindowMs: Battle.bdata.dodgeWindowMs, dodgeDamageReductionPercent: Battle.bdata.dodgeDamageReductionPercent
 	});
 	this.timeline.enqueue({
@@ -1188,33 +1235,29 @@ Battle.prototype.handleEffect = function(event){
 	var subject = this.getPokemonById(event.subject);
 	var move = subject.getMoveByName(event.move);
 	if (!event.activated){
-		if (this.aggregation == "tree" && this.treeHeight < Battle.bdata.maximumTreeHeight && move.effect.probability < 1){
+		if (this.aggregation == "tree" && this.treeHeight < Battle.bdata.maximumTreeHeight && move.effect.activation_chance < 1){
 			var event2 = {};
 			deepCopy(event2, event);
 			event.activated = 1;
-			event.weight = move.effect.probability;
+			event.weight = move.effect.activation_chance;
 			event2.activated = -1;
-			event2.weight = 1 - move.effect.probability;
+			event2.weight = 1 - move.effect.activation_chance;
 			return this.branch([event, event2], function(battle, evt){
 				battle.next(evt);
 				battle.go();
 			});
 		} else {
-			event.activated = Math.random() < move.effect.probability ? 1 : -1;
+			event.activated = Math.random() < move.effect.activation_chance ? 1 : -1;
 		}
 	}
 	if (event.activated == 1){
 		let effect = move.effect;
 		if (effect.name == "StatMod"){
-			let subj = null;
-			if (effect.subject == "Self") {
-				subj = subject;
-			} else {
-				subj = subject.master.rivals[0].getHead();
-			}
-			for (let stat of effect.stat) {
-				subj.buffStat(stat, effect.stageDelta, Battle.bdata.minimumStatStage, Battle.bdata[stat + "BuffMultiplier"]);
-			}
+			let target = subject.master.rivals[0].getHead();
+			subject.buffStat("Atk", effect.self_attack_stage_delta, Battle.bdata.minimumStatStage, Battle.bdata["AtkBuffMultiplier"]);
+			subject.buffStat("Def", effect.self_defense_stage_delta, Battle.bdata.minimumStatStage, Battle.bdata["DefBuffMultiplier"]);
+			target.buffStat("Atk", effect.target_attack_stage_delta, Battle.bdata.minimumStatStage, Battle.bdata["AtkBuffMultiplier"]);
+			target.buffStat("Def", effect.target_defense_stage_delta, Battle.bdata.minimumStatStage, Battle.bdata["DefBuffMultiplier"]);
 		}
 	}
 }

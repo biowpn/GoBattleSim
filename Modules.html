@@ -413,44 +413,62 @@
 </div>
 
 
-<div id='battleMatrix' title="Battle Matrix" style="visibility: hidden;">
+<div id='battleMatrix' title="Battle Matrix" class="container" style="visibility: hidden;">
 
+	<h4>Instructions</h4>
 	<ol>
-		<li>Each Pokemon is a row</li>
-		<li>The first row must be the headers that are the attributes of a Pokemon. E.g., "name"</li>
-		<li>Fields are separated by delimiter <select id="battleMatrix-delimieter" style="width:10%; display:inline">
-												<option value=",">,</option>
-												<option value="&#9;">(tab)</option>
-												<option value="|">|</option>
-											</select>. To escape the delimieter, surround the field by double quotes</li>
-		<li><a href="https://docs.google.com/spreadsheets/d/1ULkDRkVJJbjzA83WflawGaNz_7tMrKRWUKSi7WeV5v8/edit?usp=sharing"><b>Sample I/O</b></a></li>
-		<li><a href="https://youtu.be/Dw2Cw3ybeVs"><b>Video Tutorial</b></a></li>
+		<li>The first row must be the attributes of a Pokemon</li>
+		<li>Fields are separated by TAB or comma. To escape the delimeter, surround the field by double quotes</li>
+		<li><a href="https://youtu.be/Dw2Cw3ybeVs"><b>Video Tutorial</b></a>; 
+			Examples: 
+			<a style="cursor: pointer;" id="example-nightmare"> <b>Nightmare Cup</b> </a>,
+			<a style="cursor: pointer;" id="example-regional"> <b>Regionals Cup</b> </a>
+		</li>
 	</ol>
 	
-	<h3>Input</h3>
+	<h4>Matrix</h4>
+	<div class="form-group">
+		<div class="row">
+			<div class="col-sm-6">
+				<label for="battleMatrix-input">Input Pokemon Pool</label>
+				<textarea class="form-control" id="battleMatrix-input" rows="10" class="text_box">name,fmove,cmove,cmove2,cp</textarea>
+			</div>
+			<div class="col-sm-6">
+				<label for="battleMatrix-output-pokemon-list">Output Pokemon Pool</label>
+				<textarea class="form-control" id="battleMatrix-output-pokemon-list" rows="10"></textarea>
+			</div>
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="row">
+			<div class="col-sm-3">
+				<button class="center_stuff btn btn-primary" id="button-run">Run</button>
+			</div>
+			<div class="col-sm-3">
+				<div id="cbox-container"><label class="center_stuff">Enum Shield Strat<input id="battleMatrix-enum-shields" type="checkbox"></input></label></div>
+			</div>
+			<div class="col-sm-3">
+				<button class="center_stuff btn btn-success" id="button-download-pokemon" disabled>Download Pokemon List</button>
+			</div>
+			<div class="col-sm-3">
+				<button class="center_stuff btn btn-success" id="button-download-matrix" disabled>Download Matrix</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<div class="row">
+			<div class="col">
+				<label for="battleMatrix-output">Output Matrix</label>
+				<textarea class="form-control" id="battleMatrix-output" rows="10" class="text_box"></textarea>
+			</div>
+		</div>
+	</div>
 	
-	<textarea id="battleMatrix-input" rows="5" style="width:100%">name,fmove,cmove,cmove2,level,atkiv,defiv,stmiv,strategy2</textarea>
-	
-	<br>
-	
-	<table>
-		<thead><col width="50%"><col width="50%"></thead>
-		<tbody>
-			<tr>
-				<td><button class='player_button' onclick="battleMatrixReadFromMain()">Read From Simulator Input</button></td>
-				<td><div id="battleMatrix-secondCMove-container"><label>2nd CMove Filter<input id="battleMatrix-secondCMove" type="checkbox"></input></label></div></td>
-			</tr>
-			<tr>
-				<td><select id="battleMatrix-named"><option value="0">Unnamed Row/Col</option><option value="1">Named Row/Col</option></select></td>
-				<td><input id="battleMatrix-submatrix" placeholder="startRow, endRow, startCol, endCol"></input></td>
-			</tr>
-		</tbody>
-	</table>
-	<button class='player_button' onclick="battleMatrixSubmit()">Run</button>
-	<br>
-	
-	<h3>Output</h3>
-	
-	<textarea id="battleMatrix-output" rows="5" style="width:100%"></textarea>
+	<div class="overlay" id="running-screen" style="display: none">
+		<div class="overlay-content" >
+			<div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" ></div>
+		</div>
+    </div>
 	
 </div>

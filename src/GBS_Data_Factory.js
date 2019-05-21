@@ -3,6 +3,7 @@
 	Data Factory. This module manages the game data such as Pokemon stats, Move stats, and type effectiveness matrix. It is basically an extended Game Master.
 	@exports GM
 */
+
 var GM = {};
 
 
@@ -11,6 +12,7 @@ var GM = {};
 	@param kwargs {Object} Keyword arguments. Can specify 'name', 'complete', 'userid'
 */
 GM.fetch = function(kwargs){
+	kwargs = kwargs || {};
 	if (kwargs.name != undefined) {
 		dbname = kwargs.name.toLowerCase();
 		if (dbname == "pokemon") {
@@ -190,6 +192,115 @@ GM.save = function(){
 }
 
 
+/**
+	Convert GBS game master to fit the new GoBattleSim API format.
+	@param {Object} src The source GBS game master, default to Data.
+	@return {Object} GoBattleSim API compatible game master.
+*/
+GM.convert = function(src){
+	src = src || Data;
+	var dst = {};
+	
+	// CPMultipliers
+	dst.CPMultipliers = src.LevelSettings.map(x => x.cpm);
+	
+	// FriendAttackBonusMultipliers
+	dst.FriendAttackBonusMultipliers = src.FriendSettings;
+	
+	// Pokemon
+	dst.Pokemon = src.Pokemon;
+	
+	// PvEMoves & PvPMoves
+	dst.PvEMoves = [];
+	dst.PvPMoves = [];
+	for (var i = 0; i < src.FastMoves.length; ++i) {
+		var move = src.FastMoves[i];
+		var pve_move = {
+			movetype: "fast",
+			name: move.name,
+			pokeType: move.pokeType,
+			power: move.regular.power,
+			energy: move.regular.energyDelta,
+			duration: move.regular.duration,
+			dws: move.regular.dws,
+		};
+		var pvp_move = {
+			movetype: "fast",
+			name: move.name,
+			pokeType: move.pokeType,
+			power: move.combat.power,
+			energy: move.combat.energyDelta,
+			duration: Math.round(move.combat.duration / 500)
+		};
+		dst.PvEMoves.push(pve_move);
+		dst.PvPMoves.push(pvp_move);
+	}
+	for (var i = 0; i < src.ChargedMoves.length; ++i) {
+		var move = src.ChargedMoves[i];
+		var pve_move = {
+			movetype: "charged",
+			name: move.name,
+			pokeType: move.pokeType,
+			power: move.regular.power,
+			energy: move.regular.energyDelta,
+			duration: move.regular.duration,
+			dws: move.regular.dws,
+		};
+		var pvp_move = {
+			movetype: "charged",
+			name: move.name,
+			pokeType: move.pokeType,
+			power: move.combat.power,
+			energy: move.combat.energyDelta,
+			effect: move.effect
+		};
+		dst.PvEMoves.push(pve_move);
+		dst.PvPMoves.push(pvp_move);
+	}
+	
+	// TypeEffectiveness
+	dst.TypeEffectiveness = src.BattleSettings.TypeEffectiveness;
+	
+	// WeatherSettings
+	dst.WeatherSettings = {};
+	for (var t in src.BattleSettings.TypeBoostedWeather) {
+		let w = src.BattleSettings.TypeBoostedWeather[t];
+		if (dst.WeatherSettings[w] == undefined) {
+			dst.WeatherSettings[w] = [];
+		}
+		dst.WeatherSettings[w].push(t);
+	}
+	
+	// RaidTierSettings
+	dst.RaidTierSettings = src.RaidTierSettings;
+	
+	// PvEBattleSettings
+	dst.PvEBattleSettings = {
+		sameTypeAttackBonusMultiplier: src.BattleSettings.sameTypeAttackBonusMultiplier,
+		maximumEnergy: src.BattleSettings.maximumEnergy,
+		energyDeltaPerHealthLost: src.BattleSettings.energyDeltaPerHealthLost,
+		dodgeDurationMs: src.BattleSettings.dodgeDurationMs,
+		swapDurationMs: src.BattleSettings.swapDurationMs,
+		dodgeDamageReductionPercent: src.BattleSettings.dodgeDamageReductionPercent,
+		weatherAttackBonusMultiplier: src.BattleSettings.weatherAttackBonusMultiplier
+	};
+	
+	// PvPBattleSettings
+	dst.PvPBattleSettings = {
+		sameTypeAttackBonusMultiplier: src.BattleSettings.sameTypeAttackBonusMultiplier,
+		fastAttackBonusMultiplier: src.BattleSettings.PvPAttackBonusMultiplier,
+		chargeAttackBonusMultiplier: src.BattleSettings.PvPAttackBonusMultiplier,
+		maxEnergy: src.BattleSettings.maximumEnergy,
+		quickSwapCooldownDurationSeconds: Math.round(src.BattleSettings.switchingCooldownDurationMs / 1000),
+		minimumStatStage: src.BattleSettings.minimumStatStage,
+		maximumStatStage: src.BattleSettings.maximumStatStage,
+		attackBuffMultiplier: src.BattleSettings.AtkBuffMultiplier,
+		defenseBuffMultiplier: src.BattleSettings.DefBuffMultiplier
+	};
+	
+	return dst;
+}
+
 
 /*
 	Non-interface members
@@ -302,12 +413,12 @@ var Data = {
 	],
 	
 	RaidTierSettings: [
-		{"name": "1", "label": "Tier 1", "cpm": 0.6, "maxHP": 600},
-		{"name": "2", "label": "Tier 2", "cpm": 0.67, "maxHP": 1800},
-		{"name": "3", "label": "Tier 3", "cpm": 0.7300000190734863, "maxHP": 3600},
-		{"name": "4", "label": "Tier 4", "cpm": 0.7900000214576721, "maxHP": 9000},
-		{"name": "5", "label": "Tier 5", "cpm": 0.7900000214576721, "maxHP": 15000},
-		{"name": "6", "label": "Tier 6", "cpm": 0.7900000214576721, "maxHP": 18750}
+		{"name": "1", "label": "Tier 1", "cpm": 0.6, "maxHP": 600, "timelimit": 180000},
+		{"name": "2", "label": "Tier 2", "cpm": 0.67, "maxHP": 1800, "timelimit": 180000},
+		{"name": "3", "label": "Tier 3", "cpm": 0.7300000190734863, "maxHP": 3600, "timelimit": 180000},
+		{"name": "4", "label": "Tier 4", "cpm": 0.7900000214576721, "maxHP": 9000, "timelimit": 180000},
+		{"name": "5", "label": "Tier 5", "cpm": 0.7900000214576721, "maxHP": 15000, "timelimit": 300000},
+		{"name": "6", "label": "Tier 6", "cpm": 0.7900000214576721, "maxHP": 18750, "timelimit": 300000}
 	],
 	
 	RaidBosses: [],
@@ -765,12 +876,17 @@ function fetchPokemon(oncomplete){
 					rating: parseFloat(data[i].rating) || 0,
 					raidMarker: '',
 					nid: data[i].nid,
-					image: data[i].uri,
 					icon: getPokemonIcon(data[i].number),
 					label: data[i].title_1.replace("&#039;", "'"),
 					labelLinked: data[i].title,
 					evolutions: parseMovesFromString(data[i].field_evolutions),
 				};
+				if (LegendaryPokemon.includes(pkm.name)) {
+					pkm.rarity = "POKEMON_RARITY_LEGENDARY";
+				}
+				else if (MythicalPokemon.includes(pkm.name)) {
+					pkm.rarity = "POKEMON_RARITY_MYTHIC";
+				}
 				Data.Pokemon.push(pkm);
 			}
 			Data.Pokemon.sort((a, b) => (a.name < b.name ? -1 : 1));
@@ -879,12 +995,17 @@ function fetchMoves(oncomplete){
 				}
 				// Parse move effect
 				if (data[i].subject) {
+					var stage_delta = parseInt(data[i].stage_delta);
+					var subj_self = data[i].subject.includes("Self");
+					var subj_targ = data[i].subject.includes("Opponent");
+					var stat_atk = data[i].stat.includes("Atk");
+					var stat_def = data[i].stat.includes("Def");
 					move.effect = {
-						name: "StatMod",
-						subject: data[i].subject,
-						stat: data[i].stat.split(',').map(x => x.trim()),
-						stageDelta: parseInt(data[i].stage_delta),
-						probability: parseFloat(data[i].probability)
+						activation_chance: parseFloat(data[i].probability),
+						self_attack_stage_delta: (subj_self && stat_atk ? stage_delta : 0),
+						self_defense_stage_delta: (subj_self && stat_def ? stage_delta : 0),
+						target_attack_stage_delta: (subj_targ && stat_atk ? stage_delta : 0),
+						target_defense_stage_delta: (subj_targ && stat_def ? stage_delta : 0)
 					};
 				}
 			}
@@ -1035,7 +1156,7 @@ var acceptedNumericalAttributes = [
 	'duration', 'dws', 'energyDelta', 'value', 'dps', 'tdo'
 ];
 
-var LegendaryPokemon = ['regice', 'entei', 'registeel', 'suicune', 'heatran', 'latias', 'rayquaza', 'azelf', 'moltres', 'mewtwo', 'latios', 'groudon', 'regirock', 'dialga', 'giratina', 'mesprit', 'zapdos', 'lugia', 'regigigas', 'articuno', 'ho-oh', 'kyogre', 'uxie', 'palkia', 'cresselia', 'raikou'];
+var LegendaryPokemon = ['regice', 'entei', 'registeel', 'suicune', 'heatran', 'latias', 'rayquaza', 'azelf', 'moltres', 'mewtwo', 'latios', 'groudon', 'regirock', 'dialga', 'giratina (altered forme)', 'giratina (origin forme)', 'mesprit', 'zapdos', 'lugia', 'regigigas', 'articuno', 'ho-oh', 'kyogre', 'uxie', 'palkia', 'cresselia', 'raikou'];
 var MythicalPokemon = ['arceus', 'darkrai', 'phione', 'shaymin', 'deoxys (attack forme)', 'deoxys (defense forme)', 'deoxys (normal forme)', 'deoxys (speed forme)', 'manaphy', 'celebi', 'mew', 'meltan', 'jirachi', 'melmetal'];
 var BabyPokemon = ['pichu', 'cleffa', 'igglybuff', 'togepi', 'tyrogue', 'smoochum', 'elekid', 'magby', 'azurill', 'wynaut', 'budew', 'chingling', 'bonsly', 'mime jr.', 'happiny', 'munchlax', 'mantyke'];
 
@@ -1219,11 +1340,11 @@ function BasicPokeQuery(queryStr, pokemonInstance){
 		};
 	}else if (str.toLowerCase() == "legendary") { // Match legendary Pokemon
 		return function(obj){
-			return LegendaryPokemon.includes(obj.name);
+			return obj.rarity == "POKEMON_RARITY_LEGENDARY";
 		};
-	}else if (str.toLowerCase() == "mythical") { // Match mythical Pokemon
+	}else if (str.toLowerCase() == "mythic" || str.toLowerCase() == "mythical") { // Match mythical Pokemon
 		return function(obj){
-			return MythicalPokemon.includes(obj.name);
+			return obj.rarity == "POKEMON_RARITY_MYTHIC";
 		};
 	}else if (str.toLowerCase() == "baby") { // Match baby Pokemon
 		return function(obj){

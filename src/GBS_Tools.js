@@ -10,7 +10,7 @@
 /*
 	Non-interface members
 */
-var sampleConfigurations = [{"players":[{"team":"0","friend":"none","parties":[{"name":"","pokemon":[{"name":"Machamp","role":"a","copies":6,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Counter","cmove":"Dynamic Punch","strategy":"strat1"}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Blissey","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Zen Headbutt","cmove":"Dazzling Gleam","strategy":"strat0"},{"name":"Chansey","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Zen Headbutt","cmove":"Dazzling Gleam","strategy":"strat0"},{"name":"Snorlax","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Zen Headbutt","cmove":"Body Slam","strategy":"strat0"},{"name":"Tyranitar","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Smack Down","cmove":"Stone Edge","strategy":"strat0"},{"name":"Lapras","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Frost Breath","cmove":"Ice Beam","strategy":"strat0"},{"name":"Milotic","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Waterfall","cmove":"Surf","strategy":"strat0"}],"revive":false}]}],"battleMode":"gym","timelimit":100000,"weather":"EXTREME","dodgeBugActive":"0","simPerConfig":1,"aggregation":"enum"},{"players":[{"team":"0","friend":"none","parties":[{"name":"","pokemon":[{"name":"Moltres","role":"a","copies":6,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Fire Spin","cmove":"Sky Attack","strategy":"strat1"}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Machamp","role":"rb","copies":1,"raidTier":"3","fmove":"Bullet Punch","cmove":"Heavy Slam","strategy":"strat0"}],"revive":false}]}],"battleMode":"raid","timelimit":180000,"weather":"EXTREME","dodgeBugActive":"0","simPerConfig":1,"aggregation":"enum"},{"players":[{"team":"0","friend":"ultra","parties":[{"name":"","pokemon":[{"name":"Tyranitar","role":"a","copies":6,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Smack Down","cmove":"Stone Edge","strategy":"strat1"}],"revive":true}]},{"team":"0","friend":"ultra","parties":[{"name":"","pokemon":[{"name":"Tyranitar","role":"a","copies":6,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Smack Down","cmove":"Stone Edge","strategy":"strat1"}],"revive":true}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Ho-oh","role":"rb","copies":1,"raidTier":"5","fmove":"Steel Wing","cmove":"Solar Beam","strategy":"strat0"}],"revive":false}]}],"battleMode":"raid","timelimit":300000,"weather":"PARTLY_CLOUDY","dodgeBugActive":"0","simPerConfig":100,"aggregation":"avrg"},{"players":[{"team":"0","friend":"none","parties":[{"name":"","pokemon":[{"name":"Latios","role":"a","copies":1,"level":40,"atkiv":15,"defiv":15,"stmiv":15,"fmove":"Dragon Breath","cmove":"Dragon Claw","cmove2":"Solar Beam","strategy2":""}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Latias","role":"a","copies":1,"level":40,"atkiv":15,"defiv":15,"stmiv":15,"fmove":"Dragon Breath","cmove":"Outrage","cmove2":"Thunder","strategy2":""}],"revive":false}]}],"battleMode":"pvp","timelimit":240000,"weather":"EXTREME","dodgeBugActive":"0","simPerConfig":1,"aggregation":"enum"},{"players":[{"team":"0","friend":"ultra","parties":[{"name":"","pokemon":[{"name":"*$","role":"a","copies":6,"level":"","stmiv":"","atkiv":"","defiv":"","fmove":"","cmove":"","strategy":"strat1"}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Mewtwo","role":"rb","copies":1,"raidTier":"6","fmove":"?current","cmove":"?current","strategy":"strat0"}],"revive":false}]}],"battleMode":"raid","timelimit":300000,"weather":"EXTREME","dodgeBugActive":"0","simPerConfig":20,"aggregation":"avrg"},{"players":[{"team":"0","friend":"ultra","parties":[{"name":"","pokemon":[{"name":"Machamp","role":"a","copies":6,"level":"*30-40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Counter","cmove":"Dynamic Punch","strategy":"strat1"}],"revive":false}]},{"team":"0","friend":"ultra","parties":[{"name":"","pokemon":[{"name":"Machamp","role":"a","copies":6,"level":"=1-1-1","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Counter","cmove":"Dynamic Punch","strategy":"strat1"}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Tyranitar","role":"rb","copies":1,"raidTier":"4","fmove":"Bite","cmove":"Crunch","strategy":"strat0"}],"revive":false}]}],"battleMode":"raid","timelimit":180000,"weather":"EXTREME","dodgeBugActive":"0","simPerConfig":200,"aggregation":"avrg"},{"players":[{"team":"0","friend":"none","parties":[{"name":"","pokemon":[{"name":"!evolve & !$","role":"a","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"*fire & (current, legacy, exclusive)","cmove":"*fire & (current, legacy, exclusive)","strategy":"strat1"}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Chansey","role":"rb","copies":1,"raidTier":"5","fmove":"Zen Headbutt","cmove":"Dazzling Gleam","strategy":"strat0"}],"revive":false}]}],"battleMode":"raid","timelimit":300000,"weather":"EXTREME","dodgeBugActive":"0","simPerConfig":100,"aggregation":"avrg"}];
+var sampleConfigurations = [{"players":[{"team":"0","friend":"none","parties":[{"name":"","pokemon":[{"name":"Machamp","role":"a","copies":6,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Counter","cmove":"Dynamic Punch","strategy":"strat1"}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Blissey","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Zen Headbutt","cmove":"Dazzling Gleam","strategy":"strat0"},{"name":"Chansey","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Zen Headbutt","cmove":"Dazzling Gleam","strategy":"strat0"},{"name":"Snorlax","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Zen Headbutt","cmove":"Body Slam","strategy":"strat0"},{"name":"Tyranitar","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Smack Down","cmove":"Stone Edge","strategy":"strat0"},{"name":"Lapras","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Frost Breath","cmove":"Ice Beam","strategy":"strat0"},{"name":"Milotic","role":"gd","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Waterfall","cmove":"Surf","strategy":"strat0"}],"revive":false}]}],"battleMode":"gym","timelimit":100000,"weather":"EXTREME","simPerConfig":1,"aggregation":"enum"},{"players":[{"team":"0","friend":"none","parties":[{"name":"","pokemon":[{"name":"Moltres","role":"a","copies":6,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Fire Spin","cmove":"Sky Attack","strategy":"strat1"}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Machamp","role":"rb","copies":1,"raidTier":"3","fmove":"Bullet Punch","cmove":"Heavy Slam","strategy":"strat0"}],"revive":false}]}],"battleMode":"raid","timelimit":180000,"weather":"EXTREME","simPerConfig":1,"aggregation":"enum"},{"players":[{"team":"0","friend":"ultra","parties":[{"name":"","pokemon":[{"name":"Tyranitar","role":"a","copies":6,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Smack Down","cmove":"Stone Edge","strategy":"strat1"}],"revive":true}]},{"team":"0","friend":"ultra","parties":[{"name":"","pokemon":[{"name":"Tyranitar","role":"a","copies":6,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Smack Down","cmove":"Stone Edge","strategy":"strat1"}],"revive":true}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Ho-oh","role":"rb","copies":1,"raidTier":"5","fmove":"Steel Wing","cmove":"Solar Beam","strategy":"strat0"}],"revive":false}]}],"battleMode":"raid","timelimit":300000,"weather":"PARTLY_CLOUDY","simPerConfig":100,"aggregation":"avrg"},{"players":[{"team":"0","friend":"none","parties":[{"name":"","pokemon":[{"name":"Latios","role":"a","copies":1,"level":40,"atkiv":15,"defiv":15,"stmiv":15,"fmove":"Dragon Breath","cmove":"Dragon Claw","cmove2":"Solar Beam","strategy2":""}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Latias","role":"a","copies":1,"level":40,"atkiv":15,"defiv":15,"stmiv":15,"fmove":"Dragon Breath","cmove":"Outrage","cmove2":"Thunder","strategy2":""}],"revive":false}]}],"battleMode":"pvp","timelimit":240000,"weather":"EXTREME","simPerConfig":1,"aggregation":"enum"},{"players":[{"team":"0","friend":"ultra","parties":[{"name":"","pokemon":[{"name":"*$","role":"a","copies":6,"level":"","stmiv":"","atkiv":"","defiv":"","fmove":"","cmove":"","strategy":"strat1"}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Mewtwo","role":"rb","copies":1,"raidTier":"6","fmove":"?current","cmove":"?current","strategy":"strat0"}],"revive":false}]}],"battleMode":"raid","timelimit":300000,"weather":"EXTREME","simPerConfig":20,"aggregation":"avrg"},{"players":[{"team":"0","friend":"ultra","parties":[{"name":"","pokemon":[{"name":"Machamp","role":"a","copies":6,"level":"*30-40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Counter","cmove":"Dynamic Punch","strategy":"strat1"}],"revive":false}]},{"team":"0","friend":"ultra","parties":[{"name":"","pokemon":[{"name":"Machamp","role":"a","copies":6,"level":"=1-1-1","stmiv":"15","atkiv":"15","defiv":"15","fmove":"Counter","cmove":"Dynamic Punch","strategy":"strat1"}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Tyranitar","role":"rb","copies":1,"raidTier":"4","fmove":"Bite","cmove":"Crunch","strategy":"strat0"}],"revive":false}]}],"battleMode":"raid","timelimit":180000,"weather":"EXTREME","simPerConfig":200,"aggregation":"avrg"},{"players":[{"team":"0","friend":"none","parties":[{"name":"","pokemon":[{"name":"!evolve & !$","role":"a","copies":1,"level":"40","stmiv":"15","atkiv":"15","defiv":"15","fmove":"*fire & (current, legacy, exclusive)","cmove":"*fire & (current, legacy, exclusive)","strategy":"strat1"}],"revive":false}]},{"team":"1","friend":"none","parties":[{"name":"","pokemon":[{"name":"Chansey","role":"rb","copies":1,"raidTier":"5","fmove":"Zen Headbutt","cmove":"Dazzling Gleam","strategy":"strat0"}],"revive":false}]}],"battleMode":"raid","timelimit":300000,"weather":"EXTREME","simPerConfig":100,"aggregation":"avrg"}];
 
 
 
@@ -1115,15 +1115,36 @@ function typeCheckerSubmit(){
 
 
 function battleMatrixInit(){
+	GBS.HostURL = "https://pogoapi.gamepress.gg";
+	
 	$( "#battleMatrix" ).attr("style", "visibility: show;");
 	$( "#battleMatrix" ).dialog({ 
 		autoOpen: false,
-		width: 800
+		width: 1200
 	});
 	$( "#battleMatrixOpener" ).click(function() {
 		$( "#battleMatrix" ).dialog( "open" );
 	});
-	$("#battleMatrix-secondCMove-container").controlgroup();
+	
+	$("#cbox-container").controlgroup();
+	$("#button-run").button();
+	$("#button-run").on("click", battleMatrixSubmit);
+	
+	$("#example-nightmare").on("click", function(){
+		$("#battleMatrix-input").text('name\tfmove\tcmove\tcmove2\tcp\n"(psychic, dark, fighting) & !legendary & !mythical"\t*\t*\t*\t1500');
+	});
+	
+	$("#example-regional").on("click", function(){
+		$("#battleMatrix-input").text('name\tfmove\tcmove\tcmove2\tcp\n"!bug & !normal & !legendary & !mythical"\t*\t*\t*\t1500');
+	});
+	
+	$("#button-download-pokemon").on("click", function(){
+		makeAndDownloadCSV(currentPokemonList, "pokemon_list.csv");
+	});
+	
+	$("#button-download-matrix").on("click", function(){
+		makeAndDownloadCSV(currentMatrix, "matrix.csv");
+	});
 }
 
 function parseCSVRow(str, deli, echar){
@@ -1151,217 +1172,114 @@ function parseCSVRow(str, deli, echar){
 	return data;
 }
 
-
-function battleScore(x, y){
-	if (x.strategy2 == "?"){
-		x.strategy2 = "0";
-		let score1 = battleScore(x, y);
-		x.strategy2 = "1";
-		let score2 = battleScore(x, y);
-		x.strategy2 = "?";
-		return (score1 + score2)/2;
+function try_parse(v) {
+	if (isNaN(parseFloat(v))) {
+		return v;
+	} else {
+		return parseFloat(v);
 	}
-	if (y.strategy2 == "?"){
-		y.strategy2 = "0";
-		let score1 = battleScore(x, y);
-		y.strategy2 = "1";
-		let score2 = battleScore(x, y);
-		y.strategy2 = "?";
-		return (score1 + score2)/2;
-	}
-	var input = {
-	  "players": [
-		{
-		  "team": "0",
-		  "parties": [
-			{
-			  "name": "", "pokemon": [x], "revive": false
-			}
-		  ]
-		},
-		{
-		  "team": "1",
-		  "parties": [
-			{
-			  "name": "", "pokemon": [y], "revive": false
-			}
-		  ]
-		}
-	  ],
-	  "battleMode": "pvp",
-	  "timelimit": 240000,
-	  "aggregation": "tree"
-	};
-	var output = GBS.run(input);
-	
-	let statistics = output.statistics;
-	let statsX = statistics.players[0].parties[0].pokemon[0];
-	let statsY = statistics.players[1].parties[0].pokemon[0];
-	return ((statsY.maxHP - Math.max(0, statsY.hp))/statsY.maxHP) - ((statsX.maxHP - Math.max(0, statsX.hp))/statsX.maxHP);
 }
 
-function generateBattleMatrix(P){
-	for (let pkm of P){
-		pkm.strategy = "strat5";
-		if (pkm.hasOwnProperty("cp")){
-			let species = GM.get("pokemon", pkm.name.toLowerCase().trim());
-			let levelAndIVs = inferLevelAndIVs(species, parseInt(pkm.cp));
-			pkm.level = levelAndIVs.level;
-			pkm.atkiv = levelAndIVs.atkiv;
-			pkm.defiv = levelAndIVs.defiv;
-			pkm.stmiv = levelAndIVs.stmiv;
-		}
+function makeAndDownloadCSV(arrayOfLines, filename) {
+	filename = filename || "my_data.csv";
+	var lineArray = [];
+	arrayOfLines.forEach(function (infoArray, index) {
+		lineArray.push(infoArray.join(","));
+	});
+	var csvContent = lineArray.join("\n");
+
+	var blob = new Blob([ csvContent ], {
+		type : "application/csv;charset=utf-8;"
+	});
+
+	if (window.navigator.msSaveBlob) {
+		// FOR IE BROWSER
+		navigator.msSaveBlob(blob, filename);
+	} else {
+		// FOR OTHER BROWSERS
+		var link = document.createElement("a");
+		var csvUrl = URL.createObjectURL(blob);
+		link.href = csvUrl;
+		link.style = "visibility:hidden";
+		link.download = filename;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
 	}
-	var matrix = [];
-	var n = P.length;
-	for (var i = 0; i < n; i++){
-		matrix.push(new Array(n));
-	}
-	for (var i = 0; i < n; i++){
-		matrix[i][i] = 0;
-		for (var j = i + 1; j < n; j++){
-			let score = (battleScore(P[i], P[j]) - battleScore(P[j], P[i])) / 2;
-			matrix[i][j] = score;
-			matrix[j][i] = -score;
-		}
-	}
-	return matrix;
 }
 
-function battleMatrixReadFromMain(){
-	var deli = $("#battleMatrix-delimieter").val();
-	var rawInput = $("#battleMatrix-input").val().split("\n");
-	var attributes = parseCSVRow(rawInput[0], deli, '"');
-	
-	var config = UI.read();
-	for (let player of config.players){
-		for (let party of player.parties){
-			for (let pokemon of party.pokemon){
-				var pokemonRow = [];
-				for (let a of attributes){
-					var attr = pokemon[a] || "";
-					if (attr.includes(deli)){
-						attr = '"' + attr + '"';
-					}
-					pokemonRow.push(attr);
-				}
-				rawInput.push(pokemonRow.join(deli));
-			}
-		}
+function makeAndDisplay(arrayOfLines, deli, textareaEl) {
+	var lines = [];
+	for (var i = 0; i < arrayOfLines.length; ++i) {
+		lines.push(arrayOfLines[i].join(deli));
 	}
-	$("#battleMatrix-input").val(rawInput.join("\n"));
-}
-
-function removeDuplicates(pokemonVector, second_cmove){
-	var uniquePokemonVector = [];
-	
-	function different(x, y){
-		for (var a in x){
-			if (a != "cmove" && a != "cmove2" && a != "nickname" && x[a] != y[a]){
-				return true;
-			}
-		}
-		if (x.cmove == y.cmove && x.cmove2 == y.cmove2){
-			return false;
-		}
-		if (x.cmove == y.cmove2 && x.cmove2 == y.cmove){
-			return false;
-		}
-		return true;
-	}
-	
-	for (let pkm of pokemonVector){
-		pkm.cmove = pkm.cmove.toLowerCase();
-		pkm.cmove2 = pkm.cmove2.toLowerCase();
-		if (second_cmove && pkm.cmove == pkm.cmove2){
-			continue;
-		}
-		var unique = true;
-		for (let pkm2 of uniquePokemonVector){
-			if (!different(pkm, pkm2)){
-				unique = false;
-				break;
-			}
-		}
-		if (unique){
-			uniquePokemonVector.push(pkm);
-		}
-	}
-	return uniquePokemonVector;
+	$(textareaEl).text(lines.join('\n'));
 }
 
 function battleMatrixSubmit(){
-	GBS.mode("pvp");
-	
-	var deli = $("#battleMatrix-delimieter").val();
-	var rawInput = $("#battleMatrix-input").val().split("\n");
-	var attributes = parseCSVRow(rawInput[0], deli, '"');
-	var namedRowCol = parseInt($("#battleMatrix-named").val());
-	var subMatrixSpecs = $("#battleMatrix-submatrix").val().split(',');
-	for (var i = 0; i < 4; i++){
-		subMatrixSpecs[i] = parseInt(subMatrixSpecs[i]);
+	var rawInput = $("#battleMatrix-input").val().trim().split("\n");
+	var deli;
+	if (rawInput[0].includes("\t"))
+	{
+		deli = "\t";
+	}else{
+		deli = ",";
 	}
 	
+	var attributes = parseCSVRow(rawInput[0], deli, '"');
 	var pokemonVector = [];
 	for (var i = 1; i < rawInput.length; i++){
 		var rowData = parseCSVRow(rawInput[i], deli, '"');
 		var pokemon = {};
 		for (var j = 0; j < attributes.length; j++){
-			pokemon[attributes[j]] = (rowData[j] || "");
-			if (pokemon[attributes[j]] == "*"){
-				pokemon[attributes[j]] = "";
-			}
+			pokemon[attributes[j]] = try_parse((rowData[j] || ""));
 		}
-		pokemon.copies = 1;
-		var batchedConfigs = GBS.parse({players: [{parties: [{pokemon: [pokemon]}]}]});
-		
-		function initials(str){
-			var firsts = [];
-			for (let word of (str || "").split(' ')){
-				firsts.push(word[0].toUpperCase());
-			}
-			return firsts.join('');
-		}
-		
-		for (let cfg of batchedConfigs){
-			let p = cfg.players[0].parties[0].pokemon[0];
-			if (p.nickname == ""){
-				p.nickname = [initials(p.fmove), initials(p.cmove), initials(p.cmove2)].join('.') + ' ' + p.name;
-			}
-			pokemonVector.push(p);
-		}
+		pokemonVector.push(pokemon);
 	}
 	
-	pokemonVector = removeDuplicates(pokemonVector, $("#battleMatrix-secondCMove")[0].checked);
+	var reqInput = {
+		"pokemonList": pokemonVector,
+		"enumShields": document.getElementById("battleMatrix-enum-shields").checked,
+		"GameMaster": GM.convert()
+	};
 	
-	UI.wait(function(){
-		var matrix = generateBattleMatrix(pokemonVector);
-		let startRow = Math.max(1, subMatrixSpecs[0] || 1) - 1;
-		let endRow = Math.min(matrix.length, subMatrixSpecs[1] || matrix.length);
-		let startCol = Math.max(1, subMatrixSpecs[2] || 1) - 1;
-		let endCol = Math.min(matrix.length, subMatrixSpecs[3] || matrix.length);
-		matrix = matrix.slice(startRow, endRow);
-		for (var i = 0; i < matrix.length; i++){
-			matrix[i] = matrix[i].slice(startCol, endCol);
+	$("#running-screen").show();
+	GBS.submit("BattleMatrix", reqInput, function(reqOutput){
+		var out_pkm_list = reqOutput["pokemonList"];
+		currentMatrix = reqOutput["matrix"];
+		
+		var pkm_attrs = [];
+		if (out_pkm_list.length > 0){
+			for (var a in out_pkm_list[0]){
+				pkm_attrs.push(a);
+			}
+		}else{
+			return;
+		}
+		currentPokemonList = [pkm_attrs];
+		for (var i = 0; i < out_pkm_list.length; i++){
+			var row = [];
+			for (var j = 0; j < pkm_attrs.length; j++){
+				row.push(out_pkm_list[i][pkm_attrs[j]] || "");
+			}
+			currentPokemonList.push(row);
+		}
+		if (currentPokemonList.length < 100) {
+			makeAndDisplay(currentPokemonList, deli, "#battleMatrix-output-pokemon-list");
+		} else {
+			$("#battleMatrix-output-pokemon-list").text("Pokemon List too large to display. Please download as .csv");
 		}
 		
-		if (namedRowCol){
-			for (var i = 0; i < matrix.length; i++){
-				let pkm = pokemonVector[i + startRow];
-				matrix[i].unshift(pkm.nickname || pkm.name);
-			}
-			var headerRow = [""];
-			for (var i = 0; i < endCol - startCol; i++){
-				let pkm = pokemonVector[i + startCol];
-				headerRow.push(pkm.nickname || pkm.name);
-			}
-			matrix.unshift(headerRow);
+		if (currentMatrix.length < 100) {
+			makeAndDisplay(currentMatrix, deli, "#battleMatrix-output");
+		} else {
+			$("#battleMatrix-output").text("Matrix too large to display. Please download as .csv");
 		}
 		
-		var rawOutputRows = [];
-		for (var i = 0; i < matrix.length; i++){
-			rawOutputRows.push(matrix[i].join("\t"));
-		}
-		document.getElementById("battleMatrix-output").value = rawOutputRows.join("\n");
-	}, "Running...");
+		$("#button-download-pokemon").attr("disabled", false);
+		$("#button-download-matrix").attr("disabled", false);
+		
+	}, function(){
+		$("#running-screen").hide();
+	});
 }

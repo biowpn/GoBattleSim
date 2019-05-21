@@ -34,8 +34,6 @@ App.init = function() {
 		userEditFormInit();
 		MVLTableInit();
 		teamBuilderInit();
-		typeCheckerInit();
-		battleMatrixInit();
 	}catch(err){
 		console.log(err);
 	}

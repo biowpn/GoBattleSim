@@ -2,6 +2,7 @@
 <script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/v/ju/dt-1.10.16/r-2.2.1/sc-1.4.4/datatables.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
 
 <script type="text/javascript" src="src/GBS_Controller.js"></script>
 <script type="text/javascript" src="src/GBS_Data_Factory.js"></script>
@@ -17,6 +18,11 @@
 <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/scroller/1.4.4/css/scroller.dataTables.min.css" rel="stylesheet">
 <link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+
 
 <style>
 	table {
@@ -186,6 +192,42 @@
 		position: absolute;
 		width: 90%;
 	}
+	
+	
+	
+	.center_stuff {
+		width: 100%;
+		text-align: center;
+	}
+	
+	.text_box {
+		width: 100%;
+	}
+
+	.overlay {
+	  height: 100%;
+	  width: 100%;
+	  position: fixed;
+	  z-index: 1;
+	  left: 0;
+	  top: 0;
+	  background-color: rgb(0,0,0);
+	  background-color: rgba(0,0,0, 0.9);
+	  overflow-x: hidden;
+	  transition: 0.5s;
+	}
+
+	.overlay-content {
+	  position: relative;
+	  top: 40%;
+	  width: 100%;
+	  text-align: center;
+	  margin-top: 30px;
+	}
+	
+	.col-sm-3, col-sm-6 {
+		padding-bottom: 4px;
+	}
 
 </style>
 
@@ -259,15 +301,6 @@
 			<th>Weather</th>
 			<td>
 				<select name="input-weather"></select>
-			</td>
-		</tr>
-		<tr>
-			<th>Dodge Bug</th>
-			<td>
-				<select name="input-dodgeBugActive">
-					<option value="0">Absent</option>
-					<option value="1">Present</option>
-				</select>
 			</td>
 		</tr>
 		<tr>

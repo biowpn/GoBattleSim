@@ -616,11 +616,13 @@ function createPokemonStrategyInput(){
 	var strategyInput = createElement('select', '', {name: "pokemon-strategy"});
 	strategyInput.appendChild(createElement('option', 'No Dodge', {value: "strat1"}));
 	strategyInput.appendChild(createElement('option', 'No Dodge Burst', {value: "strat4"}));
+	strategyInput.appendChild(createElement('option', 'No Dodge Combo 1+N', {value: "strat7"}));
+	strategyInput.appendChild(createElement('option', 'No Dodge Combo 2+N', {value: "strat8"}));
 	strategyInput.appendChild(createElement('option', 'No Dodge Fast Only ', {value: "strat6"}));
 	strategyInput.appendChild(createElement('option', 'Dodge Charged', {value: "strat2"}));
 	strategyInput.appendChild(createElement('option', 'Dodge All', {value: "strat3"}));
 	strategyInput.appendChild(createElement('option', 'Defender AI', {value: "strat0"}));
-	strategyInput.appendChild(createElement('option', 'PvP Smart', {value: "strat5"}));
+	strategyInput.appendChild(createElement('option', 'PvP Basic', {value: "strat5"}));
 	strategyInput.comply = function(kwargs){
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym"){

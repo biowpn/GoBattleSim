@@ -239,6 +239,53 @@ GBS.mode = function(mode){
 
 
 /*
+	Use pogoapi.gamepress.gg simulator engine
+*/
+GBS.submit = function(reqType, reqInput, reqOutput_handler, oncomplete) {
+	if (GBS.Processing) {
+		return;
+	}
+	GBS.Processing = 1;
+	
+	var request_json = {
+		"reqId": GBS.RequestId,
+		"reqType": reqType,
+		"reqInput": reqInput
+	};
+	
+	$.ajax({
+		url: GBS.HostURL,
+		type: "POST",
+		dataType: "json",
+		data: JSON.stringify(request_json),
+		processData: false,
+		success: function(resp){
+			while (DialogStack.length > 0) {
+				DialogStack.pop().dialog('close');
+			}
+			reqOutput_handler(resp["reqOutput"]);
+		},		
+		error: function(jqXHR, textStatus, errorThrown){
+			while (DialogStack.length > 0) {
+				DialogStack.pop().dialog('close');
+			}
+			UI.sendFeedbackDialog(errorThrown);
+		},
+		complete: function(){
+			GBS.RequestId++;
+			GBS.Processing = 0;
+			if (oncomplete) {
+				oncomplete();
+			}
+		}
+	});
+}
+
+
+
+
+
+/*
 	Non-interface members
 */
 
