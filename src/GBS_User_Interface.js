@@ -1168,27 +1168,46 @@ var copyToClipboard = str => {
 
 function getTableContent(dt){
 	var content = [];
-	let r = [];
 	let headers = dt.columns().header();
-	for (var i = 0; i < headers.length; i++){
-		r.push(headers[i].innerText.trim());
-	}
-	content.push(r);
+	content.push(headers.map(x => x.innerText.trim()));
 	
-	let attributes = [];
-	let dataSrc = dt.columns().dataSrc();
-	for (var i = 0; i < dataSrc.length; i++){
-		attributes.push(dataSrc[i]);
-	}
-	var data = dt.rows({search: "applied"}).data();
+	let attributes = dt.columns().dataSrc();
+	let data = dt.rows({search: "applied"}).data();
 	for (var i = 0; i < data.length; i++){
-		let r = [];
+		let row = [];
 		for (let attr of attributes){
-			r.push(createElement("div", data[i][attr]).innerText.trim());
+			row.push($("<div>" + data[i][attr] + "</div>").text());
 		}
-		content.push(r);
+		content.push(row);
 	}
 	return content;
+}
+
+
+function makeAndDownloadCSV(arrayOfLines, filename) {
+	filename = filename || "whatever.csv";
+	var lineArray = [];
+	arrayOfLines.forEach(function (infoArray) {
+		lineArray.push(infoArray.map(x => '"' + x.toLocaleString() + '"').join(","));
+	});
+	var csvContent = lineArray.join("\n");
+	var blob = new Blob([ csvContent ], {
+		type : "application/csv;charset=utf-8;"
+	});
+	if (window.navigator.msSaveBlob) {
+		// FOR IE BROWSER
+		navigator.msSaveBlob(blob, filename);
+	} else {
+		// FOR OTHER BROWSERS
+		var link = document.createElement("a");
+		var csvUrl = URL.createObjectURL(blob);
+		link.href = csvUrl;
+		link.style = "visibility:hidden";
+		link.download = filename;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	}
 }
 
 
@@ -1211,27 +1230,8 @@ function copyTableToClipboard(elementId){
 
 
 function exportTableToCSV(elementId, filename){
-	filename = filename || "table.csv";
-	let csvStr = "data:text/csv;charset=utf-8,";
 	var content = getTableContent($("#" + elementId).DataTable());
-	var language = window.navigator.userLanguage || window.navigator.language || "en";
-	for (var i = 0; i < content.length; i++){
-		for (var j = 0; j < content[i].length; j++){
-			let num = parseFloat(content[i][j]);
-			if (!isNaN(num)){
-				content[i][j] = num.toLocaleString(language);
-			}
-			content[i][j] = '"' + content[i][j] + '"';
-		}
-		csvStr += content[i].join(",") + "\r\n";
-	}
-	var encodedUri = encodeURI(csvStr);
-	var link = document.createElement("a");
-	link.setAttribute("href", encodedUri);
-	link.setAttribute("download", filename);
-	link.innerHTML= "Click Here to download";
-	document.body.appendChild(link);
-	link.click();
+	makeAndDownloadCSV(content, filename);
 }
 
 

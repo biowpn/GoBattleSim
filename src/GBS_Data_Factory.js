@@ -46,12 +46,21 @@ GM.fetch = function(kwargs){
 		for (let user of Data.Users) {
 			user.box = parseUserPokebox(user.box);
 		}
-		for (let pokemon of LocalData.Pokemon)
+		
+		for (let pokemon of LocalData.Pokemon) {
 			insertEntry(pokemon, Data.Pokemon);
-		for (let move of LocalData.FastMoves)
+		}
+		for (let move of LocalData.FastMoves){
 			insertEntry(move, Data.FastMoves);
-		for (let move of Data.ChargedMoves)
+		}
+		for (let move of LocalData.ChargedMoves) {
 			insertEntry(move, Data.ChargedMoves);
+		}
+		for (var param in LocalData.BattleSettings)
+		{
+			Data.BattleSettings[param] = LocalData.BattleSettings[param];
+		}
+
 		manuallyModifyData(Data);
 		(kwargs.complete || function(){})();
 	}
@@ -178,8 +187,9 @@ GM.each = function(nameDb, cackbankfn) {
 }
 /**
 	@callback GMeachCallback
-	@param {Object} object The current entry of the database.
-	@return {null|Object} If returns anything, the entry in the database will be updated.
+	@param {Object} object The current entry being iterrated.
+	@param {Integer} index The index/key of the current entry.
+	@return {null|Object} If return anything, the entry in the database will be updated to the return value.
 */
 
 /**
@@ -202,101 +212,122 @@ GM.convert = function(src){
 	var dst = {};
 	
 	// CPMultipliers
-	dst.CPMultipliers = src.LevelSettings.map(x => x.cpm);
-	
-	// FriendAttackBonusMultipliers
-	dst.FriendAttackBonusMultipliers = src.FriendSettings;
+	if (src.LevelSettings) {
+		dst.CPMultipliers = src.LevelSettings.map(x => x.cpm);
+	}
 	
 	// Pokemon
-	dst.Pokemon = src.Pokemon;
+	if (src.Pokemon) {
+		dst.Pokemon = src.Pokemon;
+	}
 	
 	// PvEMoves & PvPMoves
 	dst.PvEMoves = [];
 	dst.PvPMoves = [];
-	for (var i = 0; i < src.FastMoves.length; ++i) {
-		var move = src.FastMoves[i];
-		var pve_move = {
-			movetype: "fast",
-			name: move.name,
-			pokeType: move.pokeType,
-			power: move.regular.power,
-			energy: move.regular.energyDelta,
-			duration: move.regular.duration,
-			dws: move.regular.dws,
-		};
-		var pvp_move = {
-			movetype: "fast",
-			name: move.name,
-			pokeType: move.pokeType,
-			power: move.combat.power,
-			energy: move.combat.energyDelta,
-			duration: Math.round(move.combat.duration / 500)
-		};
-		dst.PvEMoves.push(pve_move);
-		dst.PvPMoves.push(pvp_move);
-	}
-	for (var i = 0; i < src.ChargedMoves.length; ++i) {
-		var move = src.ChargedMoves[i];
-		var pve_move = {
-			movetype: "charged",
-			name: move.name,
-			pokeType: move.pokeType,
-			power: move.regular.power,
-			energy: move.regular.energyDelta,
-			duration: move.regular.duration,
-			dws: move.regular.dws,
-		};
-		var pvp_move = {
-			movetype: "charged",
-			name: move.name,
-			pokeType: move.pokeType,
-			power: move.combat.power,
-			energy: move.combat.energyDelta,
-			effect: move.effect
-		};
-		dst.PvEMoves.push(pve_move);
-		dst.PvPMoves.push(pvp_move);
-	}
-	
-	// TypeEffectiveness
-	dst.TypeEffectiveness = src.BattleSettings.TypeEffectiveness;
-	
-	// WeatherSettings
-	dst.WeatherSettings = {};
-	for (var t in src.BattleSettings.TypeBoostedWeather) {
-		let w = src.BattleSettings.TypeBoostedWeather[t];
-		if (dst.WeatherSettings[w] == undefined) {
-			dst.WeatherSettings[w] = [];
+	if (src.FastMoves) {
+		for (var i = 0; i < src.FastMoves.length; ++i) {
+			var move = src.FastMoves[i];
+			var pve_move = {
+				movetype: "fast",
+				name: move.name,
+				pokeType: move.pokeType,
+				power: move.regular.power,
+				energy: move.regular.energyDelta,
+				duration: move.regular.duration,
+				dws: move.regular.dws,
+				icon: move.icon,
+				label: move.label
+			};
+			var pvp_move = {
+				movetype: "fast",
+				name: move.name,
+				pokeType: move.pokeType,
+				power: move.combat.power,
+				energy: move.combat.energyDelta,
+				duration: Math.round(move.combat.duration / 500),
+				icon: move.icon,
+				label: move.label
+			};
+			dst.PvEMoves.push(pve_move);
+			dst.PvPMoves.push(pvp_move);
 		}
-		dst.WeatherSettings[w].push(t);
+	}
+	if (src.ChargedMoves) {
+		for (var i = 0; i < src.ChargedMoves.length; ++i) {
+			var move = src.ChargedMoves[i];
+			var pve_move = {
+				movetype: "charged",
+				name: move.name,
+				pokeType: move.pokeType,
+				power: move.regular.power,
+				energy: move.regular.energyDelta,
+				duration: move.regular.duration,
+				dws: move.regular.dws,
+				icon: move.icon,
+				label: move.label
+			};
+			var pvp_move = {
+				movetype: "charged",
+				name: move.name,
+				pokeType: move.pokeType,
+				power: move.combat.power,
+				energy: move.combat.energyDelta,
+				effect: move.effect,
+				icon: move.icon,
+				label: move.label
+			};
+			dst.PvEMoves.push(pve_move);
+			dst.PvPMoves.push(pvp_move);
+		}
 	}
 	
+	
+	if (src.BattleSettings) {
+		// TypeEffectiveness
+		dst.TypeEffectiveness = src.BattleSettings.TypeEffectiveness;
+	
+		// WeatherSettings
+		dst.WeatherSettings = {};
+		for (var t in src.BattleSettings.TypeBoostedWeather) {
+			let w = src.BattleSettings.TypeBoostedWeather[t];
+			if (dst.WeatherSettings[w] == undefined) {
+				dst.WeatherSettings[w] = [];
+			}
+			dst.WeatherSettings[w].push(t);
+		}
+
+		// FriendAttackBonusMultipliers
+		dst.FriendAttackBonusMultipliers = src.BattleSettings.FriendSettings || src.FriendSettings;
+		
+		// PvEBattleSettings
+		dst.PvEBattleSettings = {
+			sameTypeAttackBonusMultiplier: src.BattleSettings.sameTypeAttackBonusMultiplier,
+			maximumEnergy: src.BattleSettings.maximumEnergy,
+			energyDeltaPerHealthLost: src.BattleSettings.energyDeltaPerHealthLost,
+			dodgeDurationMs: src.BattleSettings.dodgeDurationMs,
+			swapDurationMs: src.BattleSettings.swapDurationMs,
+			dodgeDamageReductionPercent: src.BattleSettings.dodgeDamageReductionPercent,
+			weatherAttackBonusMultiplier: src.BattleSettings.weatherAttackBonusMultiplier
+		};
+		
+		// PvPBattleSettings
+		dst.PvPBattleSettings = {
+			sameTypeAttackBonusMultiplier: src.BattleSettings.sameTypeAttackBonusMultiplier,
+			fastAttackBonusMultiplier: src.BattleSettings.PvPAttackBonusMultiplier,
+			chargeAttackBonusMultiplier: src.BattleSettings.PvPAttackBonusMultiplier,
+			maxEnergy: src.BattleSettings.maximumEnergy,
+			quickSwapCooldownDurationSeconds: Math.round(src.BattleSettings.switchingCooldownDurationMs / 1000),
+			minimumStatStage: src.BattleSettings.minimumStatStage,
+			maximumStatStage: src.BattleSettings.maximumStatStage,
+			attackBuffMultiplier: src.BattleSettings.AtkBuffMultiplier,
+			defenseBuffMultiplier: src.BattleSettings.DefBuffMultiplier
+		};
+	}
+
 	// RaidTierSettings
-	dst.RaidTierSettings = src.RaidTierSettings;
-	
-	// PvEBattleSettings
-	dst.PvEBattleSettings = {
-		sameTypeAttackBonusMultiplier: src.BattleSettings.sameTypeAttackBonusMultiplier,
-		maximumEnergy: src.BattleSettings.maximumEnergy,
-		energyDeltaPerHealthLost: src.BattleSettings.energyDeltaPerHealthLost,
-		dodgeDurationMs: src.BattleSettings.dodgeDurationMs,
-		swapDurationMs: src.BattleSettings.swapDurationMs,
-		dodgeDamageReductionPercent: src.BattleSettings.dodgeDamageReductionPercent,
-		weatherAttackBonusMultiplier: src.BattleSettings.weatherAttackBonusMultiplier
-	};
-	
-	// PvPBattleSettings
-	dst.PvPBattleSettings = {
-		sameTypeAttackBonusMultiplier: src.BattleSettings.sameTypeAttackBonusMultiplier,
-		fastAttackBonusMultiplier: src.BattleSettings.PvPAttackBonusMultiplier,
-		chargeAttackBonusMultiplier: src.BattleSettings.PvPAttackBonusMultiplier,
-		maxEnergy: src.BattleSettings.maximumEnergy,
-		quickSwapCooldownDurationSeconds: Math.round(src.BattleSettings.switchingCooldownDurationMs / 1000),
-		minimumStatStage: src.BattleSettings.minimumStatStage,
-		maximumStatStage: src.BattleSettings.maximumStatStage,
-		attackBuffMultiplier: src.BattleSettings.AtkBuffMultiplier,
-		defenseBuffMultiplier: src.BattleSettings.DefBuffMultiplier
-	};
+	if (src.RaidTierSettings) {
+		dst.RaidTierSettings = src.RaidTierSettings;
+	}
 	
 	return dst;
 }
@@ -371,35 +402,36 @@ var Data = {
 		  "flying": "WINDY",
 		  "psychic": "WINDY"
 		},
+
+		FriendSettings: [
+			{
+				'name': "none",
+				'label': "Lv.0 Non-Friend",
+				'multiplier': 1.0
+			},
+			{
+				'name': "good",
+				'label': "Lv.1 Good Friend",
+				'multiplier': 1.05
+			},
+			{
+				'name': "great",
+				'label': "Lv.2 Great Friend",
+				'multiplier': 1.08
+			},
+			{
+				'name': "ultra",
+				'label': "Lv.3 Ultra Friend",
+				'multiplier': 1.11
+			},
+			{
+				'name': "best",
+				'label': "Lv.4 Best Friend",
+				'multiplier': 1.15
+			},
+		],
 	},
 	
-	FriendSettings: [
-		{
-			'name': "none",
-			'label': "Lv.0 Non-Friend",
-			'multiplier': 1.0
-		},
-		{
-			'name': "good",
-			'label': "Lv.1 Good Friend",
-			'multiplier': 1.03
-		},
-		{
-			'name': "great",
-			'label': "Lv.2 Great Friend",
-			'multiplier': 1.05
-		},
-		{
-			'name': "ultra",
-			'label': "Lv.3 Ultra Friend",
-			'multiplier': 1.07
-		},
-		{
-			'name': "best",
-			'label': "Lv.4 Best Friend",
-			'multiplier': 1.1
-		},
-	],
 	
 	Weathers: [
 		{'name': 'EXTREME', 'label': "Extreme"},
@@ -458,7 +490,7 @@ var Mods = [
 		name: 'Future Pokemon Movepool Expansion',
 		effect: function(){
 			for (let pokemon of Data.Pokemon) {
-				if (pokemon.dex > 493) {
+				if (pokemon.fastMoves.length == 0 || pokemon.chargedMoves.length == 0) {
 					let forme = getEntry(pokemon.name, Data.PokemonForms) || {};
 					$.extend(pokemon, forme);
 				}
@@ -490,6 +522,8 @@ function getDatabaseByName(nameDb){
 		return masterDatabase[nameDb];
 	} else if (nameDb == "pokemon_all") {
 		return getPokemonPool();
+	} else if (nameDb.toLowerCase().startsWith("friend")) {
+		return masterDatabase.BattleSettings.FriendSettings;
 	} else { // Case-insensitive search
 		for (var dbname in masterDatabase) {
 			if (dbname.toLowerCase().startsWith(nameDb.toLowerCase())) {
@@ -1102,6 +1136,7 @@ function fetchLocalData(){
 		if (localStorage.LocalData){ // new
 			LocalData = JSON.parse(localStorage.LocalData);
 		}
+
 		// Removing the deprecated "index" attribute
 		if (LocalData.PokemonClipboard){
 			delete LocalData.PokemonClipboard.index;
@@ -1136,6 +1171,7 @@ function fetchLocalData(){
 				delete pokemon.cmove_index;
 			}
 		}
+
 		GM.save();
 	}
 }

@@ -469,14 +469,16 @@ function modEditFormInit(){
 
 function modEditFormSubmit(){
 	GM.invalidate();
-	GM.fetch(function(){
-		for (var i = 0; i < Mods.length; i++){
-			var mod_checkbox = document.getElementById('mod_checkbox_' + i);
-			if (mod_checkbox && mod_checkbox.checked){
-				Mods[i].effect();
+	GM.fetch({
+		complete: function(){
+			for (var i = 0; i < Mods.length; i++){
+				var mod_checkbox = document.getElementById('mod_checkbox_' + i);
+				if (mod_checkbox && mod_checkbox.checked){
+					Mods[i].effect();
+				}
 			}
+			UI.sendFeedbackDialog("Mods have been applied");
 		}
-		UI.sendFeedbackDialog("Mods have been applied");
 	});
 }
 
