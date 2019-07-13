@@ -46,7 +46,7 @@ GM.fetch = function(kwargs){
 		for (let user of Data.Users) {
 			user.box = parseUserPokebox(user.box);
 		}
-		
+
 		for (let pokemon of LocalData.Pokemon) {
 			insertEntry(pokemon, Data.Pokemon);
 		}
@@ -1171,6 +1171,8 @@ function fetchLocalData(){
 				delete pokemon.cmove_index;
 			}
 		}
+
+		LocalData.BattleSettings = LocalData.BattleSettings || {};
 
 		GM.save();
 	}

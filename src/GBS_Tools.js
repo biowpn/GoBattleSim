@@ -331,17 +331,30 @@ function parameterEditFormInit(){
 	});
 }
 
+function parameterEditFormRefresh(){
+	GM.each("battleSetting", function(value, param){
+		$("#parameterEditForm-" + param).val(JSON.stringify(value));
+	});
+}
+
 
 function parameterEditFormSubmit(){
 	var EDITABLE_PARAMETERS = {};
+	var error_params = [];
 	GM.each("battleSetting", function(value, param){
 		try{
-			GM.set("battleSetting", param, JSON.parse($('#parameterEditForm-'+param).val()));
-		} catch (err){
-			UI.sendFeedbackDialog("When parsing parameter: " + param + '; ' + err.toString());
+			var val = JSON.parse($('#parameterEditForm-'+param).val());
+			GM.set("battleSetting", param, val);
+			GM.set("battleSetting_local", param, val);
+		} catch (err) {
+			error_params.push(param);
 		}
 	});
 	GM.save();
+	if (error_params.length > 0)
+	{
+		UI.sendFeedbackDialog("Error parsing parameters: " + error_params.join(", "));
+	}
 	UI.sendFeedbackDialog("Battle settings have been updated");
 }
 

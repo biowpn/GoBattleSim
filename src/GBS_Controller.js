@@ -75,6 +75,7 @@ App.init = function() {
 				UI.write(UI.importConfig());
 				UI.refresh();
 			}
+			parameterEditFormRefresh();
 		}
 	});
 	
