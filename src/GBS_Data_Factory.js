@@ -412,22 +412,22 @@ var Data = {
 			{
 				'name': "good",
 				'label': "Lv.1 Good Friend",
-				'multiplier': 1.05
+				'multiplier': 1.03
 			},
 			{
 				'name': "great",
 				'label': "Lv.2 Great Friend",
-				'multiplier': 1.08
+				'multiplier': 1.05
 			},
 			{
 				'name': "ultra",
 				'label': "Lv.3 Ultra Friend",
-				'multiplier': 1.11
+				'multiplier': 1.07
 			},
 			{
 				'name': "best",
 				'label': "Lv.4 Best Friend",
-				'multiplier': 1.15
+				'multiplier': 1.10
 			},
 		],
 	},

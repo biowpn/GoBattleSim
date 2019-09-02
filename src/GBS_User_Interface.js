@@ -1175,7 +1175,8 @@ function getTableContent(dt){
 	let data = dt.rows({search: "applied"}).data();
 	for (var i = 0; i < data.length; i++){
 		let row = [];
-		for (let attr of attributes){
+		for (var j = 0; j < attributes.length; ++j){
+			var attr = attributes[j];
 			row.push($("<div>" + data[i][attr] + "</div>").text());
 		}
 		content.push(row);
