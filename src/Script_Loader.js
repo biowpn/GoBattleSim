@@ -23,9 +23,9 @@ var numScriptsToLoad = scriptsToLoad.length;
 var numScriptsLoaded = 0;
 
 var date = new Date();
-for (var i = 0; i < numScriptsToLoad; i++){
+for (var i = 0; i < numScriptsToLoad; i++) {
 	let url = scriptsToLoad[i];
-	$.getScript(url + "?" + curTime, function(){
+	$.getScript(url + "?" + curTime, function () {
 		numScriptsLoaded++;
 		if (numScriptsLoaded >= numScriptsToLoad) {
 			onfinishLoadingScripts();

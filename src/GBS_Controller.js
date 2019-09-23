@@ -9,10 +9,10 @@ var App = {};
 /** 
 	Application entry point.
 */
-App.init = function() {	
+App.init = function () {
 	$.widget("custom.iconselectmenu", $.ui.selectmenu, {
-	_renderItem: function( ul, item ) {
-			var li = $("<li>"), wrapper = $("<div>", {text: item.label});
+		_renderItem: function (ul, item) {
+			var li = $("<li>"), wrapper = $("<div>", { text: item.label });
 			if (item.disabled) {
 				li.addClass("ui-state-disabled");
 			}
@@ -25,7 +25,7 @@ App.init = function() {
 	});
 
 	dropdownMenuInit();
-	try{
+	try {
 		welcomeDialogInit();
 		moveEditFormInit();
 		pokemonEditFormInit();
@@ -34,55 +34,55 @@ App.init = function() {
 		userEditFormInit();
 		MVLTableInit();
 		teamBuilderInit();
-	}catch(err){
+	} catch (err) {
 		console.log(err);
 	}
-	
-	$("#UserGuideOpener").click(function(){
+
+	$("#UserGuideOpener").click(function () {
 		window.open('https://pokemongo.gamepress.gg/comprehensive-guide-GoBattleSim', '_blank')
 	});
-	$("#ChanegLogOpener").click(function(){
+	$("#ChanegLogOpener").click(function () {
 		window.open('https://pokemongo.gamepress.gg/GoBattleSim-and-comprehensive-dps-spreadsheet-change-log', '_blank')
 	});
-	$("#AddPlayerButton").click(function(){
+	$("#AddPlayerButton").click(function () {
 		addPlayerNode();
 	});
 	$("#GoButton").click(App.onclickGo);
 	$("#ClearButton").click(App.onclickClear);
-	$("#CopyClipboardButton").click(function(){
+	$("#CopyClipboardButton").click(function () {
 		UI.copyTableToClipboard('MasterSummaryTable');
 	});
-	$("#CopyCSVButton").click(function(){
+	$("#CopyCSVButton").click(function () {
 		UI.exportTableToCSV('MasterSummaryTable', 'GoBattleSim_result.csv');
 	});
 
 	var playersNode = $("#input").find("[name=input-players]")[0];
-	$(playersNode).sortable({axis: 'y'});
+	$(playersNode).sortable({ axis: 'y' });
 	addPlayerNode();
 	addPlayerNode();
-	UI.write({team: "1", parties: [{pokemon: [{role: "rb"}]}]}, playersNode.children[1]);
+	UI.write({ team: "1", parties: [{ pokemon: [{ role: "rb" }] }] }, playersNode.children[1]);
 	//comply();
-	
+
 	var weatherInput = $("#input").find("[name=input-weather]")[0];
-	GM.each("weather", function(weatherSetting){
-		weatherInput.appendChild(createElement('option', weatherSetting.label, {value: weatherSetting.name}));
+	GM.each("weather", function (weatherSetting) {
+		weatherInput.appendChild(createElement('option', weatherSetting.label, { value: weatherSetting.name }));
 	});
 	$("#timelimit").val(GM.get("battle", "timelimitLegendaryRaidMs"));
 
 	GM.fetch({
-		complete: function(){
-			if (window.location.href.includes('?')){
+		complete: function () {
+			if (window.location.href.includes('?')) {
 				UI.write(UI.importConfig());
 				UI.refresh();
 			}
 			parameterEditFormRefresh();
 		}
 	});
-	
-	if (!LocalData.WelcomeDialogNoShow){
-		$( "#WelcomeDialog" ).dialog( "open" );
+
+	if (!LocalData.WelcomeDialogNoShow) {
+		$("#WelcomeDialog").dialog("open");
 	}
-	
+
 	GBS.settings();
 
 	UI.refresh();
@@ -91,10 +91,10 @@ App.init = function() {
 /** 
 	Handler of "Go" button click event.
 */
-App.onclickGo = function() {
+App.onclickGo = function () {
 	var input = UI.read();
 	UI.exportConfig(input);
-	UI.wait(function(){
+	UI.wait(function () {
 		var battles = GBS.request(input);
 		Simulations = Simulations.concat(battles);
 		UI.updateMasterSummaryTable(Simulations, GBS.metrics());
@@ -104,7 +104,7 @@ App.onclickGo = function() {
 /** 
 	Handler of "Clear" button click event.
 */
-App.onclickClear = function() {
+App.onclickClear = function () {
 	Simulations = [];
 	UI.exportConfig();
 	UI.updateMasterSummaryTable(Simulations, GBS.metrics());
@@ -115,7 +115,7 @@ App.onclickClear = function() {
 	Handler of interactive battle log change event.
 	@param {Object} battleInfo The current battle data in display.
 */
-App.onBattleLogChange = function(battleInfo) {
+App.onBattleLogChange = function (battleInfo) {
 	var output = GBS.run(battleInfo.input, battleInfo.output.battleLog || []);
 	UI.updateSimulationDetails({
 		input: battleInfo.input,

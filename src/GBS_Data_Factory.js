@@ -11,7 +11,7 @@ var GM = {};
 	Fetch all required JSONs for the application.
 	@param kwargs {Object} Keyword arguments. Can specify 'name', 'complete', 'userid'
 */
-GM.fetch = function(kwargs){
+GM.fetch = function (kwargs) {
 	kwargs = kwargs || {};
 	if (kwargs.name != undefined) {
 		dbname = kwargs.name.toLowerCase();
@@ -25,18 +25,18 @@ GM.fetch = function(kwargs){
 	}
 
 	fetchLocalData();
-	
-	function oncompleteWrapper(){
-		for (var json_name in requiredJSONStatus){
+
+	function oncompleteWrapper() {
+		for (var json_name in requiredJSONStatus) {
 			if (requiredJSONStatus[json_name] != 2)
 				return;
 		}
 		attachRaidbossInfo();
-		for (let pkm of Data.PokemonForms){
+		for (let pkm of Data.PokemonForms) {
 			var pkm2 = getEntry(pkm.name, Data.Pokemon);
-			if (pkm2){
+			if (pkm2) {
 				pkm2.icon = pkm.icon;
-			}else{
+			} else {
 				pkm = JSON.parse(JSON.stringify(pkm));
 				pkm.fastMoves = [];
 				pkm.chargedMoves = [];
@@ -50,28 +50,27 @@ GM.fetch = function(kwargs){
 		for (let pokemon of LocalData.Pokemon) {
 			insertEntry(pokemon, Data.Pokemon);
 		}
-		for (let move of LocalData.FastMoves){
+		for (let move of LocalData.FastMoves) {
 			insertEntry(move, Data.FastMoves);
 		}
 		for (let move of LocalData.ChargedMoves) {
 			insertEntry(move, Data.ChargedMoves);
 		}
-		for (var param in LocalData.BattleSettings)
-		{
+		for (var param in LocalData.BattleSettings) {
 			Data.BattleSettings[param] = LocalData.BattleSettings[param];
 		}
 
 		manuallyModifyData(Data);
-		(kwargs.complete || function(){})();
+		(kwargs.complete || function () { })();
 	}
-	
+
 	fetchLevelSettings(oncompleteWrapper);
 	fetchPokemonForms(oncompleteWrapper);
 	fetchMoves(oncompleteWrapper);
 	fetchRaidBosses(oncompleteWrapper);
 	fetchPokemon(oncompleteWrapper);
-	
-	if (window.userID2 && window.userID2 != '0'){
+
+	if (window.userID2 && window.userID2 != '0') {
 		fetchUser(null, window.userID2);
 	}
 }
@@ -79,7 +78,7 @@ GM.fetch = function(kwargs){
 /** 
 	Invalidate databases and makes them overwritable. This method does not erase existing database (call GM.erase() for erasing).
 */
-GM.invalidate = function() {
+GM.invalidate = function () {
 	for (var json_name in requiredJSONStatus) {
 		requiredJSONStatus[json_name] = 0;
 	}
@@ -90,7 +89,7 @@ GM.invalidate = function() {
 	Erase all records of the specified database and make it empty.
 	@param {string} nameDb The name of the database to erase.
 */
-GM.erase = function(nameDb) {
+GM.erase = function (nameDb) {
 	var db = getDatabaseByName(nameDb);
 	if (Array.isArray(db)) {
 		db.splice(0, db.length);
@@ -108,7 +107,7 @@ GM.erase = function(nameDb) {
 	@param {string} nameObj Name of the entry.
 	@return {Object} The entry matching the name given. Null if no match.
 */
-GM.get = function(nameDb, nameObj){
+GM.get = function (nameDb, nameObj) {
 	var db = getDatabaseByName(nameDb);
 	if (Array.isArray(db)) {
 		return getEntry(nameObj, db, !db.sorted);
@@ -124,7 +123,7 @@ GM.get = function(nameDb, nameObj){
 	@param {Object} obj The updated object.
 	@return {Object} The updated or removed object.
 */
-GM.set = function(nameDb, nameObj, obj){
+GM.set = function (nameDb, nameObj, obj) {
 	var db = getDatabaseByName(nameDb);
 	if (Array.isArray(db)) {
 		if (obj) {
@@ -153,7 +152,7 @@ GM.set = function(nameDb, nameObj, obj){
 	@param {Object|Pokemon} pokemonInstance The Pokemon instance required for querying attributes of a Pokemon such as Move.
 	@return {Object[]} Matching entities.
 */
-GM.select = function(nameDb, query, pokemonInstance){
+GM.select = function (nameDb, query, pokemonInstance) {
 	var db = getDatabaseByName(nameDb);
 	if (Array.isArray(db)) {
 		return db.filter(PokeQuery(query, pokemonInstance));
@@ -167,7 +166,7 @@ GM.select = function(nameDb, query, pokemonInstance){
 	@param {string} nameDb The name of the database.
 	@param {GMeachCallback} cackbankfn The callback function that accepts one parameter.
 */
-GM.each = function(nameDb, cackbankfn) {
+GM.each = function (nameDb, cackbankfn) {
 	var db = getDatabaseByName(nameDb);
 	if (Array.isArray(db)) {
 		for (var i = 0; i < db.length; i++) {
@@ -195,8 +194,8 @@ GM.each = function(nameDb, cackbankfn) {
 /**
 	Save user-defined data to local storage.
 */
-GM.save = function(){
-	if (localStorage){
+GM.save = function () {
+	if (localStorage) {
 		localStorage.LocalData = JSON.stringify(LocalData);
 	}
 }
@@ -207,20 +206,20 @@ GM.save = function(){
 	@param {Object} src The source GBS game master, default to Data.
 	@return {Object} GoBattleSim API compatible game master.
 */
-GM.convert = function(src){
+GM.convert = function (src) {
 	src = src || Data;
 	var dst = {};
-	
+
 	// CPMultipliers
 	if (src.LevelSettings) {
 		dst.CPMultipliers = src.LevelSettings.map(x => x.cpm);
 	}
-	
+
 	// Pokemon
 	if (src.Pokemon) {
 		dst.Pokemon = src.Pokemon;
 	}
-	
+
 	// PvEMoves & PvPMoves
 	dst.PvEMoves = [];
 	dst.PvPMoves = [];
@@ -280,12 +279,12 @@ GM.convert = function(src){
 			dst.PvPMoves.push(pvp_move);
 		}
 	}
-	
-	
+
+
 	if (src.BattleSettings) {
 		// TypeEffectiveness
 		dst.TypeEffectiveness = src.BattleSettings.TypeEffectiveness;
-	
+
 		// WeatherSettings
 		dst.WeatherSettings = {};
 		for (var t in src.BattleSettings.TypeBoostedWeather) {
@@ -298,7 +297,7 @@ GM.convert = function(src){
 
 		// FriendAttackBonusMultipliers
 		dst.FriendAttackBonusMultipliers = src.BattleSettings.FriendSettings || src.FriendSettings;
-		
+
 		// PvEBattleSettings
 		dst.PvEBattleSettings = {
 			sameTypeAttackBonusMultiplier: src.BattleSettings.sameTypeAttackBonusMultiplier,
@@ -309,7 +308,7 @@ GM.convert = function(src){
 			dodgeDamageReductionPercent: src.BattleSettings.dodgeDamageReductionPercent,
 			weatherAttackBonusMultiplier: src.BattleSettings.weatherAttackBonusMultiplier
 		};
-		
+
 		// PvPBattleSettings
 		dst.PvPBattleSettings = {
 			sameTypeAttackBonusMultiplier: src.BattleSettings.sameTypeAttackBonusMultiplier,
@@ -328,7 +327,7 @@ GM.convert = function(src){
 	if (src.RaidTierSettings) {
 		dst.RaidTierSettings = src.RaidTierSettings;
 	}
-	
+
 	return dst;
 }
 
@@ -340,7 +339,7 @@ var curTime = Date.now();
 
 var raidBossListURL = "", pokemonDataFullURL = "", moveDataFullURL = "";
 
-var requiredJSONStatus = { 
+var requiredJSONStatus = {
 	// 0: Not loaded, 1: Started loading, 2: Successfully loaded
 	'Pokemon': 0,
 	'PokemonForms': 0,
@@ -351,7 +350,7 @@ var requiredJSONStatus = {
 
 var Data = {
 	BattleSettings: {
-		'dodgeDurationMs': 500, 
+		'dodgeDurationMs': 500,
 		'dodgeWindowMs': 700,
 		'swapDurationMs': 500,
 		'switchingCooldownDurationMs': 60000,
@@ -366,7 +365,7 @@ var Data = {
 		'timelimitRaidMs': 180000,
 		'timelimitLegendaryRaidMs': 300000,
 		'timelimitPvPMs': 240000,
-		
+
 		'sameTypeAttackBonusMultiplier': 1.2,
 		'weatherAttackBonusMultiplier': 1.2,
 		'PvPAttackBonusMultiplier': 1.3,
@@ -374,33 +373,33 @@ var Data = {
 		'DefBuffMultiplier': [0.5, 0.5714286, 0.66666669, 0.8, 1.0, 1.25, 1.5, 1.75, 2],
 		'minimumStatStage': -4,
 		'maximumStatStage': 4,
-		
-		'maximumEnergy': 100, 
-		'energyDeltaPerHealthLost': 0.5, 
+
+		'maximumEnergy': 100,
+		'energyDeltaPerHealthLost': 0.5,
 		'dodgeDamageReductionPercent': 0.75,
 		'maximumTreeHeight': 12,
-		
-		TypeEffectiveness: {"bug":{"bug":1,"dark":1.6,"dragon":1,"electric":1,"fairy":0.625,"fighting":0.625,"fire":0.625,"flying":0.625,"ghost":0.625,"grass":1.6,"ground":1,"ice":1,"normal":1,"poison":0.625,"psychic":1.6,"rock":1,"steel":0.625,"water":1},"dark":{"bug":1,"dark":0.625,"dragon":1,"electric":1,"fairy":0.625,"fighting":0.625,"fire":1,"flying":1,"ghost":1.6,"grass":1,"ground":1,"ice":1,"normal":1,"poison":1,"psychic":1.6,"rock":1,"steel":1,"water":1},"dragon":{"bug":1,"dark":1,"dragon":1.6,"electric":1,"fairy":0.390625,"fighting":1,"fire":1,"flying":1,"ghost":1,"grass":1,"ground":1,"ice":1,"normal":1,"poison":1,"psychic":1,"rock":1,"steel":0.625,"water":1},"electric":{"bug":1,"dark":1,"dragon":0.625,"electric":0.625,"fairy":1,"fighting":1,"fire":1,"flying":1.6,"ghost":1,"grass":0.625,"ground":0.390625,"ice":1,"normal":1,"poison":1,"psychic":1,"rock":1,"steel":1,"water":1.6},"fairy":{"bug":1,"dark":1.6,"dragon":1.6,"electric":1,"fairy":1,"fighting":1.6,"fire":0.625,"flying":1,"ghost":1,"grass":1,"ground":1,"ice":1,"normal":1,"poison":0.625,"psychic":1,"rock":1,"steel":0.625,"water":1},"fighting":{"bug":0.625,"dark":1.6,"dragon":1,"electric":1,"fairy":0.625,"fighting":1,"fire":1,"flying":0.625,"ghost":0.390625,"grass":1,"ground":1,"ice":1.6,"normal":1.6,"poison":0.625,"psychic":0.625,"rock":1.6,"steel":1.6,"water":1},"fire":{"bug":1.6,"dark":1,"dragon":0.625,"electric":1,"fairy":1,"fighting":1,"fire":0.625,"flying":1,"ghost":1,"grass":1.6,"ground":1,"ice":1.6,"normal":1,"poison":1,"psychic":1,"rock":0.625,"steel":1.6,"water":0.625},"flying":{"bug":1.6,"dark":1,"dragon":1,"electric":0.625,"fairy":1,"fighting":1.6,"fire":1,"flying":1,"ghost":1,"grass":1.6,"ground":1,"ice":1,"normal":1,"poison":1,"psychic":1,"rock":0.625,"steel":0.625,"water":1},"ghost":{"bug":1,"dark":0.625,"dragon":1,"electric":1,"fairy":1,"fighting":1,"fire":1,"flying":1,"ghost":1.6,"grass":1,"ground":1,"ice":1,"normal":0.390625,"poison":1,"psychic":1.6,"rock":1,"steel":1,"water":1},"grass":{"bug":0.625,"dark":1,"dragon":0.625,"electric":1,"fairy":1,"fighting":1,"fire":0.625,"flying":0.625,"ghost":1,"grass":0.625,"ground":1.6,"ice":1,"normal":1,"poison":0.625,"psychic":1,"rock":1.6,"steel":0.625,"water":1.6},"ground":{"bug":0.625,"dark":1,"dragon":1,"electric":1.6,"fairy":1,"fighting":1,"fire":1.6,"flying":0.390625,"ghost":1,"grass":0.625,"ground":1,"ice":1,"normal":1,"poison":1.6,"psychic":1,"rock":1.6,"steel":1.6,"water":1},"ice":{"bug":1,"dark":1,"dragon":1.6,"electric":1,"fairy":1,"fighting":1,"fire":0.625,"flying":1.6,"ghost":1,"grass":1.6,"ground":1.6,"ice":0.625,"normal":1,"poison":1,"psychic":1,"rock":1,"steel":0.625,"water":0.625},"normal":{"bug":1,"dark":1,"dragon":1,"electric":1,"fairy":1,"fighting":1,"fire":1,"flying":1,"ghost":0.390625,"grass":1,"ground":1,"ice":1,"normal":1,"poison":1,"psychic":1,"rock":0.625,"steel":0.625,"water":1},"poison":{"bug":1,"dark":1,"dragon":1,"electric":1,"fairy":1.6,"fighting":1,"fire":1,"flying":1,"ghost":0.625,"grass":1.6,"ground":0.625,"ice":1,"normal":1,"poison":0.625,"psychic":1,"rock":0.625,"steel":0.390625,"water":1},"psychic":{"bug":1,"dark":0.390625,"dragon":1,"electric":1,"fairy":1,"fighting":1.6,"fire":1,"flying":1,"ghost":1,"grass":1,"ground":1,"ice":1,"normal":1,"poison":1.6,"psychic":0.625,"rock":1,"steel":0.625,"water":1},"rock":{"bug":1.6,"dark":1,"dragon":1,"electric":1,"fairy":1,"fighting":0.625,"fire":1.6,"flying":1.6,"ghost":1,"grass":1,"ground":0.625,"ice":1.6,"normal":1,"poison":1,"psychic":1,"rock":1,"steel":0.625,"water":1},"steel":{"bug":1,"dark":1,"dragon":1,"electric":0.625,"fairy":1.6,"fighting":1,"fire":0.625,"flying":1,"ghost":1,"grass":1,"ground":1,"ice":1.6,"normal":1,"poison":1,"psychic":1,"rock":1.6,"steel":0.625,"water":0.625},"water":{"bug":1,"dark":1,"dragon":0.625,"electric":1,"fairy":1,"fighting":1,"fire":1.6,"flying":1,"ghost":1,"grass":0.625,"ground":1.6,"ice":1,"normal":1,"poison":1,"psychic":1,"rock":1.6,"steel":1,"water":0.625}},
-		
+
+		TypeEffectiveness: { "bug": { "bug": 1, "dark": 1.6, "dragon": 1, "electric": 1, "fairy": 0.625, "fighting": 0.625, "fire": 0.625, "flying": 0.625, "ghost": 0.625, "grass": 1.6, "ground": 1, "ice": 1, "normal": 1, "poison": 0.625, "psychic": 1.6, "rock": 1, "steel": 0.625, "water": 1 }, "dark": { "bug": 1, "dark": 0.625, "dragon": 1, "electric": 1, "fairy": 0.625, "fighting": 0.625, "fire": 1, "flying": 1, "ghost": 1.6, "grass": 1, "ground": 1, "ice": 1, "normal": 1, "poison": 1, "psychic": 1.6, "rock": 1, "steel": 1, "water": 1 }, "dragon": { "bug": 1, "dark": 1, "dragon": 1.6, "electric": 1, "fairy": 0.390625, "fighting": 1, "fire": 1, "flying": 1, "ghost": 1, "grass": 1, "ground": 1, "ice": 1, "normal": 1, "poison": 1, "psychic": 1, "rock": 1, "steel": 0.625, "water": 1 }, "electric": { "bug": 1, "dark": 1, "dragon": 0.625, "electric": 0.625, "fairy": 1, "fighting": 1, "fire": 1, "flying": 1.6, "ghost": 1, "grass": 0.625, "ground": 0.390625, "ice": 1, "normal": 1, "poison": 1, "psychic": 1, "rock": 1, "steel": 1, "water": 1.6 }, "fairy": { "bug": 1, "dark": 1.6, "dragon": 1.6, "electric": 1, "fairy": 1, "fighting": 1.6, "fire": 0.625, "flying": 1, "ghost": 1, "grass": 1, "ground": 1, "ice": 1, "normal": 1, "poison": 0.625, "psychic": 1, "rock": 1, "steel": 0.625, "water": 1 }, "fighting": { "bug": 0.625, "dark": 1.6, "dragon": 1, "electric": 1, "fairy": 0.625, "fighting": 1, "fire": 1, "flying": 0.625, "ghost": 0.390625, "grass": 1, "ground": 1, "ice": 1.6, "normal": 1.6, "poison": 0.625, "psychic": 0.625, "rock": 1.6, "steel": 1.6, "water": 1 }, "fire": { "bug": 1.6, "dark": 1, "dragon": 0.625, "electric": 1, "fairy": 1, "fighting": 1, "fire": 0.625, "flying": 1, "ghost": 1, "grass": 1.6, "ground": 1, "ice": 1.6, "normal": 1, "poison": 1, "psychic": 1, "rock": 0.625, "steel": 1.6, "water": 0.625 }, "flying": { "bug": 1.6, "dark": 1, "dragon": 1, "electric": 0.625, "fairy": 1, "fighting": 1.6, "fire": 1, "flying": 1, "ghost": 1, "grass": 1.6, "ground": 1, "ice": 1, "normal": 1, "poison": 1, "psychic": 1, "rock": 0.625, "steel": 0.625, "water": 1 }, "ghost": { "bug": 1, "dark": 0.625, "dragon": 1, "electric": 1, "fairy": 1, "fighting": 1, "fire": 1, "flying": 1, "ghost": 1.6, "grass": 1, "ground": 1, "ice": 1, "normal": 0.390625, "poison": 1, "psychic": 1.6, "rock": 1, "steel": 1, "water": 1 }, "grass": { "bug": 0.625, "dark": 1, "dragon": 0.625, "electric": 1, "fairy": 1, "fighting": 1, "fire": 0.625, "flying": 0.625, "ghost": 1, "grass": 0.625, "ground": 1.6, "ice": 1, "normal": 1, "poison": 0.625, "psychic": 1, "rock": 1.6, "steel": 0.625, "water": 1.6 }, "ground": { "bug": 0.625, "dark": 1, "dragon": 1, "electric": 1.6, "fairy": 1, "fighting": 1, "fire": 1.6, "flying": 0.390625, "ghost": 1, "grass": 0.625, "ground": 1, "ice": 1, "normal": 1, "poison": 1.6, "psychic": 1, "rock": 1.6, "steel": 1.6, "water": 1 }, "ice": { "bug": 1, "dark": 1, "dragon": 1.6, "electric": 1, "fairy": 1, "fighting": 1, "fire": 0.625, "flying": 1.6, "ghost": 1, "grass": 1.6, "ground": 1.6, "ice": 0.625, "normal": 1, "poison": 1, "psychic": 1, "rock": 1, "steel": 0.625, "water": 0.625 }, "normal": { "bug": 1, "dark": 1, "dragon": 1, "electric": 1, "fairy": 1, "fighting": 1, "fire": 1, "flying": 1, "ghost": 0.390625, "grass": 1, "ground": 1, "ice": 1, "normal": 1, "poison": 1, "psychic": 1, "rock": 0.625, "steel": 0.625, "water": 1 }, "poison": { "bug": 1, "dark": 1, "dragon": 1, "electric": 1, "fairy": 1.6, "fighting": 1, "fire": 1, "flying": 1, "ghost": 0.625, "grass": 1.6, "ground": 0.625, "ice": 1, "normal": 1, "poison": 0.625, "psychic": 1, "rock": 0.625, "steel": 0.390625, "water": 1 }, "psychic": { "bug": 1, "dark": 0.390625, "dragon": 1, "electric": 1, "fairy": 1, "fighting": 1.6, "fire": 1, "flying": 1, "ghost": 1, "grass": 1, "ground": 1, "ice": 1, "normal": 1, "poison": 1.6, "psychic": 0.625, "rock": 1, "steel": 0.625, "water": 1 }, "rock": { "bug": 1.6, "dark": 1, "dragon": 1, "electric": 1, "fairy": 1, "fighting": 0.625, "fire": 1.6, "flying": 1.6, "ghost": 1, "grass": 1, "ground": 0.625, "ice": 1.6, "normal": 1, "poison": 1, "psychic": 1, "rock": 1, "steel": 0.625, "water": 1 }, "steel": { "bug": 1, "dark": 1, "dragon": 1, "electric": 0.625, "fairy": 1.6, "fighting": 1, "fire": 0.625, "flying": 1, "ghost": 1, "grass": 1, "ground": 1, "ice": 1.6, "normal": 1, "poison": 1, "psychic": 1, "rock": 1.6, "steel": 0.625, "water": 0.625 }, "water": { "bug": 1, "dark": 1, "dragon": 0.625, "electric": 1, "fairy": 1, "fighting": 1, "fire": 1.6, "flying": 1, "ghost": 1, "grass": 0.625, "ground": 1.6, "ice": 1, "normal": 1, "poison": 1, "psychic": 1, "rock": 1.6, "steel": 1, "water": 0.625 } },
+
 		TypeBoostedWeather: {
-		  "grass": "CLEAR",
-		  "ground": "CLEAR",
-		  "fire": "CLEAR",
-		  "dark": "FOG",
-		  "ghost": "FOG",
-		  "fairy": "CLOUDY",
-		  "fighting": "CLOUDY",
-		  "poison": "CLOUDY",
-		  "normal": "PARTLY_CLOUDY",
-		  "rock": "PARTLY_CLOUDY",
-		  "water": "RAINY",
-		  "electric": "RAINY",
-		  "bug": "RAINY",
-		  "ice": "SNOW",
-		  "steel": "SNOW",
-		  "dragon": "WINDY",
-		  "flying": "WINDY",
-		  "psychic": "WINDY"
+			"grass": "CLEAR",
+			"ground": "CLEAR",
+			"fire": "CLEAR",
+			"dark": "FOG",
+			"ghost": "FOG",
+			"fairy": "CLOUDY",
+			"fighting": "CLOUDY",
+			"poison": "CLOUDY",
+			"normal": "PARTLY_CLOUDY",
+			"rock": "PARTLY_CLOUDY",
+			"water": "RAINY",
+			"electric": "RAINY",
+			"bug": "RAINY",
+			"ice": "SNOW",
+			"steel": "SNOW",
+			"dragon": "WINDY",
+			"flying": "WINDY",
+			"psychic": "WINDY"
 		},
 
 		FriendSettings: [
@@ -431,44 +430,44 @@ var Data = {
 			},
 		],
 	},
-	
-	
+
+
 	Weathers: [
-		{'name': 'EXTREME', 'label': "Extreme"},
-		{'name': 'CLEAR', 'label': "Clear"},
-		{'name': 'FOG', 'label': "Fog"},
-		{'name': 'CLOUDY', 'label': "Cloudy"},
-		{'name': 'PARTLY_CLOUDY', 'label': "Partly Cloudy"},
-		{'name': 'RAINY', 'label': "Rainy"},
-		{'name': 'SNOW', 'label': "Snow"},
-		{'name': 'WINDY', 'label': "Windy"}
+		{ 'name': 'EXTREME', 'label': "Extreme" },
+		{ 'name': 'CLEAR', 'label': "Clear" },
+		{ 'name': 'FOG', 'label': "Fog" },
+		{ 'name': 'CLOUDY', 'label': "Cloudy" },
+		{ 'name': 'PARTLY_CLOUDY', 'label': "Partly Cloudy" },
+		{ 'name': 'RAINY', 'label': "Rainy" },
+		{ 'name': 'SNOW', 'label': "Snow" },
+		{ 'name': 'WINDY', 'label': "Windy" }
 	],
-	
+
 	RaidTierSettings: [
-		{"name": "1", "label": "Tier 1", "cpm": 0.6, "maxHP": 600, "timelimit": 180000},
-		{"name": "2", "label": "Tier 2", "cpm": 0.67, "maxHP": 1800, "timelimit": 180000},
-		{"name": "3", "label": "Tier 3", "cpm": 0.7300000190734863, "maxHP": 3600, "timelimit": 180000},
-		{"name": "4", "label": "Tier 4", "cpm": 0.7900000214576721, "maxHP": 9000, "timelimit": 180000},
-		{"name": "5", "label": "Tier 5", "cpm": 0.7900000214576721, "maxHP": 15000, "timelimit": 300000},
-		{"name": "6", "label": "Tier 6", "cpm": 0.7900000214576721, "maxHP": 18750, "timelimit": 300000}
+		{ "name": "1", "label": "Tier 1", "cpm": 0.6, "maxHP": 600, "timelimit": 180000 },
+		{ "name": "2", "label": "Tier 2", "cpm": 0.67, "maxHP": 1800, "timelimit": 180000 },
+		{ "name": "3", "label": "Tier 3", "cpm": 0.7300000190734863, "maxHP": 3600, "timelimit": 180000 },
+		{ "name": "4", "label": "Tier 4", "cpm": 0.7900000214576721, "maxHP": 9000, "timelimit": 180000 },
+		{ "name": "5", "label": "Tier 5", "cpm": 0.7900000214576721, "maxHP": 15000, "timelimit": 300000 },
+		{ "name": "6", "label": "Tier 6", "cpm": 0.7900000214576721, "maxHP": 18750, "timelimit": 300000 }
 	],
-	
+
 	RaidBosses: [],
-	
+
 	Pokemon: [],
-	
+
 	PokemonForms: [],
-	
-	FastMoves: [], 
-	
+
+	FastMoves: [],
+
 	ChargedMoves: [],
-	
+
 	LevelSettings: [],
-	
-	IndividualValues: [{"name":"0","value":0},{"name":"1","value":1},{"name":"2","value":2},{"name":"3","value":3},{"name":"4","value":4},{"name":"5","value":5},{"name":"6","value":6},{"name":"7","value":7},{"name":"8","value":8},{"name":"9","value":9},{"name":"10","value":10},{"name":"11","value":11},{"name":"12","value":12},{"name":"13","value":13},{"name":"14","value":14},{"name":"15","value":15}],
-	
+
+	IndividualValues: [{ "name": "0", "value": 0 }, { "name": "1", "value": 1 }, { "name": "2", "value": 2 }, { "name": "3", "value": 3 }, { "name": "4", "value": 4 }, { "name": "5", "value": 5 }, { "name": "6", "value": 6 }, { "name": "7", "value": 7 }, { "name": "8", "value": 8 }, { "name": "9", "value": 9 }, { "name": "10", "value": 10 }, { "name": "11", "value": 11 }, { "name": "12", "value": 12 }, { "name": "13", "value": 13 }, { "name": "14", "value": 14 }, { "name": "15", "value": 15 }],
+
 	Users: []
-	
+
 };
 
 
@@ -482,13 +481,13 @@ var LocalData = {
 };
 
 
-var CASTFORM_FORMS = [{"dex":351,"name":"castform","pokeType1":"normal","pokeType2":"none","baseAtk":139,"baseDef":139,"baseStm":140,"fastMoves":["tackle","hex"],"chargedMoves":["hurricane","energy ball"],"label":"Castform","icon":"https://pokemongo.gamepress.gg/assets/img/sprites/351MS.png","rating":0,"fastMoves_legacy":[],"fastMoves_exclusive":[],"chargedMoves_legacy":[],"chargedMoves_exclusive":[]},{"dex":351,"name":"castform (rain)","pokeType1":"water","pokeType2":"none","baseAtk":139,"baseDef":139,"baseStm":140,"fastMoves":["water gun","tackle"],"chargedMoves":["hydro pump","thunder"],"label":"Castform (Rain)","icon":"https://pokemongo.gamepress.gg/assets/img/sprites/351RMS.png","rating":0,"fastMoves_legacy":[],"fastMoves_exclusive":[],"chargedMoves_legacy":[],"chargedMoves_exclusive":[]},{"dex":351,"name":"castform (snow)","pokeType1":"ice","pokeType2":"none","baseAtk":139,"baseDef":139,"baseStm":140,"fastMoves":["powder snow","tackle"],"chargedMoves":["blizzard","ice beam"],"label":"Castform (Snow)","icon":"https://pokemongo.gamepress.gg/assets/img/sprites/351HMS.png","rating":0,"fastMoves_legacy":[],"fastMoves_exclusive":[],"chargedMoves_legacy":[],"chargedMoves_exclusive":[]},{"dex":351,"name":"castform (sunny)","pokeType1":"fire","pokeType2":"none","baseAtk":139,"baseDef":139,"baseStm":140,"fastMoves":["ember","tackle"],"chargedMoves":["fire blast","solar beam"],"label":"Castform (Sunny)","icon":"https://pokemongo.gamepress.gg/assets/img/sprites/351SMS.png","rating":0,"fastMoves_legacy":[],"fastMoves_exclusive":[],"chargedMoves_legacy":[],"chargedMoves_exclusive":[]}];
+var CASTFORM_FORMS = [{ "dex": 351, "name": "castform", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["tackle", "hex"], "chargedMoves": ["hurricane", "energy ball"], "label": "Castform", "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/351MS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }, { "dex": 351, "name": "castform (rain)", "pokeType1": "water", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["water gun", "tackle"], "chargedMoves": ["hydro pump", "thunder"], "label": "Castform (Rain)", "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/351RMS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }, { "dex": 351, "name": "castform (snow)", "pokeType1": "ice", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["powder snow", "tackle"], "chargedMoves": ["blizzard", "ice beam"], "label": "Castform (Snow)", "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/351HMS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }, { "dex": 351, "name": "castform (sunny)", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["ember", "tackle"], "chargedMoves": ["fire blast", "solar beam"], "label": "Castform (Sunny)", "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/351SMS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }];
 
 
 var Mods = [
 	{
 		name: 'Future Pokemon Movepool Expansion',
-		effect: function(){
+		effect: function () {
 			for (let pokemon of Data.Pokemon) {
 				if (pokemon.fastMoves.length == 0 || pokemon.chargedMoves.length == 0) {
 					let forme = getEntry(pokemon.name, Data.PokemonForms) || {};
@@ -499,7 +498,7 @@ var Mods = [
 	},
 	{
 		name: 'Exclude Low-rating and Low-stat Species',
-		effect: function(){
+		effect: function () {
 			Data.Pokemon = Data.Pokemon.filter(x => (x.rating >= 2 && x.baseAtk >= 160));
 			Data.Pokemon.sorted = true;
 		}
@@ -512,7 +511,7 @@ var Mods = [
 	@param {string} nameDb Name of the database.
 	@return {Object} The reference to the database.
 */
-function getDatabaseByName(nameDb){
+function getDatabaseByName(nameDb) {
 	var masterDatabase = Data;
 	if (nameDb.endsWith("_local")) {
 		nameDb = nameDb.split('_')[0];
@@ -538,13 +537,13 @@ function getDatabaseByName(nameDb){
 	Manually modify data.
 	@param {Object} data The master data reference.
 */
-function manuallyModifyData(data){
+function manuallyModifyData(data) {
 	// Hidden Powers
 	var hidden_power = getEntry("hidden power", data.FastMoves);
 	var hidden_power_variations = [];
-	if (hidden_power){
-		for (var type in Data.BattleSettings.TypeEffectiveness){
-			if (type == "normal" || type == "fairy"){
+	if (hidden_power) {
+		for (var type in Data.BattleSettings.TypeEffectiveness) {
+			if (type == "normal" || type == "fairy") {
 				continue;
 			}
 			var hidden_power_variation = JSON.parse(JSON.stringify(hidden_power));
@@ -556,19 +555,19 @@ function manuallyModifyData(data){
 			insertEntry(hidden_power_variation, hidden_power_variations);
 		}
 	}
-	
+
 	// Handle Castform
 	for (let castform of CASTFORM_FORMS) {
 		insertEntry(castform, data.Pokemon);
 	}
-	
+
 	// Replace generic hidden power to specific hidden power
-	for (let pokemon of data.Pokemon){
+	for (let pokemon of data.Pokemon) {
 		let hpindex = pokemon.fastMoves.indexOf("hidden power");
-		if (hpindex >= 0){
-			
+		if (hpindex >= 0) {
+
 			pokemon.fastMoves.splice(hpindex, 1);
-			for (let hp of hidden_power_variations){
+			for (let hp of hidden_power_variations) {
 				pokemon.fastMoves.push(hp.name);
 			}
 		}
@@ -584,14 +583,14 @@ function manuallyModifyData(data){
 	@param {boolean} linearSearch If true, the function will perform linear search. Otherwise (default), binary search.
 	@return {Object} The item whose key matches the given key. Null if there's no such item.
 */
-function getEntry(name, arr, linearSearch){
-	if (linearSearch){
-		for (var i = 0; i < arr.length; i++){
+function getEntry(name, arr, linearSearch) {
+	if (linearSearch) {
+		for (var i = 0; i < arr.length; i++) {
 			if (arr[i].name == name)
 				return arr[i];
 		}
 		return null;
-	}else{
+	} else {
 		var index = binarySearch(name, arr);
 		return arr[index] && arr[index].name == name ? arr[index] : null;
 	}
@@ -603,7 +602,7 @@ function getEntry(name, arr, linearSearch){
 	@param {Object} entry The item to add.
 	@param {Object[]} arr The array to search from.
 */
-function insertEntry(entry, arr){
+function insertEntry(entry, arr) {
 	var index = binarySearch(entry.name, arr);
 	if (arr[index] && arr[index].name == entry.name)
 		arr[index] = entry;
@@ -617,11 +616,11 @@ function insertEntry(entry, arr){
 	@param {Object[]} arr The array to search from.
 	@return {Object} An object whose key matches the given key or null if there's no such object.
 */
-function removeEntry(name, arr){
+function removeEntry(name, arr) {
 	var index = binarySearch(name, arr);
-	if (arr[index] && arr[index].name == name){
+	if (arr[index] && arr[index].name == name) {
 		return arr.splice(index, 1)[0];
-	}else{
+	} else {
 		return null;
 	}
 }
@@ -632,10 +631,10 @@ function removeEntry(name, arr){
 	@param {Object[]} arr The array to search from.
 	@return {number} The index of the first element whose key is no less than the given key.
 */
-function binarySearch(name, arr){
+function binarySearch(name, arr) {
 	var start = 0, end = arr.length, mid;
-	while (start < end){
-		mid = ~~((start + end)/2);
+	while (start < end) {
+		mid = ~~((start + end) / 2);
 		if (arr[mid].name < name)
 			start = mid + 1;
 		else
@@ -645,9 +644,9 @@ function binarySearch(name, arr){
 }
 
 
-function toTitleCase(str){
+function toTitleCase(str) {
 	str = str || "";
-    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+	return str.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
 }
 
 /**
@@ -655,7 +654,7 @@ function toTitleCase(str){
 	@param {string} S The string to parse.
 	@return {{pokeType1: string, pokeType2: string}}
 */
-function parsePokemonTypeFromString(S){
+function parsePokemonTypeFromString(S) {
 	var L = S.split(",");
 	return {
 		pokeType1: L[0].trim().toLowerCase(),
@@ -668,10 +667,10 @@ function parsePokemonTypeFromString(S){
 	@param {string} S The string to parse.
 	@return {string[]} A list of non-empty names in lower case.
 */
-function parseMovesFromString(S){
+function parseMovesFromString(S) {
 	S = S || "";
 	var moves = [];
-	for (let name of S.split(",")){
+	for (let name of S.split(",")) {
 		name = name.trim();
 		if (name.length > 0)
 			moves.push(name.toLowerCase());
@@ -684,7 +683,7 @@ function parseMovesFromString(S){
 	@param {number} dex The dex of the Pokemon. If omitted, the PokeBall icon will be returned.
 	@return {string} The URL to the icon.
 */
-function getPokemonIcon(dex){
+function getPokemonIcon(dex) {
 	dex = (dex || "").toString();
 	while (dex.length < 3)
 		dex = '0' + dex;
@@ -696,7 +695,7 @@ function getPokemonIcon(dex){
 	@param {string} type The type. If omitted, the quesion mark icon will be returned.
 	@return {string} The URL to the icon.
 */
-function getTypeIcon(type){
+function getTypeIcon(type) {
 	return "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + (type || "none").toLowerCase() + ".png";
 }
 
@@ -705,10 +704,10 @@ function getTypeIcon(type){
 	@param {string} name The name of the Pokemon.
 	@return {string[]} A list of names of Pokemon.
 */
-function getAllEvolutions(name){
+function getAllEvolutions(name) {
 	var evolutions = [name], pkm = getEntry(name, Data.Pokemon);
-	if (pkm){
-		for (evo of pkm.evolutions){
+	if (pkm) {
+		for (evo of pkm.evolutions) {
 			evolutions = evolutions.concat(getAllEvolutions(evo));
 		}
 	}
@@ -719,10 +718,10 @@ function getAllEvolutions(name){
 	Get the union of generic Pokemon pool and user Pokemon.
 	@return {Object[]} A list of Pokemon.
 */
-function getPokemonPool(){
+function getPokemonPool() {
 	var options = [];
-	for (let user of Data.Users){
-		for (let pokemon of user.box){
+	for (let user of Data.Users) {
+		for (let pokemon of user.box) {
 			options.push(pokemon);
 		}
 	}
@@ -732,7 +731,7 @@ function getPokemonPool(){
 /**
 	Attach raid boss info to each Pokemon.
 */
-function attachRaidbossInfo(){
+function attachRaidbossInfo() {
 	for (let boss of Data.RaidBosses) {
 		var pkm = GM.get("pokemon", boss.name.toLowerCase().trim());
 		if (pkm) {
@@ -751,11 +750,11 @@ function attachRaidbossInfo(){
 	@param {Object[]} pokemonDataBase An array of user Pokemon data.
 	@return {Object[]} An array of valid user Pokemon data.
 */
-function parseUserPokebox(data){
+function parseUserPokebox(data) {
 	var box = [];
-	for (var i = 0; i < data.length; i++){
+	for (var i = 0; i < data.length; i++) {
 		var pkm = {
-			name : (data[i].species || data[i].name).toLowerCase(),
+			name: (data[i].species || data[i].name).toLowerCase(),
 			cp: parseInt(data[i].cp),
 			level: parseFloat(data[i].level) || 1,
 			stmiv: parseInt(data[i].sta || data[i].stmiv) || 0,
@@ -764,7 +763,7 @@ function parseUserPokebox(data){
 			fmove: (data[i].fast_move || data[i].fmove).toLowerCase(),
 			cmove: (data[i].charge_move || data[i].cmove).toLowerCase(),
 			cmove2: (data[i].charge_move || data[i].cmove2 || data[i].cmove).toLowerCase(),
-			nickname : data[i].nickname,
+			nickname: data[i].nickname,
 			uid: data[i].uid
 		};
 		let species = getEntry(pkm.name, Data.Pokemon) || {};
@@ -782,25 +781,25 @@ function parseUserPokebox(data){
 	Fetch the URLs of the raid boss, Pokemon and move JSONs.
 	@param oncomplete The callback after the fetching is complete.
 */
-function fetchURLs(oncomplete){
-	$.ajax({ 
-		url: "https://gamepress.gg/json-list?_format=json&game_tid=1&" + curTime, 
-		dataType: 'json', 
-		success: function(data){
-			for(var i = 0; i < data.length; i++){
+function fetchURLs(oncomplete) {
+	$.ajax({
+		url: "https://gamepress.gg/json-list?_format=json&game_tid=1&" + curTime,
+		dataType: 'json',
+		success: function (data) {
+			for (var i = 0; i < data.length; i++) {
 				var curr = data[i];
-				if (curr.title == "raid-boss-list-PoGO"){
+				if (curr.title == "raid-boss-list-PoGO") {
 					raidBossListURL = curr.url;
 				}
-				if (curr.title == "pokemon-data-full-en-PoGO"){
+				if (curr.title == "pokemon-data-full-en-PoGO") {
 					pokemonDataFullURL = curr.url;
 				}
-				if (curr.title == "move-data-full-PoGO"){
+				if (curr.title == "move-data-full-PoGO") {
 					moveDataFullURL = curr.url;
 				}
 			}
 		},
-		complete: oncomplete || function(){}
+		complete: oncomplete || function () { }
 	});
 }
 
@@ -810,16 +809,16 @@ function fetchURLs(oncomplete){
 	Fetch Level Settings from GP server.
 	@param oncomplete The callback after the fetching is complete.
 */
-function fetchLevelSettings(oncomplete){
+function fetchLevelSettings(oncomplete) {
 	if (requiredJSONStatus.LevelSettings != 0)
 		return;
 	requiredJSONStatus.LevelSettings = 1;
-	$.ajax({ 
-		url: 'https://pokemongo.gamepress.gg/assets/data/cpm.json?v2', 
-		dataType: 'json', 
-		success: function(data){
+	$.ajax({
+		url: 'https://pokemongo.gamepress.gg/assets/data/cpm.json?v2',
+		dataType: 'json',
+		success: function (data) {
 			Data.LevelSettings = [];
-			for (var i = 0; i < data.length; i++){
+			for (var i = 0; i < data.length; i++) {
 				Data.LevelSettings.push({
 					"name": data[i].name,
 					"value": parseFloat(data[i].name),
@@ -830,7 +829,7 @@ function fetchLevelSettings(oncomplete){
 			}
 			requiredJSONStatus.LevelSettings = 2;
 		},
-		complete: oncomplete || function(){}
+		complete: oncomplete || function () { }
 	});
 }
 
@@ -839,9 +838,9 @@ function fetchLevelSettings(oncomplete){
 	Fetch raid boss list from GP server.
 	@param oncomplete The callback after the fetching is complete.
 */
-function fetchRaidBosses(oncomplete){
-	if (!window.raidBossListURL){
-		fetchURLs(function(){
+function fetchRaidBosses(oncomplete) {
+	if (!window.raidBossListURL) {
+		fetchURLs(function () {
 			fetchRaidBosses(oncomplete);
 		});
 		return;
@@ -849,12 +848,12 @@ function fetchRaidBosses(oncomplete){
 	if (requiredJSONStatus.RaidBosses != 0)
 		return;
 	requiredJSONStatus.RaidBosses = 1;
-	$.ajax({ 
-		url: raidBossListURL, 
-		dataType: 'json', 
-		success: function(data){
+	$.ajax({
+		url: raidBossListURL,
+		dataType: 'json',
+		success: function (data) {
 			Data.RaidBosses = [];
-			data.forEach(function(bossInfo){
+			data.forEach(function (bossInfo) {
 				var parsedBossInfo = {
 					name: bossInfo.title_plain.toLowerCase(),
 					tier: parseInt((/>\s*(\d)\s*</.exec(bossInfo.tier) || [0, 0])[1]),
@@ -869,7 +868,7 @@ function fetchRaidBosses(oncomplete){
 				attachRaidbossInfo();
 			}
 		},
-		complete: oncomplete || function(){}
+		complete: oncomplete || function () { }
 	});
 }
 
@@ -877,9 +876,9 @@ function fetchRaidBosses(oncomplete){
 	Fetch Pokemon data from GP server.
 	@param oncomplete The callback after the fetching is complete.
 */
-function fetchPokemon(oncomplete){
-	if (!window.pokemonDataFullURL){
-		fetchURLs(function(){
+function fetchPokemon(oncomplete) {
+	if (!window.pokemonDataFullURL) {
+		fetchURLs(function () {
 			fetchPokemon(oncomplete);
 		});
 		return;
@@ -887,12 +886,12 @@ function fetchPokemon(oncomplete){
 	if (requiredJSONStatus.Pokemon != 0)
 		return;
 	requiredJSONStatus.Pokemon = 1;
-	$.ajax({ 
+	$.ajax({
 		url: pokemonDataFullURL,
-		dataType: 'json', 
-		success: function(data){
+		dataType: 'json',
+		success: function (data) {
 			Data.Pokemon = [];
-			for(var i = 0; i < data.length; i++){
+			for (var i = 0; i < data.length; i++) {
 				var pkm = {
 					dex: parseInt(data[i].number),
 					name: data[i].title_1.toLowerCase().replace("&#039;", "'"),
@@ -927,7 +926,7 @@ function fetchPokemon(oncomplete){
 			Data.Pokemon.sorted = true;
 			requiredJSONStatus.Pokemon = 2;
 		},
-		complete: oncomplete || function(){}
+		complete: oncomplete || function () { }
 	});
 }
 
@@ -935,14 +934,14 @@ function fetchPokemon(oncomplete){
 	Fetch supplement Pokemon form data (such as icons) from GP server.
 	@param oncomplete The callback after the fetching is complete.
 */
-function fetchPokemonForms(oncomplete){
+function fetchPokemonForms(oncomplete) {
 	if (requiredJSONStatus.PokemonForms != 0)
 		return;
 	requiredJSONStatus.PokemonForms = 1;
-	$.ajax({ 
+	$.ajax({
 		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json?_format=json&' + curTime,
 		dataType: 'json',
-		success: function(data){
+		success: function (data) {
 			Data.PokemonForms = [];
 			for (let pkm of data) {
 				pkm.fastMoves = pkm.fastMoves || [];
@@ -958,7 +957,7 @@ function fetchPokemonForms(oncomplete){
 			Data.PokemonForms.sorted = true;
 			requiredJSONStatus.PokemonForms = 2;
 		},
-		complete: oncomplete || function(){}
+		complete: oncomplete || function () { }
 	});
 }
 
@@ -966,9 +965,9 @@ function fetchPokemonForms(oncomplete){
 	Fetch move data from GP server.
 	@param oncomplete The callback after the fetching is complete.
 */
-function fetchMoves(oncomplete){
-	if (!window.moveDataFullURL){
-		fetchURLs(function(){
+function fetchMoves(oncomplete) {
+	if (!window.moveDataFullURL) {
+		fetchURLs(function () {
 			fetchMoves(oncomplete);
 		});
 		return;
@@ -978,11 +977,11 @@ function fetchMoves(oncomplete){
 	requiredJSONStatus.Moves = 1;
 	$.ajax({
 		url: moveDataFullURL,
-		dataType: 'json', 
-		success: function(data){
+		dataType: 'json',
+		success: function (data) {
 			Data.FastMoves = [];
 			Data.ChargedMoves = [];
-			for(var i = 0; i < data.length; i++){
+			for (var i = 0; i < data.length; i++) {
 				var move = {
 					name: data[i].title.toLowerCase(),
 					pokeType: data[i].move_type.toLowerCase(),
@@ -996,8 +995,8 @@ function fetchMoves(oncomplete){
 					effect: "",
 					regular: {
 						power: parseInt(data[i].power),
-						dws: parseFloat(data[i].damage_window.split(' ')[0])*1000 || 0,
-						duration: parseFloat(data[i].cooldown)*1000,
+						dws: parseFloat(data[i].damage_window.split(' ')[0]) * 1000 || 0,
+						duration: parseFloat(data[i].cooldown) * 1000,
 						energyDelta: 0
 					},
 					combat: {
@@ -1007,7 +1006,7 @@ function fetchMoves(oncomplete){
 						energyDelta: 0
 					}
 				};
-				if (data[i].move_category == "Fast Move"){
+				if (data[i].move_category == "Fast Move") {
 					move.moveType = 'fast';
 					move.regular.energyDelta = Math.abs(parseInt(data[i].energy_gain));
 					move.combat.power = parseInt(data[i].pvp_fast_power);
@@ -1015,7 +1014,7 @@ function fetchMoves(oncomplete){
 					move.combat.duration = (parseInt(data[i].pvp_fast_duration) + 1) * 500;
 					move.combat.dws = 0;
 					Data.FastMoves.push(move);
-				}else{
+				} else {
 					move.moveType = 'charged';
 					move.regular.energyDelta = -Math.abs(parseInt(data[i].energy_cost));
 					move.combat.power = parseInt(data[i].pvp_charge_damage);
@@ -1049,7 +1048,7 @@ function fetchMoves(oncomplete){
 			Data.ChargedMoves.sorted = true;
 			requiredJSONStatus.Moves = 2;
 		},
-		complete: oncomplete || function(){}
+		complete: oncomplete || function () { }
 	});
 }
 
@@ -1058,7 +1057,7 @@ function fetchMoves(oncomplete){
 	@param {function} oncomplete The callback after the fetching is complete.
 	@param {string} userid The user id of the user to fetch.
 */
-function fetchUser(oncomplete, userid){
+function fetchUser(oncomplete, userid) {
 	userid = userid || "";
 	var box_fetched = false, parties_fetched = false;
 	var user = {
@@ -1067,7 +1066,7 @@ function fetchUser(oncomplete, userid){
 		box: [],
 		parties: []
 	};
-	
+
 	function linkPokemon() {
 		for (let party of user.parties) {
 			party.pokemon = [];
@@ -1081,13 +1080,13 @@ function fetchUser(oncomplete, userid){
 			}
 		}
 	}
-	
+
 	// Fetch box
 	$.ajax({
 		url: 'https://pokemongo.gamepress.gg/user-pokemon-json-list?_format=json&new&uid_raw=' + userid,
 		dataType: 'json',
-		success: function(data){
-			for (let pokemon of data){
+		success: function (data) {
+			for (let pokemon of data) {
 				pokemon.labelLinked = pokemon.title;
 				pokemon.uid = userid;
 			}
@@ -1105,9 +1104,9 @@ function fetchUser(oncomplete, userid){
 	$.ajax({
 		url: 'https://pokemongo.gamepress.gg/user-pokemon-team?_format=json&uid=' + userid,
 		dataType: 'json',
-		success: function(data){
+		success: function (data) {
 			user.parties = [];
-			for (var i = 0; i < data.length; i++){
+			for (var i = 0; i < data.length; i++) {
 				var party = {
 					name: data[i].title,
 					label: data[i].title,
@@ -1131,40 +1130,40 @@ function fetchUser(oncomplete, userid){
 /** 
 	Fetch client local data.
 */
-function fetchLocalData(){
-	if (localStorage){
-		if (localStorage.LocalData){ // new
+function fetchLocalData() {
+	if (localStorage) {
+		if (localStorage.LocalData) { // new
 			LocalData = JSON.parse(localStorage.LocalData);
 		}
 
 		// Removing the deprecated "index" attribute
-		if (LocalData.PokemonClipboard){
+		if (LocalData.PokemonClipboard) {
 			delete LocalData.PokemonClipboard.index;
 			delete LocalData.PokemonClipboard.fmove_index;
 			delete LocalData.PokemonClipboard.cmove_index;
 		}
-		for (let pokemon of LocalData.Pokemon){
+		for (let pokemon of LocalData.Pokemon) {
 			delete pokemon.box_index;
 			delete pokemon.index;
 		}
-		for (let move of LocalData.FastMoves){
+		for (let move of LocalData.FastMoves) {
 			move.moveType = "fast";
 			delete move.index;
 		}
-		for (let move of LocalData.ChargedMoves){
+		for (let move of LocalData.ChargedMoves) {
 			move.moveType = "charged";
 			delete move.index;
 		}
-		for (let party of LocalData.BattleParties){
-			if (party.pokemon_list){
+		for (let party of LocalData.BattleParties) {
+			if (party.pokemon_list) {
 				party.pokemon = party.pokemon_list;
 				delete party.pokemon_list;
-			}else{
+			} else {
 				party.pokemon = party.pokemon || [];
 			}
 			party.isLocal = true;
 			party.label = party.label || party.name;
-			for (let pokemon of party.pokemon){
+			for (let pokemon of party.pokemon) {
 				delete pokemon.index;
 				delete pokemon.box_index;
 				delete pokemon.fmove_index;
@@ -1183,7 +1182,7 @@ function fetchLocalData(){
 	PokeQuery related.
 */
 var LOGICAL_OPERATORS = {
-	',': 0,	':': 0, ';': 0, // OR
+	',': 0, ':': 0, ';': 0, // OR
 	'&': 1, '|': 1, // AND
 	'!': 2 // NOT
 };
@@ -1209,7 +1208,7 @@ var BabyPokemon = ['pichu', 'cleffa', 'igglybuff', 'togepi', 'tyrogue', 'smoochu
 function PokeQuery(queryStr, pokemonInstance) {
 	var defaultPredicate = arg => false;
 	var vstack = [], opstack = [];
-	
+
 	function evalSimple(op, stack) {
 		if (op == ',' || op == ':' || op == ';') {
 			var rhs = stack.pop() || defaultPredicate, lhs = stack.pop() || defaultPredicate;
@@ -1224,8 +1223,8 @@ function PokeQuery(queryStr, pokemonInstance) {
 			stack.push(defaultPredicate);
 		}
 	}
-	
-	function tokenize(str, specialChars, escapeChar){
+
+	function tokenize(str, specialChars, escapeChar) {
 		var tokens = [], cur = "", escaped = false;
 		for (var i = 0; i < str.length; i++) {
 			var c = str[i];
@@ -1249,14 +1248,14 @@ function PokeQuery(queryStr, pokemonInstance) {
 		}
 		return tokens;
 	}
-	
+
 	for (let tk of tokenize(queryStr, Object.keys(LOGICAL_OPERATORS).concat(['(', ')']), "`")) {
 		if (LOGICAL_OPERATORS.hasOwnProperty(tk)) {
 			var top_op = opstack[opstack.length - 1];
 			while (top_op && top_op != '(' && LOGICAL_OPERATORS[top_op] > LOGICAL_OPERATORS[tk]) {
 				evalSimple(opstack.pop(), vstack);
 				top_op = opstack[opstack.length - 1];
-			} 
+			}
 			opstack.push(tk);
 		} else if (tk == '(') {
 			opstack.push('(');
@@ -1274,7 +1273,7 @@ function PokeQuery(queryStr, pokemonInstance) {
 	while (opstack.length) {
 		evalSimple(opstack.pop(), vstack);
 	}
-	
+
 	return vstack.pop() || defaultPredicate;
 }
 
@@ -1286,11 +1285,11 @@ function PokeQuery(queryStr, pokemonInstance) {
 	@param {Object|Pokemon} pokemonInstance An instance of the subject Pokemon. Used for querying Pokemon attributes.
 	@return {function} A function that accepts one parameter (to entity to evaluate) and returns true or false.
 */
-function BasicPokeQuery(queryStr, pokemonInstance){
+function BasicPokeQuery(queryStr, pokemonInstance) {
 	let str = queryStr.trim();
-	
+
 	let numericalAttr = "";
-	if (!isNaN(parseFloat(str))){
+	if (!isNaN(parseFloat(str))) {
 		numericalAttr = pokemonInstance ? 'value' : 'dex';
 	} else {
 		for (let attr of acceptedNumericalAttributes) {
@@ -1301,115 +1300,115 @@ function BasicPokeQuery(queryStr, pokemonInstance){
 			}
 		}
 	}
-	if (numericalAttr != ''){ // Match numerical attributes
+	if (numericalAttr != '') { // Match numerical attributes
 		let bounds = str.split((str.includes('~') ? '~' : '-'));
-		const LBound = parseFloat(bounds[0]) || -1000000, UBound = parseFloat(bounds[bounds.length-1]) || 1000000;
-		return function(obj){
+		const LBound = parseFloat(bounds[0]) || -1000000, UBound = parseFloat(bounds[bounds.length - 1]) || 1000000;
+		return function (obj) {
 			return LBound <= obj[numericalAttr] && obj[numericalAttr] <= UBound;
 		};
-	}else if (Data.BattleSettings.TypeEffectiveness.hasOwnProperty(str.toLowerCase()) || str.toLowerCase() == 'none'){ // Match types
+	} else if (Data.BattleSettings.TypeEffectiveness.hasOwnProperty(str.toLowerCase()) || str.toLowerCase() == 'none') { // Match types
 		str = str.toLowerCase();
-		return function(obj){
+		return function (obj) {
 			return ([obj.pokeType, obj.pokeType1, obj.pokeType2].includes(str));
 		};
-	}else if (str[0] == '@'){ // Match Pokemon's moves
+	} else if (str[0] == '@') { // Match Pokemon's moves
 		str = str.slice(1).toLowerCase();
-		if (str[0] == '1' || str.substring(0,3) == '<f>'){
+		if (str[0] == '1' || str.substring(0, 3) == '<f>') {
 			str = (str[0] == '1' ? str.slice(1) : str.slice(3));
-			return function(obj){
+			return function (obj) {
 				var fmove = (typeof obj.fmove == typeof "" ? getEntry(obj.fmove, Data.FastMoves) : obj.fmove);
 				pred_move = BasicPokeQuery(str, obj);
 				return fmove && pred_move(fmove);
 			};
-		}else if (str[0] == '2' || str.substring(0,3) == '<c>'){
+		} else if (str[0] == '2' || str.substring(0, 3) == '<c>') {
 			str = (str[0] == '2' ? str.slice(1) : str.slice(3));
-			return function(obj){
+			return function (obj) {
 				var cmove = (typeof obj.cmove == typeof "" ? getEntry(obj.cmove, Data.ChargedMoves) : obj.cmove);
 				pred_move = BasicPokeQuery(str, obj);
 				return cmove && pred_move(cmove);
 			};
-		}else if (str[0] == '3'){
+		} else if (str[0] == '3') {
 			str = str.slice(1);
-			return function(obj){
+			return function (obj) {
 				var cmove = (typeof obj.cmove2 == typeof "" ? getEntry(obj.cmove2, Data.ChargedMoves) : obj.cmove2);
 				pred_move = BasicPokeQuery(str, obj);
 				return cmove && pred_move(cmove);
 			};
-		}else if (str[0] == '*' || str.substring(0,3) == '<*>'){
+		} else if (str[0] == '*' || str.substring(0, 3) == '<*>') {
 			str = (str[0] == '*' ? str.slice(1) : str.slice(3));
-			return function(obj){
+			return function (obj) {
 				var fmove = (typeof obj.fmove == typeof "" ? getEntry(obj.fmove, Data.FastMoves) : obj.fmove);
 				var cmove = (typeof obj.cmove == typeof "" ? getEntry(obj.cmove, Data.ChargedMoves) : obj.cmove);
 				pred_move = BasicPokeQuery(str, obj);
 				return (fmove && pred_move(fmove)) && (cmove && pred_move(cmove));
 			};
-		}else{
-			return function(obj){
+		} else {
+			return function (obj) {
 				var fmove = (typeof obj.fmove == typeof "" ? getEntry(obj.fmove, Data.FastMoves) : obj.fmove);
 				var cmove = (typeof obj.cmove == typeof "" ? getEntry(obj.cmove, Data.ChargedMoves) : obj.cmove);
 				pred_move = BasicPokeQuery(str, obj);
 				return (fmove && pred_move(fmove)) || (cmove && pred_move(cmove));
 			};
 		}
-	}else if (str[0] == '$'){ // Box
+	} else if (str[0] == '$') { // Box
 		str = str.slice(1).trim();
-		return function(obj){
+		return function (obj) {
 			return obj.uid && obj.nickname.includes(str);
 		};
-	}else if (str[0] == '%'){ // Raid Boss
+	} else if (str[0] == '%') { // Raid Boss
 		str = str.slice(1);
-		return function(obj){
+		return function (obj) {
 			return obj.raidMarker && obj.raidMarker.includes(str);
 		};
-	}else if (str[0] == '+'){ // Evolutions
+	} else if (str[0] == '+') { // Evolutions
 		let evolutions_const = getAllEvolutions(str.slice(1).trim().toLowerCase());
-		return function(obj){
+		return function (obj) {
 			return evolutions_const.includes(obj.name);
 		};
-	}else if (str[0] == '?'){ // JavaScript Expression
+	} else if (str[0] == '?') { // JavaScript Expression
 		str = str.slice(1);
 		let y = pokemonInstance;
-		return function(x){
+		return function (x) {
 			return eval(str);
 		};
-	}else if (str.toLowerCase() == "evolve"){ // The Pokemon has evolution
-		return function(obj){
+	} else if (str.toLowerCase() == "evolve") { // The Pokemon has evolution
+		return function (obj) {
 			return obj.evolutions && obj.evolutions.length > 0;
 		};
-	}else if (str.toLowerCase() == "legendary") { // Match legendary Pokemon
-		return function(obj){
+	} else if (str.toLowerCase() == "legendary") { // Match legendary Pokemon
+		return function (obj) {
 			return obj.rarity == "POKEMON_RARITY_LEGENDARY";
 		};
-	}else if (str.toLowerCase() == "mythic" || str.toLowerCase() == "mythical") { // Match mythical Pokemon
-		return function(obj){
+	} else if (str.toLowerCase() == "mythic" || str.toLowerCase() == "mythical") { // Match mythical Pokemon
+		return function (obj) {
 			return obj.rarity == "POKEMON_RARITY_MYTHIC";
 		};
-	}else if (str.toLowerCase() == "baby") { // Match baby Pokemon
-		return function(obj){
+	} else if (str.toLowerCase() == "baby") { // Match baby Pokemon
+		return function (obj) {
 			return BabyPokemon.includes(obj.name);
 		};
-	}else if (str.toLowerCase() == "current"){ // Current Move
-		return function(obj){
+	} else if (str.toLowerCase() == "current") { // Current Move
+		return function (obj) {
 			var movepool = (pokemonInstance || {})[obj.moveType + "Moves"];
 			return movepool && movepool.includes(obj.name);
 		};
-	}else if (str.toLowerCase() == "legacy"){ // Legacy Move
-		return function(obj){
+	} else if (str.toLowerCase() == "legacy") { // Legacy Move
+		return function (obj) {
 			var movepool = (pokemonInstance || {})[obj.moveType + "Moves_legacy"];
 			return movepool && movepool.includes(obj.name);
 		};
-	}else if (str.toLowerCase() == "exclusive"){ // Exclusive Move
-		return function(obj){
+	} else if (str.toLowerCase() == "exclusive") { // Exclusive Move
+		return function (obj) {
 			var movepool = (pokemonInstance || {})[obj.moveType + "Moves_exclusive"];
 			return movepool && movepool.includes(obj.name);
 		};
-	}else if (str.toLowerCase() == "stab"){ // STAB Move
-		return function(obj){
+	} else if (str.toLowerCase() == "stab") { // STAB Move
+		return function (obj) {
 			pokemonInstance = pokemonInstance || {};
 			return obj.pokeType == pokemonInstance.pokeType1 || obj.pokeType == pokemonInstance.pokeType2;
 		};
-	}else{ // Match name/nickname/species
-		return function(obj){
+	} else { // Match name/nickname/species
+		return function (obj) {
 			if (obj.name && obj.name.includes(str.toLowerCase()))
 				return true;
 			return obj.label && obj.label.includes(str);

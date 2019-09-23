@@ -11,12 +11,12 @@ var GBS = {};
 	@param {Object} input User input.
 	@return {Object[]} A list of specific battle data.
 */
-GBS.request = function(input){	
+GBS.request = function (input) {
 	AdditionalSummaryMetrics = {};
 	input.hasLog = (input.aggregation == "enum");
 	var battles = [];
 	var battleInputs = GBS.parse(input);
-	for (let binput of battleInputs){
+	for (let binput of battleInputs) {
 		battles = battles.concat(processConfig(binput));
 	}
 	return battles;
@@ -28,7 +28,7 @@ GBS.request = function(input){
 	@param {Object[]} log Battle log to resume (optional).
 	@return {BattleOutput} The result attle data.
 */
-GBS.run = function(input, log) {
+GBS.run = function (input, log) {
 	var battle = new Battle(new BattleInput(input));
 	battle.init();
 	if (log) {
@@ -43,55 +43,55 @@ GBS.run = function(input, log) {
 	@param {Object} input General battle input.
 	@param {Object[]} A list of specific battle input.
 */
-GBS.parse = function(input, start){
+GBS.parse = function (input, start) {
 	start = start || [0, 0, 0, 0];
-	for (var i = start[0]; i < input.players.length; i++){
+	for (var i = start[0]; i < input.players.length; i++) {
 		let player = input.players[i];
-		for (var j = start[1]; j < player.parties.length; j++){
+		for (var j = start[1]; j < player.parties.length; j++) {
 			let party = player.parties[j];
-			for (var k = start[2]; k < party.pokemon.length; k++){
+			for (var k = start[2]; k < party.pokemon.length; k++) {
 				let pokemon = party.pokemon[k];
 				let species = GM.get("pokemon", pokemon.name.trim().toLowerCase()) || {};
-				for (var a in species){
-					if (!pokemon.hasOwnProperty(a)){
+				for (var a in species) {
+					if (!pokemon.hasOwnProperty(a)) {
 						pokemon[a] = species[a];
 					}
 				}
-				for (var m = start[3]; m < AttributeDefinition.length; m++){
+				for (var m = start[3]; m < AttributeDefinition.length; m++) {
 					let attrDef = AttributeDefinition[m];
 					let value = (pokemon[attrDef.name] || attrDef.default).toString().toLowerCase();
-					if (GM.get(attrDef.dbname, value) != null){
+					if (GM.get(attrDef.dbname, value) != null) {
 						continue;
-					}else if (value[0] == '='){ // Dynamic Paster
-						try{
+					} else if (value[0] == '=') { // Dynamic Paster
+						try {
 							var arr = value.slice(1).split('.');
 							var srcPokemonAddress = arr[0].trim(), srcAttrName = arr[1] || attrDef.name;
 							var srcPokemon = (srcPokemonAddress == "this" ? pokemon : getPokemonConfig(input, srcPokemonAddress));
 							pokemon[attrDef.name] = srcPokemon[srcAttrName];
 							continue;
-						}catch(err){
-							throw new Exception((i+1) + "-" + (j+1) + "-" + (k+1) + '.' + attrDef.name + ": Invalid Dynamic Paster");
+						} catch (err) {
+							throw new Exception((i + 1) + "-" + (j + 1) + "-" + (k + 1) + '.' + attrDef.name + ": Invalid Dynamic Paster");
 						}
-					}else{ // Poke Query
+					} else { // Poke Query
 						let selector = value[0];
-						if (SELECTORS.includes(selector)){
+						if (SELECTORS.includes(selector)) {
 							value = value.slice(1).trim() || attrDef.default;
 						}
 						let matches = GM.select(attrDef.dbname, value, attrDef.name == "name" ? null : pokemon);
-						if (matches.length == 0){
+						if (matches.length == 0) {
 							return [];
 						}
-						if (selector != '?'){
-							let metric = '*' + (i+1) + "-" + (j+1) + "-" + (k+1) + '.' + attrDef.name;
+						if (selector != '?') {
+							let metric = '*' + (i + 1) + "-" + (j + 1) + "-" + (k + 1) + '.' + attrDef.name;
 							AdditionalSummaryMetrics[metric] = metric;
 						}
 						let branches = [];
-						for (let match of matches){
+						for (let match of matches) {
 							let cfg_copy = {};
 							deepCopy(cfg_copy, input);
 							pokemon = cfg_copy.players[i].parties[j].pokemon[k];
 							pokemon[attrDef.name] = match.name;
-							if (attrDef.name == "name"){ 
+							if (attrDef.name == "name") {
 								if (match.uid) {
 									// Match user's Pokemon
 									for (var a in match) {
@@ -106,13 +106,13 @@ GBS.parse = function(input, start){
 									deepCopy(pokemon, match);
 								}
 							}
-							branches = branches.concat(GBS.parse(cfg_copy, [i, j, k, m+1]));
+							branches = branches.concat(GBS.parse(cfg_copy, [i, j, k, m + 1]));
 						}
-						if (selector == '?'){ // Forced prouping	
+						if (selector == '?') { // Forced prouping	
 							branches = [branches];
 						}
 						return branches;
-					}	
+					}
 				}
 				start[3] = 0;
 			}
@@ -128,34 +128,34 @@ GBS.parse = function(input, start){
 	@param {Object[]} outputs A list of battle data object.
 	@return {Object} Averged battle data.
 */
-GBS.average = function(battles){
+GBS.average = function (battles) {
 	var averageBattleOutput = JSON.parse(JSON.stringify(battles[0].output));
-	
+
 	// 1. Initialize everything to 0
-	traverseLeaf(averageBattleOutput, function(v, path){
-		if (!isNaN(parseFloat(v))){
+	traverseLeaf(averageBattleOutput, function (v, path) {
+		if (!isNaN(parseFloat(v))) {
 			setProperty(averageBattleOutput, path, 0);
 		}
 	});
-	
+
 	// 2. Sum them up
-	for (let battle of battles){
+	for (let battle of battles) {
 		battle.output.battleLog = [];
-		traverseLeaf(battle.output, function(v, path){
-			if (!isNaN(parseFloat(v))){
+		traverseLeaf(battle.output, function (v, path) {
+			if (!isNaN(parseFloat(v))) {
 				setProperty(averageBattleOutput, path, getProperty(averageBattleOutput, path) + v);
 			}
 		});
 	}
-	
+
 	// 3. Divide and get the results
-	traverseLeaf(averageBattleOutput, function(v, path){
-		if (!isNaN(parseFloat(v))){
+	traverseLeaf(averageBattleOutput, function (v, path) {
+		if (!isNaN(parseFloat(v))) {
 			v = v / battles.length;
 			setProperty(averageBattleOutput, path, v);
 		}
 	});
-	
+
 	return {
 		input: battles[0].input,
 		output: averageBattleOutput
@@ -167,7 +167,7 @@ GBS.average = function(battles){
 	@param {Object} user_metrics The metrics to set.
 	@return {Object} The updated metrics.
 */
-GBS.metrics = function(user_metrics){
+GBS.metrics = function (user_metrics) {
 	if (user_metrics) {
 		DefaultSummaryMetrics = {};
 		AdditionalSummaryMetrics = {};
@@ -189,13 +189,13 @@ GBS.metrics = function(user_metrics){
 	Apply battle settings to the simulator.
 	@param {Object} bdata Battle parameters. If omitted, default settings will be used.
 */
-GBS.settings = function(bdata){
+GBS.settings = function (bdata) {
 	if (bdata) {
 		for (var param in bdata) {
 			Battle.setting(param, bdata[param]);
 		}
 	} else {
-		GM.each("battle", function(v, k){
+		GM.each("battle", function (v, k) {
 			Battle.setting(k, v);
 		});
 	}
@@ -205,18 +205,18 @@ GBS.settings = function(bdata){
 	Change the global battle mode settings.
 	@param {string} mode Name of the battle mode. "raid", "gym", or "pvp"
 */
-GBS.mode = function(mode){
+GBS.mode = function (mode) {
 	if (mode == "pvp") {
 		Battle.setting("globalAttackBonusMultiplier", GM.get("battle", "PvPAttackBonusMultiplier"));
 		Battle.setting("energyDeltaPerHealthLost", 0);
 		Battle.setting("fastMoveLagMs", 0);
 		Battle.setting("chargedMoveLagMs", 0);
-		GM.each("fast", function(move){
+		GM.each("fast", function (move) {
 			for (var a in move.combat) {
 				move[a] = move.combat[a];
 			}
 		});
-		GM.each("charged", function(move){
+		GM.each("charged", function (move) {
 			for (var a in move.combat) {
 				move[a] = move.combat[a];
 			}
@@ -224,12 +224,12 @@ GBS.mode = function(mode){
 	} else {
 		Battle.setting("globalAttackBonusMultiplier", 1);
 		GBS.settings();
-		GM.each("fast", function(move){
+		GM.each("fast", function (move) {
 			for (var a in move.regular) {
 				move[a] = move.regular[a];
 			}
 		});
-		GM.each("charged", function(move){
+		GM.each("charged", function (move) {
 			for (var a in move.regular) {
 				move[a] = move.regular[a];
 			}
@@ -241,37 +241,37 @@ GBS.mode = function(mode){
 /*
 	Use pogoapi.gamepress.gg simulator engine
 */
-GBS.submit = function(reqType, reqInput, reqOutput_handler, oncomplete) {
+GBS.submit = function (reqType, reqInput, reqOutput_handler, oncomplete) {
 	if (GBS.Processing) {
 		return;
 	}
 	GBS.Processing = 1;
-	
+
 	var request_json = {
 		"reqId": GBS.RequestId,
 		"reqType": reqType,
 		"reqInput": reqInput
 	};
-	
+
 	$.ajax({
 		url: GBS.HostURL,
 		type: "POST",
 		dataType: "json",
 		data: JSON.stringify(request_json),
 		processData: false,
-		success: function(resp){
+		success: function (resp) {
 			while (DialogStack.length > 0) {
 				DialogStack.pop().dialog('close');
 			}
 			reqOutput_handler(resp["reqOutput"]);
-		},		
-		error: function(jqXHR, textStatus, errorThrown){
+		},
+		error: function (jqXHR, textStatus, errorThrown) {
 			while (DialogStack.length > 0) {
 				DialogStack.pop().dialog('close');
 			}
 			UI.sendFeedbackDialog(errorThrown);
 		},
-		complete: function(){
+		complete: function () {
 			GBS.RequestId++;
 			GBS.Processing = 0;
 			if (oncomplete) {
@@ -289,7 +289,7 @@ GBS.submit = function(reqType, reqInput, reqOutput_handler, oncomplete) {
 	Non-interface members
 */
 
-var DefaultSummaryMetrics = {outcome: 'Outcome', duration: 'Time', tdo_percent: 'TDO%', dps: 'DPS', numDeaths: '#Death'};
+var DefaultSummaryMetrics = { outcome: 'Outcome', duration: 'Time', tdo_percent: 'TDO%', dps: 'DPS', numDeaths: '#Death' };
 var AdditionalSummaryMetrics = {};
 
 
@@ -300,7 +300,7 @@ var AdditionalSummaryMetrics = {};
 function PokemonInput(kwargs) {
 	this.name = (kwargs.name !== undefined ? kwargs.name.toLowerCase() : undefined);
 	let species = null;
-	
+
 	// 0. Role and immortality
 	let roleArgs = (kwargs.role || "a").split('_');
 	this.role = roleArgs[0].toLowerCase();
@@ -309,7 +309,7 @@ function PokemonInput(kwargs) {
 	} else {
 		this.immortal = roleArgs[0] == roleArgs[0].toUpperCase();
 	}
-	
+
 	// 1. The core three stats (Attack, Defense and Stamina)
 	this.Atk = kwargs.Atk;
 	this.Def = kwargs.Def;
@@ -410,7 +410,7 @@ function PokemonInput(kwargs) {
 	} else if (kwargs.fmove) {
 		this.fmove = kwargs.fmove;
 	}
-	
+
 	this.cmove = null;
 	this.cmoves = [];
 	let cmoves = {};
@@ -442,8 +442,8 @@ function PokemonInput(kwargs) {
 		this.cmoves = Object.values(cmoves);
 	}
 }
-	
-	
+
+
 /**
 	@class A wrapper class to validate and format battle input.
 	@param {Object} kwargs User input for a simulation.
@@ -461,13 +461,13 @@ function BattleInput(kwargs) {
 					throw new Error("No pokemon matched name", pokemon.name);
 				}
 				deepCopy(pokemon, species);
-				
+
 				// Find cpm
 				let level_setting = GM.get("level", pokemon.level);
 				if (level_setting) {
 					pokemon.cpm = level_setting.cpm;
 				}
-				
+
 				// Handle role, immortality, and cpm/level
 				let role_params = (pokemon.role || "a").split('_');
 				pokemon.role = role_params[0];
@@ -486,7 +486,7 @@ function BattleInput(kwargs) {
 					pokemon.cpm = raid_tier.cpm;
 					pokemon.maxHP = raid_tier.maxHP;
 				}
-				
+
 				// Handle moves
 				if (typeof pokemon.fmove == typeof "") {
 					pokemon.fmove = GM.get("fast", pokemon.fmove.toLowerCase());
@@ -517,7 +517,7 @@ function BattleInput(kwargs) {
 				}
 				pokemon.cmoves = Object.values(cmoves);
 				pokemon.cmove = pokemon.cmoves[0];
-				
+
 				if (this.battleMode == "pvp") {
 					for (let move of [pokemon.fmove].concat(pokemon.cmoves)) {
 						for (var a in move.combat) {
@@ -536,12 +536,12 @@ function BattleInput(kwargs) {
 	@param {Object|Pokemon} pkm The Pokemon to calculate CP for. Expected to have Atk, Def and Stm. If not, then must have base stats, IV stats and cpm/level.
 	@return {number} The CP value
 */
-function calculateCP(pkm){
+function calculateCP(pkm) {
 	var cpm = parseFloat(pkm.cpm);
 	var atk = pkm.Atk || (pkm.baseAtk + pkm.atkiv) * cpm;
 	var def = pkm.Def || (pkm.baseDef + pkm.defiv) * cpm;
 	var stm = pkm.Stm || (pkm.baseStm + pkm.stmiv) * cpm;
-	return Math.max(10, Math.floor(atk * Math.sqrt(def * stm)/10));
+	return Math.max(10, Math.floor(atk * Math.sqrt(def * stm) / 10));
 }
 
 /**
@@ -551,21 +551,21 @@ function calculateCP(pkm){
 	@param {boolean} exact If no combination yields the target CP, it return the combination that gets the closest but is less than the target CP.
 	@return {Object} A combination that yields the target CP.
 */
-function inferLevelAndIVs(pkm, cp, exact){
-	var pkm2 = {baseAtk: pkm.baseAtk, baseDef: pkm.baseDef, baseStm: pkm.baseStm};
-	
+function inferLevelAndIVs(pkm, cp, exact) {
+	var pkm2 = { baseAtk: pkm.baseAtk, baseDef: pkm.baseDef, baseStm: pkm.baseStm };
+
 	var levels = [];
 	if (pkm.level !== undefined) {
 		if (pkm.cpm == undefined) {
 			levels = [GM.get("level", pkm.level)];
 		} else {
-			levels = [{"name": pkm.level.toString(), "cpm": pkm.cpm}];
+			levels = [{ "name": pkm.level.toString(), "cpm": pkm.cpm }];
 		}
 	} else {
-		GM.each("level", function(levelSetting){
+		GM.each("level", function (levelSetting) {
 			levels.push(levelSetting);
 		});
-	}	
+	}
 	var atkivs = [];
 	if (pkm.atkiv !== undefined) {
 		atkivs = [parseInt(pkm.atkiv)];
@@ -584,10 +584,10 @@ function inferLevelAndIVs(pkm, cp, exact){
 	} else {
 		stmivs = Array(16).fill().map((x, i) => i);
 	}
-	
+
 	var minLevelIndex = null;
 	pkm2.atkiv = pkm2.defiv = pkm2.stmiv = 15;
-	for (var i = 0; i < levels.length; i++){
+	for (var i = 0; i < levels.length; i++) {
 		pkm2.cpm = levels[i].cpm;
 		if (calculateCP(pkm2) <= cp)
 			minLevelIndex = i;
@@ -596,21 +596,21 @@ function inferLevelAndIVs(pkm, cp, exact){
 	};
 	if (minLevelIndex == null)
 		return null;
-	
-	let pkm3 = {cpm: levels[0].cpm, level: levels[0].name, atkiv: 0, defiv: 0, stmiv: 0};
-	for (var i = minLevelIndex; i < levels.length; i++){
+
+	let pkm3 = { cpm: levels[0].cpm, level: levels[0].name, atkiv: 0, defiv: 0, stmiv: 0 };
+	for (var i = minLevelIndex; i < levels.length; i++) {
 		pkm2.level = levels[i].name;
 		pkm2.cpm = levels[i].cpm;
-		for (let aktiv of atkivs){
+		for (let aktiv of atkivs) {
 			pkm2.atkiv = aktiv;
-			for (let defiv of defivs){
+			for (let defiv of defivs) {
 				pkm2.defiv = defiv;
-				for (let stmiv of stmivs){
+				for (let stmiv of stmivs) {
 					pkm2.stmiv = stmiv;
 					pkm2.cp = calculateCP(pkm2);
-					if (pkm2.cp == cp){
+					if (pkm2.cp == cp) {
 						return pkm2;
-					} else if (pkm2.cp > pkm3.cp && pkm2.cp < cp){
+					} else if (pkm2.cp > pkm3.cp && pkm2.cp < cp) {
 						pkm3.level = pkm2.level;
 						pkm3.atkiv = pkm2.atkiv;
 						pkm3.defiv = pkm2.defiv;
@@ -626,9 +626,9 @@ function inferLevelAndIVs(pkm, cp, exact){
 }
 
 
-function getPokemonConfig(cfg, address){
+function getPokemonConfig(cfg, address) {
 	var arr = address.split('-');
-	var i = parseInt(arr[0])-1, j = parseInt(arr[1])-1, k = parseInt(arr[2])-1; // indices start from 1 in address
+	var i = parseInt(arr[0]) - 1, j = parseInt(arr[1]) - 1, k = parseInt(arr[2]) - 1; // indices start from 1 in address
 	return cfg.players[i].parties[j].pokemon[k];
 }
 
@@ -637,31 +637,31 @@ var AttributeDefinition = [
 		name: "name",
 		dbname: "pokemon_all",
 		default: "latios"
-	},{
+	}, {
 		name: "level",
 		dbname: "level",
 		default: "40"
-	},{
+	}, {
 		name: "atkiv",
 		dbname: "IndividualValues",
 		default: "15"
-	},{
+	}, {
 		name: "defiv",
 		dbname: "IndividualValues",
 		default: "15"
-	},{
+	}, {
 		name: "stmiv",
 		dbname: "IndividualValues",
 		default: "15"
-	},{
+	}, {
 		name: "fmove",
 		dbname: "fast",
 		default: "current, legacy, exclusive"
-	},{
+	}, {
 		name: "cmove",
 		dbname: "charged",
 		default: "current, legacy, exclusive"
-	},{
+	}, {
 		name: "cmove2",
 		dbname: "charged",
 		default: "=this.cmove"
@@ -669,21 +669,21 @@ var AttributeDefinition = [
 ];
 
 
-function processConfig(input){
+function processConfig(input) {
 	var battles = [];
-	if (Array.isArray(input)){
-		for (let subInput of input){
+	if (Array.isArray(input)) {
+		for (let subInput of input) {
 			battles = battles.concat(processConfig(subInput));
 		}
 		return [GBS.average(battles)];
-	}else{
+	} else {
 		var battleInput = new BattleInput(input);
-		if (battleInput.aggregation != "enum"){
+		if (battleInput.aggregation != "enum") {
 			battleInput.hasLog = false;
 		}
 		var battle = new Battle(battleInput);
 		let simPerConfig = parseInt(battleInput.simPerConfig) || 1;
-		for (var i = 0; i < simPerConfig; i++){
+		for (var i = 0; i < simPerConfig; i++) {
 			battle.init();
 			battle.go();
 			battles.push({
@@ -691,7 +691,7 @@ function processConfig(input){
 				output: battle.getBattleResult()
 			});
 		}
-		if (battleInput.aggregation == "avrg"){
+		if (battleInput.aggregation == "avrg") {
 			battles = [GBS.average(battles)];
 		}
 		return battles;

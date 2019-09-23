@@ -1,30 +1,36 @@
 <style>
-	div#ranking_table_wrapper td{
+	div#ranking_table_wrapper td {
 		font-size: 12px;
 		padding: 0px;
 		line-height: 3;
 	}
+
 	div#ranking_table_wrapper th {
 		font-size: 11px;
 	}
+
 	div#subMenu {
 		z-index: 10;
 	}
+
 	div#ranking_table_wrapper {
 		margin-top: 10px;
 	}
 
 	DataTables_sort_icon {
-		background : none;
+		background: none;
 	}
-
 </style>
 
 
 <div name="pokemon">
 
 	<table>
-		<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
+		<colgroup>
+			<col width='50%'>
+			<col width='25%'>
+			<col width='25%'>
+		</colgroup>
 		<tr>
 			<th>Enemy Species</th>
 			<th>PokeType 1</th>
@@ -38,7 +44,10 @@
 	</table>
 
 	<table>
-		<colgroup><col width='50%'><col width='50%'></colgroup>
+		<colgroup>
+			<col width='50%'>
+			<col width='50%'>
+		</colgroup>
 		<tr>
 			<th>Enemy Fast Move</th>
 			<th>Enemy Charged Move</th>
@@ -50,9 +59,12 @@
 	</table>
 
 </div>
-	
+
 <table>
-	<colgroup><col width='50%'><col width='50%'></colgroup>
+	<colgroup>
+		<col width='50%'>
+		<col width='50%'>
+	</colgroup>
 	<tr>
 		<th>Weather</th>
 		<th>Customization</th>
@@ -71,19 +83,28 @@
 </table>
 
 <table>
-	<colgroup><col width='25%'><col width='25%'><col width='25%'><col width='25%'></colgroup>
+	<colgroup>
+		<col width='25%'>
+		<col width='25%'>
+		<col width='25%'>
+		<col width='25%'>
+	</colgroup>
 	<tr>
 		<td>
-			<div id='ui-swapDiscount' style='width:100%;'><label style='width:100%;font-size:16px;'>Swap Discount<input type='checkbox' id='ui-swapDiscount-checkbox'></label></div>
+			<div id='ui-swapDiscount' style='width:100%;'><label style='width:100%;font-size:16px;'>Swap Discount<input
+						type='checkbox' id='ui-swapDiscount-checkbox'></label></div>
 		</td>
 		<td>
-			<div id='ui-use-box' style='width:100%;'><label style='width:100%;font-size:16px;'>My Pokemon<input type='checkbox' id='ui-use-box-checkbox'></label></div>
+			<div id='ui-use-box' style='width:100%;'><label style='width:100%;font-size:16px;'>My Pokemon<input
+						type='checkbox' id='ui-use-box-checkbox'></label></div>
 		</td>
 		<td>
-			<div id='ui-uniqueSpecies' style='width:100%;'><label style='width:100%;font-size:16px;'>Best<input type='checkbox' id='ui-uniqueSpecies-checkbox'></label></div>
+			<div id='ui-uniqueSpecies' style='width:100%;'><label style='width:100%;font-size:16px;'>Best<input
+						type='checkbox' id='ui-uniqueSpecies-checkbox'></label></div>
 		</td>
 		<td>
-			<button class='player_button' id='refresher'><i class="fa fa-refresh" aria-hidden="true"></i> Refresh</button>
+			<button class='player_button' id='refresher'><i class="fa fa-refresh" aria-hidden="true"></i>
+				Refresh</button>
 		</td>
 	</tr>
 	<tr>
@@ -91,7 +112,8 @@
 			<div style='width:100%;'><input id="ui-cpcap" type="number" placeholder="CP Cap"></input></div>
 		</td>
 		<td>
-			<div id='ui-pvpMode' style='width:100%;'><label style='width:100%;font-size:16px;'>PvP Mode<input type='checkbox' id='ui-pvpMode-checkbox'></label></div>
+			<div id='ui-pvpMode' style='width:100%;'><label style='width:100%;font-size:16px;'>PvP Mode<input
+						type='checkbox' id='ui-pvpMode-checkbox'></label></div>
 		</td>
 		<td>
 
@@ -103,7 +125,9 @@
 </table>
 
 <table>
-	<colgroup><col width='100%'></colgroup>
+	<colgroup>
+		<col width='100%'>
+	</colgroup>
 	<tr>
 		<th>Search</th>
 	</tr>
@@ -119,9 +143,14 @@
 </table>
 
 <table>
-	<colgroup><col width="50%"><col width="50%"></colgroup>
+	<colgroup>
+		<col width="50%">
+		<col width="50%">
+	</colgroup>
 	<tr>
-	<td><button class="player_button" onclick="copyTableToClipboard('ranking_table')">Copy to Clipboard</button></td>
-	<td><button class="player_button" onclick="exportTableToCSV('ranking_table', 'comprehensive_dps.csv')">Export To CSV</button></td>
+		<td><button class="player_button" onclick="copyTableToClipboard('ranking_table')">Copy to Clipboard</button>
+		</td>
+		<td><button class="player_button" onclick="exportTableToCSV('ranking_table', 'comprehensive_dps.csv')">Export To
+				CSV</button></td>
 	</tr>
 </table>

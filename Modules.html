@@ -1,7 +1,7 @@
 <div id='moveEditForm' title="Add/Edit Move" style="visibility: hidden;">
 	<table name="move" id="moveEditForm-table">
 		<tr>
-			<th>Scope</th> 
+			<th>Scope</th>
 			<td>
 				<select name='move-scope'>
 					<option value='regular'>Regular (PvE)</option>
@@ -10,7 +10,7 @@
 			</td>
 		</tr>
 		<tr>
-			<th>Category</th> 
+			<th>Category</th>
 			<td>
 				<select name='move-moveType'>
 					<option value='fast'>Fast</option>
@@ -19,7 +19,7 @@
 			</td>
 		</tr>
 		<tr>
-			<th>Name</th> 
+			<th>Name</th>
 			<td><input type='text' name='move-name' class='input-with-icon move-input-with-icon'></td>
 		</tr>
 		<tr>
@@ -27,19 +27,19 @@
 			<td><select name='move-pokeType'></select></td>
 		</tr>
 		<tr>
-			<th>Power</th> 
+			<th>Power</th>
 			<td><input type='number' name='move-power'></td>
 		</tr>
 		<tr>
-			<th>EnergyDelta</th> 
+			<th>EnergyDelta</th>
 			<td><input type='number' name='move-energyDelta'></td>
 		</tr>
 		<tr>
-			<th>Duration (in miliseconds)</th> 
+			<th>Duration (in miliseconds)</th>
 			<td><input type='number' name='move-duration'></td>
 		</tr>
 		<tr>
-			<th>Damage Window (in miliseconds)</th> 
+			<th>Damage Window (in miliseconds)</th>
 			<td><input type='number' name='move-dws'></td>
 		</tr>
 		<tr>
@@ -48,65 +48,79 @@
 		</tr>
 	</table>
 	<br>
-	
-	<table> 
-		<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
+
+	<table>
+		<colgroup>
+			<col width='50%'>
+			<col width='25%'>
+			<col width='25%'>
+		</colgroup>
 		<tr>
-			<td><button onclick='moveEditFormSubmit()' id='moveEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
-			<td><button onclick='moveEditFormDelete()' id='moveEditForm-delete'><i class="fa fa-trash" aria-hidden="true"></i> Delete</button></td>
-			<td><button onclick='moveEditFormReset()' id='moveEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
+			<td><button onclick='moveEditFormSubmit()' id='moveEditForm-submit'><i class="fa fa-check"
+						aria-hidden="true"></i> Save</button></td>
+			<td><button onclick='moveEditFormDelete()' id='moveEditForm-delete'><i class="fa fa-trash"
+						aria-hidden="true"></i> Delete</button></td>
+			<td><button onclick='moveEditFormReset()' id='moveEditForm-reset'><i class="fa fa-refresh"
+						aria-hidden="true"></i> Reset</button></td>
 		</tr>
 	</table>
-	
+
 </div>
 
 
 <div id='pokemonEditForm' title="Add/Edit Pokemon" style="visibility: hidden;">
 	<table name="pokemon" id="pokemonEditForm-table">
 		<tr>
-			<th>Pokemon Name</th> 
+			<th>Pokemon Name</th>
 			<td><input type='text' name='pokemon-name' class='input-with-icon species-input-with-icon'></td>
 		</tr>
 		<tr>
-			<th>Pokemon Typing 1</th> 
+			<th>Pokemon Typing 1</th>
 			<td><select name='pokemon-pokeType1'></select></td>
 		</tr>
 		<tr>
-			<th>Pokemon Typing 2</th> 
+			<th>Pokemon Typing 2</th>
 			<td><select name='pokemon-pokeType2'></select></td>
 		</tr>
 		<tr>
-			<th>Base Attack</th> 
+			<th>Base Attack</th>
 			<td><input type='number' name='pokemon-baseAtk'></td>
 		</tr>
 		<tr>
-			<th>Base Defense</th> 
+			<th>Base Defense</th>
 			<td><input type='number' name='pokemon-baseDef'></td>
 		</tr>
 		<tr>
-			<th>Base Stamina</th> 
+			<th>Base Stamina</th>
 			<td><input type='number' name='pokemon-baseStm'></td>
 		</tr>
 		<tr>
-			<th>Fast Move Pool</th> 
+			<th>Fast Move Pool</th>
 			<td><input type='text' name='pokemon-fmoves'></td>
 		</tr>
 		<tr>
-			<th>Charged Move Pool</th> 
+			<th>Charged Move Pool</th>
 			<td><input type='text' name='pokemon-cmoves'></td>
 		</tr>
 	</table>
 	<br>
-	
-	<table> 
-		<colgroup><col width='50%'><col width='25%'><col width='25%'></colgroup>
+
+	<table>
+		<colgroup>
+			<col width='50%'>
+			<col width='25%'>
+			<col width='25%'>
+		</colgroup>
 		<tr>
-			<td><button onclick='pokemonEditFormSubmit()' id='pokemonEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
-			<td><button onclick='pokemonEditFormDelete()' id='pokemonEditForm-delete'><i class="fa fa-trash" aria-hidden="true"></i> Delete</button></td>
-			<td><button onclick='pokemonEditFormReset()' id='pokemonEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
+			<td><button onclick='pokemonEditFormSubmit()' id='pokemonEditForm-submit'><i class="fa fa-check"
+						aria-hidden="true"></i> Save</button></td>
+			<td><button onclick='pokemonEditFormDelete()' id='pokemonEditForm-delete'><i class="fa fa-trash"
+						aria-hidden="true"></i> Delete</button></td>
+			<td><button onclick='pokemonEditFormReset()' id='pokemonEditForm-reset'><i class="fa fa-refresh"
+						aria-hidden="true"></i> Reset</button></td>
 		</tr>
 	</table>
-	
+
 </div>
 
 
@@ -123,13 +137,16 @@
 		</tbody>
 	</table>
 	<br>
-	<table> 
-		<colgroup><col width='100%'></colgroup>
+	<table>
+		<colgroup>
+			<col width='100%'>
+		</colgroup>
 		<tr>
-			<td><button onclick='modEditFormSubmit()' id='modForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+			<td><button onclick='modEditFormSubmit()' id='modForm-submit'><i class="fa fa-check" aria-hidden="true"></i>
+					Save</button></td>
 		</tr>
 	</table>
-	
+
 	<div id='modEditForm-feedback'>
 	</div>
 </div>
@@ -139,22 +156,32 @@
 	<h4>List of Users</h4>
 	<table id='userEditForm-userTable'>
 		<thead>
-			<tr> <th>UserID</th> <th>PokeBox Length</th> <th>Action</th> </tr>
+			<tr>
+				<th>UserID</th>
+				<th>PokeBox Length</th>
+				<th>Action</th>
+			</tr>
 		</thead>
 		<tbody>
-		
+
 		</tbody>
 	</table>
-	
+
 	<br>
 	<input type='text' id='userEditForm-userID-1' placeholder='userID To Add/Remove'></input>
-	<table><colgroup><col width=50%><col width=50%></colgroup>
+	<table>
+		<colgroup>
+			<col width=50%>
+			<col width=50%>
+		</colgroup>
 		<tr>
-			<td><button onclick='userEditFormAddUser()'><i class="fa fa-user-plus" aria-hidden="true"></i> Add User</button></td>
-			<td><button onclick='userEditFormRemoveUser()'><i class="fa fa-user-times" aria-hidden="true"></i> Remove User</button></td>
+			<td><button onclick='userEditFormAddUser()'><i class="fa fa-user-plus" aria-hidden="true"></i> Add
+					User</button></td>
+			<td><button onclick='userEditFormRemoveUser()'><i class="fa fa-user-times" aria-hidden="true"></i> Remove
+					User</button></td>
 		</tr>
 	</table>
-	
+
 	<div id='userEditForm-feedback'>
 	</div>
 </div>
@@ -197,14 +224,19 @@
 		</tbody>
 	</table>
 	<br>
-	<table> 
-		<colgroup><col width='50%'><col width='50%'></colgroup>
+	<table>
+		<colgroup>
+			<col width='50%'>
+			<col width='50%'>
+		</colgroup>
 		<tr>
-			<td><button onclick='parameterEditFormSubmit()' id='parameterEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
-			<td><button onclick='parameterEditFormReset()' id='parameterEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button></td>
+			<td><button onclick='parameterEditFormSubmit()' id='parameterEditForm-submit'><i class="fa fa-check"
+						aria-hidden="true"></i> Save</button></td>
+			<td><button onclick='parameterEditFormReset()' id='parameterEditForm-reset'><i class="fa fa-refresh"
+						aria-hidden="true"></i> Reset</button></td>
 		</tr>
 	</table>
-	
+
 	<div id='parameterEditForm-feedback'>
 	</div>
 </div>
@@ -215,19 +247,24 @@
 		<li>Enter the raid boss and attackers information in the main simulator page first,</li>
 		<li>Then hit the "Generate" button in this tool.</li>
 	</ul>
-	<p>It will find out the minimum level for all attackers that will yield a winning rate no less than 60% against the raid boss for each friend level.</p>
+	<p>It will find out the minimum level for all attackers that will yield a winning rate no less than 60% against the
+		raid boss for each friend level.</p>
 
 	<table id="MVLTable-table">
 		<thead></thead>
-		<tbody></tbody>		
+		<tbody></tbody>
 	</table>
-	
+
 	<table>
 		<thead>
 			<colgroup>
-				<col width="50%"><col width="50%">
+				<col width="50%">
+				<col width="50%">
 			</colgroup>
-			<tr><th>Min Friendship</th><th>Max Friendship</th></tr>
+			<tr>
+				<th>Min Friendship</th>
+				<th>Max Friendship</th>
+			</tr>
 		</thead>
 		<tbody>
 			<tr>
@@ -237,7 +274,7 @@
 		</tbody>
 	</table>
 	<br>
-	
+
 	<div><button onclick="MVLTableSubmit();">Generate</button></div>
 
 </div>
@@ -248,7 +285,8 @@
 	<table>
 		<thead>
 			<colgroup>
-				<col width="60%"><col width="40%">
+				<col width="60%">
+				<col width="40%">
 			</colgroup>
 		</thead>
 		<tbody>
@@ -258,16 +296,18 @@
 					<p>If you are new to it, check out the examples below and get a feel of how GoBattleSim works:</p>
 				</td>
 				<td>
-					<img src="https://pokemongo.gamepress.gg/sites/pokemongo/files/2017-08/381_0.png" width="150px;"></img>
+					<img src="https://pokemongo.gamepress.gg/sites/pokemongo/files/2017-08/381_0.png"
+						width="150px;"></img>
 				</td>
 			</tr>
 		</tbody>
 	</table>
-	
+
 	<table>
 		<thead>
 			<colgroup>
-				<col width="50%"><col width="50%">
+				<col width="50%">
+				<col width="50%">
 			</colgroup>
 		</thead>
 		<tbody>
@@ -281,7 +321,7 @@
 			</tr>
 		</tbody>
 	</table>
-	
+
 	<table>
 		<thead>
 			<colgroup>
@@ -291,26 +331,32 @@
 		<tbody>
 			<tr>
 				<td>
-					<p>If you already know the basics, you may want to learn about the <b>Batch Input Scheme</b> by checking out the examples below: </p>
+					<p>If you already know the basics, you may want to learn about the <b>Batch Input Scheme</b> by
+						checking out the examples below: </p>
 				</td>
 			</tr>
 			<tr>
 				<td><button class="player_button" onclick="welcomeDialogSubmit(4, true)">My Best Counter</button></td>
 			</tr>
 			<tr>
-				<td><button class="player_button" onclick="welcomeDialogSubmit(5, true)">Minimum Level to Win</button></td>
+				<td><button class="player_button" onclick="welcomeDialogSubmit(5, true)">Minimum Level to Win</button>
+				</td>
 			</tr>
 			<tr>
-				<td><button class="player_button" onclick="welcomeDialogSubmit(6, true)">Best Pokemon of Type</button></td>
+				<td><button class="player_button" onclick="welcomeDialogSubmit(6, true)">Best Pokemon of Type</button>
+				</td>
 			</tr>
 		</tbody>
 	</table>
-	
-	<p>And don't forget to check out the <b>Team Builder</b> under the "Tools" tag!</p>
-	
 
-	<table> 
-		<colgroup><col width='50%'><col width='50%'></colgroup>
+	<p>And don't forget to check out the <b>Team Builder</b> under the "Tools" tag!</p>
+
+
+	<table>
+		<colgroup>
+			<col width='50%'>
+			<col width='50%'>
+		</colgroup>
 		<tr>
 			<td><button onclick='welcomeDialogRespond(0)'>OK</button></td>
 			<td><button onclick='welcomeDialogRespond(1)'>Don't show this again</button></td>
@@ -321,15 +367,25 @@
 <div id='teamBuilder' title="Team Builder" style="visibility: hidden;">
 	<p><i><b>Build your best team to beat a raid boss!</b></i></p>
 
-	<p>Enter the raid boss information on the main simulator page first, then hit the "Find Counters" button in this tool.</p>
-	<p>Your best Pokemon against the raid boss will be shown on the left! A sample battle party is given in the Party Optimizer. </p>
-	<p>Drag the Pokemon up/down to adjust the order and see how the battle party's performance changes. Hit "Permutate Party" to find the best performing one.</p>
-	<p>You can also modify the members of the battle party by dragging the Pokemon from Pokemon Pool to Party Optimizer or vice versa.</p>
-	
+	<p>Enter the raid boss information on the main simulator page first, then hit the "Find Counters" button in this
+		tool.</p>
+	<p>Your best Pokemon against the raid boss will be shown on the left! A sample battle party is given in the Party
+		Optimizer. </p>
+	<p>Drag the Pokemon up/down to adjust the order and see how the battle party's performance changes. Hit "Permutate
+		Party" to find the best performing one.</p>
+	<p>You can also modify the members of the battle party by dragging the Pokemon from Pokemon Pool to Party Optimizer
+		or vice versa.</p>
+
 	<table>
 		<thead>
-			<colgroup><col width="50%"><col width="50%"></colgroup>
-			<tr><th>Pokemon Pool</th><th>Party Optimizer</th></tr>
+			<colgroup>
+				<col width="50%">
+				<col width="50%">
+			</colgroup>
+			<tr>
+				<th>Pokemon Pool</th>
+				<th>Party Optimizer</th>
+			</tr>
 		</thead>
 		<tbody>
 			<tr>
@@ -354,8 +410,14 @@
 				<td></td>
 				<td>
 					<table>
-						<tr><th>DPS</th><td id="teamBuilder-optimalPartyDPS"></td></tr>
-						<tr><th>TDO%</th><td id="teamBuilder-optimalPartyTDO"></td></tr>
+						<tr>
+							<th>DPS</th>
+							<td id="teamBuilder-optimalPartyDPS"></td>
+						</tr>
+						<tr>
+							<th>TDO%</th>
+							<td id="teamBuilder-optimalPartyTDO"></td>
+						</tr>
 					</table>
 				</td>
 			</tr>
@@ -369,11 +431,19 @@
 
 
 <div id='typeChecker' title="Type Checker" style="visibility: hidden;">
-	
+
 	<table id="typeChecker-input">
 		<thead>
-			<colgroup><col width="33.3%"><col width="33.3%"><col width="33.3%"></colgroup>
-			<tr><th>Pokemon 1</th><th>Pokemon 2</th><th>Pokemon 3</th></tr>
+			<colgroup>
+				<col width="33.3%">
+				<col width="33.3%">
+				<col width="33.3%">
+			</colgroup>
+			<tr>
+				<th>Pokemon 1</th>
+				<th>Pokemon 2</th>
+				<th>Pokemon 3</th>
+			</tr>
 		</thead>
 		<tbody>
 			<tr id="typeChecker-party" name="party-pokemon">
@@ -383,33 +453,33 @@
 			</tr>
 		</tbody>
 	</table>
-	
+
 	<button class='player_button' onclick="typeCheckerSubmit()">Check</button>
-	
+
 	<br>
 	<h5>Offensive Coverage</h5>
-	
+
 	<select id="typeChecker-offensive-aggregation" onchange="typeCheckerSubmit()">
 		<option value="max">Max</option>
 		<option value="avrg">Average</option>
 		<option value="min">Min</option>
 	</select>
-	
+
 	<table id="typeChecker-offensive">
 	</table>
-	
+
 	<br>
 	<h5>Defensive Vulnerabilities</h5>
-	
+
 	<select id="typeChecker-defensive-aggregation" onchange="typeCheckerSubmit()">
 		<option value="max">Max</option>
 		<option value="avrg">Average</option>
 		<option value="min">Min</option>
 	</select>
-	
+
 	<table id="typeChecker-defensive">
 	</table>
-	
+
 </div>
 
 
@@ -419,19 +489,20 @@
 	<ol>
 		<li>The first row must be the attributes of a Pokemon</li>
 		<li>Fields are separated by TAB or comma. To escape the delimeter, surround the field by double quotes</li>
-		<li><a href="https://youtu.be/Dw2Cw3ybeVs"><b>Video Tutorial</b></a>; 
-			Examples: 
+		<li><a href="https://youtu.be/Dw2Cw3ybeVs"><b>Video Tutorial</b></a>;
+			Examples:
 			<a style="cursor: pointer;" id="example-nightmare"> <b>Nightmare Cup</b> </a>,
 			<a style="cursor: pointer;" id="example-regional"> <b>Regionals Cup</b> </a>
 		</li>
 	</ol>
-	
+
 	<h4>Matrix</h4>
 	<div class="form-group">
 		<div class="row">
 			<div class="col-sm-6">
 				<label for="battleMatrix-input">Input Pokemon Pool</label>
-				<textarea class="form-control" id="battleMatrix-input" rows="10" class="text_box">name,fmove,cmove,cmove2,cp</textarea>
+				<textarea class="form-control" id="battleMatrix-input" rows="10"
+					class="text_box">name,fmove,cmove,cmove2,cp</textarea>
 			</div>
 			<div class="col-sm-6">
 				<label for="battleMatrix-output-pokemon-list">Output Pokemon Pool</label>
@@ -445,13 +516,16 @@
 				<button class="center_stuff btn btn-primary" id="button-run">Run</button>
 			</div>
 			<div class="col-sm-3">
-				<div id="cbox-container"><label class="center_stuff">Enum Shield Strat<input id="battleMatrix-enum-shields" type="checkbox"></input></label></div>
+				<div id="cbox-container"><label class="center_stuff">Enum Shield Strat<input
+							id="battleMatrix-enum-shields" type="checkbox"></input></label></div>
 			</div>
 			<div class="col-sm-3">
-				<button class="center_stuff btn btn-success" id="button-download-pokemon" disabled>Download Pokemon List</button>
+				<button class="center_stuff btn btn-success" id="button-download-pokemon" disabled>Download Pokemon
+					List</button>
 			</div>
 			<div class="col-sm-3">
-				<button class="center_stuff btn btn-success" id="button-download-matrix" disabled>Download Matrix</button>
+				<button class="center_stuff btn btn-success" id="button-download-matrix" disabled>Download
+					Matrix</button>
 			</div>
 		</div>
 	</div>
@@ -464,11 +538,11 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="overlay" id="running-screen" style="display: none">
-		<div class="overlay-content" >
-			<div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" ></div>
+		<div class="overlay-content">
+			<div class="spinner-border text-primary" style="width: 4rem; height: 4rem;"></div>
 		</div>
-    </div>
-	
+	</div>
+
 </div>

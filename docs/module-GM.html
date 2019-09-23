@@ -38,7 +38,7 @@
     <div class="container-overview">
     
         
-            <div class="description">Data Factory. This module manages the game data needed for simulation such as Pokemon stats, Move stats, and type effectiveness matrix. It is basically an extended Game Master.</div>
+            <div class="description">Data Factory. This module manages the game data such as Pokemon stats, Move stats, and type effectiveness matrix. It is basically an extended Game Master.</div>
         
 
         
@@ -87,7 +87,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line6">line 6</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line7">line 7</a>
     </li></ul></dd>
     
 
@@ -97,6 +97,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -135,6 +137,165 @@
 
     
         <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".convert"><span class="type-signature">(static) </span>convert<span class="signature">(src)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Convert GBS game master to fit the new GoBattleSim API format.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>src</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The source GBS game master, default to Data.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line209">line 209</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    GoBattleSim API compatible game master.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
 
         
             
@@ -266,7 +427,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line154">line 154</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line169">line 169</a>
     </li></ul></dd>
     
 
@@ -276,6 +437,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -401,7 +564,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line77">line 77</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line92">line 92</a>
     </li></ul></dd>
     
 
@@ -429,13 +592,15 @@
 
 
 
+
+
         
             
 
     
 
     
-    <h4 class="name" id=".fetch"><span class="type-signature">(static) </span>fetch<span class="signature">(oncomplete)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".fetch"><span class="type-signature">(static) </span>fetch<span class="signature">(kwargs)</span><span class="type-signature"></span></h4>
     
 
     
@@ -479,10 +644,15 @@
 
         <tr>
             
-                <td class="name"><code>oncomplete</code></td>
+                <td class="name"><code>kwargs</code></td>
             
 
             <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
             
             </td>
 
@@ -490,7 +660,7 @@
 
             
 
-            <td class="description last">The callback when all JSONs are fetched.</td>
+            <td class="description last">Keyword arguments. Can specify 'name', 'complete', 'userid'</td>
         </tr>
 
     
@@ -531,7 +701,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line13">line 13</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line14">line 14</a>
     </li></ul></dd>
     
 
@@ -541,6 +711,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -689,7 +861,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line95">line 95</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line110">line 110</a>
     </li></ul></dd>
     
 
@@ -699,6 +871,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -797,7 +971,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line66">line 66</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line81">line 81</a>
     </li></ul></dd>
     
 
@@ -807,6 +981,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -883,7 +1059,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line181">line 181</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line197">line 197</a>
     </li></ul></dd>
     
 
@@ -893,6 +1069,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -1067,7 +1245,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line140">line 140</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line155">line 155</a>
     </li></ul></dd>
     
 
@@ -1077,6 +1255,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -1270,7 +1450,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line111">line 111</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line126">line 126</a>
     </li></ul></dd>
     
 
@@ -1280,6 +1460,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -1378,7 +1560,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line599">line 599</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line734">line 734</a>
     </li></ul></dd>
     
 
@@ -1388,6 +1570,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -1540,7 +1724,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line1101">line 1101</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line1288">line 1288</a>
     </li></ul></dd>
     
 
@@ -1550,6 +1734,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -1720,7 +1906,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line499">line 499</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line634">line 634</a>
     </li></ul></dd>
     
 
@@ -1730,6 +1916,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -1776,7 +1964,7 @@
     
 
     
-    <h4 class="name" id="~fetchLevelData"><span class="type-signature">(inner) </span>fetchLevelData<span class="signature">(oncomplete)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="~fetchLevelSettings"><span class="type-signature">(inner) </span>fetchLevelSettings<span class="signature">(oncomplete)</span><span class="type-signature"></span></h4>
     
 
     
@@ -1872,7 +2060,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line676">line 676</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line812">line 812</a>
     </li></ul></dd>
     
 
@@ -1882,6 +2070,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -1958,7 +2148,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line956">line 956</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line1133">line 1133</a>
     </li></ul></dd>
     
 
@@ -1986,13 +2176,15 @@
 
 
 
+
+
         
             
 
     
 
     
-    <h4 class="name" id="~fetchMoveData"><span class="type-signature">(inner) </span>fetchMoveData<span class="signature">(oncomplete)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="~fetchMoves"><span class="type-signature">(inner) </span>fetchMoves<span class="signature">(oncomplete)</span><span class="type-signature"></span></h4>
     
 
     
@@ -2088,7 +2280,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line818">line 818</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line968">line 968</a>
     </li></ul></dd>
     
 
@@ -2116,134 +2308,6 @@
 
 
 
-        
-            
-
-    
-
-    
-    <h4 class="name" id="~fetchRaidBossData"><span class="type-signature">(inner) </span>fetchRaidBossData<span class="signature">(oncomplete)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Fetch raid boss list from GP server.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>oncomplete</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The callback after the fetching is complete.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line705">line 705</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         
@@ -2252,7 +2316,7 @@
     
 
     
-    <h4 class="name" id="~fetchSpeciesData"><span class="type-signature">(inner) </span>fetchSpeciesData<span class="signature">(oncomplete)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="~fetchPokemon"><span class="type-signature">(inner) </span>fetchPokemon<span class="signature">(oncomplete)</span><span class="type-signature"></span></h4>
     
 
     
@@ -2348,7 +2412,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line739">line 739</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line879">line 879</a>
     </li></ul></dd>
     
 
@@ -2376,13 +2440,15 @@
 
 
 
+
+
         
             
 
     
 
     
-    <h4 class="name" id="~fetchSpeciesFormData"><span class="type-signature">(inner) </span>fetchSpeciesFormData<span class="signature">(oncomplete)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="~fetchPokemonForms"><span class="type-signature">(inner) </span>fetchPokemonForms<span class="signature">(oncomplete)</span><span class="type-signature"></span></h4>
     
 
     
@@ -2478,7 +2544,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line787">line 787</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line937">line 937</a>
     </li></ul></dd>
     
 
@@ -2488,6 +2554,140 @@
 
     
 </dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~fetchRaidBosses"><span class="type-signature">(inner) </span>fetchRaidBosses<span class="signature">(oncomplete)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Fetch raid boss list from GP server.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>oncomplete</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The callback after the fetching is complete.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line841">line 841</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
 
 
 
@@ -2608,7 +2808,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line648">line 648</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line784">line 784</a>
     </li></ul></dd>
     
 
@@ -2636,13 +2836,15 @@
 
 
 
+
+
         
             
 
     
 
     
-    <h4 class="name" id="~fetchUserData"><span class="type-signature">(inner) </span>fetchUserData<span class="signature">(oncomplete)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="~fetchUser"><span class="type-signature">(inner) </span>fetchUser<span class="signature">(oncomplete, userid)</span><span class="type-signature"></span></h4>
     
 
     
@@ -2691,6 +2893,11 @@
 
             <td class="type">
             
+                
+<span class="param-type">function</span>
+
+
+            
             </td>
 
             
@@ -2700,126 +2907,19 @@
             <td class="description last">The callback after the fetching is complete.</td>
         </tr>
 
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line889">line 889</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="~fetchUserTeamData"><span class="type-signature">(inner) </span>fetchUserTeamData<span class="signature">(oncomplete)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Fetch user battle party data from GP server.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
     
 
         <tr>
             
-                <td class="name"><code>oncomplete</code></td>
+                <td class="name"><code>userid</code></td>
             
 
             <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
             
             </td>
 
@@ -2827,7 +2927,7 @@
 
             
 
-            <td class="description last">The callback after the fetching is complete.</td>
+            <td class="description last">The user id of the user to fetch.</td>
         </tr>
 
     
@@ -2868,7 +2968,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line915">line 915</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line1060">line 1060</a>
     </li></ul></dd>
     
 
@@ -2878,6 +2978,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -3003,7 +3105,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line572">line 572</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line707">line 707</a>
     </li></ul></dd>
     
 
@@ -3013,6 +3115,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -3161,7 +3265,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line367">line 367</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line514">line 514</a>
     </li></ul></dd>
     
 
@@ -3171,6 +3275,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -3364,7 +3470,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line451">line 451</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line586">line 586</a>
     </li></ul></dd>
     
 
@@ -3374,6 +3480,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -3521,7 +3629,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line551">line 551</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line686">line 686</a>
     </li></ul></dd>
     
 
@@ -3531,6 +3639,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -3629,7 +3739,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line586">line 586</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line721">line 721</a>
     </li></ul></dd>
     
 
@@ -3639,6 +3749,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -3786,7 +3898,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line563">line 563</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line698">line 698</a>
     </li></ul></dd>
     
 
@@ -3796,6 +3908,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -3967,7 +4081,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line470">line 470</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line605">line 605</a>
     </li></ul></dd>
     
 
@@ -3977,6 +4091,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -4102,7 +4218,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line391">line 391</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line540">line 540</a>
     </li></ul></dd>
     
 
@@ -4112,6 +4228,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -4237,7 +4355,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line535">line 535</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line670">line 670</a>
     </li></ul></dd>
     
 
@@ -4247,6 +4365,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -4394,7 +4514,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line522">line 522</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line657">line 657</a>
     </li></ul></dd>
     
 
@@ -4404,6 +4524,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -4547,7 +4669,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line618">line 618</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line753">line 753</a>
     </li></ul></dd>
     
 
@@ -4557,6 +4679,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -4730,7 +4854,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line1021">line 1021</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line1208">line 1208</a>
     </li></ul></dd>
     
 
@@ -4740,6 +4864,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -4910,7 +5036,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line484">line 484</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line619">line 619</a>
     </li></ul></dd>
     
 
@@ -4920,6 +5046,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -4972,7 +5100,7 @@
     
 
     
-    <h4 class="name" id="~GMeachCallback"><span class="type-signature"></span>GMeachCallback<span class="signature">(object)</span><span class="type-signature"> &rarr; {null|Object}</span></h4>
+    <h4 class="name" id="~GMeachCallback"><span class="type-signature"></span>GMeachCallback<span class="signature">(object, index)</span><span class="type-signature"> &rarr; {null|Object}</span></h4>
     
 
     
@@ -5028,7 +5156,30 @@
 
             
 
-            <td class="description last">The current entry of the database.</td>
+            <td class="description last">The current entry being iterrated.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The index/key of the current entry.</td>
         </tr>
 
     
@@ -5069,7 +5220,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line172">line 172</a>
+        <a href="GBS_Data_Factory.js.html">GBS_Data_Factory.js</a>, <a href="GBS_Data_Factory.js.html#line187">line 187</a>
     </li></ul></dd>
     
 
@@ -5092,11 +5243,13 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    If returns anything, the entry in the database will be updated.
+    If return anything, the entry in the database will be updated to the return value.
 </div>
 
 
@@ -5136,13 +5289,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-GBS.html">GBS</a></li><li><a href="module-GM.html">GM</a></li><li><a href="module-UI.html">UI</a></li></ul><h3>Classes</h3><ul><li><a href="Battle.html">Battle</a></li><li><a href="module-GBS-BattleInput.html">BattleInput</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-App.html">App</a></li><li><a href="module-GBS.html">GBS</a></li><li><a href="module-GM.html">GM</a></li><li><a href="module-UI.html">UI</a></li></ul><h3>Classes</h3><ul><li><a href="Battle.html">Battle</a></li><li><a href="module-GBS-BattleInput.html">BattleInput</a></li><li><a href="module-GBS-PokemonInput.html">PokemonInput</a></li><li><a href="Party.html">Party</a></li><li><a href="Player.html">Player</a></li><li><a href="Pokemon.html">Pokemon</a></li><li><a href="Strategy.html">Strategy</a></li><li><a href="Timeline.html">Timeline</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Mar 14 2019 17:31:27 GMT+0800 (Hong Kong Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Mon Sep 23 2019 19:25:02 GMT+0800 (Hong Kong Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
