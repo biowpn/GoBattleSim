@@ -39,10 +39,10 @@ App.init = function () {
 	}
 
 	$("#UserGuideOpener").click(function () {
-		window.open('https://pokemongo.gamepress.gg/comprehensive-guide-GoBattleSim', '_blank')
+		window.open('https://gamepress.gg/pokemongo/comprehensive-guide-GoBattleSim', '_blank')
 	});
 	$("#ChanegLogOpener").click(function () {
-		window.open('https://pokemongo.gamepress.gg/GoBattleSim-and-comprehensive-dps-spreadsheet-change-log', '_blank')
+		window.open('https://gamepress.gg/pokemongo/GoBattleSim-and-comprehensive-dps-spreadsheet-change-log', '_blank')
 	});
 	$("#AddPlayerButton").click(function () {
 		addPlayerNode();

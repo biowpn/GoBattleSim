@@ -481,7 +481,7 @@ var LocalData = {
 };
 
 
-var CASTFORM_FORMS = [{ "dex": 351, "name": "castform", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["tackle", "hex"], "chargedMoves": ["hurricane", "energy ball"], "label": "Castform", "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/351MS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }, { "dex": 351, "name": "castform (rain)", "pokeType1": "water", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["water gun", "tackle"], "chargedMoves": ["hydro pump", "thunder"], "label": "Castform (Rain)", "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/351RMS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }, { "dex": 351, "name": "castform (snow)", "pokeType1": "ice", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["powder snow", "tackle"], "chargedMoves": ["blizzard", "ice beam"], "label": "Castform (Snow)", "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/351HMS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }, { "dex": 351, "name": "castform (sunny)", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["ember", "tackle"], "chargedMoves": ["fire blast", "solar beam"], "label": "Castform (Sunny)", "icon": "https://pokemongo.gamepress.gg/assets/img/sprites/351SMS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }];
+var CASTFORM_FORMS = [{ "dex": 351, "name": "castform", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["tackle", "hex"], "chargedMoves": ["hurricane", "energy ball"], "label": "Castform", "icon": "https://gamepress.gg/pokemongo/assets/img/sprites/351MS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }, { "dex": 351, "name": "castform (rain)", "pokeType1": "water", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["water gun", "tackle"], "chargedMoves": ["hydro pump", "thunder"], "label": "Castform (Rain)", "icon": "https://gamepress.gg/pokemongo/assets/img/sprites/351RMS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }, { "dex": 351, "name": "castform (snow)", "pokeType1": "ice", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["powder snow", "tackle"], "chargedMoves": ["blizzard", "ice beam"], "label": "Castform (Snow)", "icon": "https://gamepress.gg/pokemongo/assets/img/sprites/351HMS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }, { "dex": 351, "name": "castform (sunny)", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["ember", "tackle"], "chargedMoves": ["fire blast", "solar beam"], "label": "Castform (Sunny)", "icon": "https://gamepress.gg/pokemongo/assets/img/sprites/351SMS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }];
 
 
 var Mods = [
@@ -687,7 +687,7 @@ function getPokemonIcon(dex) {
 	dex = (dex || "").toString();
 	while (dex.length < 3)
 		dex = '0' + dex;
-	return "https://pokemongo.gamepress.gg/assets/img/sprites/" + dex + "MS.png";
+	return "https://gamepress.gg/pokemongo/assets/img/sprites/" + dex + "MS.png";
 }
 
 /**
@@ -696,7 +696,7 @@ function getPokemonIcon(dex) {
 	@return {string} The URL to the icon.
 */
 function getTypeIcon(type) {
-	return "https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_" + (type || "none").toLowerCase() + ".png";
+	return "https://gamepress.gg/pokemongo/sites/pokemongo/files/icon_" + (type || "none").toLowerCase() + ".png";
 }
 
 /**
@@ -814,7 +814,7 @@ function fetchLevelSettings(oncomplete) {
 		return;
 	requiredJSONStatus.LevelSettings = 1;
 	$.ajax({
-		url: 'https://pokemongo.gamepress.gg/assets/data/cpm.json?v2',
+		url: 'https://gamepress.gg/pokemongo/assets/data/cpm.json?v2',
 		dataType: 'json',
 		success: function (data) {
 			Data.LevelSettings = [];
@@ -939,7 +939,7 @@ function fetchPokemonForms(oncomplete) {
 		return;
 	requiredJSONStatus.PokemonForms = 1;
 	$.ajax({
-		url: 'https://pokemongo.gamepress.gg/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json?_format=json&' + curTime,
+		url: 'https://gamepress.gg/pokemongo/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json?_format=json&' + curTime,
 		dataType: 'json',
 		success: function (data) {
 			Data.PokemonForms = [];
@@ -1083,7 +1083,7 @@ function fetchUser(oncomplete, userid) {
 
 	// Fetch box
 	$.ajax({
-		url: 'https://pokemongo.gamepress.gg/user-pokemon-json-list?_format=json&new&uid_raw=' + userid,
+		url: 'https://gamepress.gg/pokemongo/user-pokemon-json-list?_format=json&new&uid_raw=' + userid,
 		dataType: 'json',
 		success: function (data) {
 			for (let pokemon of data) {
@@ -1102,7 +1102,7 @@ function fetchUser(oncomplete, userid) {
 	});
 	// Fetch parties
 	$.ajax({
-		url: 'https://pokemongo.gamepress.gg/user-pokemon-team?_format=json&uid=' + userid,
+		url: 'https://gamepress.gg/pokemongo/user-pokemon-team?_format=json&uid=' + userid,
 		dataType: 'json',
 		success: function (data) {
 			user.parties = [];
@@ -1397,7 +1397,7 @@ function BasicPokeQuery(queryStr, pokemonInstance) {
 		return function (obj) {
 			return BabyPokemon.includes(obj.name);
 		};
-	} else if (PokemonRegions.includes(str.toLowerCase())) { // Search By Region
+	} else if (PokemonRegions.hasOwnProperty(str.toLowerCase())) { // Search By Region
 		var dex_range = PokemonRegions[str.toLowerCase()];
 		return function (obj) {
 			return dex_range[0] <= obj.dex && obj.dex <= dex_range[1];

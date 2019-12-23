@@ -39,7 +39,7 @@ function damage(dmg_giver, dmg_taker, move, weather) {
 	return 0.5 * dmg_giver.Atk / dmg_taker.Def * move.power * multipliers + 0.5;
 }
 
-// https://pokemongo.gamepress.gg/how-calculate-comprehensive-dps
+// https://gamepress.gg/pokemongo/how-calculate-comprehensive-dps
 function calculateDPS(pokemon, kwargs) {
 	var x = kwargs.x, y = kwargs.y;
 	if (x == undefined || y == undefined) {

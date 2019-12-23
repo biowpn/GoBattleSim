@@ -5,13 +5,13 @@
 var curTime = Date.now();
 
 var scriptsToLoad = [
-	"https://pokemongo.gamepress.gg/sites/pokemongo/files/js_files/DPS_Calculator.js",
-	"https://pokemongo.gamepress.gg/sites/pokemongo/files/js_files/GBS_Controller.js",
-	"https://pokemongo.gamepress.gg/sites/pokemongo/files/js_files/GBS_Data_Factory.js",
-	"https://pokemongo.gamepress.gg/sites/pokemongo/files/js_files/GBS_Kernel.js",
-	"https://pokemongo.gamepress.gg/sites/pokemongo/files/js_files/GBS_Simulator_Interface.js",
-	"https://pokemongo.gamepress.gg/sites/pokemongo/files/js_files/GBS_Tools.js",
-	"https://pokemongo.gamepress.gg/sites/pokemongo/files/js_files/GBS_User_Interface.js"
+	"https://gamepress.gg/pokemongo/sites/pokemongo/files/js_files/DPS_Calculator.js",
+	"https://gamepress.gg/pokemongo/sites/pokemongo/files/js_files/GBS_Controller.js",
+	"https://gamepress.gg/pokemongo/sites/pokemongo/files/js_files/GBS_Data_Factory.js",
+	"https://gamepress.gg/pokemongo/sites/pokemongo/files/js_files/GBS_Kernel.js",
+	"https://gamepress.gg/pokemongo/sites/pokemongo/files/js_files/GBS_Simulator_Interface.js",
+	"https://gamepress.gg/pokemongo/sites/pokemongo/files/js_files/GBS_Tools.js",
+	"https://gamepress.gg/pokemongo/sites/pokemongo/files/js_files/GBS_User_Interface.js"
 ];
 
 function onfinishLoadingScripts() {

@@ -4,9 +4,9 @@ A next-generation Pokemon GO Battle simulator, supporting multi-player gym battl
 
 ## Getting Started
 
-GoBattleSim is currently hosted on https://pokemongo.gamepress.gg/gobattlesim
+GoBattleSim is currently hosted on https://gamepress.gg/pokemongo/gobattlesim
 
-One of its extension tool, Comprehensive DPS Spreadsheet, became standalone application and is hosted on https://pokemongo.gamepress.gg/comprehensive-dps-spreadsheet
+One of its extension tool, Comprehensive DPS Spreadsheet, became standalone application and is hosted on https://gamepress.gg/pokemongo/comprehensive-dps-spreadsheet
 
 ### Prerequisites
 
