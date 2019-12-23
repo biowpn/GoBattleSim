@@ -1198,10 +1198,10 @@ var MythicalPokemon = ['arceus', 'darkrai', 'phione', 'shaymin', 'deoxys (attack
 var BabyPokemon = ['pichu', 'cleffa', 'igglybuff', 'togepi', 'tyrogue', 'smoochum', 'elekid', 'magby', 'azurill', 'wynaut', 'budew', 'chingling', 'bonsly', 'mime jr.', 'happiny', 'munchlax', 'mantyke'];
 var PokemonRegions = {
 	"kanto": [1, 151],
-	"Johto": [152, 251],
-	"Hoenn": [252, 386],
-	"Sinnoh": [387, 493],
-	"Unova": [494, 649],
+	"johto": [152, 251],
+	"hoenn": [252, 386],
+	"sinnoh": [387, 493],
+	"unova": [494, 649],
 	"kalos": [650, 721],
 	"alola": [722, 809],
 	"galar": [810, 890]
