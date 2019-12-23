@@ -1196,6 +1196,16 @@ var acceptedNumericalAttributes = [
 var LegendaryPokemon = ['regice', 'entei', 'registeel', 'suicune', 'heatran', 'latias', 'rayquaza', 'azelf', 'moltres', 'mewtwo', 'latios', 'groudon', 'regirock', 'dialga', 'giratina (altered forme)', 'giratina (origin forme)', 'mesprit', 'zapdos', 'lugia', 'regigigas', 'articuno', 'ho-oh', 'kyogre', 'uxie', 'palkia', 'cresselia', 'raikou'];
 var MythicalPokemon = ['arceus', 'darkrai', 'phione', 'shaymin', 'deoxys (attack forme)', 'deoxys (defense forme)', 'deoxys (normal forme)', 'deoxys (speed forme)', 'manaphy', 'celebi', 'mew', 'meltan', 'jirachi', 'melmetal'];
 var BabyPokemon = ['pichu', 'cleffa', 'igglybuff', 'togepi', 'tyrogue', 'smoochum', 'elekid', 'magby', 'azurill', 'wynaut', 'budew', 'chingling', 'bonsly', 'mime jr.', 'happiny', 'munchlax', 'mantyke'];
+var PokemonRegions = {
+	"kanto": [1, 151],
+	"Johto": [152, 251],
+	"Hoenn": [252, 386],
+	"Sinnoh": [387, 493],
+	"Unova": [494, 649],
+	"kalos": [650, 721],
+	"alola": [722, 809],
+	"galar": [810, 890]
+};
 
 
 
@@ -1282,8 +1292,8 @@ function PokeQuery(queryStr, pokemonInstance) {
 	Create a basic PokeQuery that filters Pokemon, Moves and other attributes of the Pokemon.
 	A basic PokeQuery is a PokeQuery without logical operator or parathesis.
 	@param {string} queryStr The string representation of the query.
-	@param {Object|Pokemon} pokemonInstance An instance of the subject Pokemon. Used for querying Pokemon attributes.
-	@return {function} A function that accepts one parameter (to entity to evaluate) and returns true or false.
+	@param {Object|Pokemon} pokemonInstance An instance of the subject Pokemon, used for querying Pokemon attributes.
+	@return {function} A function that accepts one parameter (the entity to evaluate) and returns true or false.
 */
 function BasicPokeQuery(queryStr, pokemonInstance) {
 	let str = queryStr.trim();
@@ -1383,9 +1393,14 @@ function BasicPokeQuery(queryStr, pokemonInstance) {
 		return function (obj) {
 			return obj.rarity == "POKEMON_RARITY_MYTHIC";
 		};
-	} else if (str.toLowerCase() == "baby") { // Match baby Pokemon
+	} else if (str.toLowerCase() == "baby" || str.toLowerCase() == "eggsonly") { // Match baby Pokemon
 		return function (obj) {
 			return BabyPokemon.includes(obj.name);
+		};
+	} else if (PokemonRegions.includes(str.toLowerCase())) { // Search By Region
+		var dex_range = PokemonRegions[str.toLowerCase()];
+		return function (obj) {
+			return dex_range[0] <= obj.dex && obj.dex <= dex_range[1];
 		};
 	} else if (str.toLowerCase() == "current") { // Current Move
 		return function (obj) {
@@ -1397,7 +1412,7 @@ function BasicPokeQuery(queryStr, pokemonInstance) {
 			var movepool = (pokemonInstance || {})[obj.moveType + "Moves_legacy"];
 			return movepool && movepool.includes(obj.name);
 		};
-	} else if (str.toLowerCase() == "exclusive") { // Exclusive Move
+	} else if (str.toLowerCase() == "exclusive" || str.toLowerCase() == "special") { // Exclusive Move
 		return function (obj) {
 			var movepool = (pokemonInstance || {})[obj.moveType + "Moves_exclusive"];
 			return movepool && movepool.includes(obj.name);
@@ -1406,6 +1421,11 @@ function BasicPokeQuery(queryStr, pokemonInstance) {
 		return function (obj) {
 			pokemonInstance = pokemonInstance || {};
 			return obj.pokeType == pokemonInstance.pokeType1 || obj.pokeType == pokemonInstance.pokeType2;
+		};
+	} else if (str.toLowerCase() == "weather") { // Weather-boosted Move
+		var Weather = $("#weather").val() || $("[name=input-weather]").val();
+		return function (obj) {
+			return Data.BattleSettings.TypeBoostedWeather[obj.pokeType] == Weather;
 		};
 	} else { // Match name/nickname/species
 		return function (obj) {
