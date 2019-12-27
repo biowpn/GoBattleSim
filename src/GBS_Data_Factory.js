@@ -6,6 +6,14 @@
 
 var GM = {};
 
+if (window.BASE_URL == undefined)
+{
+	// local hosting
+	window.BASE_URL = "http://127.0.0.1:80";
+	window.raidBossListURL = BASE_URL + "/pokemongo/sites/pokemongo/files/pogo-jsons/raid-boss-list-PoGO.json";
+	window.pokemonDataFullURL = BASE_URL + "/pokemongo/sites/pokemongo/files/pogo-jsons/pokemon-data-full-en-PoGO.json";
+	window.moveDataFullURL = BASE_URL + "/pokemongo/sites/pokemongo/files/pogo-jsons/move-data-full-PoGO.json";
+}
 
 /** 
 	Fetch all required JSONs for the application.
@@ -337,7 +345,18 @@ GM.convert = function (src) {
 */
 var curTime = Date.now();
 
-var raidBossListURL = "", pokemonDataFullURL = "", moveDataFullURL = "";
+if (window.raidBossListURL == undefined)
+{
+	window.raidBossListURL = "";
+}
+if (window.pokemonDataFullURL == undefined)
+{
+	window.pokemonDataFullURL = "";
+}
+if (window.moveDataFullURL == undefined)
+{
+	window.moveDataFullURL = "";
+}
 
 var requiredJSONStatus = {
 	// 0: Not loaded, 1: Started loading, 2: Successfully loaded
@@ -481,8 +500,6 @@ var LocalData = {
 };
 
 
-var CASTFORM_FORMS = [{ "dex": 351, "name": "castform", "pokeType1": "normal", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["tackle", "hex"], "chargedMoves": ["hurricane", "energy ball"], "label": "Castform", "icon": "https://gamepress.gg/pokemongo/assets/img/sprites/351MS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }, { "dex": 351, "name": "castform (rain)", "pokeType1": "water", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["water gun", "tackle"], "chargedMoves": ["hydro pump", "thunder"], "label": "Castform (Rain)", "icon": "https://gamepress.gg/pokemongo/assets/img/sprites/351RMS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }, { "dex": 351, "name": "castform (snow)", "pokeType1": "ice", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["powder snow", "tackle"], "chargedMoves": ["blizzard", "ice beam"], "label": "Castform (Snow)", "icon": "https://gamepress.gg/pokemongo/assets/img/sprites/351HMS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }, { "dex": 351, "name": "castform (sunny)", "pokeType1": "fire", "pokeType2": "none", "baseAtk": 139, "baseDef": 139, "baseStm": 140, "fastMoves": ["ember", "tackle"], "chargedMoves": ["fire blast", "solar beam"], "label": "Castform (Sunny)", "icon": "https://gamepress.gg/pokemongo/assets/img/sprites/351SMS.png", "rating": 0, "fastMoves_legacy": [], "fastMoves_exclusive": [], "chargedMoves_legacy": [], "chargedMoves_exclusive": [] }];
-
 
 var Mods = [
 	{
@@ -554,11 +571,6 @@ function manuallyModifyData(data) {
 			insertEntry(hidden_power_variation, data.FastMoves);
 			insertEntry(hidden_power_variation, hidden_power_variations);
 		}
-	}
-
-	// Handle Castform
-	for (let castform of CASTFORM_FORMS) {
-		insertEntry(castform, data.Pokemon);
 	}
 
 	// Replace generic hidden power to specific hidden power
@@ -687,7 +699,7 @@ function getPokemonIcon(dex) {
 	dex = (dex || "").toString();
 	while (dex.length < 3)
 		dex = '0' + dex;
-	return "https://gamepress.gg/pokemongo/assets/img/sprites/" + dex + "MS.png";
+	return BASE_URL + "/pokemongo/assets/img/sprites/" + dex + "MS.png";
 }
 
 /**
@@ -696,7 +708,7 @@ function getPokemonIcon(dex) {
 	@return {string} The URL to the icon.
 */
 function getTypeIcon(type) {
-	return "https://gamepress.gg/pokemongo/sites/pokemongo/files/icon_" + (type || "none").toLowerCase() + ".png";
+	return BASE_URL + "/pokemongo/sites/pokemongo/files/icon_" + (type || "none").toLowerCase() + ".png";
 }
 
 /**
@@ -783,7 +795,7 @@ function parseUserPokebox(data) {
 */
 function fetchURLs(oncomplete) {
 	$.ajax({
-		url: "https://gamepress.gg/json-list?_format=json&game_tid=1&" + curTime,
+		url: BASE_URL + "/json-list?_format=json&game_tid=1&" + curTime,
 		dataType: 'json',
 		success: function (data) {
 			for (var i = 0; i < data.length; i++) {
@@ -814,7 +826,7 @@ function fetchLevelSettings(oncomplete) {
 		return;
 	requiredJSONStatus.LevelSettings = 1;
 	$.ajax({
-		url: 'https://gamepress.gg/pokemongo/assets/data/cpm.json?v2',
+		url: BASE_URL + "/pokemongo/assets/data/cpm.json",
 		dataType: 'json',
 		success: function (data) {
 			Data.LevelSettings = [];
@@ -939,7 +951,7 @@ function fetchPokemonForms(oncomplete) {
 		return;
 	requiredJSONStatus.PokemonForms = 1;
 	$.ajax({
-		url: 'https://gamepress.gg/pokemongo/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json?_format=json&' + curTime,
+		url: BASE_URL + "/pokemongo/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json",
 		dataType: 'json',
 		success: function (data) {
 			Data.PokemonForms = [];
@@ -1083,7 +1095,7 @@ function fetchUser(oncomplete, userid) {
 
 	// Fetch box
 	$.ajax({
-		url: 'https://gamepress.gg/pokemongo/user-pokemon-json-list?_format=json&new&uid_raw=' + userid,
+		url: BASE_URL + "/pokemongo/user-pokemon-json-list?_format=json&new&uid_raw=" + userid,
 		dataType: 'json',
 		success: function (data) {
 			for (let pokemon of data) {
@@ -1102,7 +1114,7 @@ function fetchUser(oncomplete, userid) {
 	});
 	// Fetch parties
 	$.ajax({
-		url: 'https://gamepress.gg/pokemongo/user-pokemon-team?_format=json&uid=' + userid,
+		url: BASE_URL + "/pokemongo/user-pokemon-team?_format=json&uid=" + userid,
 		dataType: 'json',
 		success: function (data) {
 			user.parties = [];
@@ -1435,4 +1447,3 @@ function BasicPokeQuery(queryStr, pokemonInstance) {
 		}
 	}
 }
-

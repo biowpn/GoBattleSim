@@ -279,7 +279,7 @@ function pokemonEditFormSubmit() {
 		UI.sendFeedbackDialog('Pokemon: ' + pokemon.label + ' has been updated.');
 	} else {
 		pokemon.dex = 0;
-		pokemon.icon = "https://gamepress.gg/pokemongo/assets/img/sprites/000MS.png";
+		pokemon.icon = getPokemonIcon(0);
 		pokemon.label = orginalLabel;
 		pokemon.rating = 0;
 		GM.set("pokemon", pokemon.name, pokemon);
