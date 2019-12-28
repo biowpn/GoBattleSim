@@ -87,7 +87,7 @@ If the input contains some wild cards (such as "*" being some Pokmeon's fast mov
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+See the [LICENSE.md](LICENSE.md) file for details
 
 ## Acknowledgments
 
