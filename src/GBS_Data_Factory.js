@@ -309,7 +309,7 @@ GM.convert = function (src) {
 		// PvEBattleSettings
 		dst.PvEBattleSettings = {
 			sameTypeAttackBonusMultiplier: src.BattleSettings.sameTypeAttackBonusMultiplier,
-			maximumEnergy: src.BattleSettings.maximumEnergy,
+			maxEnergy: src.BattleSettings.maxEnergy,
 			energyDeltaPerHealthLost: src.BattleSettings.energyDeltaPerHealthLost,
 			dodgeDurationMs: src.BattleSettings.dodgeDurationMs,
 			swapDurationMs: src.BattleSettings.swapDurationMs,
@@ -322,7 +322,8 @@ GM.convert = function (src) {
 			sameTypeAttackBonusMultiplier: src.BattleSettings.sameTypeAttackBonusMultiplier,
 			fastAttackBonusMultiplier: src.BattleSettings.PvPAttackBonusMultiplier,
 			chargeAttackBonusMultiplier: src.BattleSettings.PvPAttackBonusMultiplier,
-			maxEnergy: src.BattleSettings.maximumEnergy,
+			maxEnergy: src.BattleSettings.maxEnergy,
+			quickSwapCooldownDurationMs: src.BattleSettings.switchingCooldownDurationMs,
 			quickSwapCooldownDurationSeconds: Math.round(src.BattleSettings.switchingCooldownDurationMs / 1000),
 			minimumStatStage: src.BattleSettings.minimumStatStage,
 			maximumStatStage: src.BattleSettings.maximumStatStage,
@@ -393,7 +394,7 @@ var Data = {
 		'minimumStatStage': -4,
 		'maximumStatStage': 4,
 
-		'maximumEnergy': 100,
+		'maxEnergy': 100,
 		'energyDeltaPerHealthLost': 0.5,
 		'dodgeDamageReductionPercent': 0.75,
 		'maximumTreeHeight': 12,

@@ -650,12 +650,12 @@ Strategy.prototype.getBurstDecision = function (kwargs) {
 		}
 		return true;
 	} else { // this.burstAttackStatus == -1
-		if (projectedEnergy >= kwargs.maximumEnergy) {
+		if (projectedEnergy >= kwargs.maxEnergy) {
 			this.burstAttackStatus = 1;
 			return true;
 		}
 		var enemy = this.subject.master.rivals[0].getHead();
-		if (enemy.energy >= kwargs.maximumEnergy) {
+		if (enemy.energy >= kwargs.maxEnergy) {
 			this.burstAttackStatus = 1;
 			return true;
 		} else {
@@ -1105,7 +1105,7 @@ Battle.prototype.handleFree = function (event) {
 	}
 	subject.queuedAction = subject.strategy.getActionDecision({
 		t: this.t, tFree: tFree, currentAction: currentAction, damageCalc: this.damage,
-		maximumEnergy: Battle.bdata.maximumEnergy, dodgeWindowMs: Battle.bdata.dodgeWindowMs, dodgeDamageReductionPercent: Battle.bdata.dodgeDamageReductionPercent
+		maxEnergy: Battle.bdata.maxEnergy, dodgeWindowMs: Battle.bdata.dodgeWindowMs, dodgeDamageReductionPercent: Battle.bdata.dodgeDamageReductionPercent
 	});
 	this.timeline.enqueue({
 		name: EVENT.Free, t: tFree, subject: subject.id, index: subject.master.index
@@ -1142,7 +1142,7 @@ Battle.prototype.handleDamage = function (event) {
 		event.name = "";
 		return;
 	}
-	subject.gainEnergy(move.energyDelta, Battle.bdata.maximumEnergy);
+	subject.gainEnergy(move.energyDelta, Battle.bdata.maxEnergy);
 	if (move.moveType == "fast") {
 		subject.numFastAttacks++;
 	} else {
@@ -1159,7 +1159,7 @@ Battle.prototype.handleDamage = function (event) {
 		}
 		subject.attributeDamage(dmg, move.moveType);
 		target.takeDamage(dmg);
-		target.gainEnergy(Math.ceil(dmg * Battle.bdata.energyDeltaPerHealthLost), Battle.bdata.maximumEnergy);
+		target.gainEnergy(Math.ceil(dmg * Battle.bdata.energyDeltaPerHealthLost), Battle.bdata.maxEnergy);
 		if (!target.alive()) {
 			target.active = false;
 			this.processFaintedPokemon(target);
