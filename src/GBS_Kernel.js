@@ -118,7 +118,10 @@ Pokemon.prototype.init = function () {
 	this.numFastAttacks = 0;
 	this.numChargedAttacks = 0;
 
-	this.calculateStats();
+	if (!this.Atk || !this.Def)
+	{
+		this.calculateStats();
+	}
 	this.heal();
 }
 
@@ -884,7 +887,7 @@ function Battle(config) {
 	}
 	this.timelimitAdjusted = config.timelimitAdjusted || (this.timelimit - Battle.bdata.arenaEarlyTerminationMs);
 	this.weather = config.weather;
-	this.hasLog = config.hasLog;
+	this.enableLog = config.enableLog;
 	this.pokemon = []; // An array to manage all Pokemon
 	this.timeline = new Timeline();
 	this.log = [];
@@ -1364,7 +1367,7 @@ Battle.prototype.next = function (event) {
 		}
 	}
 	this["handle" + event.name](event);
-	if (this.hasLog) {
+	if (this.enableLog) {
 		var entry = this.toEntry(event);
 		if (entry) {
 			this.log.push(entry);

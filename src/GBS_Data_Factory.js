@@ -309,7 +309,7 @@ GM.convert = function (src) {
 		// PvEBattleSettings
 		dst.PvEBattleSettings = {
 			sameTypeAttackBonusMultiplier: src.BattleSettings.sameTypeAttackBonusMultiplier,
-			maxEnergy: src.BattleSettings.maxEnergy,
+			maximumEnergy: src.BattleSettings.maxEnergy,
 			energyDeltaPerHealthLost: src.BattleSettings.energyDeltaPerHealthLost,
 			dodgeDurationMs: src.BattleSettings.dodgeDurationMs,
 			swapDurationMs: src.BattleSettings.swapDurationMs,

@@ -13,7 +13,7 @@ var GBS = {};
 */
 GBS.request = function (input) {
 	AdditionalSummaryMetrics = {};
-	input.hasLog = (input.aggregation == "enum");
+	input.enableLog = (input.aggregation == "enum");
 	var battles = [];
 	var battleInputs = GBS.parse(input);
 	for (let binput of battleInputs) {
@@ -426,14 +426,14 @@ function PokemonInput(kwargs) {
 		this.cmoves = Object.values(cmoves);
 		this.cmove = this.cmoves[0];
 	} else if (typeof kwargs.cmove == typeof "") {
-		let move = GM.get("charged", pokemon.cmove.toLowerCase());
+		let move = GM.get("charged", kwargs.cmove.toLowerCase());
 		if (move) {
 			this.cmove = move;
 			cmoves[move.name] = move;
 		}
-		if (pokemon.cmove2) {
-			if (typeof pokemon.cmove2 == typeof "") {
-				move = GM.get("charged", pokemon.cmove2.toLowerCase());
+		if (kwargs.cmove2) {
+			if (typeof kwargs.cmove2 == typeof "") {
+				move = GM.get("charged", kwargs.cmove2.toLowerCase());
 			}
 			if (move) {
 				cmoves[move.name] = move;
@@ -455,71 +455,19 @@ function BattleInput(kwargs) {
 		for (let party of player.parties) {
 			party.delay = parseInt(party.delay) || 0;
 			for (let pokemon of party.pokemon) {
-				pokemon.name = pokemon.name.toLowerCase();
-				let species = GM.get("pokemon", pokemon.name);
-				if (!species) {
-					throw new Error("No pokemon matched name", pokemon.name);
-				}
-				deepCopy(pokemon, species);
+				pkm_input = new PokemonInput(pokemon);
 
-				// Find cpm
-				let level_setting = GM.get("level", pokemon.level);
-				if (level_setting) {
-					pokemon.cpm = level_setting.cpm;
-				}
-
-				// Handle role, immortality, and cpm/level
-				let role_params = (pokemon.role || "a").split('_');
-				pokemon.role = role_params[0];
-				pokemon.immortal = (pokemon.role == role_params[0].toUpperCase());
-				pokemon.role = pokemon.role.toLowerCase();
-				if (role_params[1] == 'basic') {
-					quartet = inferLevelAndIVs(pokemon, parseInt(pokemon.cp));
-					if (quartet) {
-						deepCopy(pokemon, quartet);
-					} else {
-						throw new Exception("No combination of IVs and level found");
-					}
-				}
-				if (pokemon.role == "rb") {
-					let raid_tier = GM.get("RaidTierSettings", pokemon.raidTier);
-					pokemon.cpm = raid_tier.cpm;
-					pokemon.maxHP = raid_tier.maxHP;
-				}
-
-				// Handle moves
-				if (typeof pokemon.fmove == typeof "") {
-					pokemon.fmove = GM.get("fast", pokemon.fmove.toLowerCase());
-				}
-				let cmoves = {};
-				if (kwargs.cmoves) {
-					for (let move of kwargs.cmoves) {
-						if (typeof move == typeof "") {
-							move = GM.get("charged", move.toLowerCase());
-						}
-						if (move) {
-							cmoves[move.name] = move;
-						}
-					}
-				} else if (typeof pokemon.cmove == typeof "") {
-					let move = GM.get("charged", pokemon.cmove.toLowerCase());
-					if (move) {
-						cmoves[move.name] = move;
-					}
-					if (pokemon.cmove2) {
-						if (typeof pokemon.cmove2 == typeof "") {
-							move = GM.get("charged", pokemon.cmove2.toLowerCase());
-						}
-						if (move) {
-							cmoves[move.name] = move;
-						}
-					}
-				}
-				pokemon.cmoves = Object.values(cmoves);
-				pokemon.cmove = pokemon.cmoves[0];
+				pokemon.immortal = pkm_input.immortal;
+				pokemon.Atk = pkm_input.Atk;
+				pokemon.Def = pkm_input.Def;
+				pokemon.Stm = pkm_input.Stm;
+				pokemon.maxHP = pkm_input.maxHP;
+				pokemon.fmove = pkm_input.fmove;
+				pokemon.cmove = pkm_input.cmove;
+				pokemon.cmoves = pkm_input.cmoves;
 
 				if (this.battleMode == "pvp") {
-					for (let move of [pokemon.fmove].concat(pokemon.cmoves)) {
+					for (let move of [pkm_input.fmove].concat(pkm_input.cmoves)) {
 						for (var a in move.combat) {
 							move[a] = move.combat[a];
 						}
@@ -528,6 +476,77 @@ function BattleInput(kwargs) {
 			}
 		}
 	}
+}
+
+function generateEngineMove(move) {
+	battle_mode = $("#battleMode").val();
+	var emove = {
+		name: move.name,
+		pokeType: move.pokeType
+	};
+	if (battle_mode == "pvp") {
+		emove.power = move.combat.power;
+		emove.duration = round(move.combat.duration / 500);
+		emove.energy = move.combat.energyDelta;
+		if (move.combat.effect) {
+			emove.effect = move.combat.effect;
+		}
+	}
+	else {
+		emove.power = move.regular.power;
+		emove.duration = move.regular.duration;
+		emove.energy = move.regular.energyDelta;
+		emove.dws = move.regular.dws;
+	}
+	return emove;
+}
+
+function generateEnginePokemon(pkm) {
+	return mini_pkm = {
+		copies: parseInt(pkm.copies),
+		name: pkm.name,
+		pokeType1: pkm.pokeType1,
+		pokeType2: pkm.pokeType2,
+		attack: pkm.Atk,
+		defense: pkm.Def,
+		maxHP: pkm.maxHP,
+		fmove: generateEngineMove(pkm.fmove),
+		cmoves: pkm.cmoves.map(generateEngineMove),
+		immortal: pkm.immortal
+	};
+}
+
+/**
+ * generate GBS engine input
+ */
+function generateEngineInput() {
+	let big_input = new BattleInput(GBS.parse(UI.read())[0]);
+
+	let mini_players = [];
+	for (let player of big_input["players"]) {
+		let mini_player = {
+			team: 1 - parseInt(player.team),
+			attack_multiplier: player.fab,
+			strategy: ""
+		};
+		let mini_parties = [];
+		for (let party of player.parties) {
+			let mini_party = {
+				revive: party.revive
+			};
+			let mini_pkm_list = [];
+			for (let pkm of party.pokemon) {
+				mini_player.strategy = pkm.strategy;
+				mini_pkm_list.push(generateEnginePokemon(pkm));
+			}
+			mini_party["pokemon"] = mini_pkm_list;
+			mini_parties.push(mini_party);
+		}
+		mini_player["parties"] = mini_parties;
+		mini_players.push(mini_player);
+	}
+	big_input["players"] = mini_players;
+	return big_input;
 }
 
 
@@ -679,7 +698,7 @@ function processConfig(input) {
 	} else {
 		var battleInput = new BattleInput(input);
 		if (battleInput.aggregation != "enum") {
-			battleInput.hasLog = false;
+			battleInput.enableLog = false;
 		}
 		var battle = new Battle(battleInput);
 		let numSims = parseInt(battleInput.numSims) || 1;
