@@ -25,7 +25,7 @@ var Test_Raid = {
               "cp": "2889",
               "raidTier": "3",
               "fmove": "Counter",
-              "strategy": "strat1",
+              "strategy": "ATTACKER_NO_DODGE",
               "strategy2": "",
               "cmove": "Dynamic Punch",
               "cmove2": "Dynamic Punch"
@@ -53,7 +53,7 @@ var Test_Raid = {
               "cp": "",
               "raidTier": "1",
               "fmove": "Counter",
-              "strategy": "strat1",
+              "strategy": "ATTACKER_NO_DODGE",
               "strategy2": "",
               "cmove": "Dynamic Punch",
               "cmove2": "Dynamic Punch"
@@ -81,7 +81,7 @@ var Test_Raid = {
               "cp": "",
               "raidTier": "5",
               "fmove": "Iron Tail",
-              "strategy": "strat0",
+              "strategy": "DEFENDER",
               "strategy2": "",
               "cmove": "Fire Blast",
               "cmove2": "Fire Blast"
@@ -124,7 +124,7 @@ var Test_Gym = {
               "cp": "2889",
               "raidTier": "3",
               "fmove": "Counter",
-              "strategy": "strat1",
+              "strategy": "ATTACKER_NO_DODGE",
               "strategy2": "",
               "cmove": "Dynamic Punch",
               "cmove2": "Dynamic Punch"
@@ -140,7 +140,7 @@ var Test_Gym = {
               "cp": "3962",
               "raidTier": "5",
               "fmove": "Psycho Cut",
-              "strategy": "strat1",
+              "strategy": "ATTACKER_NO_DODGE",
               "strategy2": "",
               "cmove": "Shadow Ball",
               "cmove2": "Focus Blast"
@@ -156,7 +156,7 @@ var Test_Gym = {
               "cp": "3962",
               "raidTier": "5",
               "fmove": "Dragon Breath",
-              "strategy": "strat1",
+              "strategy": "ATTACKER_NO_DODGE",
               "strategy2": "",
               "cmove": "Dragon Claw",
               "cmove2": "Psychic"
@@ -184,7 +184,7 @@ var Test_Gym = {
               "cp": "",
               "raidTier": "1",
               "fmove": "Zen Headbutt",
-              "strategy": "strat0",
+              "strategy": "DEFENDER",
               "strategy2": "",
               "cmove": "Dazzling Gleam",
               "cmove2": ""
@@ -200,7 +200,7 @@ var Test_Gym = {
               "cp": "",
               "raidTier": "1",
               "fmove": "Zen Headbutt",
-              "strategy": "strat0",
+              "strategy": "DEFENDER",
               "strategy2": "",
               "cmove": "Psybeam",
               "cmove2": ""
@@ -216,7 +216,7 @@ var Test_Gym = {
               "cp": "",
               "raidTier": "4",
               "fmove": "Dragon Breath",
-              "strategy": "strat0",
+              "strategy": "DEFENDER",
               "strategy2": "",
               "cmove": "Dragon Claw",
               "cmove2": "Hurricane"
@@ -260,7 +260,7 @@ var Test_PvP = {
               "cp": "3644",
               "raidTier": "5",
               "fmove": "Dragon Breath",
-              "strategy": "strat1",
+              "strategy": "ATTACKER_NO_DODGE",
               "strategy2": "",
               "cmove": "Dragon Claw",
               "cmove2": "Solar Beam"
@@ -288,7 +288,7 @@ var Test_PvP = {
               "cp": "",
               "raidTier": "5",
               "fmove": "Dragon Breath",
-              "strategy": "strat1",
+              "strategy": "ATTACKER_NO_DODGE",
               "strategy2": "",
               "cmove": "Outrage",
               "cmove2": "Psychic"
@@ -333,7 +333,7 @@ var Test_PvP2 = {
               "cp": "",
               "raidTier": "5",
               "fmove": "Shadow Claw",
-              "strategy": "strat5",
+              "strategy": "PVP_BASIC",
               "strategy2": "1",
               "cmove": "Ancient Power",
               "cmove2": "Ancient Power"
@@ -362,7 +362,7 @@ var Test_PvP2 = {
               "cp": "",
               "raidTier": "1",
               "fmove": "Dragon Tail",
-              "strategy": "strat5",
+              "strategy": "PVP_BASIC",
               "strategy2": "1",
               "cmove": "Crunch",
               "cmove2": "Crunch"

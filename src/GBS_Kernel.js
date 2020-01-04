@@ -600,26 +600,26 @@ Strategy.prototype.init = function () {
 	@param {String} str A string representing the strategy.
 */
 Strategy.prototype.setActionStrategy = function (str) {
-	if (str == "strat0") {
+	if (str == "DEFENDER") {
 		this.getActionDecision = this.actionStrategyDefender;
-	} else if (str == "strat1") {
+	} else if (str == "ATTACKER_NO_DODGE") {
 		this.getActionDecision = this.actionStrategyNoDodge;
-	} else if (str == "strat2") {
+	} else if (str == "ATTACKER_DODGE_CHARGED") {
 		this.dodgeAttackTypes = [ACTION.Charged];
 		this.getActionDecision = this.actionStrategyDodge;
-	} else if (str == "strat3") {
+	} else if (str == "ATTACKER_DODGE_ALL") {
 		this.dodgeAttackTypes = [ACTION.Fast, ACTION.Charged];
 		this.getActionDecision = this.actionStrategyDodge;
-	} else if (str == "strat4") {
+	} else if (str == "ATTACKER_NO_DODGE_BURST") {
 		this.burstAttackStatus = -1;
 		this.getActionDecision = this.actionStrategyNoDodge;
-	} else if (str == "strat5") {
+	} else if (str == "PVP_BASIC") {
 		this.getActionDecision = this.actionStrategyPvP;
-	} else if (str == "strat6") {
+	} else if (str == "ATTACKER_NO_DODGE_FAST_ATTACK_ONLY") {
 		this.getActionDecision = this.actionStrategyNoDodgeFastOnly;
-	} else if (str == "strat7") {
+	} else if (str == "ATTACKER_NO_DODGE_COMBO_1_PLUS_N") {
 		this.getActionDecision = this.actionStrategyNoDodgeComboOnePlusN;
-	} else if (str == "strat8") {
+	} else if (str == "ATTACKER_NO_DODGE_COMBO_2_PLUS_N") {
 		this.getActionDecision = this.actionStrategyNoDodgeComboTwoPlusN;
 	}
 }

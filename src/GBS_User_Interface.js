@@ -529,10 +529,10 @@ function createPokemonRoleInput() {
 		}
 		var strategyNode = $(pokemonNode).find("[name=pokemon-strategy]")[0];
 		if (this.value == "a" || this.value == "a_basic") {
-			if (strategyNode.value == "strat0")
-				strategyNode.value = "strat1";
+			if (strategyNode.value == "DEFENDER")
+				strategyNode.value = "ATTACKER_NO_DODGE";
 		} else {
-			strategyNode.value = "strat0";
+			strategyNode.value = "DEFENDER";
 		}
 	}
 	roleInput.comply = function (kwargs) {
@@ -614,24 +614,24 @@ function createPokemonRaidTierInput() {
 
 function createPokemonStrategyInput() {
 	var strategyInput = createElement('select', '', { name: "pokemon-strategy" });
-	strategyInput.appendChild(createElement('option', 'No Dodge', { value: "strat1" }));
-	strategyInput.appendChild(createElement('option', 'No Dodge Burst', { value: "strat4" }));
-	strategyInput.appendChild(createElement('option', 'No Dodge Combo 1+N', { value: "strat7" }));
-	strategyInput.appendChild(createElement('option', 'No Dodge Combo 2+N', { value: "strat8" }));
-	strategyInput.appendChild(createElement('option', 'No Dodge Fast Only ', { value: "strat6" }));
-	strategyInput.appendChild(createElement('option', 'Dodge Charged', { value: "strat2" }));
-	strategyInput.appendChild(createElement('option', 'Dodge All', { value: "strat3" }));
-	strategyInput.appendChild(createElement('option', 'Defender AI', { value: "strat0" }));
-	strategyInput.appendChild(createElement('option', 'PvP Basic', { value: "strat5" }));
+	strategyInput.appendChild(createElement('option', 'No Dodge', { value: "ATTACKER_NO_DODGE" }));
+	strategyInput.appendChild(createElement('option', 'No Dodge Burst', { value: "ATTACKER_NO_DODGE_BURST" }));
+	strategyInput.appendChild(createElement('option', 'No Dodge Combo 1+N', { value: "ATTACKER_NO_DODGE_COMBO_1_PLUS_N" }));
+	strategyInput.appendChild(createElement('option', 'No Dodge Combo 2+N', { value: "ATTACKER_NO_DODGE_COMBO_2_PLUS_N" }));
+	strategyInput.appendChild(createElement('option', 'No Dodge Fast Only ', { value: "ATTACKER_NO_DODGE_FAST_ATTACK_ONLY" }));
+	strategyInput.appendChild(createElement('option', 'Dodge Charged', { value: "ATTACKER_DODGE_CHARGED" }));
+	strategyInput.appendChild(createElement('option', 'Dodge All', { value: "ATTACKER_DODGE_ALL" }));
+	strategyInput.appendChild(createElement('option', 'Defender AI', { value: "DEFENDER" }));
+	strategyInput.appendChild(createElement('option', 'PvP Basic', { value: "PVP_BASIC" }));
 	strategyInput.comply = function (kwargs) {
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym") {
 			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1") {
-				this.value = "strat0";
+				this.value = "DEFENDER";
 				this.disabled = true;
 			}
 		} else if (kwargs.battleMode == "pvp") {
-			this.value = "strat5";
+			this.value = "PVP_BASIC";
 			$(this).parents("[name=pokemon]").find("[name=pokemon-strategy2]").show();
 			$(this).hide();
 		}
