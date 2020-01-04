@@ -682,8 +682,8 @@ function processConfig(input) {
 			battleInput.hasLog = false;
 		}
 		var battle = new Battle(battleInput);
-		let simPerConfig = parseInt(battleInput.simPerConfig) || 1;
-		for (var i = 0; i < simPerConfig; i++) {
+		let numSims = parseInt(battleInput.numSims) || 1;
+		for (var i = 0; i < numSims; i++) {
 			battle.init();
 			battle.go();
 			battles.push({

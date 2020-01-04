@@ -4,7 +4,7 @@ var Test_Raid = {
   "timelimit": 300000,
   "weather": "EXTREME",
   "dodgeBugActive": "0",
-  "simPerConfig": 10,
+  "numSims": 10,
   "aggregation": "avrg",
   "players": [
     {
@@ -103,7 +103,7 @@ var Test_Gym = {
   "timelimit": 100000,
   "weather": "EXTREME",
   "dodgeBugActive": "0",
-  "simPerConfig": 1,
+  "numSims": 1,
   "aggregation": "enum",
   "players": [
     {
@@ -239,7 +239,7 @@ var Test_PvP = {
   "timelimit": 240000,
   "weather": "EXTREME",
   "dodgeBugActive": "0",
-  "simPerConfig": 1,
+  "numSims": 1,
   "aggregation": "tree",
   "players": [
     {
@@ -311,7 +311,7 @@ var Test_PvP2 = {
   "timelimit": 240000,
   "weather": "EXTREME",
   "dodgeBugActive": "0",
-  "simPerConfig": 0,
+  "numSims": 0,
   "aggregation": "tree",
   "players": [
     {
