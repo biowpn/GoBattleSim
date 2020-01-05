@@ -1285,7 +1285,7 @@ function createMasterSummaryTable(battles, metrics) {
 			} else {
 				let cellData = sim.output.statistics[metric];
 				if (typeof cellData == typeof 0) {
-					if (metric == "outcome") {
+					if (metric == "win") {
 						if (sim.input.aggregation == "enum") {
 							rowData.push(cellData == 1 ? "Win" : "Lose");
 						} else {

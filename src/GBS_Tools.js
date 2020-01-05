@@ -604,7 +604,7 @@ function getWinRate(level, cfg) {
 			}
 		}
 	}
-	return parseFloat(processConfig(cfg)[0].output.statistics.outcome);
+	return parseFloat(processConfig(cfg)[0].output.statistics.win);
 }
 
 

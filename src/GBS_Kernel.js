@@ -1626,7 +1626,7 @@ Battle.prototype.getStatistics = function (primary, opposite) {
 	} else {
 		var statistics = {
 			duration: this.battleDurationMs / 1000,
-			outcome: this.isDefeated(opposite) ? 1 : 0,
+			win: this.isDefeated(opposite) ? 1 : 0,
 			tdo: 0,
 			tdoPercent: 0,
 			dps: 0,
