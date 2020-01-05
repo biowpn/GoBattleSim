@@ -1628,7 +1628,7 @@ Battle.prototype.getStatistics = function (primary, opposite) {
 			duration: this.battleDurationMs / 1000,
 			outcome: this.isDefeated(opposite) ? 1 : 0,
 			tdo: 0,
-			tdo_percent: 0,
+			tdoPercent: 0,
 			dps: 0,
 			numDeaths: 0,
 			players: []
@@ -1645,7 +1645,7 @@ Battle.prototype.getStatistics = function (primary, opposite) {
 		}
 		statistics.players.push(playerStatistics);
 	}
-	statistics.tdo_percent = statistics.tdo / oppositeSumMaxHP * 100;
+	statistics.tdoPercent = statistics.tdo / oppositeSumMaxHP * 100;
 	statistics.dps = statistics.tdo / statistics.duration;
 	return statistics;
 }

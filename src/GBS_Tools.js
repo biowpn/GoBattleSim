@@ -901,7 +901,7 @@ function teamBuilderCalculateParty() {
 		}
 		let curStats = GBS.average(intermediateSimResults).output.statistics;
 		curStats.dps = curStats.dps / numAttacker;
-		curStats.tdo_percent = curStats.tdo_percent / numAttacker;
+		curStats.tdoPercent = curStats.tdoPercent / numAttacker;
 		if (!bestStats || curStats.dps > bestStats.dps) {
 			bestPermuation = permutation;
 			bestStats = curStats;
@@ -941,11 +941,11 @@ function teamBuilderUpdatePartyStats() {
 		}
 		curStats = GBS.average(intermediateSimResults).output.statistics;
 		curStats.dps = curStats.dps / numAttacker;
-		curStats.tdo_percent = curStats.tdo_percent / numAttacker;
+		curStats.tdoPercent = curStats.tdoPercent / numAttacker;
 		teamBuilderPartyPermutationStats[key] = curStats;
 	}
 	document.getElementById("teamBuilder-optimalPartyDPS").innerHTML = round(curStats.dps, 2);
-	document.getElementById("teamBuilder-optimalPartyTDO").innerHTML = round(curStats.tdo_percent, 2) + "%";
+	document.getElementById("teamBuilder-optimalPartyTDO").innerHTML = round(curStats.tdoPercent, 2) + "%";
 }
 
 

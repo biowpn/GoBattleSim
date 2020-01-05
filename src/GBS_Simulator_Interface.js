@@ -289,7 +289,7 @@ GBS.submit = function (reqType, reqInput, reqOutput_handler, oncomplete) {
 	Non-interface members
 */
 
-var DefaultSummaryMetrics = { outcome: 'Outcome', duration: 'Time', tdo_percent: 'TDO%', dps: 'DPS', numDeaths: '#Death' };
+var DefaultSummaryMetrics = { outcome: 'Outcome', duration: 'Time', tdoPercent: 'TDO%', dps: 'DPS', numDeaths: '#Death' };
 var AdditionalSummaryMetrics = {};
 
 

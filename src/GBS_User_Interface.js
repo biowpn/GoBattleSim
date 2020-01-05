@@ -1325,7 +1325,7 @@ function createPokemonStatisticsTable(pokemonStatistics) {
 		"HP", "Energy", "TDO", "Duration", "DPS", "Detail"], 'th'));
 	for (var i = 0; i < pokemonStatistics.length; i++) {
 		let statistics = pokemonStatistics[i];
-		let species = GM.get("pokemon", statistics.name);
+		let species = GM.get("pokemon", statistics.name.toLowerCase());
 		let row = createRow([
 			"<img src='" + species.icon + "' class='apitem-pokemon-icon'></img>",
 			statistics.hp, statistics.energy, statistics.tdo, round(statistics.duration, 2), round(statistics.dps, 2),
