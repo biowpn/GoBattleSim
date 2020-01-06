@@ -5,6 +5,70 @@
 */
 var GBS = {};
 
+/**
+ * get the version of GBS engine 
+ */
+GBS.version = function () {
+	var GBS_version = Module.cwrap("GBS_version", "string", []);
+	return GBS_version();
+}
+
+/**
+ * get the last error emitted by GBS engine
+ */
+GBS.error = function () {
+	var GBS_error = Module.cwrap("GBS_error", "string", []);
+	return GBS_error();
+}
+
+/**
+ * get/set the game master for GBS engine
+ * 
+ * Note: should call GBS.config(GM.conver()) once
+ */
+GBS.config = function (game_master) {
+	var GBS_config = Module.cwrap("GBS_config", "string", ["number"]);
+	var in_ptr = 0;
+	if (game_master) {
+		var _str = JSON.stringify(game_master);
+		var _str_len = lengthBytesUTF8(_str);
+		in_ptr = _malloc(_str_len + 1);
+		stringToUTF8(_str, in_ptr, _str_len + 1);
+	}
+	var out = GBS_config(in_ptr);
+	_free(in_ptr);
+	return JSON.parse(out);
+}
+
+/**
+ * initialize new simulation. This will clear all output.
+ */
+GBS.prepare = function (input) {
+	var GBS_prepare = Module.cwrap("GBS_prepare", null, ["string"]);
+	GBS_prepare(JSON.stringify(input));
+}
+
+/**
+ * run the new simulation configured by the latest GBS.prepare().
+ */
+GBS.run2 = function () {
+	var GBS_run = Module.cwrap("GBS_run", null, []);
+	GBS_run();
+}
+
+/**
+ * collect simulation output produced by the lastest GBS_run()
+ */
+GBS.collect = function () {
+	var GBS_collect = Module.cwrap("GBS_collect", "string", []);
+	return JSON.parse(GBS_collect());
+}
+
+GBS.go = function () {
+	GBS.prepare(generateEngineInput());
+	GBS.run2();
+	return GBS.collect();
+}
 
 /**
 	Do batch simulations.
@@ -450,6 +514,7 @@ function PokemonInput(kwargs) {
 */
 function BattleInput(kwargs) {
 	deepCopy(this, kwargs);
+	this.enableLog = (kwargs.aggregation == "enum");
 	for (let player of this.players) {
 		player.fab = (GM.get("friend", player.friend) || {}).multiplier || 1;
 		for (let party of player.parties) {
@@ -547,6 +612,58 @@ function generateEngineInput() {
 	}
 	big_input["players"] = mini_players;
 	return big_input;
+}
+
+/**
+ * generate by-player stats from by-pokemon stats
+ */
+function generateByPlayerStats(players, battle_stats) {
+	// input
+	var pokemon_stats = battle_stats.pokemon;
+	var overall_stats = battle_stats.statistics;
+
+	// output
+	var player_stats = [];
+
+	var pkm_idx = 0;
+	var player_idx = 0;
+	for (let player of players) {
+		let player_stat = {
+			name: player.name || "Player " + ++player_idx,
+			tdo: 0,
+			dps: 0,
+			numDeaths: 0,
+			maxHP: 0,
+			parties: []
+		};
+		for (let party of player.parties) {
+			let party_stat = {
+				maxHP: 0,
+				tdo: 0,
+				numDeaths: 0,
+				pokemon: []
+			};
+			for (let pkm of party.pokemon) {
+				for (let i = 0; i < pkm.copies; ++i) {
+					let pkm_stat = Object.assign({ name: pkm.name }, pokemon_stats[pkm_idx]);
+					++pkm_idx;
+
+					party_stat.tdo += pkm_stat.tdo;
+					party_stat.numDeaths += pkm_stat.numDeaths;
+					party_stat.pokemon.push(pkm_stat);
+				}
+			}
+
+			player_stat.tdo += party_stat.tdo;
+			player_stat.numDeaths += party_stat.numDeaths;
+			player_stat.parties.push(party_stat);
+		}
+
+		player_stat.dps = player_stat.tdo / overall_stats.duration;
+		player_stats.push(player_stat);
+	}
+
+	return player_stats;
 }
 
 
