@@ -1,17 +1,22 @@
 
 /**
-	User Interface. This module handles the interaction with the user. It manipulates the HTML DOM objects with the help of jQuery, handles user event such as clicking and inputting, and most importantly, reads user input for simulation and writes back the simulation results.
-	@exports UI
-*/
+ * User Interface. This module handles the interaction with the user. 
+ * It manipulates the HTML DOM objects with the help of jQuery, 
+ * handles user event such as clicking and inputting, 
+ * and most importantly, reads user input for simulation and writes back the simulation results.
+ * 
+ * @exports UI
+ */
 var UI = {};
 
 
 /**
-	Send feedback message to user via a pop-up dialog.
-	@param {string} message The content of the feedback.
-	@param {string} dialogTitle The title of the dialog. Default to document.title
-	@param {function} onOK The callback function that will be called right after the user clicks "OK".
-*/
+ * Send feedback message to user via a pop-up dialog.
+ * 
+ * @param {string} message The content of the feedback.
+ * @param {string} dialogTitle The title of the dialog. Default to document.title
+ * @param {function} onOK The callback function that will be called right after the user clicks "OK".
+ */
 UI.sendFeedbackDialog = function (message, dialogTitle, onOK) {
 	var d = $(createElement('div', message, {
 		title: dialogTitle || document.title
@@ -29,9 +34,11 @@ UI.sendFeedbackDialog = function (message, dialogTitle, onOK) {
 }
 
 /**
-	Display a spinning spinner while waiting a computation job to finish. Remove the spinner upon the job finishes.
-	@param {function} task The job to do.
-	@param {string} message The message displayed next to the spinner. Default to "Running..."
+ * Display a spinning spinner while waiting a computation job to finish.
+ * Remove the spinner upon the job finishes.
+ * 
+ * @param {function} task The job to do.
+ * @param {string} message The message displayed next to the spinner. Default to "Running..."
 */
 UI.wait = function (task, message) {
 	message = message || "Running...";
@@ -52,10 +59,11 @@ UI.wait = function (task, message) {
 }
 
 /**
-	Recursively read data from HTML element with "name" attribute.
-	@param {HTMLElement} element The root HTML element to write back to.
-	@return {Object} The data in JSON.
-*/
+ * Recursively read data from HTML element with "name" attribute.
+ * 
+ * @param {HTMLElement} element the root HTML element to write back to.
+ * @return {Object} data in JSON.
+ */
 UI.read = function (element) {
 	element = element || document.getElementById("input");
 	let json = {};
@@ -88,10 +96,11 @@ UI.read = function (element) {
 }
 
 /**
-	Recursively write data to HTML element with "name" attribute.
-	@param {Object] json The json data source.
-	@param {HTMLElement} element The root HTML element to write back to.
-*/
+ * Recursively write data to HTML element with "name" attribute.
+ *
+ * @param {Object] json the data to write in json
+ * @param {HTMLElement} element the root HTML element to write to
+ */
 UI.write = function (json, element) {
 	element = element || document.getElementById("input");
 	let nameSegments = (element.getAttribute("name") || "").split("-");
@@ -136,18 +145,19 @@ UI.write = function (json, element) {
 }
 
 /**
-	Refresh the whole UI and make it pretty.
-*/
+ * Refresh the whole UI and make it pretty.
+ */
 UI.refresh = function () {
 	formatting();
 	relabel();
 }
 
 /**
-	Update the master summary table containing completed simulations.
-	@param {Object[]} battles A list of completed simulations.
-	@param {Object} metrics The metrics (columns) to show in the table.
-*/
+ * Update the master summary table containing completed simulations.
+ * 
+ * @param {Object[]} battles A list of completed simulations.
+ * @param {Object} metrics The metrics (columns) to show in the table.
+ */
 UI.updateMasterSummaryTable = function (battles, metrics) {
 	document.getElementById("feedback_table1").innerHTML = "";
 	var table = createMasterSummaryTable(battles, metrics);
@@ -161,18 +171,16 @@ UI.updateMasterSummaryTable = function (battles, metrics) {
 }
 
 /**
-	Display a specific simulation in the simulation details panel.
-	@param {Object} battle The data of the simulation.
-*/
+ * Display a specific simulation in details.
+ * 
+ * @param {Object} battle the simulation to display, a <input, output> pair
+ */
 UI.updateSimulationDetails = function (battle) {
 	var section = document.getElementById("feedback_table2");
 	section.innerHTML = "";
 
 	var section2 = document.getElementById("feedback_table3");
 	section2.innerHTML = "";
-
-	if (!battle)
-		return;
 
 	// Replay the input
 	UI.write(battle.input);
@@ -182,8 +190,8 @@ UI.updateSimulationDetails = function (battle) {
 
 	// Update Player/Party/Pokemon statistics
 	section.innerHTML = "";
-	for (var i = 0; i < battle.output.statistics.players.length; i++) {
-		var playerStat = battle.output.statistics.players[i];
+	for (var i = 0; i < battle.output.players.length; i++) {
+		var playerStat = battle.output.players[i];
 		section.appendChild(createElement('h4', createPlayerStatisticsString(playerStat),
 			{ style: 'background:' + HSL_COLORS[i % HSL_COLORS.length][0] }));
 		var playerDiv = document.createElement('div');
@@ -207,16 +215,17 @@ UI.updateSimulationDetails = function (battle) {
 	});
 
 	// battle log
-	if (battle.output.battleLog.length > 0) {
-		section2.appendChild(createBattleLogTable(battle));
+	if (battle.output.battleLog) {
+		section2.appendChild(createBattleLogTable(battle.output.battleLog));
 	}
 }
 
 /** 
-	Update the url based on current battle input.
-	@param {Object} input The battle input.
-	@return {string} The updated url.
-*/
+ * Update the url based on current battle input.
+ * 
+ * @param {Object} input The battle input.
+ * @return {string} The updated url.
+ */
 UI.exportConfig = function (battleInput) {
 	// Delete redundant attributes to shorten the URL
 	var battleInputMin = {};
@@ -260,19 +269,21 @@ UI.exportConfig = function (battleInput) {
 }
 
 /** 
-	Parse simulation input from URL.
-	@param {string} url The URL to parse.
-	@return {Object} The battle input.
-*/
+ * Parse simulation input from URL.
+ * 
+ * @param {string} url the URL to parse.
+ * @return {Object} parsed simulation input
+ */
 UI.importConfig = function (url) {
 	url = url || window.location.href;
 	return JSON.parse(decodeURIComponent((url.split('?')[1])));
 }
 
 
-/*
-	Non-interface members
-*/
+/**
+ * Non-interface members
+ */
+
 var MAX_NUM_POKEMON_PER_PARTY = 6;
 var MAX_NUM_PARTIES_PER_PLAYER = 5;
 var MAX_NUM_OF_PLAYERS = 21;
@@ -290,20 +301,18 @@ var HSL_COLORS = [
 
 
 /**
-	Round the value.
-	@param {number} Value to round.
-	@param {number} numDigits The number of digits to keep.
-	@return {number} The rounded value.
-*/
+ * Round the value.
+ */
 function round(value, numDigits) {
 	var multiplier = Math.pow(10, parseInt(numDigits) || 0);
 	return Math.round(value * multiplier) / multiplier;
 }
 
 /**
-	Format input HTML elements.
-	@param {HTMLElement} element The root element to format.
-*/
+ * Recursively format input HTML elements.
+ * 
+ * @param {HTMLElement} element the root element to format.
+ */
 function formatting(element) {
 	element = element || document.getElementById("input");
 	let name = element.getAttribute("name") || "";
@@ -321,8 +330,8 @@ function formatting(element) {
 }
 
 /** 
-	Update label and background color of player/party/pokemon nodes based on their position.
-*/
+ * Update label and background color of player/party/pokemon nodes based on their position.
+ */
 function relabel() {
 	var playerNodes = $("#input").find("[name=input-players]")[0];
 	for (var i = 0; i < playerNodes.children.length; i++) {
@@ -343,11 +352,12 @@ function relabel() {
 }
 
 /**
-	Create a document element.
-	@param {string} type The name tag of the element. E.g., "input", "button", "div"
-	@param {string} innerHTML The initial value of innerHTML of the element to create. Default to empty string "".
-	@param {Object} attrsAndValues Name-value pairs to add additional attributes to the element.
-	@return {HTMLElement} The HTML element created.
+ * Create a document element.
+
+ * @param {string} type the name tag of the element. E.g., "input", "button", "div"
+ * @param {string} innerHTML the initial value of innerHTML of the element to create. Default to empty string ""
+ * @param {Object} attrsAndValues name-value pairs to add additional attributes to the element
+ * @return {HTMLElement} the HTML element created
 */
 function createElement(type, innerHTML, attrsAndValues) {
 	var e = document.createElement(type);
@@ -1348,69 +1358,153 @@ function createPokemonStatisticsTable(pokemonStatistics) {
 	return table;
 }
 
-
-
-
-
-function createBattleLogTable(battle) {
-	let log = battle.output.battleLog;
-	var table = createElement('table', '<thead></thead>', {
-		width: '100%', class: 'display nowrap'
+/**
+ * create an HTML table element of battle log.
+ * 
+ * @param {*} data list of rows of UI battle log items, including header row
+ */
+function createBattleLogTable(data) {
+	var table = createElement("table", "<thead></thead>", {
+		width: "100%", class: "display nowrap"
 	});
-	let headers = ["Time"];
-	for (let i = 0; i < log[0].events.length; i++) {
-		headers.push("Player " + (i + 1));
-	}
-	table.children[0].appendChild(createRow(headers, "th"));
+	table.children[0].appendChild(createRow(data[0], "th"));
 	var tbody = createElement("tbody");
-	for (let i = 0; i < log.length; i++) {
-		let entry = log[i];
-		let tableRow = createElement("tr");
-		tableRow.appendChild(createElement("td", round(entry.t / 1000, 2)));
-		for (let j = 0; j < entry.events.length; j++) {
-			let tableCell = createElement("td");
-			let singleEvent = entry.events[j] || { index: 0, options: [{ text: "" }] };
-			if (singleEvent.options.length > 1) {
-				let selectElement = createElement("select");
-				for (let k = 0; k < singleEvent.options.length; k++) {
-					let option = singleEvent.options[k];
-					let optionEl = createElement("option", option.text);
-					optionEl.value = k;
-					if (option.style == "pokemon") {
-						optionEl.dataset.class = "input-with-icon species-input-with-icon";
-						optionEl.dataset.style = "background-image: url(" + option.icon + ");"
-					} else if (option.style == "move") {
-						optionEl.dataset.class = "input-with-icon move-input-with-icon";
-						optionEl.dataset.style = "background-image: url(" + option.icon + ");"
-					}
-					selectElement.appendChild(optionEl);
-				}
-				selectElement.value = singleEvent.index;
-				tableCell.appendChild(selectElement);
-				$(selectElement).iconselectmenu({
-					change: function (event, ui) {
-						singleEvent.index = ui.item.index;
-						entry.breakpoint = true;
-						App.onBattleLogChange(battle);
-					}
-				}).iconselectmenu("menuWidget").addClass("ui-menu-icons");
+	for (let i = 1; i < data.length; i++) {
+		let trow = createElement("tr");
+		for (let j = 0; j < data[i].length; j++) {
+			let tcell = createElement("td");
+			let item = data[i][j];
+			if (item.style == "pokemon") {
+				tcell.innerHTML = createIconLabelSpan(item.icon, item.text, "species-input-with-icon");
+			} else if (item.style == "move") {
+				tcell.innerHTML = createIconLabelSpan(item.icon, item.text, "move-input-with-icon");
 			} else {
-				let curOption = singleEvent.options[singleEvent.index];
-				if (curOption.style == "pokemon") {
-					tableCell.innerHTML = createIconLabelSpan(curOption.icon, curOption.text, "species-input-with-icon");
-				} else if (curOption.style == "move") {
-					tableCell.innerHTML = createIconLabelSpan(curOption.icon, curOption.text, "move-input-with-icon");
-				} else {
-					tableCell.innerHTML = curOption.text;
-				}
+				tcell.innerText = item.text;
 			}
-			tableCell.setAttribute('style', 'background:' + HSL_COLORS[j % HSL_COLORS.length][0]);
-			tableRow.appendChild(tableCell);
+			tcell.setAttribute("style", "background:" + HSL_COLORS[j % HSL_COLORS.length][0]);
+			trow.appendChild(tcell);
 		}
-		tbody.appendChild(tableRow);
+		tbody.appendChild(trow);
 	}
 	table.appendChild(tbody);
 	return table;
 }
 
 
+
+/**
+ * convert GBS engine produced battle log for UI display.
+ * notes: 
+ * 	1) for N players there should be (N+1) columns, the extra column being time.
+ * 	2) events at the same time should be merged into one row if possible.
+ * 	3) output UI battle log item should have attributes "style", "icon", and "text";
+ * 
+ * @param {*} sim_input simulation input
+ * @param {*} engine_log simulation output <battleLog>
+ * @return list of rows, each being a list of UI battle log item the first row is header
+ */
+function convertEngineBattleLog(sim_input, engine_log) {
+	var out_table = [];
+	var num_players = sim_input.players.length;
+
+	// first establish pokemon mapping, since engine log only has pokemon id
+	var pkm_map = {};
+	// we also maintain a list of current head Pokemon for each player
+	var head_pkm_list = Array(num_players);
+	// also, prepare header row
+	var header_row = ["Time"];
+
+	let pkm_idx = 0;
+	for (let player of sim_input.players) {
+		for (let party of player.parties) {
+			for (let pkm of party.pokemon) {
+				for (let i = 0; i < pkm.copies; ++i) {
+					pkm_map[pkm_idx] = pkm;
+					++pkm_idx;
+				}
+			}
+		}
+		header_row.push(player.name);
+	}
+	out_table.push(header_row);
+
+	// helper functions for managing row
+	var lastRow = Array(num_players + 1);
+
+	function newLastRow() {
+		if (lastRow[0]) {
+			for (let i = 1; i < num_players + 1; ++i) {
+				if (!lastRow[i]) {
+					lastRow[i] = { style: "text", text: "" };
+				}
+			}
+			out_table.push(lastRow);
+		}
+		lastRow = Array(num_players + 1);
+	}
+
+	function setLastRow(idx, item) {
+		if (idx == 0) {
+			if (lastRow[0] && lastRow[0].text != item.text) {
+				newLastRow();
+			}
+		}
+		else if (lastRow[idx]) {
+			newLastRow();
+		}
+		lastRow[idx] = item;
+	}
+
+	// the main loop, scan through each battle log entry
+	for (let event of engine_log) {
+		setLastRow(0, {
+			style: "text",
+			text: round(event.time / 1000, 2).toString()
+		});
+		let col_idx = event.player + 1;
+		let head_pkm = head_pkm_list[event.player];
+		if (event.type == "Fast") {
+			let move_info = GM.get("fast", head_pkm.fmove.name.toLowerCase());
+			setLastRow(col_idx, {
+				style: "move",
+				text: move_info.label,
+				icon: move_info.icon
+			});
+		}
+		else if (event.type == "Charged") {
+			let move_info = GM.get("charged", head_pkm.cmoves[event.value].name.toLowerCase());
+			setLastRow(col_idx, {
+				style: "move",
+				text: move_info.label,
+				icon: move_info.icon
+			});
+		}
+		else if (event.type == "Damage") {
+			head_pkm.hp -= event.value;
+			setLastRow(col_idx, {
+				style: "text",
+				text: head_pkm.hp.toString() + "(-" + event.value.toString() + ")"
+			});
+		}
+		else if (event.type == "Dodge") {
+			setLastRow(col_idx, {
+				style: "text",
+				text: "Dodge"
+			});
+		}
+		else if (event.type == "Enter") {
+			head_pkm = Object.assign({}, pkm_map[event.value]);
+			head_pkm.hp = head_pkm.maxHP;
+			head_pkm_list[event.player] = head_pkm;
+			let pkm_info = GM.get("pokemon", head_pkm.name.toLowerCase());
+			setLastRow(col_idx, {
+				style: "pokemon",
+				text: pkm_info.label,
+				icon: pkm_info.icon
+			});
+		}
+	}
+	newLastRow();
+
+	return out_table;
+}

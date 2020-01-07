@@ -1,14 +1,14 @@
 
 /**
-	Application controller.
-	@exports App
-*/
+ * Application controller.
+ * @exports App
+ */
 var App = {};
 
 
 /** 
-	Application entry point.
-*/
+ * Application entry point. This is called after the Data_Factory has prepared all the data.
+ */
 App.init = function () {
 	$.widget("custom.iconselectmenu", $.ui.selectmenu, {
 		_renderItem: function (ul, item) {
@@ -83,14 +83,14 @@ App.init = function () {
 		$("#WelcomeDialog").dialog("open");
 	}
 
-	GBS.settings();
+	GBS.config(GM.convert());
 
 	UI.refresh();
 }
 
 /** 
-	Handler of "Go" button click event.
-*/
+ * Handler of "Go" button click event.
+ */
 App.onclickGo = function () {
 	var input = UI.read();
 	UI.exportConfig(input);
@@ -102,8 +102,8 @@ App.onclickGo = function () {
 }
 
 /** 
-	Handler of "Clear" button click event.
-*/
+ * Handler of "Clear" button click event.
+ */
 App.onclickClear = function () {
 	Simulations = [];
 	UI.exportConfig();
@@ -112,9 +112,11 @@ App.onclickClear = function () {
 }
 
 /** 
-	Handler of interactive battle log change event.
-	@param {Object} battleInfo The current battle data in display.
-*/
+ * Handler of interactive battle log change event.
+ * TODO: interactive battle log is nowdisabled
+ * 
+ * @param {Object} battleInfo The current battle data in display.
+ */
 App.onBattleLogChange = function (battleInfo) {
 	var output = GBS.run(battleInfo.input, battleInfo.output.battleLog || []);
 	UI.updateSimulationDetails({
@@ -124,7 +126,8 @@ App.onBattleLogChange = function (battleInfo) {
 }
 
 
-/*
-	Non-interface members
-*/
+/** 
+ * Non-interface members
+ */
+
 var Simulations = [];

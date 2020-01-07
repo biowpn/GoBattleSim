@@ -51,7 +51,7 @@ GBS.prepare = function (input) {
 /**
  * run the new simulation configured by the latest GBS.prepare().
  */
-GBS.run2 = function () {
+GBS.run = function () {
 	var GBS_run = Module.cwrap("GBS_run", null, []);
 	GBS_run();
 }
@@ -64,49 +64,34 @@ GBS.collect = function () {
 	return JSON.parse(GBS_collect());
 }
 
-GBS.go = function () {
-	GBS.prepare(generateEngineInput());
-	GBS.run2();
-	return GBS.collect();
-}
-
 /**
-	Do batch simulations.
-	@param {Object} input User input.
-	@return {Object[]} A list of specific battle data.
-*/
+ * Do batch simulations.
+ * 
+ * @param {Object} input user simulation input (can be obtained via UI.read())
+ * @return {Object[]} list of simulation <input, output> pairs.
+ */
 GBS.request = function (input) {
 	AdditionalSummaryMetrics = {};
 	input.enableLog = (input.aggregation == "enum");
-	var battles = [];
-	var battleInputs = GBS.parse(input);
-	for (let binput of battleInputs) {
-		battles = battles.concat(processConfig(binput));
+	var sims = [];
+	var parsed_inputs = GBS.parse(input);
+	for (let sim_input of parsed_inputs) {
+		sims = sims.concat(processConfig(sim_input));
 	}
-	return battles;
+	return sims;
 }
 
 /**
-	Do single simulation.
-	@param {Object} input Specific battle input.
-	@param {Object[]} log Battle log to resume (optional).
-	@return {BattleOutput} The result attle data.
-*/
-GBS.run = function (input, log) {
-	var battle = new Battle(new BattleInput(input));
-	battle.init();
-	if (log) {
-		battle.load(log);
-	}
-	battle.go();
-	return battle.getBattleResult();
-}
-
-/**
-	Parse a batch battle input to specific battle inputs.
-	@param {Object} input General battle input.
-	@param {Object[]} A list of specific battle input.
-*/
+ * Parse user simulation input.
+ * 
+ * notes:
+ * The raw input only contain names, therefore we need to find the Pokemon/Move behind them.
+ * Also, it may contain wild cards like "*fire". Therefore the result is a list of "specific" sim input.
+ * 
+ * @param {Object} input simulation input
+ * @param {Object[]} start list of indices for recursion use
+ * @return list of specific/parsed simulation input
+ */
 GBS.parse = function (input, start) {
 	start = start || [0, 0, 0, 0];
 	for (var i = start[0]; i < input.players.length; i++) {
@@ -188,12 +173,12 @@ GBS.parse = function (input, start) {
 }
 
 /**
-	Take arithmetic average for each numerical metric in the battle data object.
-	@param {Object[]} outputs A list of battle data object.
-	@return {Object} Averged battle data.
-*/
-GBS.average = function (battles) {
-	var averageBattleOutput = JSON.parse(JSON.stringify(battles[0].output));
+ * Take arithmetic average for each numerical metric in the battle data object.
+ * @param {Object[]} sims a list of simulation <input, output> pair.
+ * @return {Object} averaged simulation output.
+ */
+GBS.average = function (sims) {
+	var averageBattleOutput = Object.assign({}, sims[0].output);
 
 	// 1. Initialize everything to 0
 	traverseLeaf(averageBattleOutput, function (v, path) {
@@ -203,7 +188,7 @@ GBS.average = function (battles) {
 	});
 
 	// 2. Sum them up
-	for (let battle of battles) {
+	for (let battle of sims) {
 		battle.output.battleLog = [];
 		traverseLeaf(battle.output, function (v, path) {
 			if (!isNaN(parseFloat(v))) {
@@ -215,22 +200,22 @@ GBS.average = function (battles) {
 	// 3. Divide and get the results
 	traverseLeaf(averageBattleOutput, function (v, path) {
 		if (!isNaN(parseFloat(v))) {
-			v = v / battles.length;
+			v = v / sims.length;
 			setProperty(averageBattleOutput, path, v);
 		}
 	});
 
 	return {
-		input: battles[0].input,
+		input: sims[0].input,
 		output: averageBattleOutput
 	};
 }
 
 /**
-	Get or set the metrics (columns) used for the master summary table.
-	@param {Object} user_metrics The metrics to set.
-	@return {Object} The updated metrics.
-*/
+ * Get or set the metrics (columns) used for the master summary table.
+ * @param {Object} user_metrics The metrics to set.
+ * @return {Object} The updated metrics.
+ */
 GBS.metrics = function (user_metrics) {
 	if (user_metrics) {
 		DefaultSummaryMetrics = {};
@@ -250,25 +235,10 @@ GBS.metrics = function (user_metrics) {
 }
 
 /**
-	Apply battle settings to the simulator.
-	@param {Object} bdata Battle parameters. If omitted, default settings will be used.
-*/
-GBS.settings = function (bdata) {
-	if (bdata) {
-		for (var param in bdata) {
-			Battle.setting(param, bdata[param]);
-		}
-	} else {
-		GM.each("battle", function (v, k) {
-			Battle.setting(k, v);
-		});
-	}
-}
-
-/**
-	Change the global battle mode settings.
-	@param {string} mode Name of the battle mode. "raid", "gym", or "pvp"
-*/
+ * Change the global battle mode.
+ * 
+ * @param {string} mode one of {"raid", "gym", "pvp"}
+ */
 GBS.mode = function (mode) {
 	if (mode == "pvp") {
 		Battle.setting("globalAttackBonusMultiplier", GM.get("battle", "PvPAttackBonusMultiplier"));
@@ -287,7 +257,6 @@ GBS.mode = function (mode) {
 		});
 	} else {
 		Battle.setting("globalAttackBonusMultiplier", 1);
-		GBS.settings();
 		GM.each("fast", function (move) {
 			for (var a in move.regular) {
 				move[a] = move.regular[a];
@@ -302,9 +271,9 @@ GBS.mode = function (mode) {
 }
 
 
-/*
-	Use pogoapi.gamepress.gg simulator engine
-*/
+/**
+ * [deprecated]
+ */
 GBS.submit = function (reqType, reqInput, reqOutput_handler, oncomplete) {
 	if (GBS.Processing) {
 		return;
@@ -349,18 +318,18 @@ GBS.submit = function (reqType, reqInput, reqOutput_handler, oncomplete) {
 
 
 
-/*
-	Non-interface members
-*/
+/**
+ * Non-interface members
+ */
 
 var DefaultSummaryMetrics = { win: 'Outcome', duration: 'Time', tdoPercent: 'TDO%', dps: 'DPS', numDeaths: '#Death' };
 var AdditionalSummaryMetrics = {};
 
 
 /**
-	@class A wrapper class to validate and format Pokemon input.
-	@param {Object} kwargs Information defining the Pokemon.
-*/
+ * @class A wrapper class to validate and format Pokemon input.
+ * @param {Object} kwargs Information defining the Pokemon.
+ */
 function PokemonInput(kwargs) {
 	this.name = (kwargs.name !== undefined ? kwargs.name.toLowerCase() : undefined);
 	let species = null;
@@ -509,9 +478,9 @@ function PokemonInput(kwargs) {
 
 
 /**
-	@class A wrapper class to validate and format battle input.
-	@param {Object} kwargs User input for a simulation.
-*/
+ * @class A wrapper class to validate and format battle input.
+ * @param {Object} kwargs User input for a simulation.
+ */
 function BattleInput(kwargs) {
 	deepCopy(this, kwargs);
 	this.enableLog = (kwargs.aggregation == "enum");
@@ -582,14 +551,18 @@ function generateEnginePokemon(pkm) {
 }
 
 /**
- * generate GBS engine input
+ * generate GBS engine input from parsed user input.
+ * 
+ * @param {*} sim_input parsed user input. must map to a specific pokemon/move (no wild card).
+ * @return GBS engine input
  */
-function generateEngineInput() {
-	let big_input = new BattleInput(GBS.parse(UI.read())[0]);
-
+function generateEngineInput(sim_input) {
+	let big_input = new BattleInput(sim_input);
 	let mini_players = [];
+	let player_idx = 0;
 	for (let player of big_input["players"]) {
 		let mini_player = {
+			name: player.name | ("Player " + ++player_idx),
 			team: 1 - parseInt(player.team),
 			attack_multiplier: player.fab,
 			strategy: ""
@@ -616,11 +589,15 @@ function generateEngineInput() {
 
 /**
  * generate by-player stats from by-pokemon stats
+ * 
+ * @param {*} sim_input simulation input
+ * @param {*} sim_output simulation output
  */
-function generateByPlayerStats(players, battle_stats) {
+function generateByPlayerStats(sim_input, sim_output) {
 	// input
-	var pokemon_stats = battle_stats.pokemon;
-	var overall_stats = battle_stats.statistics;
+	var players = sim_input.players;
+	var pokemon_stats = sim_output.pokemon;
+	var overall_stats = sim_output.statistics;
 
 	// output
 	var player_stats = [];
@@ -805,31 +782,37 @@ var AttributeDefinition = [
 ];
 
 
-function processConfig(input) {
-	var battles = [];
-	if (Array.isArray(input)) {
-		for (let subInput of input) {
-			battles = battles.concat(processConfig(subInput));
+function processConfig(sim_input) {
+	let sims = [];
+	if (Array.isArray(sim_input)) {
+		for (let subInput of sim_input) {
+			sims = sims.concat(processConfig(subInput));
 		}
-		return [GBS.average(battles)];
+		return [GBS.average(sims)];
 	} else {
-		var battleInput = new BattleInput(input);
-		if (battleInput.aggregation != "enum") {
-			battleInput.enableLog = false;
-		}
-		var battle = new Battle(battleInput);
-		let numSims = parseInt(battleInput.numSims) || 1;
-		for (var i = 0; i < numSims; i++) {
-			battle.init();
-			battle.go();
-			battles.push({
-				input: input,
-				output: battle.getBattleResult()
+		let engine_input = generateEngineInput(sim_input);
+		GBS.prepare(engine_input);
+		GBS.run();
+		let engine_output = GBS.collect();
+
+		if (sim_input.aggregation == "avrg") {
+			let output = engine_output;
+			output.players = generateByPlayerStats(engine_input, output);
+			sims.push({
+				input: sim_input,
+				output: output
 			});
 		}
-		if (battleInput.aggregation == "avrg") {
-			battles = [GBS.average(battles)];
+		else {
+			for (let output of engine_output) {
+				output.battleLog = convertEngineBattleLog(engine_input, output.battleLog);
+				output.players = generateByPlayerStats(engine_input, output);
+				sims.push({
+					input: sim_input,
+					output: output
+				});
+			}
 		}
-		return battles;
+		return sims;
 	}
 }
