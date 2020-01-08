@@ -6,8 +6,7 @@
 
 var GM = {};
 
-if (window.BASE_URL == undefined)
-{
+if (window.BASE_URL == undefined) {
 	// local hosting
 	window.BASE_URL = "http://127.0.0.1:80";
 	window.raidBossListURL = BASE_URL + "/pokemongo/sites/pokemongo/files/pogo-jsons/raid-boss-list-PoGO.json";
@@ -346,16 +345,13 @@ GM.convert = function (src) {
 */
 var curTime = Date.now();
 
-if (window.raidBossListURL == undefined)
-{
+if (window.raidBossListURL == undefined) {
 	window.raidBossListURL = "";
 }
-if (window.pokemonDataFullURL == undefined)
-{
+if (window.pokemonDataFullURL == undefined) {
 	window.pokemonDataFullURL = "";
 }
-if (window.moveDataFullURL == undefined)
-{
+if (window.moveDataFullURL == undefined) {
 	window.moveDataFullURL = "";
 }
 
@@ -1024,7 +1020,7 @@ function fetchMoves(oncomplete) {
 					move.regular.energyDelta = Math.abs(parseInt(data[i].energy_gain));
 					move.combat.power = parseInt(data[i].pvp_fast_power);
 					move.combat.energyDelta = parseInt(data[i].pvp_fast_energy);
-					move.combat.duration = (parseInt(data[i].pvp_fast_duration) + 1) * 500;
+					move.combat.duration = (parseInt(data[i].pvp_fast_duration) + 1);
 					move.combat.dws = 0;
 					Data.FastMoves.push(move);
 				} else {
@@ -1191,9 +1187,10 @@ function fetchLocalData() {
 }
 
 
-/*
-	PokeQuery related.
-*/
+/** 
+ * PokeQuery related
+ */
+
 var LOGICAL_OPERATORS = {
 	',': 0, ':': 0, ';': 0, // OR
 	'&': 1, '|': 1, // AND

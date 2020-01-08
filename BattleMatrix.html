@@ -1,0 +1,356 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<title> GoBattleSim Battle Matrix </title>
+
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+	<link href="https://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
+
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+
+	<link href="/css/gobattlesim_light.css" rel="stylesheet">
+
+	<!--
+	<script src="https://pogoapi.gamepress.gg/Game.js"></script>
+	<script src="https://pogoapi.gamepress.gg/Utils.js"></script>
+	-->
+
+	<script src="/src/GBS_BattleMatrix.js"></script>
+
+	<script src="/src/GBS_Engine.js"></script>
+	<script src="/src/GBS_Simulator_Interface.js"></script>
+	<script src="/src/GBS_Data_Factory.js"></script>
+	<script src="/src/GBS_User_Interface.js"></script>
+
+	<style>
+
+	</style>
+
+</head>
+
+
+<body>
+
+	<div class="py-5 text-center">
+		<img class="d-block mx-auto mb-4" src="pogo_gamepress_logo.jpg" alt="" width="72" height="72">
+		<h2>Battle Matrix</h2>
+		<p class="lead">Mass PvP battle simulations with the new powerful GoBattleSim engine. Type less, run more.</p>
+	</div>
+
+	<div id="pokemon-input-dialog" title="Add Pokemon" style="display: none;">
+
+		<div class="form-group">
+			<div class="row">
+				<div class="col">
+					<label for="pokemon-name">Pokemon Name</label>
+					<input required type="text" class="form-control species-input-with-icon" id="pokemon-name"
+						name="name" value='Machamp'
+						style="background-image: url(https://pokemongo.gamepress.gg/assets/img/sprites/068MS.png)" />
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					<label for="pokemon-fmove">Fast Move</label>
+					<input required type="text" class="form-control move-input-with-icon" id="pokemon-fmove"
+						name="fmove" value='Counter'
+						style="background-image: url(https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fighting.png);" />
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					<label for="pokemon-cmove">Charged Move</label>
+					<input required type="text" class="form-control move-input-with-icon" id="pokemon-cmove"
+						name="cmove" value='Dynamic punch'
+						style="background-image: url(https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_fighting.png);" />
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					<label for="pokemon-cmove">Charged Move 2 (Optional)</label>
+					<input type="text" class="form-control move-input-with-icon" id="pokemon-cmove2" name="cmove2"
+						value='Rock Slide'
+						style="background-image: url(https://pokemongo.gamepress.gg/sites/pokemongo/files/icon_rock.png);" />
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-sm-6">
+					<label for="pokemon-cp">CP</label>
+					<input type="number" class="form-control" id="pokemon-cp" name="cp" value='1500' />
+				</div>
+				<div class="col-sm-6">
+					<label for="pokemon-shield">Shield</label>
+					<input type="number" class="form-control" id="pokemon-shield" name="shield" value='0' />
+				</div>
+			</div>
+
+		</div>
+
+		<div class="form-group">
+			<div class="row">
+				<div class="col">
+					<button class="btn btn-success center_stuff" id="pokemon-input-dialog-add-row">Add To Row</button>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<button class="btn btn-success center_stuff" id="pokemon-input-dialog-add-col">Add To Col</button>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<button class="btn btn-danger center_stuff" id="pokemon-input-dialog-close">Close</button>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+
+	<div id='battleMatrix' class="container">
+
+		<h4>Instructions</h4>
+		<ol>
+			<li>Add Pokemon for row player and column player. Row player has charge move priority. Then hit "Run"</li>
+			<li>Option "Average Shield Setting" will average the battle results by 5 different shield settings: 0-0,
+				0-1, 1-0, 1-1, and 2-2 </li>
+			<li>The first row must be the Pokemon attributes. Fields are separated by TAB or comma. To escape the
+				delimeter, surround the field by double quotes</li>
+			<li><a href="https://youtu.be/Dw2Cw3ybeVs"><b>Video Tutorial here</b></a>;
+				Quickstart examples:
+				<button class="btn btn-success" id="example-kanto-starters"> <b>Kanto Starter</b> </button>
+			</li>
+		</ol>
+
+		<h4>Input</h4>
+
+		<div class="form-group">
+			<div class="row">
+				<div class="col col-md-6">
+					<label for="battleMatrix-input-row">Row Pokemon Pool</label>
+				</div>
+				<div class="col col-md-6">
+					<button class="btn btn-primary center_stuff" id="pokemon-input-dialog-opener">Add Pokemon</button>
+				</div>
+			</div>
+			<div class="row">
+				<textarea class="form-control" id="battleMatrix-input-row" rows="8"
+					class="text_box">name,fmove,cmove,cmove2,cp,shield</textarea>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="row">
+				<div class="col col-sm-6">
+					<label for="battleMatrix-input-col">Col Pokemon Pool</label>
+				</div>
+				<div class="col col-sm-3">
+					<button class="btn btn-info center_stuff" id="pokemon-input-duplicate">Duplicate</button>
+				</div>
+				<div class="col col-sm-3">
+					<button class="btn btn-info center_stuff" id="pokemon-input-swap">Swap</button>
+				</div>
+			</div>
+			<div class="row">
+				<textarea class="form-control" id="battleMatrix-input-col" rows="8"
+					class="text_box">name,fmove,cmove,cmove2,cp,shield</textarea>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="row">
+				<div class="col-sm-6">
+					<button class="center_stuff btn btn-primary" id="button-run">Run</button>
+				</div>
+				<div class="col-sm-6">
+					<div class="custom-control custom-switch">
+						<input type="checkbox" class="custom-control-input" id="battleMatrix-enum-shields">
+						<label class="custom-control-label" for="battleMatrix-enum-shields">Average Shield
+							Setting</label>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<h4>Output</h4>
+
+		<div class="form-group">
+			<div class="row">
+				<div class="col-sm-6">
+					<button class="center_stuff btn btn-success" id="button-download-pokemon" disabled>Download Pokemon
+						List</button>
+					<div class="container" id="download-pokemon-container" style="display:none;">
+						<div class="row">
+							<button class="center_stuff btn btn-info" id="button-download-pokemon-row">Row</button>
+						</div>
+						<div class="row">
+							<button class="center_stuff btn btn-info" id="button-download-pokemon-col">Col</button>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<button class="center_stuff btn btn-success" id="button-download-matrix" disabled>Download
+						Matrix</button>
+					<div class="container" id="download-matrix-container" style="display:none;">
+						<div class="row">
+							<button class="center_stuff btn btn-info" id="button-download-matrix-matrix">As Matrix
+								Form</button>
+						</div>
+						<div class="row">
+							<button class="center_stuff btn btn-info" id="button-download-matrix-tcf">As Three-Column
+								Form</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="row">
+				<div class="col col-sm-6">
+					<label for="battleMatrix-output-pokemon-row">Row Pokemon Pool</label>
+				</div>
+				<div class="col col-sm-6">
+					<div class="custom-control custom-switch">
+						<input type="checkbox" class="custom-control-input" id="battleMatrix-show-output-pokemon-row">
+						<label class="custom-control-label" for="battleMatrix-show-output-pokemon-row">Show</label>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<div class="container mh-50" style="overflow-y: scroll; max-height: 80vh; display: none;"
+						id="battleMatrix-output-pokemon-row">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="row">
+				<div class="col col-sm-6">
+					<label for="battleMatrix-output-pokemon-Col">Col Pokemon Pool</label>
+				</div>
+				<div class="col col-sm-6">
+					<div class="custom-control custom-switch">
+						<input type="checkbox" class="custom-control-input" id="battleMatrix-show-output-pokemon-col">
+						<label class="custom-control-label" for="battleMatrix-show-output-pokemon-col">Show</label>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<div class="container mh-50" style="overflow-y: scroll; max-height: 80vh; display: none;"
+						id="battleMatrix-output-pokemon-col">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="row">
+				<div class="col col-sm-6">
+					<label for="battleMatrix-output">Matrix</label>
+				</div>
+				<div class="col col-sm-6">
+					<div class="custom-control custom-switch">
+						<input type="checkbox" class="custom-control-input" id="battleMatrix-show-output"
+							checked="checked">
+						<label class="custom-control-label" for="battleMatrix-show-output">Show</label>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col col-sm-6">
+					<div class="custom-control custom-switch">
+						<input type="checkbox" class="custom-control-input" id="battleMatrix-raw-output">
+						<label class="custom-control-label" for="battleMatrix-raw-output">Raw Output</label>
+					</div>
+				</div>
+				<div class="col col-sm-6">
+					<div class="custom-control custom-switch">
+						<input type="checkbox" class="custom-control-input" id="battleMatrix-augmented">
+						<label class="custom-control-label" for="battleMatrix-augmented">With Names</label>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<div style="overflow-x: scroll; overflow-y: scroll; max-height: 80vh;" id="battleMatrix-output">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="row">
+				<div class="col col-sm-6">
+					<label for="battleMatrix-output">Row Optimal Strategy</label>
+				</div>
+				<div class="col col-sm-6">
+					<div class="custom-control custom-switch">
+						<input type="checkbox" class="custom-control-input" id="battleMatrix-show-output-strategy-row">
+						<label class="custom-control-label" for="battleMatrix-show-output-strategy-row">Show</label>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<div style="overflow-y: scroll; max-height: 80vh; display:none;"
+						id="battleMatrix-output-strategy-row"></div>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="row">
+				<div class="col col-sm-6">
+					<label for="battleMatrix-output">Col Optimal Strategy</label>
+				</div>
+				<div class="col col-sm-6">
+					<div class="custom-control custom-switch">
+						<input type="checkbox" class="custom-control-input" id="battleMatrix-show-output-strategy-col">
+						<label class="custom-control-label" for="battleMatrix-show-output-strategy-col">Show</label>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<div style="overflow-y: scroll; max-height: 80vh; display:none;"
+						id="battleMatrix-output-strategy-col"></div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+
+
+	<div class="overlay" id="running-screen" style="display: none">
+		<div class="overlay-content">
+			<div class="spinner-border text-primary" style="width: 4rem; height: 4rem;"></div>
+		</div>
+	</div>
+
+	<script>
+		$(document).ready(function () {
+			GM.fetch({
+				complete: battleMatrixInit
+			});
+		});
+	</script>
+
+</body>
+
+</html>

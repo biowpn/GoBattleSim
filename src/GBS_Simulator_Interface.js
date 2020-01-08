@@ -241,10 +241,6 @@ GBS.metrics = function (user_metrics) {
  */
 GBS.mode = function (mode) {
 	if (mode == "pvp") {
-		Battle.setting("globalAttackBonusMultiplier", GM.get("battle", "PvPAttackBonusMultiplier"));
-		Battle.setting("energyDeltaPerHealthLost", 0);
-		Battle.setting("fastMoveLagMs", 0);
-		Battle.setting("chargedMoveLagMs", 0);
 		GM.each("fast", function (move) {
 			for (var a in move.combat) {
 				move[a] = move.combat[a];
@@ -268,53 +264,8 @@ GBS.mode = function (mode) {
 			}
 		});
 	}
+	GBS.config(GM.convert());
 }
-
-
-/**
- * [deprecated]
- */
-GBS.submit = function (reqType, reqInput, reqOutput_handler, oncomplete) {
-	if (GBS.Processing) {
-		return;
-	}
-	GBS.Processing = 1;
-
-	var request_json = {
-		"reqId": GBS.RequestId,
-		"reqType": reqType,
-		"reqInput": reqInput
-	};
-
-	$.ajax({
-		url: GBS.HostURL,
-		type: "POST",
-		dataType: "json",
-		data: JSON.stringify(request_json),
-		processData: false,
-		success: function (resp) {
-			while (DialogStack.length > 0) {
-				DialogStack.pop().dialog('close');
-			}
-			reqOutput_handler(resp["reqOutput"]);
-		},
-		error: function (jqXHR, textStatus, errorThrown) {
-			while (DialogStack.length > 0) {
-				DialogStack.pop().dialog('close');
-			}
-			UI.sendFeedbackDialog(errorThrown);
-		},
-		complete: function () {
-			GBS.RequestId++;
-			GBS.Processing = 0;
-			if (oncomplete) {
-				oncomplete();
-			}
-		}
-	});
-}
-
-
 
 
 
@@ -326,17 +277,38 @@ var DefaultSummaryMetrics = { win: 'Outcome', duration: 'Time', tdoPercent: 'TDO
 var AdditionalSummaryMetrics = {};
 
 
+
+function generateEngineMove(move) {
+	var emove = {};
+	emove.name = move.name;
+	emove.pokeType = move.pokeType;
+	emove.power = move.power;
+	emove.energy = move.energyDelta;
+	emove.duration = move.duration;
+	emove.dws = move.dws;
+	if (move.combat.effect) {
+		emove.effect = move.combat.effect;
+	}
+	return emove;
+}
+
 /**
  * @class A wrapper class to validate and format Pokemon input.
  * @param {Object} kwargs Information defining the Pokemon.
  */
 function PokemonInput(kwargs) {
 	this.name = (kwargs.name !== undefined ? kwargs.name.toLowerCase() : undefined);
-	let species = null;
+	let species = GM.get("pokemon", this.name);
+	if (species == null) {
+		throw new Error("Cannot create Pokemon due to no species data");
+	}
+	this.pokeType1 = species.pokeType1;
+	this.pokeType2 = species.pokeType2;
+	this.copies = parseInt(kwargs.copies) || 1;
 
 	// 0. Role and immortality
 	let roleArgs = (kwargs.role || "a").split('_');
-	this.role = roleArgs[0].toLowerCase();
+	let role = roleArgs[0].toLowerCase();
 	if (typeof kwargs.immortal == typeof false) {
 		this.immortal = kwargs.immortal;
 	} else {
@@ -344,108 +316,105 @@ function PokemonInput(kwargs) {
 	}
 
 	// 1. The core three stats (Attack, Defense and Stamina)
-	this.Atk = kwargs.Atk;
-	this.Def = kwargs.Def;
-	this.Stm = kwargs.Stm;
+	this.attack = kwargs.Atk;
+	this.defense = kwargs.Def;
 	this.maxHP = kwargs.maxHP;
-	if (typeof this.Atk == typeof 0 && typeof this.Def == typeof 0 && typeof this.Stm == typeof 0) {
+
+	let stats = {};
+	stats.stamina = kwargs.Stm;
+
+	if (typeof this.attack == typeof 0 && typeof this.defense == typeof 0 && typeof this.maxHP == typeof 0) {
 		// If Atk, Def and Stm are all defined, then no need to look up species stats.
 	} else {
 		// Otherwise (at least one of {Atk, Def, Stm} is missing), need to calculate them using Stat = (baseStat + ivStat) * cpm;
 		// 1.1 Find baseAtk, baseDef and baseStm.
 		if (typeof kwargs.baseAtk == typeof 0 && typeof kwargs.baseDef == typeof 0 && typeof kwargs.baseStm == typeof 0) {
 			// If all of them are defined, then no need to look up species stats.
-			this.baseAtk = kwargs.baseAtk;
-			this.baseDef = kwargs.baseDef;
-			this.baseStm = kwargs.baseStm;
+			stats.baseAtk = kwargs.baseAtk;
+			stats.baseDef = kwargs.baseDef;
+			stats.baseStm = kwargs.baseStm;
 		} else {
-			// Do the look up
-			species = GM.get("pokemon", this.name);
-			if (species == null) {
-				throw new Error("Cannot create Pokemon");
-			}
-			this.baseAtk = species.baseAtk;
-			this.baseDef = species.baseDef;
-			this.baseStm = species.baseStm;
+			stats.baseAtk = species.baseAtk;
+			stats.baseDef = species.baseDef;
+			stats.baseStm = species.baseStm;
 		}
 		// 1.2 Unless the role of the Pokemon is "rb" (Raid Boss), need to find ivs
-		if (this.role == "rb") {
+		if (role == "rb") {
 			// For raid bosses, attack IV and defense IV are 15. maxHP and cpm are also defined.
 			let raidTier = GM.get("RaidTierSettings", kwargs.raidTier);
 			if (raidTier == null) {
 				throw new Error("Raid Tier not found");
 			}
-			this.atkiv = 15;
-			this.defiv = 15;
-			this.stmiv = 15;
+			stats.atkiv = 15;
+			stats.defiv = 15;
+			stats.stmiv = 15;
 			this.maxHP = raidTier.maxHP;
-			this.cpm = raidTier.cpm;
+			stats.cpm = raidTier.cpm;
 		} else {
-			this.atkiv = kwargs.atkiv;
-			this.defiv = kwargs.defiv;
-			this.stmiv = kwargs.stmiv;
+			stats.atkiv = kwargs.atkiv;
+			stats.defiv = kwargs.defiv;
+			stats.stmiv = kwargs.stmiv;
 			if (roleArgs[1] == "basic" || kwargs.atkiv == undefined || kwargs.defiv == undefined || kwargs.stmiv == undefined) {
 				// Infer level and IVs from cp, given base stats.
-				let quartet = inferLevelAndIVs(this, parseInt(kwargs.cp));
+				let quartet = inferLevelAndIVs(stats, parseInt(kwargs.cp));
 				if (quartet) {
-					this.atkiv = quartet.atkiv;
-					this.defiv = quartet.defiv;
-					this.stmiv = quartet.stmiv;
-					this.level = quartet.level;
-					this.cpm = quartet.cpm;
+					stats.atkiv = quartet.atkiv;
+					stats.defiv = quartet.defiv;
+					stats.stmiv = quartet.stmiv;
+					stats.level = quartet.level;
+					stats.cpm = quartet.cpm;
 				} else {
-					throw new Exception("No combination of IVs and level found");
+					throw new Error("No combination of IVs and level found");
 				}
 			} else {
-				this.atkiv = parseInt(this.atkiv) || 0;
-				this.defiv = parseInt(this.defiv) || 0;
-				this.stmiv = parseInt(this.stmiv) || 0;
+				stats.atkiv = parseInt(stats.atkiv) || 0;
+				stats.defiv = parseInt(stats.defiv) || 0;
+				stats.stmiv = parseInt(stats.stmiv) || 0;
 			}
 		}
 		// 1.3 Find cpm
-		if (typeof this.cpm == typeof 0) {
+		if (typeof stats.cpm == typeof 0) {
 			// cpm already defined (such as raid boss), do nothing
 		} else if (typeof kwargs.cpm == typeof 0) {
-			this.cpm = kwargs.cpm;
+			stats.cpm = kwargs.cpm;
 		} else {
 			// Find cpm from level
-			this.level = kwargs.level;
-			let levelSetting = GM.get("level", this.level);
+			stats.level = kwargs.level;
+			let levelSetting = GM.get("level", stats.level);
 			if (levelSetting == null) {
 				throw new Error("Cannot find level or cpm");
 			}
-			this.cpm = levelSetting.cpm;
+			stats.cpm = levelSetting.cpm;
 		}
 		// 1.4 With everything ready, calculate the three stats if necessary
-		if (typeof this.Atk != typeof 0) {
-			this.Atk = (this.baseAtk + this.atkiv) * this.cpm;
+		if (typeof this.attack != typeof 0) {
+			this.attack = (stats.baseAtk + stats.atkiv) * stats.cpm;
 		}
-		if (typeof this.Def != typeof 0) {
-			this.Def = (this.baseDef + this.defiv) * this.cpm;
+		if (typeof this.defense != typeof 0) {
+			this.defense = (stats.baseDef + stats.defiv) * stats.cpm;
 		}
-		if (typeof this.Stm != typeof 0) {
-			this.Stm = (this.baseStm + this.stmiv) * this.cpm;
+		if (typeof stats.stamina != typeof 0) {
+			stats.stamina = (stats.baseStm + stats.stmiv) * stats.cpm;
 		}
 	}
 	// 1.5 Calculate maxHP
 	if (typeof this.maxHP != typeof 0) {
-		if (this.role == "gd") { // Gym Defender
-			this.maxHP = 2 * Math.floor(this.Stm);
+		if (role == "gd") { // Gym Defender
+			this.maxHP = 2 * Math.floor(stats.stamina);
 		} else { // Attacker
-			this.maxHP = Math.floor(this.Stm);
+			this.maxHP = Math.floor(stats.stamina);
 		}
 	}
 
 	// 2. Moves
-	this.fmove = null;
+	let fmove = {};
 	if (typeof kwargs.fmove == typeof "") {
-		this.fmove = GM.get("fast", kwargs.fmove.toLowerCase());
-	} else if (kwargs.fmove) {
-		this.fmove = kwargs.fmove;
+		fmove = GM.get("fast", kwargs.fmove.toLowerCase());
+	} else {
+		fmove = kwargs.fmove;
 	}
+	this.fmove = fmove ? generateEngineMove(fmove) : null;
 
-	this.cmove = null;
-	this.cmoves = [];
 	let cmoves = {};
 	if (Array.isArray(kwargs.cmoves)) {
 		for (let move of kwargs.cmoves) {
@@ -456,12 +425,9 @@ function PokemonInput(kwargs) {
 				cmoves[move.name] = move;
 			}
 		}
-		this.cmoves = Object.values(cmoves);
-		this.cmove = this.cmoves[0];
 	} else if (typeof kwargs.cmove == typeof "") {
 		let move = GM.get("charged", kwargs.cmove.toLowerCase());
 		if (move) {
-			this.cmove = move;
 			cmoves[move.name] = move;
 		}
 		if (kwargs.cmove2) {
@@ -472,83 +438,10 @@ function PokemonInput(kwargs) {
 				cmoves[move.name] = move;
 			}
 		}
-		this.cmoves = Object.values(cmoves);
 	}
+	this.cmoves = Object.values(cmoves).map(generateEngineMove);
 }
 
-
-/**
- * @class A wrapper class to validate and format battle input.
- * @param {Object} kwargs User input for a simulation.
- */
-function BattleInput(kwargs) {
-	deepCopy(this, kwargs);
-	this.enableLog = (kwargs.aggregation == "enum");
-	for (let player of this.players) {
-		player.fab = (GM.get("friend", player.friend) || {}).multiplier || 1;
-		for (let party of player.parties) {
-			party.delay = parseInt(party.delay) || 0;
-			for (let pokemon of party.pokemon) {
-				pkm_input = new PokemonInput(pokemon);
-
-				pokemon.immortal = pkm_input.immortal;
-				pokemon.Atk = pkm_input.Atk;
-				pokemon.Def = pkm_input.Def;
-				pokemon.Stm = pkm_input.Stm;
-				pokemon.maxHP = pkm_input.maxHP;
-				pokemon.fmove = pkm_input.fmove;
-				pokemon.cmove = pkm_input.cmove;
-				pokemon.cmoves = pkm_input.cmoves;
-
-				if (this.battleMode == "pvp") {
-					for (let move of [pkm_input.fmove].concat(pkm_input.cmoves)) {
-						for (var a in move.combat) {
-							move[a] = move.combat[a];
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-function generateEngineMove(move) {
-	battle_mode = $("#battleMode").val();
-	var emove = {
-		name: move.name,
-		pokeType: move.pokeType
-	};
-	if (battle_mode == "pvp") {
-		emove.power = move.combat.power;
-		emove.duration = round(move.combat.duration / 500);
-		emove.energy = move.combat.energyDelta;
-		if (move.combat.effect) {
-			emove.effect = move.combat.effect;
-		}
-	}
-	else {
-		emove.power = move.regular.power;
-		emove.duration = move.regular.duration;
-		emove.energy = move.regular.energyDelta;
-		emove.dws = move.regular.dws;
-	}
-	return emove;
-}
-
-function generateEnginePokemon(pkm) {
-	return mini_pkm = {
-		copies: parseInt(pkm.copies),
-		name: pkm.name,
-		pokeType1: pkm.pokeType1,
-		pokeType2: pkm.pokeType2,
-		attack: pkm.Atk,
-		defense: pkm.Def,
-		maxHP: pkm.maxHP,
-		fmove: generateEngineMove(pkm.fmove),
-		cmoves: pkm.cmoves.map(generateEngineMove),
-		immortal: pkm.immortal
-	};
-}
 
 /**
  * generate GBS engine input from parsed user input.
@@ -557,25 +450,34 @@ function generateEnginePokemon(pkm) {
  * @return GBS engine input
  */
 function generateEngineInput(sim_input) {
-	let big_input = new BattleInput(sim_input);
+	var out = {
+		battleMode: sim_input.battleMode,
+		timelimit: sim_input.timelimit,
+		weather: sim_input.weather,
+		numSims: sim_input.numSims,
+		aggregation: sim_input.aggregation,
+		enableLog: (sim_input.aggregation == "enum")
+	};
+
 	let mini_players = [];
 	let player_idx = 0;
-	for (let player of big_input["players"]) {
+	for (let player of sim_input["players"]) {
 		let mini_player = {
 			name: player.name || ("Player " + ++player_idx),
 			team: 1 - parseInt(player.team),
-			attack_multiplier: player.fab,
+			attack_multiplier: (GM.get("friend", player.friend) || {}).multiplier || 1.0,
 			strategy: ""
 		};
 		let mini_parties = [];
 		for (let party of player.parties) {
 			let mini_party = {
-				revive: party.revive
+				revive: party.revive,
+				delay: parseInt(party.delay) || 0
 			};
 			let mini_pkm_list = [];
 			for (let pkm of party.pokemon) {
 				mini_player.strategy = pkm.strategy;
-				mini_pkm_list.push(generateEnginePokemon(pkm));
+				mini_pkm_list.push(new PokemonInput(pkm));
 			}
 			mini_party["pokemon"] = mini_pkm_list;
 			mini_parties.push(mini_party);
@@ -583,8 +485,8 @@ function generateEngineInput(sim_input) {
 		mini_player["parties"] = mini_parties;
 		mini_players.push(mini_player);
 	}
-	big_input["players"] = mini_players;
-	return big_input;
+	out["players"] = mini_players;
+	return out;
 }
 
 /**

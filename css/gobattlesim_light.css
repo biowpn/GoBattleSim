@@ -1,0 +1,64 @@
+
+.sim-result {
+	float: right;
+}
+
+.center_stuff {
+	width: 100%;
+	text-align: center;
+}
+
+.text_box {
+	width: 100%;
+}
+
+.overlay {
+	height: 100%;
+	width: 100%;
+	position: fixed;
+	z-index: 1;
+	left: 0;
+	top: 0;
+	background-color: rgb(0,0,0);
+	background-color: rgba(0,0,0, 0.9);
+	overflow-x: hidden;
+	transition: 0.5s;
+}
+
+.overlay-content {
+	position: relative;
+	top: 40%;
+	width: 100%;
+	text-align: center;
+	margin-top: 30px;
+}
+
+.row, .col-sm-3, .col-sm-6 {
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+
+.ui-menu-item-wrapper {
+	padding: 0px 2px !important;
+}
+
+.species-input-with-icon {
+	padding-left: 35px !important;
+	background-repeat: no-repeat;
+	text-align: left;
+	width: 100%;
+	background-size: 30px 30px;
+	background-position: 5px;
+}
+
+.move-input-with-icon {
+	padding-left: 35px !important;
+	background-repeat: no-repeat;
+	text-align: left;
+	width: 100%;
+	background-size: 18px 18px;
+	background-position: 12px;
+}
+
+
