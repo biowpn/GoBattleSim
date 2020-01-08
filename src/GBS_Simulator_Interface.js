@@ -562,7 +562,7 @@ function generateEngineInput(sim_input) {
 	let player_idx = 0;
 	for (let player of big_input["players"]) {
 		let mini_player = {
-			name: player.name | ("Player " + ++player_idx),
+			name: player.name || ("Player " + ++player_idx),
 			team: 1 - parseInt(player.team),
 			attack_multiplier: player.fab,
 			strategy: ""
