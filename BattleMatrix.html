@@ -294,7 +294,7 @@
 		<div class="form-group">
 			<div class="row">
 				<div class="col col-sm-6">
-					<label for="battleMatrix-output">Row Optimal Strategy</label>
+					<label for="battleMatrix-output">Row Player Optimal Opening</label>
 				</div>
 				<div class="col col-sm-6">
 					<div class="custom-control custom-switch">
@@ -314,7 +314,7 @@
 		<div class="form-group">
 			<div class="row">
 				<div class="col col-sm-6">
-					<label for="battleMatrix-output">Col Optimal Strategy</label>
+					<label for="battleMatrix-output">Col Player Optimal Opening</label>
 				</div>
 				<div class="col col-sm-6">
 					<div class="custom-control custom-switch">
@@ -342,10 +342,8 @@
 	</div>
 
 	<script>
-		$(document).ready(function () {
-			GM.fetch({
-				complete: battleMatrixInit
-			});
+		GM.fetch({
+			complete: battleMatrixInit
 		});
 	</script>
 

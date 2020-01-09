@@ -15,13 +15,28 @@ var example_kanto_starters = [
 ];
 
 
+// ugly hack for waiting till wasm ready
+function tryTillSuccess(cb) {
+    try {
+        cb();
+    } catch (err) {
+        console.log(err);
+        console.log("retrying");
+        setTimeout(function () {
+            tryTillSuccess(cb);
+        }, 500);
+    }
+}
+
 function battleMatrixInit() {
 
     GBS.mode("pvp");
 
     GameMaster = GM.convert();
 
-    GBS.config(GameMaster);
+    tryTillSuccess(function () {
+        GBS.config(GameMaster);
+    });
 
     $("#button-run").on("click", battleMatrixSubmit);
 
