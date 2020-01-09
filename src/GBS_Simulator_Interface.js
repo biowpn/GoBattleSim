@@ -263,7 +263,6 @@ GBS.mode = function (mode) {
 			}
 		});
 	}
-	GBS.config(GM.convert());
 }
 
 

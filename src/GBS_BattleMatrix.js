@@ -19,6 +19,10 @@ function battleMatrixInit() {
 
     GBS.mode("pvp");
 
+    GameMaster = GM.convert();
+
+    GBS.config(GameMaster);
+
     $("#button-run").on("click", battleMatrixSubmit);
 
     $("#pokemon-input-dialog").dialog({
