@@ -50,34 +50,23 @@ function calculateDPS(pokemon, kwargs) {
 
 	var FDmg = damage(pokemon, kwargs.enemy, pokemon.fmove, kwargs.weather);
 	var CDmg = damage(pokemon, kwargs.enemy, pokemon.cmove, kwargs.weather);
-	var FDur = pokemon.fmove.duration / 1000;
-	var CDur = pokemon.cmove.duration / 1000;
-	var CDWS = pokemon.cmove.dws / 1000;
 	var FE = pokemon.fmove.energyDelta;
 	var CE = -pokemon.cmove.energyDelta;
 
-	if (CE >= 100 && kwargs.battleMode != "pvp") {
-		CE = CE + 0.5 * FE + 0.5 * y * CDWS;
-	}
-
-	var FDPS = FDmg / FDur;
-	var FEPS = FE / FDur;
-	var CDPS = CDmg / CDur;
-	var CEPS = CE / CDur;
-
-	if (kwargs.battleMode == "pvp") {
-		pokemon.st = pokemon.Stm / y;
-		let modFEPS = Math.max(0, FEPS - x / pokemon.st);
-		let totalEnergyGained = 3 * pokemon.st * modFEPS;
-		let discountFactor = (totalEnergyGained - 2 * CE) / totalEnergyGained;
-		if (discountFactor < 0 || discountFactor > 1) {
-			discountFactor = 0;
+	if (kwargs.battleMode != "pvp") {
+		if (CE >= 100) {
+			CE = CE + 0.5 * FE + 0.5 * y * CDWS;
 		}
-		CDmg = CDmg * discountFactor;
-		pokemon.dps = FDPS + modFEPS * CDmg / CE;
-		pokemon.tdo = pokemon.dps * pokemon.st;
-		return pokemon.dps;
-	} else {
+
+		var FDur = pokemon.fmove.duration / 1000;
+		var CDur = pokemon.cmove.duration / 1000;
+		var CDWS = pokemon.cmove.dws / 1000;
+
+		var FDPS = FDmg / FDur;
+		var FEPS = FE / FDur;
+		var CDPS = CDmg / CDur;
+		var CEPS = CE / CDur;
+
 		pokemon.st = pokemon.Stm / y;
 		pokemon.dps = (FDPS * CEPS + CDPS * FEPS) / (CEPS + FEPS) + (CDPS - FDPS) / (CEPS + FEPS) * (1 / 2 - x / pokemon.Stm) * y;
 		pokemon.tdo = pokemon.dps * pokemon.st;
@@ -93,6 +82,24 @@ function calculateDPS(pokemon, kwargs) {
 		if (kwargs.swapDiscount) {
 			pokemon.dps = pokemon.dps * (pokemon.st / (pokemon.st + GM.get("battle", "swapDurationMs") / 1000));
 		}
+		return pokemon.dps;
+	}
+	else {
+		var FDur = pokemon.fmove.duration * 0.5;
+
+		var FDPS = FDmg / FDur;
+		var FEPS = FE / FDur;
+
+		pokemon.st = pokemon.Stm / y;
+		let modFEPS = Math.max(0, FEPS - x / pokemon.st);
+		let totalEnergyGained = 3 * pokemon.st * modFEPS;
+		let discountFactor = (totalEnergyGained - 2 * CE) / totalEnergyGained;
+		if (discountFactor < 0 || discountFactor > 1) {
+			discountFactor = 0;
+		}
+		CDmg = CDmg * discountFactor;
+		pokemon.dps = FDPS + modFEPS * CDmg / CE;
+		pokemon.tdo = pokemon.dps * pokemon.st;
 		return pokemon.dps;
 	}
 }
@@ -150,16 +157,17 @@ function calculateDPSIntake(pokemon, kwargs) {
 	} else {
 		var FDmg = damage(kwargs.enemy, pokemon, kwargs.enemy.fmove, kwargs.weather);
 		var CDmg = damage(kwargs.enemy, pokemon, kwargs.enemy.cmove, kwargs.weather);
-		var FDur = kwargs.enemy.fmove.duration / 1000 + 2;
-		var CDur = kwargs.enemy.cmove.duration / 1000 + 2;
 		var FE = kwargs.enemy.fmove.energyDelta;
 		var CE = -kwargs.enemy.cmove.energyDelta;
 		if (kwargs.battleMode == "pvp") {
+			var FDur = kwargs.enemy.fmove.duration * 0.5;
 			return {
 				x: 0,
 				y: FDmg / (FDur - 2) + FE / (FDur - 2) * CDmg / CE
 			};
 		} else {
+			var FDur = kwargs.enemy.fmove.duration / 1000 + 2;
+			var CDur = kwargs.enemy.cmove.duration / 1000 + 2;
 			var n = Math.max(1, 3 * CE / 100);
 			return {
 				x: -pokemon.cmove.energyDelta * 0.5 + pokemon.fmove.energyDelta * 0.5 + 0.5 * (n * FDmg + CDmg) / (n + 1),
@@ -413,7 +421,7 @@ function generateSpreadsheet(pokemonCollection) {
 				pkmInstance.ui_dps = round(pkmInstance.dps, 3);
 				pkmInstance.ui_tdo = round(pkmInstance.tdo, 1);
 				if (Context.battleMode == "pvp") {
-					pkmInstance.ui_overall = Math.ceil(-pkmInstance.cmove.energyDelta / (pkmInstance.fmove.energyDelta || 1)) * Math.round(pkmInstance.fmove.duration / 500);
+					pkmInstance.ui_overall = Math.ceil(-pkmInstance.cmove.energyDelta / (pkmInstance.fmove.energyDelta || 1)) * pkmInstance.fmove.duration;
 				} else {
 					pkmInstance.ui_overall = round(pkmInstance.dps ** 3 / 1000 * pkmInstance.tdo, 1);
 				}
@@ -439,7 +447,7 @@ function updateSpreadsheet() {
 		pkmInstance.ui_dps = round(pkmInstance.dps, 3);
 		pkmInstance.ui_tdo = round(pkmInstance.tdo, 1);
 		if (Context.battleMode == "pvp") {
-			pkmInstance.ui_overall = Math.ceil(-pkmInstance.cmove.energyDelta / (pkmInstance.fmove.energyDelta || 1)) * Math.round(pkmInstance.fmove.duration / 500);
+			pkmInstance.ui_overall = Math.ceil(-pkmInstance.cmove.energyDelta / (pkmInstance.fmove.energyDelta || 1)) * pkmInstance.fmove.duration;
 		} else {
 			pkmInstance.ui_overall = round(pkmInstance.dps ** 3 / 1000 * pkmInstance.tdo, 1);
 		}

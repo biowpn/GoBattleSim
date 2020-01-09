@@ -182,6 +182,10 @@ UI.updateSimulationDetails = function (battle) {
 	var section2 = document.getElementById("feedback_table3");
 	section2.innerHTML = "";
 
+	if (!battle) {
+		return;
+	}
+
 	// Replay the input
 	UI.write(battle.input);
 	complyBattleMode(battle.input.battleMode);

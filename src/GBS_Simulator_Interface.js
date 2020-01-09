@@ -178,7 +178,7 @@ GBS.parse = function (input, start) {
  * @return {Object} averaged simulation output.
  */
 GBS.average = function (sims) {
-	var averageBattleOutput = Object.assign({}, sims[0].output);
+	var averageBattleOutput = JSON.parse(JSON.stringify(sims[0].output));
 
 	// 1. Initialize everything to 0
 	traverseLeaf(averageBattleOutput, function (v, path) {
