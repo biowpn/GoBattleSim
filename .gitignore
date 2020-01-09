@@ -4,3 +4,4 @@ tools/*
 feedback/*
 *.xlsx
 pokemongo/**
+build/**

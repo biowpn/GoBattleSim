@@ -1,6 +1,6 @@
 /**
-	@file Comprehensive DPS Calculator
-*/
+ * @file Comprehensive DPS Calculator
+ */
 
 var DEFAULT_ATTACKER_LEVEL = 40;
 var DEFAULT_ATTACKER_IVs = [15, 15, 15];
@@ -556,9 +556,9 @@ function applyCPCap(cap) {
 
 
 
-/*
-	Features yet to be released
-*/
+/**
+ * Features yet to be released
+ */
 
 // Generate a spectrum of DPS
 function generateSpectrum(pkm, settings) {

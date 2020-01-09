@@ -252,7 +252,6 @@ GBS.mode = function (mode) {
 			}
 		});
 	} else {
-		Battle.setting("globalAttackBonusMultiplier", 1);
 		GM.each("fast", function (move) {
 			for (var a in move.regular) {
 				move[a] = move.regular[a];
