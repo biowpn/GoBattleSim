@@ -1222,6 +1222,13 @@ function makeAndDownloadCSV(arrayOfLines, filename) {
 	}
 }
 
+function makeAndDisplay(arrayOfLines, deli, textareaEl) {
+	var lines = [];
+	for (var i = 0; i < arrayOfLines.length; ++i) {
+		lines.push(arrayOfLines[i].join(deli));
+	}
+	$(textareaEl).text(lines.join('\n'));
+}
 
 function copyTableToClipboard(elementId) {
 	var copyStr = "";

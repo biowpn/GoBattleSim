@@ -1194,42 +1194,6 @@ function try_parse(v) {
 	}
 }
 
-function makeAndDownloadCSV(arrayOfLines, filename) {
-	filename = filename || "my_data.csv";
-	var lineArray = [];
-	arrayOfLines.forEach(function (infoArray, index) {
-		lineArray.push(infoArray.join(","));
-	});
-	var csvContent = lineArray.join("\n");
-
-	var blob = new Blob([csvContent], {
-		type: "application/csv;charset=utf-8;"
-	});
-
-	if (window.navigator.msSaveBlob) {
-		// FOR IE BROWSER
-		navigator.msSaveBlob(blob, filename);
-	} else {
-		// FOR OTHER BROWSERS
-		var link = document.createElement("a");
-		var csvUrl = URL.createObjectURL(blob);
-		link.href = csvUrl;
-		link.style = "visibility:hidden";
-		link.download = filename;
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
-	}
-}
-
-function makeAndDisplay(arrayOfLines, deli, textareaEl) {
-	var lines = [];
-	for (var i = 0; i < arrayOfLines.length; ++i) {
-		lines.push(arrayOfLines[i].join(deli));
-	}
-	$(textareaEl).text(lines.join('\n'));
-}
-
 function battleMatrixSubmit() {
 	var rawInput = $("#battleMatrix-input").val().trim().split("\n");
 	var deli;

@@ -186,10 +186,180 @@ function parseCSVRow(str, deli, echar) {
     return data;
 }
 
-function getEntry(name, arr) {
-    for (var i = 0; i < arr.length; ++i) {
-        if (arr[i].name == name)
-            return arr[i];
+function try_parse(v) {
+    if (isNaN(parseFloat(v))) {
+        return v;
+    } else {
+        return parseFloat(v);
+    }
+}
+
+function directOrBatch(dbname, query, species) {
+    var direct_match = GM.get(dbname, query.toLowerCase(), species);
+    if (direct_match) {
+        return [direct_match];
+    }
+    else {
+        if (query[0] == "*") {
+            query = query.substr(1);
+        }
+        if (species && query.length == 0) {
+            query = "current, legacy, exclusive";
+        }
+        return GM.select(dbname, query, species);
+    }
+}
+
+/**
+ * 
+ * @param {*} pkm wild card fields: {name, fmove, cmove, cmove2}
+ */
+function batchPokemon(pkm) {
+    var combs = [];
+
+    var species_matches = directOrBatch("pokemon", pkm.name);
+    for (let species of species_matches) {
+        let pkm_basic = {};
+        Object.assign(pkm_basic, pkm);
+        Object.assign(pkm_basic, species);
+        let pkm2 = new PokemonInput(pkm_basic);
+
+        var fmove_matches = directOrBatch("fast", pkm.fmove, species);
+        var cmove_matches = directOrBatch("charge", pkm.cmove, species);
+        var cmove2_matches = directOrBatch("charge", pkm.cmove2, species);
+        for (let fmove of fmove_matches) {
+            for (let cmove of cmove_matches) {
+                if (cmove2_matches) {
+                    for (let cmove2 of cmove2_matches) {
+                        if (cmove2.name == cmove.name) {
+                            continue;
+                        }
+                        let p = Object.assign({}, pkm2);
+                        p.fmove = generateEngineMove(fmove);
+                        p.cmoves = [cmove, cmove2].map(generateEngineMove);
+                        combs.push(p);
+                    }
+                }
+                else {
+                    let p = Object.assign({}, pkm2);
+                    p.fmove = generateEngineMove(fmove);
+                    p.cmoves = [cmove].map(generateEngineMove);
+                    combs.push(p);
+                }
+            }
+        }
+    }
+
+    return combs;
+}
+
+function parsePokemonPool(str) {
+    var rawRows = str.trim().split("\n");
+    var deli = rawRows[0].includes('\t') ? '\t' : ',';
+    var attributes = parseCSVRow(rawRows[0], deli, '"');
+    var pool = [];
+    for (var i = 1; i < rawRows.length; i++) {
+        var rowData = parseCSVRow(rawRows[i], deli, '"');
+        var pokemon = {};
+        for (var j = 0; j < attributes.length; j++) {
+            pokemon[attributes[j]] = try_parse((rowData[j] || ""));
+        }
+        pool = pool.concat(batchPokemon(pokemon));
+    }
+    return pool;
+}
+
+function battleMatrixSubmit() {
+    var rowPokemon = parsePokemonPool($("#battleMatrix-input-row").val());
+    var colPokemon = parsePokemonPool($("#battleMatrix-input-col").val());
+    currentMatrixIsSymmetric = colPokemon.length == 0;
+
+    var reqInput = {
+        "battleMode": "battlematrix",
+        "rowPokemon": rowPokemon,
+        "colPokemon": colPokemon,
+        "avergeByShield": $("#battleMatrix-enum-shields")[0].checked
+    };
+
+    $("#running-screen").show();
+
+    setTimeout(function () {
+        GBS.prepare(reqInput);
+        GBS.run();
+        var matrix = GBS.collect();
+
+        var reqOutput = {
+            rowPokemon: rowPokemon.length ? rowPokemon : colPokemon,
+            colPokemon: colPokemon.length ? colPokemon : rowPokemon,
+            matrix: matrix
+        };
+        displayBattleMatrixOutput(reqOutput);
+    }, 0);
+}
+
+function displayBattleMatrixOutput(reqOutput) {
+    currentRowPokemon = reqOutput["rowPokemon"];
+    currentColPokemon = reqOutput["colPokemon"];
+    currentMatrix = reqOutput["matrix"];
+    currentRowStrategy = [];
+    currentColStrategy = [];
+
+    if (currentMatrixIsSymmetric) {
+        for (var i = 0; i < currentMatrix.length; ++i) {
+            currentMatrix[i][i] = 0;
+        }
+    }
+
+    if (currentRowPokemon.length <= 128) {
+        displayPokemon(currentRowPokemon, "#battleMatrix-output-pokemon-row");
+    } else {
+        $("#battleMatrix-output-pokemon-row").empty();
+        $("#battleMatrix-output-pokemon-row").text("Too many Pokemon to display. Please download as .csv");
+    }
+
+    if (currentColPokemon.length <= 128) {
+        displayPokemon(currentColPokemon, "#battleMatrix-output-pokemon-col");
+    } else {
+        $("#battleMatrix-output-pokemon-col").empty();
+        $("#battleMatrix-output-pokemon-col").text("Too many Pokemon to display. Please download as .csv");
+    }
+
+    if (currentRowPokemon.length <= 128 && currentColPokemon.length <= 128) {
+        displayMatrix(currentMatrix, currentRowPokemon, currentColPokemon, "#battleMatrix-output");
+    } else {
+        $("#battleMatrix-output").empty();
+        $("#battleMatrix-output").text("Matrix too large to display. Please download as .csv");
+    }
+
+    // Solve the game if user toggles optimal strategy on
+    if ($("#battleMatrix-show-output-strategy-col")[0].checked || $("#battleMatrix-show-output-strategy-row")[0].checked) {
+        solveBattleMatrix();
+        displayStrategy(currentRowStrategy, currentRowPokemon, "#battleMatrix-output-strategy-row");
+        displayStrategy(currentColStrategy, currentColPokemon, "#battleMatrix-output-strategy-col");
+    }
+
+    $("#button-download-pokemon").attr("disabled", false);
+    $("#button-download-matrix").attr("disabled", false);
+
+    $("#running-screen").hide();
+}
+
+function solveBattleMatrix() {
+    var m = currentRowPokemon.length;
+    var n = currentColPokemon.length;
+    var doSolve = true;
+    if (m * n >= 128 * 128) {
+        doSolve = confirm("The matrix is quite large and might take some time to solve. Proceed?");
+    }
+    if (doSolve) {
+        var game = new Game(new DoubleArray2D(currentMatrix), m, n);
+        game.solve();
+        var rowStrat = new DoubleArray1D(Array(m).fill(0));
+        var colStrat = new DoubleArray1D(Array(n).fill(0));
+        game.optstrat(true, rowStrat.ptr);
+        game.optstrat(false, colStrat.ptr);
+        currentRowStrategy = [...Array(m).keys()].map(i => rowStrat.at(i));
+        currentColStrategy = [...Array(n).keys()].map(j => colStrat.at(j));
     }
 }
 
@@ -233,13 +403,20 @@ function convertToThreeColumnForm(matrix, row_pkm, col_pkm) {
     }
 }
 
+function makeInitials(obj) {
+    if (!obj || !obj.name) {
+        return "";
+    }
+    return obj.name.split(" ").map(x => x[0].toUpperCase()).join("");
+}
+
 function makePokemonAcronyms(pkm_list) {
     var pkm_acr_list = [];
     for (var i = 0; i < pkm_list.length; ++i) {
         let name = toTitleCase(pkm_list[i].name || "");
-        let fmove_acr = (pkm_list[i].fmove || "").split(" ").map(x => x[0].toUpperCase()).join("");
-        let cmove_acr = (pkm_list[i].cmove || "").split(" ").map(x => x[0].toUpperCase()).join("");
-        let cmove2_acr = (pkm_list[i].cmove2 || "").split(" ").map(x => x[0].toUpperCase()).join("");
+        let fmove_acr = makeInitials(pkm_list[i].fmove);
+        let cmove_acr = makeInitials(pkm_list[i].cmoves[0]);
+        let cmove2_acr = makeInitials(pkm_list[i].cmoves[1]);
         pkm_acr_list.push(fmove_acr + '.' + cmove_acr + '.' + cmove2_acr + ' ' + name);
     }
     return pkm_acr_list;
@@ -249,11 +426,11 @@ function makePokemonIconSpans(pkm_list) {
     var pkm_spans = [];
     for (var i = 0; i < pkm_list.length; ++i) {
         var pkm = pkm_list[i];
-        var pkm_data = getEntry(pkm.name, GameMaster.Pokemon) || {};
+        var pkm_data = GM.get("pokemon", pkm.name.toLowerCase()) || {};
         var span = $("<span>", {
             class: "input-with-icon species-input-with-icon",
             style: "background-image: url(" + pkm_data.icon + ")",
-            title: pkm.fmove + "/" + pkm.cmove + (pkm.cmove2 ? "/" + pkm.cmove2 : "")
+            title: pkm.fmove.name + "/" + pkm.cmoves[0].name + (pkm.cmoves[1] ? "/" + pkm.cmoves[1].name : "")
         });
         pkm_spans.push(span);
     }
@@ -270,55 +447,17 @@ function appendNameRowsAndCols(matrix, row_pkm, col_pkm) {
     return aug_matrix;
 }
 
-function makeAndDownloadCSV(arrayOfLines, filename) {
-    filename = filename || "whatever.csv";
-    var lineArray = [];
-    //  lineArray = ["SEP=,"]; // For better compatiblity with Excel
-    arrayOfLines.forEach(function (infoArray) {
-        lineArray.push(infoArray.map(x => x.toString()).join(","));
-    });
-    var csvContent = lineArray.join("\n");
-
-    var blob = new Blob([csvContent], {
-        type: "application/csv;charset=utf-8;"
-    });
-
-    if (window.navigator.msSaveBlob) {
-        // FOR IE BROWSER
-        navigator.msSaveBlob(blob, filename);
-    } else {
-        // FOR OTHER BROWSERS
-        var link = document.createElement("a");
-        var csvUrl = URL.createObjectURL(blob);
-        link.href = csvUrl;
-        link.style = "visibility:hidden";
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-}
-
-function makeAndDisplay(arrayOfLines, deli, textareaEl) {
-    var lines = [];
-    for (var i = 0; i < arrayOfLines.length; ++i) {
-        lines.push(arrayOfLines[i].join(deli));
-    }
-    $(textareaEl).text(lines.join('\n'));
-}
-
-
 function displayPokemon(pkm_list, containerEl) {
     $(containerEl).empty();
     for (var i = 0; i < pkm_list.length; ++i) {
         var pkm = pkm_list[i];
 
-        var pkm_data = getEntry(pkm.name, GameMaster.Pokemon) || {};
-        var fmove_data = getEntry(pkm.fmove, GameMaster.PvEMoves) || {};
-        var cmove_data = getEntry(pkm.cmove, GameMaster.PvEMoves) || {};
+        var pkm_data = GM.get("pokemon", pkm.name.toLowerCase()) || {};
+        var fmove_data = GM.get("fast", pkm.fmove.name.toLowerCase()) || {};
+        var cmove_data = GM.get("charged", pkm.cmoves[0].name.toLowerCase()) || {};
         var cmove2_data = {};
-        if (pkm.cmove2) {
-            cmove2_data = getEntry(pkm.cmove2, GameMaster.PvEMoves);
+        if (pkm.cmoves[1]) {
+            cmove2_data = GM.get("charged", pkm.cmoves[1].name.toLowerCase()) || {};
         }
         var pkm_row = $("<div>", { class: "row" });
         pkm_row.append($("<div>", { class: "col-sm-6 col-md-3" }).html(createIconLabelSpan(pkm_data.icon, pkm_data.label, "species-input-with-icon")));
@@ -404,179 +543,6 @@ function displayStrategy(strategy, pkm_list, containerEl) {
         table.append(row);
     }
     $(containerEl).append(table);
-}
-
-function try_parse(v) {
-    if (isNaN(parseFloat(v))) {
-        return v;
-    } else {
-        return parseFloat(v);
-    }
-}
-
-function directOrBatch(dbname, query, species) {
-    var direct_match = GM.get(dbname, query.toLowerCase(), species);
-    if (direct_match) {
-        return [direct_match];
-    }
-    else {
-        if (query[0] == "*") {
-            query = query.substr(1);
-        }
-        if (species && query.length == 0) {
-            query = "current, legacy, exclusive";
-        }
-        return GM.select(dbname, query, species);
-    }
-}
-
-/**
- * 
- * @param {*} pkm wild card fields: {name, fmove, cmove, cmove2}
- */
-function batchPokemon(pkm) {
-    var combs = [];
-
-    var species_matches = directOrBatch("pokemon", pkm.name);
-    for (let species of species_matches) {
-        let pkm_basic = {};
-        Object.assign(pkm_basic, pkm);
-        Object.assign(pkm_basic, species);
-        let pkm2 = new PokemonInput(pkm_basic);
-
-        var fmove_matches = directOrBatch("fast", pkm.fmove, species);
-        var cmove_matches = directOrBatch("charge", pkm.cmove, species);
-        var cmove2_matches = directOrBatch("charge", pkm.cmove2, species);
-        for (let fmove of fmove_matches) {
-            for (let cmove of cmove_matches) {
-                if (cmove2_matches) {
-                    for (let cmove2 of cmove2_matches) {
-                        if (cmove2.name == cmove.name) {
-                            continue;
-                        }
-                        let p = Object.assign({}, pkm2);
-                        p.fmove = generateEngineMove(fmove);
-                        p.cmoves = [cmove, cmove2].map(generateEngineMove);
-                        combs.push(p);
-                    }
-                }
-                else {
-                    let p = Object.assign({}, pkm2);
-                    p.fmove = generateEngineMove(fmove);
-                    p.cmoves = [cmove].map(generateEngineMove);
-                    combs.push(p);
-                }
-            }
-        }
-    }
-
-    return combs;
-}
-
-function parsePokemonPool(str) {
-    var rawRows = str.trim().split("\n");
-    var deli = rawRows[0].includes('\t') ? '\t' : ',';
-    var attributes = parseCSVRow(rawRows[0], deli, '"');
-    var pool = [];
-    for (var i = 1; i < rawRows.length; i++) {
-        var rowData = parseCSVRow(rawRows[i], deli, '"');
-        var pokemon = {};
-        for (var j = 0; j < attributes.length; j++) {
-            pokemon[attributes[j]] = try_parse((rowData[j] || ""));
-        }
-        pool = pool.concat(batchPokemon(pokemon));
-    }
-    return pool;
-}
-
-function solveBattleMatrix() {
-    var m = currentRowPokemon.length;
-    var n = currentColPokemon.length;
-    var doSolve = true;
-    if (m * n >= 128 * 128) {
-        doSolve = confirm("The matrix is quite large and might take some time to solve. Proceed?");
-    }
-    if (doSolve) {
-        var game = new Game(new DoubleArray2D(currentMatrix), m, n);
-        game.solve();
-        var rowStrat = new DoubleArray1D(Array(m).fill(0));
-        var colStrat = new DoubleArray1D(Array(n).fill(0));
-        game.optstrat(true, rowStrat.ptr);
-        game.optstrat(false, colStrat.ptr);
-        currentRowStrategy = [...Array(m).keys()].map(i => rowStrat.at(i));
-        currentColStrategy = [...Array(n).keys()].map(j => colStrat.at(j));
-    }
-}
-
-function battleMatrixSubmit() {
-    var rowPokemon = parsePokemonPool($("#battleMatrix-input-row").val());
-    var colPokemon = parsePokemonPool($("#battleMatrix-input-col").val());
-    currentMatrixIsSymmetric = colPokemon.length == 0;
-
-    var reqInput = {
-        "battleMode": "battlematrix",
-        "rowPokemon": rowPokemon,
-        "colPokemon": colPokemon,
-        "avergeByShield": $("#battleMatrix-enum-shields")[0].checked
-    };
-
-    console.log(reqInput);
-
-    GBS.prepare(reqInput);
-    GBS.run();
-    console.log(GBS.collect());
-
-    // $("#running-screen").show();
-
-    return;
-}
-
-function displayBattleMatrixOutput(reqOutput) {
-
-    currentRowPokemon = reqOutput["rowPokemon"];
-    currentColPokemon = reqOutput["colPokemon"];
-    currentMatrix = reqOutput["matrix"];
-    currentRowStrategy = [];
-    currentColStrategy = [];
-
-    if (currentMatrixIsSymmetric) {
-        for (var i = 0; i < currentMatrix.length; ++i) {
-            currentMatrix[i][i] = 0;
-        }
-    }
-
-    if (currentRowPokemon.length <= 128) {
-        displayPokemon(currentRowPokemon, "#battleMatrix-output-pokemon-row");
-    } else {
-        $("#battleMatrix-output-pokemon-row").empty();
-        $("#battleMatrix-output-pokemon-row").text("Too many Pokemon to display. Please download as .csv");
-    }
-
-    if (currentColPokemon.length <= 128) {
-        displayPokemon(currentColPokemon, "#battleMatrix-output-pokemon-col");
-    } else {
-        $("#battleMatrix-output-pokemon-col").empty();
-        $("#battleMatrix-output-pokemon-col").text("Too many Pokemon to display. Please download as .csv");
-    }
-
-    if (currentRowPokemon.length <= 128 && currentColPokemon.length <= 128) {
-        displayMatrix(currentMatrix, currentRowPokemon, currentColPokemon, "#battleMatrix-output");
-    } else {
-        $("#battleMatrix-output").empty();
-        $("#battleMatrix-output").text("Matrix too large to display. Please download as .csv");
-    }
-
-    // Solve the game if user toggles optimal strategy on
-    if ($("#battleMatrix-show-output-strategy-col")[0].checked || $("#battleMatrix-show-output-strategy-row")[0].checked) {
-        solveBattleMatrix();
-        displayStrategy(currentRowStrategy, currentRowPokemon, "#battleMatrix-output-strategy-row");
-        displayStrategy(currentColStrategy, currentColPokemon, "#battleMatrix-output-strategy-col");
-    }
-
-    $("#button-download-pokemon").attr("disabled", false);
-    $("#button-download-matrix").attr("disabled", false);
-    $("#running-screen").hide();
-
 }
 
 function autocomplete_pokemon_name(el) {
