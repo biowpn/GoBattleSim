@@ -1,8 +1,8 @@
 
 /**
-	Data Factory. This module manages the game data such as Pokemon stats, Move stats, and type effectiveness matrix. It is basically an extended Game Master.
-	@exports GM
-*/
+ * Data Factory. This module manages the game data such as Pokemon stats, Move stats, and type effectiveness matrix. It is basically an extended Game Master.
+ * @exports GM
+ */
 
 var GM = {};
 
@@ -15,9 +15,9 @@ if (window.BASE_URL == undefined) {
 }
 
 /** 
-	Fetch all required JSONs for the application.
-	@param kwargs {Object} Keyword arguments. Can specify 'name', 'complete', 'userid'
-*/
+ * Fetch all required JSONs for the application.
+ * @param kwargs {Object} Keyword arguments. Can specify 'name', 'complete', 'userid'
+ */
 GM.fetch = function (kwargs) {
 	kwargs = kwargs || {};
 	if (kwargs.name != undefined) {
@@ -83,8 +83,8 @@ GM.fetch = function (kwargs) {
 }
 
 /** 
-	Invalidate databases and makes them overwritable. This method does not erase existing database (call GM.erase() for erasing).
-*/
+ * Invalidate databases and makes them overwritable. This method does not erase existing database (call GM.erase() for erasing).
+ */
 GM.invalidate = function () {
 	for (var json_name in requiredJSONStatus) {
 		requiredJSONStatus[json_name] = 0;
@@ -93,9 +93,10 @@ GM.invalidate = function () {
 
 
 /** 
-	Erase all records of the specified database and make it empty.
-	@param {string} nameDb The name of the database to erase.
-*/
+ * Erase all records of the specified database and make it empty.
+ * 
+ * @param {string} nameDb The name of the database to erase.
+ */
 GM.erase = function (nameDb) {
 	var db = getDatabaseByName(nameDb);
 	if (Array.isArray(db)) {
@@ -109,11 +110,12 @@ GM.erase = function (nameDb) {
 
 
 /**
-	Get one entry from the specified database.
-	@param {string} nameDb Name of the database.
-	@param {string} nameObj Name of the entry.
-	@return {Object} The entry matching the name given. Null if no match.
-*/
+ * Get one entry from the specified database.
+ * 
+ * @param {string} nameDb Name of the database.
+ * @param {string} nameObj Name of the entry.
+ * @return {Object} The entry matching the name given. Null if no match.
+ */
 GM.get = function (nameDb, nameObj) {
 	var db = getDatabaseByName(nameDb);
 	if (Array.isArray(db)) {
@@ -124,12 +126,14 @@ GM.get = function (nameDb, nameObj) {
 }
 
 /**
-	Update an entry of the specified database. If no object is given, the existing matching entry will be removed.
-	@param {string} nameDb Name of the database.
-	@param {string} nameObj Name of the entry.
-	@param {Object} obj The updated object.
-	@return {Object} The updated or removed object.
-*/
+ * Update an entry of the specified database.
+ * If no object is given, the existing matching entry will be removed.
+ * 
+ * @param {string} nameDb Name of the database.
+ * @param {string} nameObj Name of the entry.
+ * @param {Object} obj The updated object.
+ * @return {Object} The updated or removed object.
+ */
 GM.set = function (nameDb, nameObj, obj) {
 	var db = getDatabaseByName(nameDb);
 	if (Array.isArray(db)) {
@@ -153,12 +157,13 @@ GM.set = function (nameDb, nameObj, obj) {
 }
 
 /**
-	Get all the entries that match the PokeQuery from the specified database.
-	@param {string} nameDb Name of the database.
-	@param {string} query The string representation of a PokeQuery.
-	@param {Object|Pokemon} pokemonInstance The Pokemon instance required for querying attributes of a Pokemon such as Move.
-	@return {Object[]} Matching entities.
-*/
+ * Get all the entries that match the PokeQuery from the specified database.
+ * 
+ * @param {string} nameDb Name of the database.
+ * @param {string} query The string representation of a PokeQuery.
+ * @param {Object|Pokemon} pokemonInstance The Pokemon instance required for querying attributes of a Pokemon such as Move.
+ * @return {Object[]} Matching entities.
+ */
 GM.select = function (nameDb, query, pokemonInstance) {
 	var db = getDatabaseByName(nameDb);
 	if (Array.isArray(db)) {
@@ -169,10 +174,11 @@ GM.select = function (nameDb, query, pokemonInstance) {
 }
 
 /**
-	Iterate through each entry of the specified database.
-	@param {string} nameDb The name of the database.
-	@param {GMeachCallback} cackbankfn The callback function that accepts one parameter.
-*/
+ * Iterate through each entry of the specified database.
+ * 
+ * @param {string} nameDb The name of the database.
+ * @param {GMeachCallback} cackbankfn The callback function that accepts one parameter.
+ */
 GM.each = function (nameDb, cackbankfn) {
 	var db = getDatabaseByName(nameDb);
 	if (Array.isArray(db)) {
@@ -192,15 +198,16 @@ GM.each = function (nameDb, cackbankfn) {
 	}
 }
 /**
-	@callback GMeachCallback
-	@param {Object} object The current entry being iterrated.
-	@param {Integer} index The index/key of the current entry.
-	@return {null|Object} If return anything, the entry in the database will be updated to the return value.
-*/
+ * @callback GMeachCallback
+ * @param {Object} object The current entry being iterrated.
+ * @param {Integer} index The index/key of the current entry.
+ * @return {null|Object} If return anything, the entry in the database will be updated to the return value.
+ */
+
 
 /**
-	Save user-defined data to local storage.
-*/
+ * Save user-defined data to local storage.
+ */
 GM.save = function () {
 	if (localStorage) {
 		localStorage.LocalData = JSON.stringify(LocalData);
@@ -209,10 +216,10 @@ GM.save = function () {
 
 
 /**
-	Convert GBS game master to fit the new GoBattleSim API format.
-	@param {Object} src The source GBS game master, default to Data.
-	@return {Object} GoBattleSim API compatible game master.
-*/
+ * Convert GBS game master to fit the new GoBattleSim engine.
+ * @param {Object} src The source GBS game master, default to Data.
+ * @return {Object} GoBattleSim engine compatible game master.
+ */
 GM.convert = function (src) {
 	src = src || Data;
 	var dst = {};
@@ -340,9 +347,9 @@ GM.convert = function (src) {
 }
 
 
-/*
-	Non-interface members
-*/
+/**
+ * Non-interface members
+ */
 var curTime = Date.now();
 
 if (window.raidBossListURL == undefined) {
@@ -520,11 +527,12 @@ var Mods = [
 ];
 
 /**
-	Get a reference to the database.
-	While this provides a lot of convenience for data manipulation, it is not recommended to directly operates on the database object.
-	@param {string} nameDb Name of the database.
-	@return {Object} The reference to the database.
-*/
+ * Get a reference to the database.
+ * While this provides a lot of convenience for data manipulation, it is not recommended to directly operates on the database object.
+ * 
+ * @param {string} nameDb Name of the database.
+ * @return {Object} The reference to the database.
+ */
 function getDatabaseByName(nameDb) {
 	var masterDatabase = Data;
 	if (nameDb.endsWith("_local")) {
@@ -548,9 +556,10 @@ function getDatabaseByName(nameDb) {
 }
 
 /** 
-	Manually modify data.
-	@param {Object} data The master data reference.
-*/
+ * Hardcore some data.
+ * 
+ * @param {Object} data The master data reference.
+ */
 function manuallyModifyData(data) {
 	// Hidden Powers
 	var hidden_power = getEntry("hidden power", data.FastMoves);
@@ -586,11 +595,12 @@ function manuallyModifyData(data) {
 
 
 /**
-	Look up an item in an array.
-	@param {string} name The key to look up for.
-	@param {Object[]} arr The array to search from.
-	@param {boolean} linearSearch If true, the function will perform linear search. Otherwise (default), binary search.
-	@return {Object} The item whose key matches the given key. Null if there's no such item.
+ * Look up an item in an array.
+ * 
+ * @param {string} name The key to look up for.
+ * @param {Object[]} arr The array to search from.
+ * @param {boolean} linearSearch If true, the function will perform linear search. Otherwise (default), binary search.
+ * @return {Object} The item whose key matches the given key. Null if there's no such item.
 */
 function getEntry(name, arr, linearSearch) {
 	if (linearSearch) {
@@ -606,11 +616,12 @@ function getEntry(name, arr, linearSearch) {
 }
 
 /**
-	Add a new item to a sorted array and maintain sorted order.
-	If there is already an item with the same key, the old item will be replaced.
-	@param {Object} entry The item to add.
-	@param {Object[]} arr The array to search from.
-*/
+ * Add a new item to a sorted array and maintain sorted order.
+ * If there is already an item with the same key, the old item will be replaced.
+ * 
+ * @param {Object} entry The item to add.
+ * @param {Object[]} arr The array to search from.
+ */
 function insertEntry(entry, arr) {
 	var index = binarySearch(entry.name, arr);
 	if (arr[index] && arr[index].name == entry.name)
@@ -620,11 +631,12 @@ function insertEntry(entry, arr) {
 }
 
 /**
-	Remove the item by key from a sorted array.
-	@param {string} name The search key.
-	@param {Object[]} arr The array to search from.
-	@return {Object} An object whose key matches the given key or null if there's no such object.
-*/
+ * Remove the item by key from a sorted array.
+ * 
+ * @param {string} name The search key.
+ * @param {Object[]} arr The array to search from.
+ * @return {Object} An object whose key matches the given key or null if there's no such object.
+ */
 function removeEntry(name, arr) {
 	var index = binarySearch(name, arr);
 	if (arr[index] && arr[index].name == name) {
@@ -635,11 +647,12 @@ function removeEntry(name, arr) {
 }
 
 /**
-	Generic binary search method.
-	@param {string} name The search key.
-	@param {Object[]} arr The array to search from.
-	@return {number} The index of the first element whose key is no less than the given key.
-*/
+ * OG Binary search.
+ * 
+ * @param {string} name The search key.
+ * @param {Object[]} arr The array to search from.
+ * @return {number} The index of the first element whose key is no less than the given key.
+ */
 function binarySearch(name, arr) {
 	var start = 0, end = arr.length, mid;
 	while (start < end) {
@@ -659,10 +672,11 @@ function toTitleCase(str) {
 }
 
 /**
-	Parse two Pokemon types from a string.
-	@param {string} S The string to parse.
-	@return {{pokeType1: string, pokeType2: string}}
-*/
+ * Parse two Pokemon types from a string.
+ * 
+ * @param {string} S The string to parse.
+ * @return {{pokeType1: string, pokeType2: string}}
+ */
 function parsePokemonTypeFromString(S) {
 	var L = S.split(",");
 	return {
@@ -672,10 +686,11 @@ function parsePokemonTypeFromString(S) {
 }
 
 /**
-	Parse non-empty names separated by "," from a string.
-	@param {string} S The string to parse.
-	@return {string[]} A list of non-empty names in lower case.
-*/
+ * Parse non-empty names separated by "," from a string.
+ * 
+ * @param {string} S The string to parse.
+ * @return {string[]} A list of non-empty names in lower case.
+ */
 function parseMovesFromString(S) {
 	S = S || "";
 	var moves = [];
@@ -688,10 +703,11 @@ function parseMovesFromString(S) {
 }
 
 /**
-	Generate the URL to the icon for a Pokemon via dex number.
-	@param {number} dex The dex of the Pokemon. If omitted, the PokeBall icon will be returned.
-	@return {string} The URL to the icon.
-*/
+ * Generate the URL to the icon for a Pokemon via dex number.
+ * 
+ * @param {number} dex The dex of the Pokemon. If omitted, the PokeBall icon will be returned.
+ * @return {string} The URL to the icon.
+ */
 function getPokemonIcon(dex) {
 	dex = (dex || "").toString();
 	while (dex.length < 3)
@@ -700,19 +716,21 @@ function getPokemonIcon(dex) {
 }
 
 /**
-	Generate the URL to the icon for a Pokemon type.
-	@param {string} type The type. If omitted, the quesion mark icon will be returned.
-	@return {string} The URL to the icon.
-*/
+ * Generate the URL to the icon for a Pokemon type.
+ * 
+ * @param {string} type The type. If omitted, the quesion mark icon will be returned.
+ * @return {string} The URL to the icon.
+ */
 function getTypeIcon(type) {
 	return BASE_URL + "/pokemongo/sites/pokemongo/files/icon_" + (type || "none").toLowerCase() + ".png";
 }
 
 /**
-	Get all evolutions of a Pokemon.
-	@param {string} name The name of the Pokemon.
-	@return {string[]} A list of names of Pokemon.
-*/
+ * Get all evolutions of a Pokemon.
+ * 
+ * @param {string} name The name of the Pokemon.
+ * @return {string[]} A list of names of Pokemon.
+ */
 function getAllEvolutions(name) {
 	var evolutions = [name], pkm = getEntry(name, Data.Pokemon);
 	if (pkm) {
@@ -724,9 +742,10 @@ function getAllEvolutions(name) {
 }
 
 /**
-	Get the union of generic Pokemon pool and user Pokemon.
-	@return {Object[]} A list of Pokemon.
-*/
+ * Get the union of generic Pokemon pool and user Pokemon.
+ * 
+ * @return {Object[]} A list of Pokemon.
+ */
 function getPokemonPool() {
 	var options = [];
 	for (let user of Data.Users) {
@@ -738,8 +757,8 @@ function getPokemonPool() {
 }
 
 /**
-	Attach raid boss info to each Pokemon.
-*/
+ * Attach raid boss info to each Pokemon.
+ */
 function attachRaidbossInfo() {
 	for (let boss of Data.RaidBosses) {
 		var pkm = GM.get("pokemon", boss.name.toLowerCase().trim());
@@ -754,11 +773,13 @@ function attachRaidbossInfo() {
 	}
 }
 
+
 /**
-	Validate the user Pokemon data array for other modules to correctly use.
-	@param {Object[]} pokemonDataBase An array of user Pokemon data.
-	@return {Object[]} An array of valid user Pokemon data.
-*/
+ * Validate the user Pokemon data array for other modules to correctly use.
+ * 
+ * @param {Object[]} pokemonDataBase An array of user Pokemon data.
+ * @return {Object[]} An array of valid user Pokemon data.
+ */
 function parseUserPokebox(data) {
 	var box = [];
 	for (var i = 0; i < data.length; i++) {
@@ -787,9 +808,10 @@ function parseUserPokebox(data) {
 
 
 /** 
-	Fetch the URLs of the raid boss, Pokemon and move JSONs.
-	@param oncomplete The callback after the fetching is complete.
-*/
+ * Fetch the URLs of the raid boss, Pokemon and move JSONs.
+ * 
+ * @param oncomplete The callback after the fetching is complete.
+ */
 function fetchURLs(oncomplete) {
 	$.ajax({
 		url: BASE_URL + "/json-list?_format=json&game_tid=1&" + curTime,
@@ -815,9 +837,10 @@ function fetchURLs(oncomplete) {
 
 
 /** 
-	Fetch Level Settings from GP server.
-	@param oncomplete The callback after the fetching is complete.
-*/
+ * Fetch Level Settings from GP server.
+ * 
+ * @param oncomplete The callback after the fetching is complete.
+ */
 function fetchLevelSettings(oncomplete) {
 	if (requiredJSONStatus.LevelSettings != 0)
 		return;
@@ -844,9 +867,10 @@ function fetchLevelSettings(oncomplete) {
 
 
 /** 
-	Fetch raid boss list from GP server.
-	@param oncomplete The callback after the fetching is complete.
-*/
+ * Fetch raid boss list from GP server.
+ * 
+ * @param oncomplete The callback after the fetching is complete.
+ */
 function fetchRaidBosses(oncomplete) {
 	if (!window.raidBossListURL) {
 		fetchURLs(function () {
@@ -881,10 +905,12 @@ function fetchRaidBosses(oncomplete) {
 	});
 }
 
+
 /** 
-	Fetch Pokemon data from GP server.
-	@param oncomplete The callback after the fetching is complete.
-*/
+ * Fetch Pokemon data from GP server.
+ * 
+ * @param oncomplete The callback after the fetching is complete.
+ */
 function fetchPokemon(oncomplete) {
 	if (!window.pokemonDataFullURL) {
 		fetchURLs(function () {
@@ -939,10 +965,12 @@ function fetchPokemon(oncomplete) {
 	});
 }
 
+
 /** 
-	Fetch supplement Pokemon form data (such as icons) from GP server.
-	@param oncomplete The callback after the fetching is complete.
-*/
+ * Fetch supplement Pokemon form data (such as icons) from GP server.
+ * 
+ * @param oncomplete The callback after the fetching is complete.
+ */
 function fetchPokemonForms(oncomplete) {
 	if (requiredJSONStatus.PokemonForms != 0)
 		return;
@@ -971,9 +999,10 @@ function fetchPokemonForms(oncomplete) {
 }
 
 /** 
-	Fetch move data from GP server.
-	@param oncomplete The callback after the fetching is complete.
-*/
+ * Fetch move data from GP server.
+ * 
+ * @param oncomplete The callback after the fetching is complete.
+ */
 function fetchMoves(oncomplete) {
 	if (!window.moveDataFullURL) {
 		fetchURLs(function () {
@@ -1062,10 +1091,11 @@ function fetchMoves(oncomplete) {
 }
 
 /** 
-	Fetch user Pokemon data from GP server.
-	@param {function} oncomplete The callback after the fetching is complete.
-	@param {string} userid The user id of the user to fetch.
-*/
+ * Fetch GP user Pokemon box.
+ * 
+ * @param {function} oncomplete The callback after the fetching is complete.
+ * @param {string} userid The user id of the user to fetch.
+ */
 function fetchUser(oncomplete, userid) {
 	userid = userid || "";
 	var box_fetched = false, parties_fetched = false;
@@ -1136,9 +1166,10 @@ function fetchUser(oncomplete, userid) {
 	});
 }
 
+
 /** 
-	Fetch client local data.
-*/
+ * Fetch user local data, including customed Pokemon/Moves
+ */
 function fetchLocalData() {
 	if (localStorage) {
 		if (localStorage.LocalData) { // new
@@ -1220,11 +1251,12 @@ var PokemonRegions = {
 
 
 /**
-	Create a PokeQuery that filters Pokemon, Moves and other attributes of the Pokemon.
-	@param {string} queryStr The string representation of the query.
-	@param {Object|Pokemon} pokemonInstance An instance of the subject Pokemon. Used for querying Pokemon attributes.
-	@return {function} A function that accepts one parameter (the entity to evaluate) and returns true or false.
-*/
+ * Create a PokeQuery that filters Pokemon, Moves and other attributes of the Pokemon.
+ * 
+ * @param {string} queryStr The string representation of the query.
+ * @param {Object|Pokemon} pokemonInstance An instance of the subject Pokemon. Used for querying Pokemon attributes.
+ * @return {function} A function that accepts one parameter (the entity to evaluate) and returns true or false.
+ */
 function PokeQuery(queryStr, pokemonInstance) {
 	var defaultPredicate = arg => false;
 	var vstack = [], opstack = [];
@@ -1299,12 +1331,13 @@ function PokeQuery(queryStr, pokemonInstance) {
 
 
 /**
-	Create a basic PokeQuery that filters Pokemon, Moves and other attributes of the Pokemon.
-	A basic PokeQuery is a PokeQuery without logical operator or parathesis.
-	@param {string} queryStr The string representation of the query.
-	@param {Object|Pokemon} pokemonInstance An instance of the subject Pokemon, used for querying Pokemon attributes.
-	@return {function} A function that accepts one parameter (the entity to evaluate) and returns true or false.
-*/
+ * Create a basic PokeQuery that filters Pokemon, Moves and other attributes of the Pokemon.
+ * A basic PokeQuery is a PokeQuery without logical operator or parathesis.
+ * 
+ * @param {string} queryStr The string representation of the query.
+ * @param {Object|Pokemon} pokemonInstance An instance of the subject Pokemon, used for querying Pokemon attributes.
+ * @return {function} A function that accepts one parameter (the entity to evaluate) and returns true or false.
+ */
 function BasicPokeQuery(queryStr, pokemonInstance) {
 	let str = queryStr.trim();
 
