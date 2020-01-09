@@ -1,8 +1,11 @@
 
+import argparse
 import glob
 import os
 import shutil
 import subprocess
+
+COMIPLE_FLAGS = ""
 
 
 def compile_to(project_dir, build_dir):
@@ -19,7 +22,7 @@ def compile_to(project_dir, build_dir):
             continue
         src_path = os.path.join(src_dir, src)
         bin_path = os.path.join(build_dir, src_name + ".bc")
-        cmd = f"em++ --std=c++11 -O3 -s ALLOW_MEMORY_GROWTH=1 -I{include_path_1} -I{include_path_2} -c {src_path} -o {bin_path}"
+        cmd = f"em++ --std=c++11 {COMIPLE_FLAGS} -s ALLOW_MEMORY_GROWTH=1 -I{include_path_1} -I{include_path_2} -c {src_path} -o {bin_path}"
         print(cmd)
         p = subprocess.Popen(cmd, shell=True)
         procs.append(p)
@@ -33,10 +36,22 @@ def compile_to(project_dir, build_dir):
 
 def main():
 
-    GBS_Engine_Dir = "../GoBattleSim-Engine"
-    GameSolver_Dir = "../GameSolver/"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("projects", type=str, nargs='*', default=["../GoBattleSim-Engine/", "../GameSolver/"],
+                        help="path(s) to wasm projects to build")
+    parser.add_argument("--type", choices=["debug", "release"], default="debug",
+                        help="build type")
+    parser.add_argument("-o", "--out", default="src",
+                        help="wasm file output directory")
+    args = parser.parse_args()
+
     Build_Dir = "build"
-    Target_Dir = "src"
+    Target_Dir = args.out
+
+    if args.type == "release":
+        COMIPLE_FLAGS = "-O3"
+    else:
+        COMIPLE_FLAGS = "-s ASSERTIONS=1"
 
     # prepare a clean build dir
     if os.path.isdir(Build_Dir):
@@ -44,15 +59,15 @@ def main():
     os.mkdir(Build_Dir)
 
     # compiling
-    compile_to(GBS_Engine_Dir, Build_Dir)
-    compile_to(GameSolver_Dir, Build_Dir)
+    for project_dir in args.projects:
+        compile_to(project_dir, Build_Dir)
 
     # linking
     bin_paths_str = ""
     for bc in glob.glob(f"{Build_Dir}/*.bc"):
         bin_paths_str += bc + " "
 
-    cmd = f"emcc -O3 {bin_paths_str} -o {Build_Dir}/GBS_Engine.html -s ALLOW_MEMORY_GROWTH=1 -s EXTRA_EXPORTED_RUNTIME_METHODS=[ccall,cwrap]"
+    cmd = f"emcc {COMIPLE_FLAGS} {bin_paths_str} -o {Build_Dir}/GBS_Engine.html -s ALLOW_MEMORY_GROWTH=1 -s EXTRA_EXPORTED_RUNTIME_METHODS=[ccall,cwrap,getValue,setValue,malloc,free]"
     print(cmd)
     p = subprocess.Popen(cmd, shell=True)
     p.wait()

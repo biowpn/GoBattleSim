@@ -352,14 +352,11 @@ function solveBattleMatrix() {
         doSolve = confirm("The matrix is quite large and might take some time to solve. Proceed?");
     }
     if (doSolve) {
-        var game = new Game(new DoubleArray2D(currentMatrix), m, n);
+        var game = new Game();
+        game.new(currentMatrix);
         game.solve();
-        var rowStrat = new DoubleArray1D(Array(m).fill(0));
-        var colStrat = new DoubleArray1D(Array(n).fill(0));
-        game.optstrat(true, rowStrat.ptr);
-        game.optstrat(false, colStrat.ptr);
-        currentRowStrategy = [...Array(m).keys()].map(i => rowStrat.at(i));
-        currentColStrategy = [...Array(n).keys()].map(j => colStrat.at(j));
+        currentRowStrategy = game.optstrat(true);
+        currentColStrategy = game.optstrat(false);
     }
 }
 
