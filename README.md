@@ -33,61 +33,31 @@ https://gamepress.gg/pokemongo/comprehensive-dps-spreadsheet
     http://127.0.0.1/RangeMapper.html
     ```
 
+## Build
+
+The simulator engine part of GoBattleSim is written in C++ and compiled into [src/GBS_Engine.wasm](./src/GBS_Engine.wasm). If you want to build it from source, you need [emscripten](https://emscripten.org/) as well as the following modules:
+
+- [GoBattleSim-Engine](https://github.com/biowpn/GoBattleSim-Engine.git)
+
+- [GameSolver](https://github.com/biowpn/GameSolver.git)
+
+Place the above modules on the same directory level as this repository.
+
+Make sure `em++` is available from command line. Then run the script:
+
+```
+python build-gbs-wasm.py
+```
+
 ## Testing
 
-In console, do
-
-```
-(() => {
-    var script= document.createElement('script');
-    script.type= 'text/javascript';
-    script.src= 'test/GBS_Kernel_test.js';
-    document.head.appendChild(script);
-})()
-```
+*to be added*
 
 Help - Quickstart also includes 7 different pre-defined tutorial configurations which can be also regarded as test cases.
 
-
-## API Usage
-
-[Full API documentation](https://ymenghank.github.io/GoBattleSim/index.html)
-
-At its core, GoBattleSim
-
-1. takes JSON input
-2. runs simulation(s)
-3. produces JSON output
-
-### Example
-
-The first step is to prepare a nice JSON input. In the GoBattleSim Web environment, when you fill the Pokemon information in the webpage, the following code gets the JSON input:
-
-```
-var input = UI.read();
-```
-
-Explore the structure of `input` to get a idea of the Player-Party-Pokemon layered configurations.
-
-Next, pass the JSON input to GoBattleSim:
-
-```
-var output = GBS.run(input);
-```
-
-`GBS.run` runs the simulation and returns the `output` object, which contains some battle performance metrics for each entity. It mimics the structure of `input`.
-
-An alternative to request simulations is:
-
-```
-var list_of_output = GBS.request(input);
-```
-
-If the input contains some wild cards (such as "*" being some Pokmeon's fast move field, meaning all fast moves), `GBS.request` will parse the wild cards such as PokeQuery and generate permutations of inputs for you. Under the hood, `GBS.parse` is used. Parsing wild card input to `GBS.run` will cause error.
-
 ## License
 
-See the [LICENSE.md](LICENSE.md) file for details
+GNU public v3. See the [LICENSE.md](LICENSE.md) file for details
 
 ## Acknowledgments
 
