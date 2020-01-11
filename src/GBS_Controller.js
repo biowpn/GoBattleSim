@@ -83,7 +83,10 @@ App.init = function () {
 		$("#WelcomeDialog").dialog("open");
 	}
 
-	GBS.config(GM.convert());
+	let gm = GM.convert();
+	tryTillSuccess(function () {
+		GBS.config(gm);
+	});
 
 	UI.refresh();
 }

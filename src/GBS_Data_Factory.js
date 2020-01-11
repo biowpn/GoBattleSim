@@ -207,11 +207,13 @@ GM.each = function (nameDb, cackbankfn) {
 
 /**
  * Save user-defined data to local storage.
+ * Also push the latest GM to GBS Engine.
  */
 GM.save = function () {
 	if (localStorage) {
 		localStorage.LocalData = JSON.stringify(LocalData);
 	}
+	GBS.config(GM.convert());
 }
 
 
@@ -318,9 +320,15 @@ GM.convert = function (src) {
 			maximumEnergy: src.BattleSettings.maxEnergy,
 			energyDeltaPerHealthLost: src.BattleSettings.energyDeltaPerHealthLost,
 			dodgeDurationMs: src.BattleSettings.dodgeDurationMs,
+			dodgeWindowMs: src.BattleSettings.dodgeDurationMs,
 			swapDurationMs: src.BattleSettings.swapDurationMs,
+			itemMenuAnimationTimeMs: src.BattleSettings.itemMenuAnimationTimeMs,
+			maxReviveTimePerPokemonMs: src.BattleSettings.maxReviveTimePerPokemonMs,
+			rejoinDurationMs: src.BattleSettings.rejoinDurationMs,
 			dodgeDamageReductionPercent: src.BattleSettings.dodgeDamageReductionPercent,
-			weatherAttackBonusMultiplier: src.BattleSettings.weatherAttackBonusMultiplier
+			weatherAttackBonusMultiplier: src.BattleSettings.weatherAttackBonusMultiplier,
+			fastMoveLagMs: src.BattleSettings.fastMoveLagMs,
+			chargedMoveLagMs: src.BattleSettings.chargedMoveLagMs,
 		};
 
 		// PvPBattleSettings
@@ -1212,8 +1220,6 @@ function fetchLocalData() {
 		}
 
 		LocalData.BattleSettings = LocalData.BattleSettings || {};
-
-		GM.save();
 	}
 }
 

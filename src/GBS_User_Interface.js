@@ -42,6 +42,7 @@ UI.sendFeedbackDialog = function (message, dialogTitle, onOK) {
 */
 UI.wait = function (task, message) {
 	message = message || "Running...";
+	GBS.error();
 	UI.sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>" + message);
 	setTimeout(function () {
 		try {
@@ -53,7 +54,10 @@ UI.wait = function (task, message) {
 			while (DialogStack.length) {
 				DialogStack.pop().dialog('close');
 			}
-			UI.sendFeedbackDialog("<p>Oops, something went wrong!</p>" + err.toString());
+			let js_err_str = err.toString();
+			let gbs_err_str = GBS.error();
+			let err_str = gbs_err_str || js_err_str;
+			UI.sendFeedbackDialog("<p>Oops, something went wrong!</p>" + err_str);
 		}
 	}, 1);
 }

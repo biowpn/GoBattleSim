@@ -275,6 +275,19 @@ var DefaultSummaryMetrics = { win: 'Outcome', duration: 'Time', tdoPercent: 'TDO
 var AdditionalSummaryMetrics = {};
 
 
+// ugly hack for waiting till wasm ready
+function tryTillSuccess(cb) {
+	try {
+		cb();
+	} catch (err) {
+		console.log(err);
+		console.log("retrying");
+		setTimeout(function () {
+			tryTillSuccess(cb);
+		}, 500);
+	}
+}
+
 
 function generateEngineMove(move) {
 	var emove = {};
@@ -292,6 +305,7 @@ function generateEngineMove(move) {
 
 /**
  * @class A wrapper class to validate and format Pokemon input.
+ * 
  * @param {Object} kwargs Information defining the Pokemon.
  */
 function PokemonInput(kwargs) {
@@ -404,7 +418,10 @@ function PokemonInput(kwargs) {
 		}
 	}
 
-	// 2. Moves
+	// 2. Stratregy
+	this.strategy = kwargs.strategy;
+
+	// 3. Moves
 	let fmove = {};
 	if (typeof kwargs.fmove == typeof "") {
 		fmove = GM.get("fast", kwargs.fmove.toLowerCase());
@@ -463,8 +480,7 @@ function generateEngineInput(sim_input) {
 		let mini_player = {
 			name: player.name || ("Player " + ++player_idx),
 			team: 1 - parseInt(player.team),
-			attack_multiplier: (GM.get("friend", player.friend) || {}).multiplier || 1.0,
-			strategy: ""
+			attack_multiplier: (GM.get("friend", player.friend) || {}).multiplier || 1.0
 		};
 		let mini_parties = [];
 		for (let party of player.parties) {
@@ -474,7 +490,6 @@ function generateEngineInput(sim_input) {
 			};
 			let mini_pkm_list = [];
 			for (let pkm of party.pokemon) {
-				mini_player.strategy = pkm.strategy;
 				mini_pkm_list.push(new PokemonInput(pkm));
 			}
 			mini_party["pokemon"] = mini_pkm_list;
