@@ -329,12 +329,12 @@ GM.convert = function (src) {
 			fastAttackBonusMultiplier: src.BattleSettings.PvPAttackBonusMultiplier,
 			chargeAttackBonusMultiplier: src.BattleSettings.PvPAttackBonusMultiplier,
 			maxEnergy: src.BattleSettings.maxEnergy,
-			quickSwapCooldownDurationMs: src.BattleSettings.switchingCooldownDurationMs,
-			quickSwapCooldownDurationSeconds: Math.round(src.BattleSettings.switchingCooldownDurationMs / 1000),
+			quickSwapCooldownDurationMs: src.BattleSettings.quickSwapCooldownDurationMs,
+			quickSwapCooldownDurationSeconds: Math.round(src.BattleSettings.quickSwapCooldownDurationMs / 1000),
 			minimumStatStage: src.BattleSettings.minimumStatStage,
 			maximumStatStage: src.BattleSettings.maximumStatStage,
-			attackBuffMultiplier: src.BattleSettings.AtkBuffMultiplier,
-			defenseBuffMultiplier: src.BattleSettings.DefBuffMultiplier
+			attackBuffMultiplier: src.BattleSettings.attackBuffMultiplier,
+			defenseBuffMultiplier: src.BattleSettings.defenseBuffMultiplier
 		};
 	}
 
@@ -376,7 +376,7 @@ var Data = {
 		'dodgeDurationMs': 500,
 		'dodgeWindowMs': 700,
 		'swapDurationMs': 500,
-		'switchingCooldownDurationMs': 60000,
+		'quickSwapCooldownDurationMs': 60000,
 		'arenaEntryLagMs': 3000,
 		'arenaEarlyTerminationMs': 3000,
 		'fastMoveLagMs': 25,
@@ -392,8 +392,8 @@ var Data = {
 		'sameTypeAttackBonusMultiplier': 1.2,
 		'weatherAttackBonusMultiplier': 1.2,
 		'PvPAttackBonusMultiplier': 1.3,
-		'AtkBuffMultiplier': [0.5, 0.5714286, 0.66666669, 0.8, 1.0, 1.25, 1.5, 1.75, 2],
-		'DefBuffMultiplier': [0.5, 0.5714286, 0.66666669, 0.8, 1.0, 1.25, 1.5, 1.75, 2],
+		'attackBuffMultiplier': [0.5, 0.5714286, 0.66666669, 0.8, 1.0, 1.25, 1.5, 1.75, 2],
+		'defenseBuffMultiplier': [0.5, 0.5714286, 0.66666669, 0.8, 1.0, 1.25, 1.5, 1.75, 2],
 		'minimumStatStage': -4,
 		'maximumStatStage': 4,
 

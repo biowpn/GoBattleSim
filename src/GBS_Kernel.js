@@ -1257,10 +1257,10 @@ Battle.prototype.handleEffect = function (event) {
 		let effect = move.effect;
 		if (effect.name == "StatMod") {
 			let target = subject.master.rivals[0].getHead();
-			subject.buffStat("Atk", effect.self_attack_stage_delta, Battle.bdata.minimumStatStage, Battle.bdata["AtkBuffMultiplier"]);
-			subject.buffStat("Def", effect.self_defense_stage_delta, Battle.bdata.minimumStatStage, Battle.bdata["DefBuffMultiplier"]);
-			target.buffStat("Atk", effect.target_attack_stage_delta, Battle.bdata.minimumStatStage, Battle.bdata["AtkBuffMultiplier"]);
-			target.buffStat("Def", effect.target_defense_stage_delta, Battle.bdata.minimumStatStage, Battle.bdata["DefBuffMultiplier"]);
+			subject.buffStat("Atk", effect.self_attack_stage_delta, Battle.bdata.minimumStatStage, Battle.bdata["attackBuffMultiplier"]);
+			subject.buffStat("Def", effect.self_defense_stage_delta, Battle.bdata.minimumStatStage, Battle.bdata["defenseBuffMultiplier"]);
+			target.buffStat("Atk", effect.target_attack_stage_delta, Battle.bdata.minimumStatStage, Battle.bdata["attackBuffMultiplier"]);
+			target.buffStat("Def", effect.target_defense_stage_delta, Battle.bdata.minimumStatStage, Battle.bdata["defenseBuffMultiplier"]);
 		}
 	}
 }
@@ -1296,7 +1296,7 @@ Battle.prototype.handleSwitch = function (event) {
 	event.object = player.getHead();
 	if (event.object.id == subject.id)
 		return;
-	player.switchingCooldownExpiration = this.t + Battle.bdata.switchingCooldownDurationMs;
+	player.switchingCooldownExpiration = this.t + Battle.bdata.quickSwapCooldownDurationMs;
 	this.handleEnter(event);
 }
 
