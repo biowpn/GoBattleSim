@@ -1,17 +1,6 @@
 /**
-	@file Extension tools
-*/
-
-/*
-	Module interface functions
-*/
-
-
-/*
-	Non-interface members
-*/
-var sampleConfigurations = [{ "players": [{ "team": "0", "friend": "none", "parties": [{ "name": "", "pokemon": [{ "name": "Machamp", "role": "a", "copies": 6, "level": "40", "stmiv": "15", "atkiv": "15", "defiv": "15", "fmove": "Counter", "cmove": "Dynamic Punch", "strategy": "ATTACKER_NO_DODGE" }], "revive": false }] }, { "team": "1", "friend": "none", "parties": [{ "name": "", "pokemon": [{ "name": "Blissey", "role": "gd", "copies": 1, "level": "40", "stmiv": "15", "atkiv": "15", "defiv": "15", "fmove": "Zen Headbutt", "cmove": "Dazzling Gleam", "strategy": "DEFENDER" }, { "name": "Chansey", "role": "gd", "copies": 1, "level": "40", "stmiv": "15", "atkiv": "15", "defiv": "15", "fmove": "Zen Headbutt", "cmove": "Dazzling Gleam", "strategy": "DEFENDER" }, { "name": "Snorlax", "role": "gd", "copies": 1, "level": "40", "stmiv": "15", "atkiv": "15", "defiv": "15", "fmove": "Zen Headbutt", "cmove": "Body Slam", "strategy": "DEFENDER" }, { "name": "Tyranitar", "role": "gd", "copies": 1, "level": "40", "stmiv": "15", "atkiv": "15", "defiv": "15", "fmove": "Smack Down", "cmove": "Stone Edge", "strategy": "DEFENDER" }, { "name": "Lapras", "role": "gd", "copies": 1, "level": "40", "stmiv": "15", "atkiv": "15", "defiv": "15", "fmove": "Frost Breath", "cmove": "Ice Beam", "strategy": "DEFENDER" }, { "name": "Milotic", "role": "gd", "copies": 1, "level": "40", "stmiv": "15", "atkiv": "15", "defiv": "15", "fmove": "Waterfall", "cmove": "Surf", "strategy": "DEFENDER" }], "revive": false }] }], "battleMode": "gym", "timelimit": 100000, "weather": "EXTREME", "numSims": 1, "aggregation": "enum" }, { "players": [{ "team": "0", "friend": "none", "parties": [{ "name": "", "pokemon": [{ "name": "Moltres", "role": "a", "copies": 6, "level": "40", "stmiv": "15", "atkiv": "15", "defiv": "15", "fmove": "Fire Spin", "cmove": "Sky Attack", "strategy": "ATTACKER_NO_DODGE" }], "revive": false }] }, { "team": "1", "friend": "none", "parties": [{ "name": "", "pokemon": [{ "name": "Machamp", "role": "rb", "copies": 1, "raidTier": "3", "fmove": "Bullet Punch", "cmove": "Heavy Slam", "strategy": "DEFENDER" }], "revive": false }] }], "battleMode": "raid", "timelimit": 180000, "weather": "EXTREME", "numSims": 1, "aggregation": "enum" }, { "players": [{ "team": "0", "friend": "ultra", "parties": [{ "name": "", "pokemon": [{ "name": "Tyranitar", "role": "a", "copies": 6, "level": "40", "stmiv": "15", "atkiv": "15", "defiv": "15", "fmove": "Smack Down", "cmove": "Stone Edge", "strategy": "ATTACKER_NO_DODGE" }], "revive": true }] }, { "team": "0", "friend": "ultra", "parties": [{ "name": "", "pokemon": [{ "name": "Tyranitar", "role": "a", "copies": 6, "level": "40", "stmiv": "15", "atkiv": "15", "defiv": "15", "fmove": "Smack Down", "cmove": "Stone Edge", "strategy": "ATTACKER_NO_DODGE" }], "revive": true }] }, { "team": "1", "friend": "none", "parties": [{ "name": "", "pokemon": [{ "name": "Ho-oh", "role": "rb", "copies": 1, "raidTier": "5", "fmove": "Steel Wing", "cmove": "Solar Beam", "strategy": "DEFENDER" }], "revive": false }] }], "battleMode": "raid", "timelimit": 300000, "weather": "PARTLY_CLOUDY", "numSims": 100, "aggregation": "avrg" }, { "players": [{ "team": "0", "friend": "none", "parties": [{ "name": "", "pokemon": [{ "name": "Latios", "role": "a", "copies": 1, "level": 40, "atkiv": 15, "defiv": 15, "stmiv": 15, "fmove": "Dragon Breath", "cmove": "Dragon Claw", "cmove2": "Solar Beam", "strategy2": "" }], "revive": false }] }, { "team": "1", "friend": "none", "parties": [{ "name": "", "pokemon": [{ "name": "Latias", "role": "a", "copies": 1, "level": 40, "atkiv": 15, "defiv": 15, "stmiv": 15, "fmove": "Dragon Breath", "cmove": "Outrage", "cmove2": "Thunder", "strategy2": "" }], "revive": false }] }], "battleMode": "pvp", "timelimit": 240000, "weather": "EXTREME", "numSims": 1, "aggregation": "enum" }, { "players": [{ "team": "0", "friend": "ultra", "parties": [{ "name": "", "pokemon": [{ "name": "*$", "role": "a", "copies": 6, "level": "", "stmiv": "", "atkiv": "", "defiv": "", "fmove": "", "cmove": "", "strategy": "ATTACKER_NO_DODGE" }], "revive": false }] }, { "team": "1", "friend": "none", "parties": [{ "name": "", "pokemon": [{ "name": "Mewtwo", "role": "rb", "copies": 1, "raidTier": "6", "fmove": "?current", "cmove": "?current", "strategy": "DEFENDER" }], "revive": false }] }], "battleMode": "raid", "timelimit": 300000, "weather": "EXTREME", "numSims": 20, "aggregation": "avrg" }, { "players": [{ "team": "0", "friend": "ultra", "parties": [{ "name": "", "pokemon": [{ "name": "Machamp", "role": "a", "copies": 6, "level": "*30-40", "stmiv": "15", "atkiv": "15", "defiv": "15", "fmove": "Counter", "cmove": "Dynamic Punch", "strategy": "ATTACKER_NO_DODGE" }], "revive": false }] }, { "team": "0", "friend": "ultra", "parties": [{ "name": "", "pokemon": [{ "name": "Machamp", "role": "a", "copies": 6, "level": "=1-1-1", "stmiv": "15", "atkiv": "15", "defiv": "15", "fmove": "Counter", "cmove": "Dynamic Punch", "strategy": "ATTACKER_NO_DODGE" }], "revive": false }] }, { "team": "1", "friend": "none", "parties": [{ "name": "", "pokemon": [{ "name": "Tyranitar", "role": "rb", "copies": 1, "raidTier": "4", "fmove": "Bite", "cmove": "Crunch", "strategy": "DEFENDER" }], "revive": false }] }], "battleMode": "raid", "timelimit": 180000, "weather": "EXTREME", "numSims": 200, "aggregation": "avrg" }, { "players": [{ "team": "0", "friend": "none", "parties": [{ "name": "", "pokemon": [{ "name": "!evolve & !$", "role": "a", "copies": 1, "level": "40", "stmiv": "15", "atkiv": "15", "defiv": "15", "fmove": "*fire & (current, legacy, exclusive)", "cmove": "*fire & (current, legacy, exclusive)", "strategy": "ATTACKER_NO_DODGE" }], "revive": false }] }, { "team": "1", "friend": "none", "parties": [{ "name": "", "pokemon": [{ "name": "Chansey", "role": "rb", "copies": 1, "raidTier": "5", "fmove": "Zen Headbutt", "cmove": "Dazzling Gleam", "strategy": "DEFENDER" }], "revive": false }] }], "battleMode": "raid", "timelimit": 300000, "weather": "EXTREME", "numSims": 100, "aggregation": "avrg" }];
-
+ * @file Extension tools
+ */
 
 
 function welcomeDialogInit() {
@@ -25,7 +14,6 @@ function welcomeDialogInit() {
 	});
 }
 
-
 function welcomeDialogSubmit(configIndex, advanced) {
 	UI.write(sampleConfigurations[configIndex] || {});
 	UI.refresh();
@@ -35,7 +23,6 @@ function welcomeDialogSubmit(configIndex, advanced) {
 		UI.sendFeedbackDialog('Nice choice! Now, review the configuration and click "GO" to start the simulation.');
 	}
 }
-
 
 function welcomeDialogRespond(resp) {
 	if (resp == 1) {
@@ -127,7 +114,6 @@ function moveEditFormInit() {
 	});
 }
 
-
 function moveEditFormSubmit() {
 	var moveInput = document.getElementById("moveEditForm-table");
 	var move = UI.read(moveInput);
@@ -160,7 +146,6 @@ function moveEditFormSubmit() {
 	GM.save();
 }
 
-
 function moveEditFormReset() {
 	GM.erase("fast_local");
 	GM.erase("charged_local");
@@ -172,7 +157,6 @@ function moveEditFormReset() {
 		}
 	});
 }
-
 
 function moveEditFormDelete() {
 	var moveType = $("#moveEditForm-table").find("[name=move-moveType]").val();
@@ -239,7 +223,6 @@ function pokemonEditFormInit() {
 	}).autocomplete("instance")._renderItem = _renderAutocompletePokemonItem;
 }
 
-
 function pokemonEditFormSubmit() {
 	var pokemonInput = document.getElementById("pokemonEditForm-table");
 
@@ -289,7 +272,6 @@ function pokemonEditFormSubmit() {
 	GM.save();
 }
 
-
 function pokemonEditFormReset() {
 	GM.erase("pokemon_local");
 	GM.save();
@@ -301,7 +283,6 @@ function pokemonEditFormReset() {
 		}
 	});
 }
-
 
 function pokemonEditFormDelete() {
 	var pokemonName = $("#pokemonEditForm-table").find("[name=pokemon-name]").val();
@@ -337,7 +318,6 @@ function parameterEditFormRefresh() {
 	});
 }
 
-
 function parameterEditFormSubmit() {
 	var EDITABLE_PARAMETERS = {};
 	var error_params = [];
@@ -356,7 +336,6 @@ function parameterEditFormSubmit() {
 	}
 	UI.sendFeedbackDialog("Battle settings have been updated");
 }
-
 
 function parameterEditFormReset() {
 	GM.erase("BattleSettings_local");
@@ -389,7 +368,6 @@ function userEditFormInit() {
 	});
 }
 
-
 function userEditFormAddUser() {
 	let userid = $("#userEditForm-userID-1").val().trim();
 	GM.invalidate();
@@ -403,7 +381,6 @@ function userEditFormAddUser() {
 	});
 }
 
-
 function userEditFormRemoveUser() {
 	var userID = document.getElementById('userEditForm-userID-1').value.trim();
 	if (GM.get("user", userID) != null) {
@@ -414,7 +391,6 @@ function userEditFormRemoveUser() {
 		UI.sendFeedbackDialog("No user with ID " + userID + " was found");
 	}
 }
-
 
 function updateUserTable() {
 	var table = document.getElementById('userEditForm-userTable');
@@ -427,7 +403,6 @@ function updateUserTable() {
 		], 'td'));
 	});
 }
-
 
 function updateBoxTable(uid) {
 	document.getElementById('boxEditForm-title').innerHTML = "User ID: " + uid;
@@ -478,7 +453,6 @@ function modEditFormInit() {
 	});
 }
 
-
 function modEditFormSubmit() {
 	GM.invalidate();
 	GM.fetch({
@@ -517,7 +491,6 @@ function MVLTableSubmit() {
 	UI.wait(MVLTableCalculate);
 }
 
-
 function MVLTableCalculate() {
 	var baseConfig = UI.read();
 	baseConfig.aggregation = 'avrg';
@@ -541,7 +514,7 @@ function MVLTableCalculate() {
 	for (let config of configurations) {
 		let defendingPlayer = null;
 		for (let player of config.players) {
-			if (player.team == "1") {
+			if (player.team == "0") {
 				defendingPlayer = player;
 				break;
 			}
@@ -553,7 +526,7 @@ function MVLTableCalculate() {
 		};
 		for (let friendLevel of friends) {
 			for (let player of config.players) {
-				if (player.team == "0") {
+				if (player.team == "1") {
 					player.friend = friendLevel;
 				}
 			}
@@ -593,10 +566,9 @@ function MVLTableCalculate() {
 
 }
 
-
 function getWinRate(level, cfg) {
 	for (let player of cfg.players) {
-		if (player.team == "0") {
+		if (player.team == "1") {
 			for (let party of player.parties) {
 				for (let pokemon of party.pokemon) {
 					pokemon.level = level;
@@ -694,7 +666,6 @@ function teamBuilderInit() {
 
 }
 
-
 function teamBuilderSubmit(type) {
 	if (type == 0) {
 		teamBuilderPartyPermutationStats = {};
@@ -704,14 +675,13 @@ function teamBuilderSubmit(type) {
 	}
 }
 
-
 function teamBuilderReadConfig(numAttacker) {
 	var baseConfig = UI.read();
 
 	var baseAttackingPlayer = null;
 	var defendingPlayer = null;
 	for (let player of baseConfig.players) {
-		if (player.team == "1") {
+		if (player.team == "0") {
 			defendingPlayer = player;
 		} else {
 			baseAttackingPlayer = player;
@@ -732,7 +702,6 @@ function teamBuilderReadConfig(numAttacker) {
 
 	return baseConfig;
 }
-
 
 function teamBuilderCalculatePokemon() {
 	var baseConfig = teamBuilderReadConfig();
@@ -817,7 +786,6 @@ function teamBuilderCalculatePokemon() {
 	teamBuilderUpdatePartyStats();
 }
 
-
 function teamBuilderWritePartyTable(pokemonArr) {
 	var partyDT = $("#teamBuilder-partyTable").DataTable();
 	partyDT.clear();
@@ -833,7 +801,6 @@ function teamBuilderWritePartyTable(pokemonArr) {
 	}
 }
 
-
 function teamBuilderReadPartyTable() {
 	var partyDT = $("#teamBuilder-partyTable").DataTable();
 	var party = [];
@@ -848,7 +815,6 @@ function teamBuilderReadPartyTable() {
 	}
 	return party;
 }
-
 
 function teamBuilderCalculateParty() {
 	var baseConfig = teamBuilderReadConfig();
@@ -918,7 +884,6 @@ function teamBuilderCalculateParty() {
 	teamBuilderUpdatePartyStats();
 }
 
-
 function teamBuilderUpdatePartyStats() {
 	var partyDT = $("#teamBuilder-partyTable").DataTable();
 	var nids = [];
@@ -947,7 +912,6 @@ function teamBuilderUpdatePartyStats() {
 	document.getElementById("teamBuilder-optimalPartyDPS").innerHTML = round(curStats.dps, 2);
 	document.getElementById("teamBuilder-optimalPartyTDO").innerHTML = round(curStats.tdoPercent, 2) + "%";
 }
-
 
 function teamBuilderSaveParty() {
 	var namePostFix = 0;
@@ -1020,7 +984,6 @@ function typeCheckerInit() {
 		defensiveTable.appendChild(createRow(tr));
 	}
 }
-
 
 function typeCheckerSubmit() {
 	var maxMultiplier = 0, minMultiplier = 0;
@@ -1127,3 +1090,499 @@ function typeCheckerSubmit() {
 	}
 }
 
+var sampleConfigurations = [
+	{
+		"players": [
+			{
+				"team": "1",
+				"friend": "none",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "Machamp",
+								"role": "a",
+								"copies": 6,
+								"level": "40",
+								"stmiv": "15",
+								"atkiv": "15",
+								"defiv": "15",
+								"fmove": "Counter",
+								"cmove": "Dynamic Punch",
+								"strategy": "ATTACKER_NO_DODGE"
+							}
+						],
+						"revive": false
+					}
+				]
+			},
+			{
+				"team": "0",
+				"friend": "none",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "Blissey",
+								"role": "gd",
+								"copies": 1,
+								"level": "40",
+								"stmiv": "15",
+								"atkiv": "15",
+								"defiv": "15",
+								"fmove": "Zen Headbutt",
+								"cmove": "Dazzling Gleam",
+								"strategy": "DEFENDER"
+							},
+							{
+								"name": "Chansey",
+								"role": "gd",
+								"copies": 1,
+								"level": "40",
+								"stmiv": "15",
+								"atkiv": "15",
+								"defiv": "15",
+								"fmove": "Zen Headbutt",
+								"cmove": "Dazzling Gleam",
+								"strategy": "DEFENDER"
+							},
+							{
+								"name": "Snorlax",
+								"role": "gd",
+								"copies": 1,
+								"level": "40",
+								"stmiv": "15",
+								"atkiv": "15",
+								"defiv": "15",
+								"fmove": "Zen Headbutt",
+								"cmove": "Body Slam",
+								"strategy": "DEFENDER"
+							},
+							{
+								"name": "Tyranitar",
+								"role": "gd",
+								"copies": 1,
+								"level": "40",
+								"stmiv": "15",
+								"atkiv": "15",
+								"defiv": "15",
+								"fmove": "Smack Down",
+								"cmove": "Stone Edge",
+								"strategy": "DEFENDER"
+							},
+							{
+								"name": "Lapras",
+								"role": "gd",
+								"copies": 1,
+								"level": "40",
+								"stmiv": "15",
+								"atkiv": "15",
+								"defiv": "15",
+								"fmove": "Frost Breath",
+								"cmove": "Ice Beam",
+								"strategy": "DEFENDER"
+							},
+							{
+								"name": "Milotic",
+								"role": "gd",
+								"copies": 1,
+								"level": "40",
+								"stmiv": "15",
+								"atkiv": "15",
+								"defiv": "15",
+								"fmove": "Waterfall",
+								"cmove": "Surf",
+								"strategy": "DEFENDER"
+							}
+						],
+						"revive": false
+					}
+				]
+			}
+		],
+		"battleMode": "gym",
+		"timelimit": 100000,
+		"weather": "EXTREME",
+		"numSims": 1,
+		"aggregation": "enum"
+	},
+	{
+		"players": [
+			{
+				"team": "1",
+				"friend": "none",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "Moltres",
+								"role": "a",
+								"copies": 6,
+								"level": "40",
+								"stmiv": "15",
+								"atkiv": "15",
+								"defiv": "15",
+								"fmove": "Fire Spin",
+								"cmove": "Sky Attack",
+								"strategy": "ATTACKER_NO_DODGE"
+							}
+						],
+						"revive": false
+					}
+				]
+			},
+			{
+				"team": "0",
+				"friend": "none",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "Machamp",
+								"role": "rb",
+								"copies": 1,
+								"raidTier": "3",
+								"fmove": "Bullet Punch",
+								"cmove": "Heavy Slam",
+								"strategy": "DEFENDER"
+							}
+						],
+						"revive": false
+					}
+				]
+			}
+		],
+		"battleMode": "raid",
+		"timelimit": 180000,
+		"weather": "EXTREME",
+		"numSims": 1,
+		"aggregation": "enum"
+	},
+	{
+		"players": [
+			{
+				"team": "1",
+				"friend": "ultra",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "Tyranitar",
+								"role": "a",
+								"copies": 6,
+								"level": "40",
+								"stmiv": "15",
+								"atkiv": "15",
+								"defiv": "15",
+								"fmove": "Smack Down",
+								"cmove": "Stone Edge",
+								"strategy": "ATTACKER_NO_DODGE"
+							}
+						],
+						"revive": true
+					}
+				]
+			},
+			{
+				"team": "1",
+				"friend": "ultra",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "Tyranitar",
+								"role": "a",
+								"copies": 6,
+								"level": "40",
+								"stmiv": "15",
+								"atkiv": "15",
+								"defiv": "15",
+								"fmove": "Smack Down",
+								"cmove": "Stone Edge",
+								"strategy": "ATTACKER_NO_DODGE"
+							}
+						],
+						"revive": true
+					}
+				]
+			},
+			{
+				"team": "0",
+				"friend": "none",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "Ho-oh",
+								"role": "rb",
+								"copies": 1,
+								"raidTier": "5",
+								"fmove": "Steel Wing",
+								"cmove": "Solar Beam",
+								"strategy": "DEFENDER"
+							}
+						],
+						"revive": false
+					}
+				]
+			}
+		],
+		"battleMode": "raid",
+		"timelimit": 300000,
+		"weather": "PARTLY_CLOUDY",
+		"numSims": 100,
+		"aggregation": "avrg"
+	},
+	{
+		"players": [
+			{
+				"team": "1",
+				"friend": "none",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "Latios",
+								"role": "a",
+								"copies": 1,
+								"level": 40,
+								"atkiv": 15,
+								"defiv": 15,
+								"stmiv": 15,
+								"fmove": "Dragon Breath",
+								"cmove": "Dragon Claw",
+								"cmove2": "Solar Beam",
+								"strategy2": ""
+							}
+						],
+						"revive": false
+					}
+				]
+			},
+			{
+				"team": "0",
+				"friend": "none",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "Latias",
+								"role": "a",
+								"copies": 1,
+								"level": 40,
+								"atkiv": 15,
+								"defiv": 15,
+								"stmiv": 15,
+								"fmove": "Dragon Breath",
+								"cmove": "Outrage",
+								"cmove2": "Thunder",
+								"strategy2": ""
+							}
+						],
+						"revive": false
+					}
+				]
+			}
+		],
+		"battleMode": "pvp",
+		"timelimit": 240000,
+		"weather": "EXTREME",
+		"numSims": 1,
+		"aggregation": "enum"
+	},
+	{
+		"players": [
+			{
+				"team": "1",
+				"friend": "ultra",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "*$",
+								"role": "a",
+								"copies": 6,
+								"level": "",
+								"stmiv": "",
+								"atkiv": "",
+								"defiv": "",
+								"fmove": "",
+								"cmove": "",
+								"strategy": "ATTACKER_NO_DODGE"
+							}
+						],
+						"revive": false
+					}
+				]
+			},
+			{
+				"team": "0",
+				"friend": "none",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "Mewtwo",
+								"role": "rb",
+								"copies": 1,
+								"raidTier": "6",
+								"fmove": "?current",
+								"cmove": "?current",
+								"strategy": "DEFENDER"
+							}
+						],
+						"revive": false
+					}
+				]
+			}
+		],
+		"battleMode": "raid",
+		"timelimit": 300000,
+		"weather": "EXTREME",
+		"numSims": 20,
+		"aggregation": "avrg"
+	},
+	{
+		"players": [
+			{
+				"team": "1",
+				"friend": "ultra",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "Machamp",
+								"role": "a",
+								"copies": 6,
+								"level": "*30-40",
+								"stmiv": "15",
+								"atkiv": "15",
+								"defiv": "15",
+								"fmove": "Counter",
+								"cmove": "Dynamic Punch",
+								"strategy": "ATTACKER_NO_DODGE"
+							}
+						],
+						"revive": false
+					}
+				]
+			},
+			{
+				"team": "1",
+				"friend": "ultra",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "Machamp",
+								"role": "a",
+								"copies": 6,
+								"level": "=1-1-1",
+								"stmiv": "15",
+								"atkiv": "15",
+								"defiv": "15",
+								"fmove": "Counter",
+								"cmove": "Dynamic Punch",
+								"strategy": "ATTACKER_NO_DODGE"
+							}
+						],
+						"revive": false
+					}
+				]
+			},
+			{
+				"team": "0",
+				"friend": "none",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "Tyranitar",
+								"role": "rb",
+								"copies": 1,
+								"raidTier": "4",
+								"fmove": "Bite",
+								"cmove": "Crunch",
+								"strategy": "DEFENDER"
+							}
+						],
+						"revive": false
+					}
+				]
+			}
+		],
+		"battleMode": "raid",
+		"timelimit": 180000,
+		"weather": "EXTREME",
+		"numSims": 200,
+		"aggregation": "avrg"
+	},
+	{
+		"players": [
+			{
+				"team": "1",
+				"friend": "none",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "!evolve & !$",
+								"role": "a",
+								"copies": 1,
+								"level": "40",
+								"stmiv": "15",
+								"atkiv": "15",
+								"defiv": "15",
+								"fmove": "*fire & (current, legacy, exclusive)",
+								"cmove": "*fire & (current, legacy, exclusive)",
+								"strategy": "ATTACKER_NO_DODGE"
+							}
+						],
+						"revive": false
+					}
+				]
+			},
+			{
+				"team": "0",
+				"friend": "none",
+				"parties": [
+					{
+						"name": "",
+						"pokemon": [
+							{
+								"name": "Chansey",
+								"role": "rb",
+								"copies": 1,
+								"raidTier": "5",
+								"fmove": "Zen Headbutt",
+								"cmove": "Dazzling Gleam",
+								"strategy": "DEFENDER"
+							}
+						],
+						"revive": false
+					}
+				]
+			}
+		],
+		"battleMode": "raid",
+		"timelimit": 300000,
+		"weather": "EXTREME",
+		"numSims": 100,
+		"aggregation": "avrg"
+	}
+];

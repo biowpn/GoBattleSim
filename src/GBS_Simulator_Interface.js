@@ -487,7 +487,7 @@ function generateEngineInputPvE(sim_input) {
 	for (let player of sim_input["players"]) {
 		let mini_player = {
 			name: player.name || ("Player " + ++player_idx),
-			team: 1 - parseInt(player.team),
+			team: parseInt(player.team),
 			attack_multiplier: (GM.get("friend", player.friend) || {}).multiplier || 1.0,
 			parties: []
 		};

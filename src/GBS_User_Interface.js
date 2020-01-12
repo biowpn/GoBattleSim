@@ -556,7 +556,7 @@ function createPokemonRoleInput() {
 	roleInput.comply = function (kwargs) {
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym") {
-			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1") {
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "0") {
 				if (kwargs.battleMode == "raid") {
 					if (this.value.toLowerCase() != "rb") {
 						this.value = "rb";
@@ -594,7 +594,7 @@ function createPokemonCopiesInput() {
 	copiesInput.comply = function (kwargs) {
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym") {
-			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1") {
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "0") {
 				this.value = 1;
 				this.disabled = true;
 			}
@@ -616,7 +616,7 @@ function createPokemonRaidTierInput() {
 	}
 	raidTierInput.comply = function (kwargs) {
 		if (kwargs.battleMode == "raid") {
-			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1") {
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "0") {
 				var timelimitInput = document.getElementById("timelimit");
 				if (parseInt(this.value) <= 4) {
 					timelimitInput.value = GM.get("battle", "timelimitRaidMs", "battle");
@@ -644,7 +644,7 @@ function createPokemonStrategyInput() {
 	strategyInput.comply = function (kwargs) {
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym") {
-			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1") {
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "0") {
 				this.value = "DEFENDER";
 				this.disabled = true;
 			}
@@ -708,7 +708,7 @@ function createPartyNameInput() {
 	partyNameInput.comply = function (kwargs) {
 		if (kwargs.battleMode == "raid") {
 			$player = $(this).parents("[name=player]");
-			if ($player.find("[name=player-team]").val() == "1") {
+			if ($player.find("[name=player-team]").val() == "0") {
 				let pokemonNodes = $player.find("[name=party-pokemon]")[0];
 				while (pokemonNodes.children.length > 1) {
 					pokemonNodes.removeChild(pokemonNodes.lastChild);
@@ -791,7 +791,7 @@ function createPartyReviveCheckbox() {
 	reviveCheckbox.comply = function (kwargs) {
 		$(this).button("enable");
 		if (kwargs.battleMode == "raid") {
-			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1") {
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "0") {
 				this.checked = false;
 				$(this).button("refresh");
 				$(this).button("disable");
@@ -828,7 +828,7 @@ function createAddPokemonButton() {
 	addPokemonButton.comply = function (kwargs) {
 		$(this).button("enable");
 		if (kwargs.battleMode == "raid") {
-			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1") {
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "0") {
 				$(this).button("disable");
 			}
 		}
@@ -841,8 +841,8 @@ function createPlayerTeamInput() {
 	var playerTeamInput = createElement('select', '', {
 		style: 'width: 50%; display: inline-block; text-align: center;', name: "player-team"
 	});
-	playerTeamInput.appendChild(createElement('option', "Primary Team", { value: "0" }));
-	playerTeamInput.appendChild(createElement('option', "Opposite Team", { value: "1" }));
+	playerTeamInput.appendChild(createElement('option', "Primary Team", { value: "1" }));
+	playerTeamInput.appendChild(createElement('option', "Opposite Team", { value: "0" }));
 	playerTeamInput.onchange = function () {
 		/* TODO: Validation - different team
 		// Something buggy on this section of codes
@@ -864,7 +864,7 @@ function createPlayerTeamInput() {
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym") {
 			this.disabled = true;
 			var $playerNode = $(this).parents("[name=player]");
-			if ($playerNode.find("[name=player-team]").val() == "1" || kwargs.battleMode == "gym") {
+			if ($playerNode.find("[name=player-team]").val() == "0" || kwargs.battleMode == "gym") {
 				let partyNodes = $playerNode.find("[name=player-parties]")[0];
 				while (partyNodes.children.length > 1) {
 					partyNodes.removeChild(partyNodes.lastChild);
@@ -886,7 +886,7 @@ function createPlayerFriendInput() {
 	playerFriendInput.comply = function (kwargs) {
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym") {
-			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1") {
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "0") {
 				this.value = "none";
 				this.disabled = true;
 			}
@@ -931,7 +931,7 @@ function createAddPartyButton() {
 	addPartyButton.comply = function (kwargs) {
 		$(this).button("enable");
 		if (kwargs.battleMode == "raid") {
-			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "1") {
+			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "0") {
 				$(this).button("disable");
 			}
 		} else if (kwargs.battleMode == "gym") {
@@ -960,7 +960,7 @@ function complyBattleMode(mode) {
 		let hasProcessedDefender = false;
 		for (var i = 0; i < playerNodes.children.length; i++) {
 			let playerNode = playerNodes.children[i];
-			if ($(playerNode).find("[name=player-team]").val() == "1") {
+			if ($(playerNode).find("[name=player-team]").val() == "0") {
 				if (hasProcessedDefender) {
 					playerNodes.removeChild(playerNode);
 				} else {

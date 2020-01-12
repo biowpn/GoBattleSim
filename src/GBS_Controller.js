@@ -60,7 +60,7 @@ App.init = function () {
 	$(playersNode).sortable({ axis: 'y' });
 	addPlayerNode();
 	addPlayerNode();
-	UI.write({ team: "1", parties: [{ pokemon: [{ role: "rb" }] }] }, playersNode.children[1]);
+	UI.write({ team: "0", parties: [{ pokemon: [{ role: "rb" }] }] }, playersNode.children[1]);
 	//comply();
 
 	var weatherInput = $("#input").find("[name=input-weather]")[0];
