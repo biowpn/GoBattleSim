@@ -76,7 +76,7 @@ GBS.request = function (input) {
 	var sims = [];
 	var parsed_inputs = GBS.parse(input);
 	for (let sim_input of parsed_inputs) {
-		sims = sims.concat(processConfig(sim_input));
+		sims = sims.concat(runSimulations(sim_input));
 	}
 	return sims;
 }
@@ -536,7 +536,6 @@ function PokemonInput(kwargs) {
 	this.cmoves = Object.values(cmoves).map(generateEngineMove);
 }
 
-
 /**
  * generate GBS engine input from parsed user input.
  * 
@@ -554,7 +553,6 @@ function generateEngineInput(sim_input) {
 		throw new Error("unknown battle mode: " + sim_input.toString());
 	}
 }
-
 
 function generateEngineInputPvE(sim_input) {
 	var out = {
@@ -680,10 +678,11 @@ function generateByPlayerStats(sim_input, sim_output) {
 
 
 /**
-	The CP formula, calculating the current CP of a Pokemon.
-	@param {Object|Pokemon} pkm The Pokemon to calculate CP for. Expected to have Atk, Def and Stm. If not, then must have base stats, IV stats and cpm/level.
-	@return {number} The CP value
-*/
+ * The CP formula, calculating the current CP of a Pokemon.
+ * 
+ * @param {Object|Pokemon} pkm The Pokemon to calculate CP for. Expected to have Atk, Def and Stm. If not, then must have base stats, IV stats and cpm/level.
+ * @return {number} The CP value
+ */
 function calculateCP(pkm) {
 	var cpm = parseFloat(pkm.cpm);
 	var atk = pkm.Atk || (pkm.baseAtk + pkm.atkiv) * cpm;
@@ -693,12 +692,13 @@ function calculateCP(pkm) {
 }
 
 /**
-	Find a combination of {level, atkiv, defiv, stmiv} that yields the target CP for a Pokemon.
-	@param {Pokemon} pkm The Pokemon to infer level and IVs for. Expected to have baseAtk, baseDef and baseStm.
-	@param {number} cp The target CP.
-	@param {boolean} exact If no combination yields the target CP, it return the combination that gets the closest but is less than the target CP.
-	@return {Object} A combination that yields the target CP.
-*/
+ * Find a combination of {level, atkiv, defiv, stmiv} that yields the target CP for a Pokemon.
+ * 
+ * @param {Pokemon} pkm The Pokemon to infer level and IVs for. Must have {baseAtk, baseDef, baseStm}. Optionally {level} or {cpm}.
+ * @param {number} cp The target CP.
+ * @param {boolean} exact If set true, will only return combination that yields the exact CP (null if no combination found).
+ * @return {Object} A combination
+ */
 function inferLevelAndIVs(pkm, cp, exact) {
 	var pkm2 = { baseAtk: pkm.baseAtk, baseDef: pkm.baseDef, baseStm: pkm.baseStm };
 
@@ -737,13 +737,10 @@ function inferLevelAndIVs(pkm, cp, exact) {
 	pkm2.atkiv = pkm2.defiv = pkm2.stmiv = 15;
 	for (var i = 0; i < levels.length; i++) {
 		pkm2.cpm = levels[i].cpm;
-		if (calculateCP(pkm2) <= cp)
-			minLevelIndex = i;
-		else
-			break;
+		if (calculateCP(pkm2) <= cp) { minLevelIndex = i; }
+		else { break; }
 	};
-	if (minLevelIndex == null)
-		return null;
+	if (minLevelIndex == null) { return null; }
 
 	let pkm3 = { cpm: levels[0].cpm, level: levels[0].name, atkiv: 0, defiv: 0, stmiv: 0 };
 	for (var i = minLevelIndex; i < levels.length; i++) {
@@ -769,8 +766,9 @@ function inferLevelAndIVs(pkm, cp, exact) {
 			}
 		}
 	}
-	if (!exact)
+	if (!exact) {
 		return pkm3;
+	}
 }
 
 
@@ -780,11 +778,17 @@ function getPokemonConfig(cfg, address) {
 	return cfg.players[i].parties[j].pokemon[k];
 }
 
-function processConfig(sim_input) {
+/**
+ * Given a parsed sim input, do the simulations.
+ * 
+ * @param {*} sim_input Parsed simulation input (must map to specific items)
+ * @return list of complete simulation objects (containing {input, output})
+ */
+function runSimulations(sim_input) {
 	let sims = [];
 	if (Array.isArray(sim_input)) {
 		for (let subInput of sim_input) {
-			sims = sims.concat(processConfig(subInput));
+			sims = sims.concat(runSimulations(subInput));
 		}
 		return [GBS.average(sims)];
 	} else {

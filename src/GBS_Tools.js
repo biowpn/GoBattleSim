@@ -576,7 +576,7 @@ function getWinRate(level, cfg) {
 			}
 		}
 	}
-	return parseFloat(processConfig(cfg)[0].output.statistics.win);
+	return parseFloat(runSimulations(cfg)[0].output.statistics.win);
 }
 
 
@@ -739,7 +739,7 @@ function teamBuilderCalculatePokemon() {
 		bestParty.pokemon = [pokemon];
 		let intermediateSimResults = [];
 		for (let config of GBS.parse(baseConfig)) {
-			intermediateSimResults = intermediateSimResults.concat(processConfig(config));
+			intermediateSimResults = intermediateSimResults.concat(runSimulations(config));
 		}
 		var avrgSim = GBS.average(intermediateSimResults);
 		pokemon.dps = round(avrgSim.output.statistics.dps / numAttacker, 3);
@@ -863,7 +863,7 @@ function teamBuilderCalculateParty() {
 		bestParty.pokemon = permutation;
 		let intermediateSimResults = [];
 		for (let config of GBS.parse(baseConfig)) {
-			intermediateSimResults = intermediateSimResults.concat(processConfig(config));
+			intermediateSimResults = intermediateSimResults.concat(runSimulations(config));
 		}
 		let curStats = GBS.average(intermediateSimResults).output.statistics;
 		curStats.dps = curStats.dps / numAttacker;
@@ -902,7 +902,7 @@ function teamBuilderUpdatePartyStats() {
 		bestParty.pokemon = teamBuilderReadPartyTable();
 		let intermediateSimResults = [];
 		for (let config of GBS.parse(baseConfig)) {
-			intermediateSimResults = intermediateSimResults.concat(processConfig(config));
+			intermediateSimResults = intermediateSimResults.concat(runSimulations(config));
 		}
 		curStats = GBS.average(intermediateSimResults).output.statistics;
 		curStats.dps = curStats.dps / numAttacker;
