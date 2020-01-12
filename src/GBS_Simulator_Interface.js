@@ -359,7 +359,7 @@ function setProperty(json, path, value) {
 }
 
 function deepCopy(dst, src) {
-	for (let attr of Object.keys(src)) {
+	for (let attr of Object.keys(src || {})) {
 		if (Array.isArray(src[attr])) {
 			dst[attr] = [];
 			deepCopy(dst[attr], src[attr]);
@@ -610,7 +610,9 @@ function generateEngineInputPvP(sim_input) {
 				if (out.pokemon.length >= 2) {
 					throw new Error("cannot have more than 2 Pokemon");
 				}
-				out.pokemon.push(new PokemonInput(pkm));
+				let engine_pkm = new PokemonInput(pkm);
+				delete engine_pkm.strategy;
+				out.pokemon.push(engine_pkm);
 				out.strategies.push(pkm.strategy);
 				out.numShields.push(parseInt(pkm.shields));
 			}
@@ -628,7 +630,7 @@ function generateEngineInputPvP(sim_input) {
  */
 function generateByPlayerStats(sim_input, sim_output) {
 	// input
-	var players = sim_input.players;
+	var players = sim_input.players || [];
 	var pokemon_stats = sim_output.pokemon;
 	var overall_stats = sim_output.statistics;
 

@@ -237,7 +237,7 @@ UI.updateSimulationDetails = function (battle) {
 UI.exportConfig = function (battleInput) {
 	// Delete redundant attributes to shorten the URL
 	var battleInputMin = {};
-	$.extend(battleInputMin, battleInput);
+	deepCopy(battleInputMin, battleInput);
 	for (let player of battleInputMin.players || []) {
 		for (var attr in player) {
 			if (!player[attr]) {
@@ -1420,7 +1420,15 @@ function createBattleLogTable(data) {
  */
 function convertEngineBattleLog(sim_input, engine_log) {
 	var out_table = [];
-	var num_players = sim_input.players.length;
+	var num_players = 0;
+	if (sim_input.players) {
+		num_players = sim_input.players.length;
+	}
+	else if (sim_input.pokemon) {
+		num_players = sim_input.pokemon.length;
+	} else {
+		throw new Error("cannot determine players/pokemon");
+	}
 
 	// first establish pokemon mapping, since engine log only has pokemon id
 	var pkm_map = {};
@@ -1428,18 +1436,24 @@ function convertEngineBattleLog(sim_input, engine_log) {
 	var head_pkm_list = Array(num_players);
 	// also, prepare header row
 	var header_row = ["Time"];
-
 	let pkm_idx = 0;
-	for (let player of sim_input.players) {
-		for (let party of player.parties) {
-			for (let pkm of party.pokemon) {
-				for (let i = 0; i < pkm.copies; ++i) {
-					pkm_map[pkm_idx] = pkm;
-					++pkm_idx;
+	if (sim_input.players) {
+		for (let player of sim_input.players) {
+			for (let party of player.parties) {
+				for (let pkm of party.pokemon) {
+					for (let i = 0; i < pkm.copies; ++i) {
+						pkm_map[pkm_idx++] = pkm;
+					}
 				}
 			}
+			header_row.push(player.name);
 		}
-		header_row.push(player.name);
+	}
+	else {
+		for (let pkm of sim_input.pokemon) {
+			pkm_map[pkm_idx++] = pkm;
+			header_row.push("Pokemon " + pkm_idx);
+		}
 	}
 	out_table.push(header_row);
 
@@ -1448,33 +1462,43 @@ function convertEngineBattleLog(sim_input, engine_log) {
 
 	function newLastRow() {
 		if (lastRow[0]) {
+			var non_empty = false;
 			for (let i = 1; i < num_players + 1; ++i) {
-				if (!lastRow[i]) {
+				if (lastRow[i]) {
+					non_empty = true;
+				}
+				else {
 					lastRow[i] = { style: "text", text: "" };
 				}
 			}
-			out_table.push(lastRow);
+			if (non_empty) { out_table.push(lastRow); }
 		}
 		lastRow = Array(num_players + 1);
 	}
 
 	function setLastRow(idx, item) {
+		// time
 		if (idx == 0) {
 			if (lastRow[0] && lastRow[0].text != item.text) {
 				newLastRow();
 			}
 		}
 		else if (lastRow[idx]) {
+			let time_item = lastRow[0];
 			newLastRow();
+			lastRow[0] = time_item;
 		}
 		lastRow[idx] = item;
 	}
 
 	// the main loop, scan through each battle log entry
 	for (let event of engine_log) {
+		if (sim_input.battleMode != "pvp") {
+			event.time = round(event.time / 1000, 2);
+		}
 		setLastRow(0, {
 			style: "text",
-			text: round(event.time / 1000, 2).toString()
+			text: event.time.toString()
 		});
 		let col_idx = event.player + 1;
 		let head_pkm = head_pkm_list[event.player];
@@ -1507,14 +1531,20 @@ function convertEngineBattleLog(sim_input, engine_log) {
 				text: "Dodge"
 			});
 		}
-		else if (event.type == "Enter") {
+		else if (event.type == "Effect") {
+			setLastRow(col_idx, {
+				style: "text",
+				text: "Effect Activated"
+			});
+		}
+		else if (event.type == "Enter" || event.type == "Exit") {
 			head_pkm = Object.assign({}, pkm_map[event.value]);
 			head_pkm.hp = head_pkm.maxHP;
 			head_pkm_list[event.player] = head_pkm;
 			let pkm_info = GM.get("pokemon", head_pkm.name.toLowerCase());
 			setLastRow(col_idx, {
 				style: "pokemon",
-				text: pkm_info.label,
+				text: (event.type == "Enter" ? pkm_info.label : "[Exit]"),
 				icon: pkm_info.icon
 			});
 		}
