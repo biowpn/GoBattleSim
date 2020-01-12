@@ -271,8 +271,51 @@ GBS.mode = function (mode) {
  * Non-interface members
  */
 
-var DefaultSummaryMetrics = { win: 'Outcome', duration: 'Time', tdoPercent: 'TDO%', dps: 'DPS', numDeaths: '#Death' };
+var DefaultSummaryMetrics = {
+	win: 'Outcome',
+	duration: 'Time',
+	tdoPercent: 'TDO%',
+	dps: 'DPS',
+	numDeaths: '#Death'
+};
+
 var AdditionalSummaryMetrics = {};
+
+var AttributeDefinition = [
+	{
+		name: "name",
+		dbname: "pokemon_all",
+		default: "latios"
+	}, {
+		name: "level",
+		dbname: "level",
+		default: "40"
+	}, {
+		name: "atkiv",
+		dbname: "IndividualValues",
+		default: "15"
+	}, {
+		name: "defiv",
+		dbname: "IndividualValues",
+		default: "15"
+	}, {
+		name: "stmiv",
+		dbname: "IndividualValues",
+		default: "15"
+	}, {
+		name: "fmove",
+		dbname: "fast",
+		default: "current, legacy, exclusive"
+	}, {
+		name: "cmove",
+		dbname: "charged",
+		default: "current, legacy, exclusive"
+	}, {
+		name: "cmove2",
+		dbname: "charged",
+		default: "=this.cmove"
+	}
+];
 
 
 // ugly hack for waiting till wasm ready
@@ -285,6 +328,47 @@ function tryTillSuccess(cb) {
 		setTimeout(function () {
 			tryTillSuccess(cb);
 		}, 500);
+	}
+}
+
+function traverseLeaf(json, callback, path) {
+	path = path || [];
+	if (typeof json == typeof "" || typeof json == typeof 0) {
+		callback(json, path);
+		return;
+	}
+	if (json) {
+		for (let key of Object.keys(json)) {
+			traverseLeaf(json[key], callback, path.concat([key]));
+		}
+	}
+}
+
+function getProperty(json, path) {
+	for (var i = 0; i < path.length; i++) {
+		json = json[path[i]];
+	}
+	return json;
+}
+
+function setProperty(json, path, value) {
+	for (var i = 0; i < path.length - 1; i++) {
+		json = json[path[i]];
+	}
+	json[path[path.length - 1]] = value;
+}
+
+function deepCopy(dst, src) {
+	for (let attr of Object.keys(src)) {
+		if (Array.isArray(src[attr])) {
+			dst[attr] = [];
+			deepCopy(dst[attr], src[attr]);
+		} else if (typeof src[attr] == typeof {}) {
+			dst[attr] = {};
+			deepCopy(dst[attr], src[attr]);
+		} else {
+			dst[attr] = src[attr];
+		}
 	}
 }
 
@@ -443,9 +527,9 @@ function PokemonInput(kwargs) {
 		if (kwargs.cmove2) {
 			if (typeof kwargs.cmove2 == typeof "") {
 				move = GM.get("charged", kwargs.cmove2.toLowerCase());
-			}
-			if (move) {
-				cmoves[move.name] = move;
+				if (move) {
+					cmoves[move.name] = move;
+				}
 			}
 		}
 	}
@@ -508,14 +592,30 @@ function generateEngineInputPvE(sim_input) {
 }
 
 function generateEngineInputPvP(sim_input) {
-	// For now, support 1v1 battle only
+	// For now, support Simple PvP Battle only
 	var out = {
 		battleMode: sim_input.battleMode,
-		timelimit: sim_input.timelimit,
+		timelimit: sim_input.timelimit / 500,
 		numSims: sim_input.numSims,
 		aggregation: sim_input.aggregation,
-		enableLog: (sim_input.aggregation == "enum")
+		enableLog: (sim_input.aggregation == "enum"),
+		pokemon: [],
+		strategies: [],
+		numShields: []
 	};
+
+	for (let player of sim_input.players) {
+		for (let party of player.parties) {
+			for (let pkm of party.pokemon) {
+				if (out.pokemon.length >= 2) {
+					throw new Error("cannot have more than 2 Pokemon");
+				}
+				out.pokemon.push(new PokemonInput(pkm));
+				out.strategies.push(pkm.strategy);
+				out.numShields.push(parseInt(pkm.shields));
+			}
+		}
+	}
 
 	return out;
 }
@@ -677,43 +777,6 @@ function getPokemonConfig(cfg, address) {
 	var i = parseInt(arr[0]) - 1, j = parseInt(arr[1]) - 1, k = parseInt(arr[2]) - 1; // indices start from 1 in address
 	return cfg.players[i].parties[j].pokemon[k];
 }
-
-var AttributeDefinition = [
-	{
-		name: "name",
-		dbname: "pokemon_all",
-		default: "latios"
-	}, {
-		name: "level",
-		dbname: "level",
-		default: "40"
-	}, {
-		name: "atkiv",
-		dbname: "IndividualValues",
-		default: "15"
-	}, {
-		name: "defiv",
-		dbname: "IndividualValues",
-		default: "15"
-	}, {
-		name: "stmiv",
-		dbname: "IndividualValues",
-		default: "15"
-	}, {
-		name: "fmove",
-		dbname: "fast",
-		default: "current, legacy, exclusive"
-	}, {
-		name: "cmove",
-		dbname: "charged",
-		default: "current, legacy, exclusive"
-	}, {
-		name: "cmove2",
-		dbname: "charged",
-		default: "=this.cmove"
-	}
-];
-
 
 function processConfig(sim_input) {
 	let sims = [];

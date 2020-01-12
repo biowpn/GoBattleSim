@@ -1360,7 +1360,7 @@ var sampleConfigurations = [
 								"fmove": "Dragon Breath",
 								"cmove": "Dragon Claw",
 								"cmove2": "Solar Beam",
-								"strategy2": ""
+								"strategy": "PVP_ADVANCE"
 							}
 						],
 						"revive": false
@@ -1385,7 +1385,7 @@ var sampleConfigurations = [
 								"fmove": "Dragon Breath",
 								"cmove": "Outrage",
 								"cmove2": "Thunder",
-								"strategy2": ""
+								"strategy": "PVP_ADVANCE"
 							}
 						],
 						"revive": false

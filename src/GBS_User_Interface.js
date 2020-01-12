@@ -305,12 +305,9 @@ var HSL_COLORS = [
 	['hsl(120, 60%, 90%)', 'hsl(120, 60%, 70%)', 'hsl(120, 60%, 50%)']
 ];
 
+var EngineStrategies = [];
 
 
-
-/**
- * Round the value.
- */
 function round(value, numDigits) {
 	var multiplier = Math.pow(10, parseInt(numDigits) || 0);
 	return Math.round(value * multiplier) / multiplier;
@@ -632,15 +629,15 @@ function createPokemonRaidTierInput() {
 
 function createPokemonStrategyInput() {
 	var strategyInput = createElement('select', '', { name: "pokemon-strategy" });
-	strategyInput.appendChild(createElement('option', 'No Dodge', { value: "ATTACKER_NO_DODGE" }));
-	strategyInput.appendChild(createElement('option', 'No Dodge Burst', { value: "ATTACKER_NO_DODGE_BURST" }));
-	strategyInput.appendChild(createElement('option', 'No Dodge Combo 1+N', { value: "ATTACKER_NO_DODGE_COMBO_1_PLUS_N" }));
-	strategyInput.appendChild(createElement('option', 'No Dodge Combo 2+N', { value: "ATTACKER_NO_DODGE_COMBO_2_PLUS_N" }));
-	strategyInput.appendChild(createElement('option', 'No Dodge Fast Only ', { value: "ATTACKER_NO_DODGE_FAST_ATTACK_ONLY" }));
-	strategyInput.appendChild(createElement('option', 'Dodge Charged', { value: "ATTACKER_DODGE_CHARGED" }));
-	strategyInput.appendChild(createElement('option', 'Dodge All', { value: "ATTACKER_DODGE_ALL" }));
-	strategyInput.appendChild(createElement('option', 'Defender AI', { value: "DEFENDER" }));
-	strategyInput.appendChild(createElement('option', 'PvP Basic', { value: "PVP_BASIC" }));
+
+	if (EngineStrategies.length == 0) {
+		let cfg = GBS.config();
+		EngineStrategies = cfg.PvEStrategies.concat(cfg.PvPStrategies);
+	}
+	for (let strat of EngineStrategies) {
+		strategyInput.appendChild(createElement('option', strat, { value: strat }));
+	}
+
 	strategyInput.comply = function (kwargs) {
 		this.disabled = false;
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym") {
