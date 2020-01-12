@@ -381,8 +381,8 @@ function generateEngineMove(move) {
 	emove.energy = move.energyDelta;
 	emove.duration = move.duration;
 	emove.dws = move.dws;
-	if (move.combat.effect) {
-		emove.effect = move.combat.effect;
+	if (move.effect) {
+		emove.effect = move.effect;
 	}
 	return emove;
 }
