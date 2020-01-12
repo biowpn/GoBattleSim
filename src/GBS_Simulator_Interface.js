@@ -312,7 +312,7 @@ function PokemonInput(kwargs) {
 	this.name = (kwargs.name !== undefined ? kwargs.name.toLowerCase() : undefined);
 	let species = GM.get("pokemon", this.name);
 	if (species == null) {
-		throw new Error("Cannot create Pokemon due to no species data");
+		throw new Error("no species data for " + this.name);
 	}
 	this.pokeType1 = species.pokeType1;
 	this.pokeType2 = species.pokeType2;
@@ -336,10 +336,10 @@ function PokemonInput(kwargs) {
 	stats.stamina = kwargs.Stm;
 
 	if (typeof this.attack == typeof 0 && typeof this.defense == typeof 0 && typeof this.maxHP == typeof 0) {
-		// If Atk, Def and Stm are all defined, then no need to look up species stats.
+		// 1.0 If attack, defense and maxHP are all defined, then we are good.
 	} else {
-		// Otherwise (at least one of {Atk, Def, Stm} is missing), need to calculate them using Stat = (baseStat + ivStat) * cpm;
-		// 1.1 Find baseAtk, baseDef and baseStm.
+		// Otherwise need to calculate them using [Stat = (baseStat + ivStat) * cpm]
+		// 1.1 Find baseAtk, baseDef, baseStm.
 		if (typeof kwargs.baseAtk == typeof 0 && typeof kwargs.baseDef == typeof 0 && typeof kwargs.baseStm == typeof 0) {
 			// If all of them are defined, then no need to look up species stats.
 			stats.baseAtk = kwargs.baseAtk;
@@ -350,9 +350,9 @@ function PokemonInput(kwargs) {
 			stats.baseDef = species.baseDef;
 			stats.baseStm = species.baseStm;
 		}
-		// 1.2 Unless the role of the Pokemon is "rb" (Raid Boss), need to find ivs
+		// 1.2 Find atkiv, defiv, stmiv
 		if (role == "rb") {
-			// For raid bosses, attack IV and defense IV are 15. maxHP and cpm are also defined.
+			// For raid bosses, atkiv and defiv are 15. maxHP and cpm are also defined based on their tier.
 			let raidTier = GM.get("RaidTierSettings", kwargs.raidTier);
 			if (raidTier == null) {
 				throw new Error("Raid Tier not found");
@@ -379,6 +379,7 @@ function PokemonInput(kwargs) {
 					throw new Error("No combination of IVs and level found");
 				}
 			} else {
+				// Fetch from input
 				stats.atkiv = parseInt(stats.atkiv) || 0;
 				stats.defiv = parseInt(stats.defiv) || 0;
 				stats.stmiv = parseInt(stats.stmiv) || 0;
@@ -386,7 +387,7 @@ function PokemonInput(kwargs) {
 		}
 		// 1.3 Find cpm
 		if (typeof stats.cpm == typeof 0) {
-			// cpm already defined (such as raid boss), do nothing
+			// cpm already defined in 1.2
 		} else if (typeof kwargs.cpm == typeof 0) {
 			stats.cpm = kwargs.cpm;
 		} else {
@@ -399,15 +400,9 @@ function PokemonInput(kwargs) {
 			stats.cpm = levelSetting.cpm;
 		}
 		// 1.4 With everything ready, calculate the three stats if necessary
-		if (typeof this.attack != typeof 0) {
-			this.attack = (stats.baseAtk + stats.atkiv) * stats.cpm;
-		}
-		if (typeof this.defense != typeof 0) {
-			this.defense = (stats.baseDef + stats.defiv) * stats.cpm;
-		}
-		if (typeof stats.stamina != typeof 0) {
-			stats.stamina = (stats.baseStm + stats.stmiv) * stats.cpm;
-		}
+		this.attack = (stats.baseAtk + stats.atkiv) * stats.cpm;
+		this.defense = (stats.baseDef + stats.defiv) * stats.cpm;
+		stats.stamina = (stats.baseStm + stats.stmiv) * stats.cpm;
 	}
 	// 1.5 Calculate maxHP
 	if (typeof this.maxHP != typeof 0) {
@@ -461,44 +456,67 @@ function PokemonInput(kwargs) {
 /**
  * generate GBS engine input from parsed user input.
  * 
- * @param {*} sim_input parsed user input. must map to a specific pokemon/move (no wild card).
+ * @param {*} sim_input parsed user input. Each item (Pokemon/Move) must map to a specific entry (no wild card).
  * @return GBS engine input
  */
 function generateEngineInput(sim_input) {
+	if (sim_input.battleMode == "raid" || sim_input.battleMode == "gym") {
+		return generateEngineInputPvE(sim_input);
+	}
+	else if (sim_input.battleMode == "pvp") {
+		return generateEngineInputPvP(sim_input);
+	}
+	else {
+		throw new Error("unknown battle mode: " + sim_input.toString());
+	}
+}
+
+
+function generateEngineInputPvE(sim_input) {
 	var out = {
 		battleMode: sim_input.battleMode,
 		timelimit: sim_input.timelimit,
 		weather: sim_input.weather,
 		numSims: sim_input.numSims,
 		aggregation: sim_input.aggregation,
-		enableLog: (sim_input.aggregation == "enum")
+		enableLog: (sim_input.aggregation == "enum"),
+		players: []
 	};
 
-	let mini_players = [];
 	let player_idx = 0;
 	for (let player of sim_input["players"]) {
 		let mini_player = {
 			name: player.name || ("Player " + ++player_idx),
 			team: 1 - parseInt(player.team),
-			attack_multiplier: (GM.get("friend", player.friend) || {}).multiplier || 1.0
+			attack_multiplier: (GM.get("friend", player.friend) || {}).multiplier || 1.0,
+			parties: []
 		};
-		let mini_parties = [];
 		for (let party of player.parties) {
 			let mini_party = {
 				revive: party.revive,
-				delay: parseInt(party.delay) || 0
+				delay: parseInt(party.delay) || 0,
+				pokemon: []
 			};
-			let mini_pkm_list = [];
 			for (let pkm of party.pokemon) {
-				mini_pkm_list.push(new PokemonInput(pkm));
+				mini_party.pokemon.push(new PokemonInput(pkm));
 			}
-			mini_party["pokemon"] = mini_pkm_list;
-			mini_parties.push(mini_party);
+			mini_player.parties.push(mini_party);
 		}
-		mini_player["parties"] = mini_parties;
-		mini_players.push(mini_player);
+		out.players.push(mini_player);
 	}
-	out["players"] = mini_players;
+	return out;
+}
+
+function generateEngineInputPvP(sim_input) {
+	// For now, support 1v1 battle only
+	var out = {
+		battleMode: sim_input.battleMode,
+		timelimit: sim_input.timelimit,
+		numSims: sim_input.numSims,
+		aggregation: sim_input.aggregation,
+		enableLog: (sim_input.aggregation == "enum")
+	};
+
 	return out;
 }
 

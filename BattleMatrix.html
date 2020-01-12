@@ -342,8 +342,10 @@
 	</div>
 
 	<script>
-		GM.fetch({
-			complete: battleMatrixInit
+		$(document).ready(function () {
+			GM.fetch({
+				complete: battleMatrixInit
+			});
 		});
 	</script>
 

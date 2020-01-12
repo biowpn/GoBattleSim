@@ -425,9 +425,11 @@
 
 <script>
 	includeHTML();
-	GM.fetch({
-		complete: function () {
-			App.init();
-		}
+	$(document).ready(function () {
+		GM.fetch({
+			complete: function () {
+				App.init();
+			}
+		});
 	});
 </script>

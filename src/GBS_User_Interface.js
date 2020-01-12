@@ -650,8 +650,8 @@ function createPokemonStrategyInput() {
 			}
 		} else if (kwargs.battleMode == "pvp") {
 			this.value = "PVP_BASIC";
-			$(this).parents("[name=pokemon]").find("[name=pokemon-strategy2]").show();
 			$(this).hide();
+			$(this).parents("[name=pokemon]").find("[name=pokemon-shields]").attr("hidden", false).show();
 		}
 	}
 	return strategyInput;
@@ -659,13 +659,16 @@ function createPokemonStrategyInput() {
 
 
 function createPokemonProtectStrategyInput() {
-	var strategyInput = createElement('input', '0,0', {
-		name: "pokemon-strategy2", placeholder: "Number of Shields"
+	var strategyInput = createElement('input', '', {
+		name: "pokemon-shields", placeholder: "Number of shields", value: 0, type: "number", min: 0, max: 2
 	});
 	strategyInput.comply = function (kwargs) {
-		if (kwargs.battleMode != "pvp") {
-			$(this).parents("[name=pokemon]").find("[name=pokemon-strategy]").show();
+		if (kwargs.battleMode == "pvp") {
+			$(this).parents("[name=pokemon]").find("[name=pokemon-strategy]").hide();
+			$(this).attr("hidden", false).show();
+		} else {
 			$(this).hide();
+			$(this).parents("[name=pokemon]").find("[name=pokemon-strategy]").attr("hidden", false).show();
 		}
 	}
 	return strategyInput;
