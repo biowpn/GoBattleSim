@@ -69,19 +69,14 @@ App.init = function () {
 	});
 	$("#timelimit").val(GM.get("battle", "timelimitLegendaryRaidMs"));
 
-	GM.fetch({
-		complete: function () {
-			if (window.location.href.includes('?')) {
-				UI.write(UI.importConfig());
-				UI.refresh();
-			}
-			parameterEditFormRefresh();
-		}
-	});
-
-	if (!LocalData.WelcomeDialogNoShow) {
+	if (window.location.href.includes('?')) {
+		console.log("includes ?");
+		UI.write(UI.importConfig());
+		UI.refresh();
+	} else if (!LocalData.WelcomeDialogNoShow) {
 		$("#WelcomeDialog").dialog("open");
 	}
+	parameterEditFormRefresh();
 
 	let gm = GM.convert();
 	tryTillSuccess(function () {

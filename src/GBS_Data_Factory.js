@@ -68,7 +68,11 @@ GM.fetch = function (kwargs) {
 		}
 
 		manuallyModifyData(Data);
-		(kwargs.complete || function () { })();
+
+		if (kwargs.complete)
+		{
+			kwargs.complete();
+		}
 	}
 
 	fetchLevelSettings(oncompleteWrapper);
