@@ -1,68 +1,72 @@
 
 /**
-	Simulator Interface. This module serves as a programming interface to the simulator. It performs validation on the input, parses user raw input which could be batch input, and averages the output if the aggregation mode is average.
-	@exports GBS
-*/
+ * Simulator Interface. This module serves as a programming interface to the simulator. It performs validation on the input, parses user raw input which could be batch input, and averages the output if the aggregation mode is average.
+ * @exports GBS
+ */
 var GBS = {};
 
+
 /**
- * get the version of GBS engine 
+ * Get the version of GBS engine.
  */
 GBS.version = function () {
-	var GBS_version = Module.cwrap("GBS_version", "string", []);
-	return GBS_version();
+	return Module.ccall("GBS_version", "string", [], []);
 }
 
 /**
- * get the last error emitted by GBS engine
+ * Get the last error emitted by GBS engine.
  */
 GBS.error = function () {
-	var GBS_error = Module.cwrap("GBS_error", "string", []);
-	return GBS_error();
+	return Module.ccall("GBS_error", "string", [], []);
 }
 
 /**
- * get/set the game master for GBS engine
+ * Get/set the game master for GBS engine.
  * 
  * Note: should call GBS.config(GM.conver()) once
  */
 GBS.config = function (game_master) {
-	var GBS_config = Module.cwrap("GBS_config", "string", ["number"]);
-	var in_ptr = 0;
+	let in_ptr = 0;
 	if (game_master) {
-		var _str = JSON.stringify(game_master);
-		var _str_len = lengthBytesUTF8(_str);
+		let _str = JSON.stringify(game_master);
+		let _str_len = lengthBytesUTF8(_str);
 		in_ptr = _malloc(_str_len + 1);
 		stringToUTF8(_str, in_ptr, _str_len + 1);
 	}
-	var out = GBS_config(in_ptr);
+	let out = Module.ccall("GBS_config", "string", ["number"], [in_ptr]);
 	_free(in_ptr);
 	return JSON.parse(out);
 }
 
 /**
- * initialize new simulation. This will clear all output.
+ * Initialize new simulation. This will clear all output.
  */
 GBS.prepare = function (input) {
-	var GBS_prepare = Module.cwrap("GBS_prepare", null, ["string"]);
-	GBS_prepare(JSON.stringify(input));
+	let _str = JSON.stringify(input);
+	let _str_len = lengthBytesUTF8(_str);
+	let in_ptr = _malloc(_str_len + 1);
+	stringToUTF8(_str, in_ptr, _str_len + 1);
+	Module.ccall("GBS_prepare", null, ["number"], [in_ptr]);
+	_free(in_ptr);
 }
 
 /**
- * run the new simulation configured by the latest GBS.prepare().
+ * Run the new simulation configured by the latest GBS.prepare().
  */
 GBS.run = function () {
-	var GBS_run = Module.cwrap("GBS_run", null, []);
-	GBS_run();
+	Module.ccall("GBS_run", null, [], []);
 }
 
 /**
- * collect simulation output produced by the lastest GBS_run()
+ * Collect simulation output produced by the lastest GBS_run()
  */
 GBS.collect = function () {
-	var GBS_collect = Module.cwrap("GBS_collect", "string", []);
-	return JSON.parse(GBS_collect());
+	let out_ptr = Module.ccall("GBS_collect", "number", [], []);
+	console.log(out_ptr);
+	let _str = UTF8ToString(out_ptr);
+	return JSON.parse(_str);
 }
+
 
 /**
  * Do batch simulations.

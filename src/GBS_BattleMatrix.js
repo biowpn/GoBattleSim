@@ -279,6 +279,17 @@ function battleMatrixSubmit() {
     var colPokemon = parsePokemonPool($("#battleMatrix-input-col").val());
     currentMatrixIsSymmetric = colPokemon.length == 0;
 
+    let n = rowPokemon.length, m = colPokemon.length;
+    n = n || m;
+    m = m || n;
+    console.log("matrix size", n || m, "by", m || n);
+
+    if (n * m >= 1024 * 1024) {
+        if (!confirm("the matrix size is quite large (" + n + " * " + m + "). Are you sure to continue?")) {
+            return;
+        }
+    }
+
     var reqInput = {
         "battleMode": "battlematrix",
         "rowPokemon": rowPokemon,
@@ -289,9 +300,21 @@ function battleMatrixSubmit() {
     $("#running-screen").show();
 
     setTimeout(function () {
-        GBS.prepare(reqInput);
-        GBS.run();
-        var matrix = GBS.collect();
+        try {
+            let start = Date.now();
+            console.log("calling GBS.prepare");
+            GBS.prepare(reqInput);
+            console.log("calling GBS.run");
+            GBS.run();
+            console.log("calling GBS.collect");
+            var matrix = GBS.collect();
+            let end = Date.now();
+            console.log("done. duration(ms):", end - start);
+        } catch (err) {
+            UI.sendFeedbackDialog("<p>Oops, something went wrong!</p>" + err.toString());
+        }
+
+        $("#running-screen").hide();
 
         var reqOutput = {
             rowPokemon: rowPokemon.length ? rowPokemon : colPokemon,
@@ -345,8 +368,6 @@ function displayBattleMatrixOutput(reqOutput) {
 
     $("#button-download-pokemon").attr("disabled", false);
     $("#button-download-matrix").attr("disabled", false);
-
-    $("#running-screen").hide();
 }
 
 function solveBattleMatrix() {
