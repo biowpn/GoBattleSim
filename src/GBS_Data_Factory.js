@@ -69,8 +69,7 @@ GM.fetch = function (kwargs) {
 
 		manuallyModifyData(Data);
 
-		if (kwargs.complete)
-		{
+		if (kwargs.complete) {
 			kwargs.complete();
 		}
 	}
@@ -332,7 +331,7 @@ GM.convert = function (src) {
 			dodgeDamageReductionPercent: src.BattleSettings.dodgeDamageReductionPercent,
 			weatherAttackBonusMultiplier: src.BattleSettings.weatherAttackBonusMultiplier,
 			fastMoveLagMs: src.BattleSettings.fastMoveLagMs,
-			chargedMoveLagMs: src.BattleSettings.chargedMoveLagMs,
+			chargedMoveLagMs: src.BattleSettings.chargedMoveLagMs
 		};
 
 		// PvPBattleSettings

@@ -70,7 +70,6 @@ App.init = function () {
 	$("#timelimit").val(GM.get("battle", "timelimitLegendaryRaidMs"));
 
 	if (window.location.href.includes('?')) {
-		console.log("includes ?");
 		UI.write(UI.importConfig());
 		UI.refresh();
 	} else if (!LocalData.WelcomeDialogNoShow) {
@@ -78,9 +77,9 @@ App.init = function () {
 	}
 	parameterEditFormRefresh();
 
-	let gm = GM.convert();
+	GameMaster = GM.convert();
 	tryTillSuccess(function () {
-		GBS.config(gm);
+		GBS.config(GameMaster);
 	});
 
 	UI.refresh();
@@ -127,5 +126,7 @@ App.onBattleLogChange = function (battleInfo) {
 /** 
  * Non-interface members
  */
+
+var GameMaster = {};
 
 var Simulations = [];

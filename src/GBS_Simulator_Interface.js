@@ -557,7 +557,7 @@ function generateEngineInput(sim_input) {
 function generateEngineInputPvE(sim_input) {
 	var out = {
 		battleMode: sim_input.battleMode,
-		timelimit: sim_input.timelimit,
+		timelimit: sim_input.timelimit - Data.BattleSettings.arenaEntryLagMs - Data.BattleSettings.arenaEarlyTerminationMs,
 		weather: sim_input.weather,
 		numSims: sim_input.numSims,
 		aggregation: sim_input.aggregation,

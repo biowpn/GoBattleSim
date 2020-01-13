@@ -1494,7 +1494,7 @@ function convertEngineBattleLog(sim_input, engine_log) {
 	// the main loop, scan through each battle log entry
 	for (let event of engine_log) {
 		if (sim_input.battleMode != "pvp") {
-			event.time = round(event.time / 1000, 2);
+			event.time = round((event.time + Data.BattleSettings.arenaEntryLagMs) / 1000, 2);
 		}
 		setLastRow(0, {
 			style: "text",
