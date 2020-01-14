@@ -574,13 +574,14 @@ function generateEngineInputPvE(sim_input) {
 		let mini_player = {
 			name: player.name || ("Player " + ++player_idx),
 			team: parseInt(player.team),
-			attack_multiplier: (GM.get("friend", player.friend) || {}).multiplier || 1.0,
+			attackMultiplier: (GM.get("friend", player.friend) || {}).multiplier || 1.0,
+			cloneMultiplier: parseInt(player.cloneMultiplier) || 1,
 			parties: []
 		};
 		for (let party of player.parties) {
 			let mini_party = {
 				revive: party.revive,
-				delay: parseInt(party.delay) || 0,
+				enterDelay: parseInt(party.enterDelay) || 0,
 				pokemon: []
 			};
 			for (let pkm of party.pokemon) {

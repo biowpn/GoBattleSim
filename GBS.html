@@ -50,7 +50,7 @@
 	}
 
 	.input-with-icon {
-		padding-left: 40px !important;
+		padding-left: 15% !important;
 		background-repeat: no-repeat;
 		text-align: left;
 		width: 100%;
@@ -68,6 +68,14 @@
 
 	button {
 		width: 100%;
+	}
+
+	.button-icon,
+	.button-icon:focus {
+		background-color: transparent;
+		margin: 1%;
+		cursor: pointer;
+		width: 10%;
 	}
 
 	.ui-controlgroup-item {
@@ -103,30 +111,18 @@
 	}
 
 	.section-node-head {
-		height: 30px;
-		padding-bottom: 3px;
 		text-align: center;
 	}
 
 	.section-node-title {
 		float: left;
-		width: 25%;
+		width: 100%;
 		text-align: left;
 	}
 
 	.section-buttons-panel {
 		float: right;
-		width: 25%;
 		text-align: right;
-	}
-
-	.button-icon,
-	.button-icon:focus {
-		background-color: transparent;
-		margin: 4px;
-		cursor: pointer;
-		height: 30px;
-		width: 30px;
 	}
 
 	.ui-checkboxradio-label {
@@ -182,17 +178,11 @@
 
 	.section-body {
 		background: #f1f1f1;
-		padding: 5px 8px;
 		border-radius: 3px;
 		margin: 10px 0px;
 		border: 1px solid #ddd;
+		text-align: center;
 	}
-
-	.section-player-node {}
-
-	.section-party-node {}
-
-	.section-pokemon-node {}
 
 	.ui-autocomplete {
 		max-height: 300px;
@@ -209,8 +199,6 @@
 		vertical-align: top;
 		position: relative;
 	}
-
-	.sub-menu-opener {}
 
 	.sub-menu {
 		position: absolute;
@@ -357,7 +345,7 @@
 	<button id="AddPlayerButton" class="player_button"><i class="fa fa-user-plus" aria-hidden="true"></i> Add
 		Player</button>
 
-	<div name="input-players">
+	<div name="input-players" class="container">
 	</div>
 
 </div>
@@ -366,10 +354,9 @@
 <button id="GoButton">Go</button>
 
 
-<h2>Simulation Result</h2>
 <div id="feedback_message"></div>
 
-<h4>Master Summary Table</h4>
+<h4>Summary Table</h4>
 <div id="feedback_buttons"><button id="ClearButton">Clear All</button></div>
 <div id="feedback_table1"></div>
 <table>
@@ -383,10 +370,10 @@
 	</tr>
 </table>
 
-<h4>Detailed Battle Statistics</h4>
+<h4>Battle Statistics</h4>
 <div id="feedback_table2"></div>
 
-<h4>Interactive Battle Log</h4>
+<h4>Battle Log</h4>
 <div id="feedback_table3"></div>
 
 <div w3-include-html="Modules.html" style="display: none;"></div>

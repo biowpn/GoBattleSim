@@ -338,23 +338,27 @@ function formatting(element) {
  * Update label and background color of player/party/pokemon nodes based on their position.
  */
 function relabel() {
-	var playerNodes = $("#input").find("[name=input-players]")[0];
-	for (var i = 0; i < playerNodes.children.length; i++) {
-		let playerNode = playerNodes.children[i];
-		playerNode.setAttribute('style', 'background:' + HSL_COLORS[i % HSL_COLORS.length][0]);
-		playerNode.children[0].children[0].innerHTML = "Player " + (i + 1);
-		for (var j = 0; j < playerNode.children[1].children.length; j++) {
-			let partyNode = playerNode.children[1].children[j];
-			partyNode.setAttribute('style', 'background:' + HSL_COLORS[i % HSL_COLORS.length][1]);
-			partyNode.children[0].children[0].innerHTML = "Party " + (j + 1);
-			for (var k = 0; k < partyNode.children[1].children.length; k++) {
-				let pokemonNode = partyNode.children[1].children[k];
-				pokemonNode.setAttribute('style', 'background:' + HSL_COLORS[i % HSL_COLORS.length][2]);
-				pokemonNode.children[0].children[0].innerHTML = "Pokemon " + (k + 1);
+	let playerNodes = $("#input").find("[name=player]");
+	for (let i = 0; i < playerNodes.length; i++) {
+		let playerNode = $(playerNodes[i]);
+		playerNode.attr('style', 'background:' + HSL_COLORS[i % HSL_COLORS.length][0]);
+		playerNode.find("[name=player-label]").text("Player " + (i + 1));
+		let partyNodes = $(playerNode).find("[name=party]");
+		for (let j = 0; j < partyNodes.length; j++) {
+			let partyNode = $(partyNodes[j]);
+			partyNode.attr('style', 'background:' + HSL_COLORS[i % HSL_COLORS.length][1]);
+			partyNode.find("[name=party-label]").text("Party " + (j + 1));
+			let pokemonNodes = partyNode.find("[name=pokemon]");
+			for (let k = 0; k < pokemonNodes.length; k++) {
+				let pokemonNode = $(pokemonNodes[k]);
+				pokemonNode.attr('style', 'background:' + HSL_COLORS[i % HSL_COLORS.length][2]);
+				pokemonNode.find("[name=pokemon-label]").text("Pokemon " + (k + 1));
 			}
 		}
 	}
 }
+
+
 
 /**
  * Create a document element.
@@ -373,7 +377,6 @@ function createElement(type, innerHTML, attrsAndValues) {
 	return e;
 }
 
-
 function createRow(rowData, type) {
 	type = type || "td";
 	var row = document.createElement("tr");
@@ -385,10 +388,9 @@ function createRow(rowData, type) {
 	return row;
 }
 
-
 function createPokemonNameInput() {
 	var nameInput = createElement('input', '', {
-		type: 'text', placeholder: 'Species', class: 'input-with-icon species-input-with-icon',
+		type: 'text', placeholder: 'Species', class: 'form-control input-with-icon species-input-with-icon',
 		style: 'background-image: url(' + getPokemonIcon() + ')', name: "pokemon-name"
 	});
 	$(nameInput).autocomplete({
@@ -427,7 +429,6 @@ function createPokemonNameInput() {
 	return nameInput;
 }
 
-
 function createPokemonMoveInput(moveType, attrName) {
 	var placeholder_ = "";
 	if (moveType == "fast") {
@@ -437,7 +438,7 @@ function createPokemonMoveInput(moveType, attrName) {
 	}
 	let moveInput = createElement('input', '', {
 		type: 'text', placeholder: placeholder_, name: "pokemon-" + attrName,
-		class: 'input-with-icon move-input-with-icon', style: 'background-image: url()'
+		class: 'form-control input-with-icon move-input-with-icon', style: 'background-image: url()'
 	});
 	$(moveInput).autocomplete({
 		minLength: 0,
@@ -463,21 +464,20 @@ function createPokemonMoveInput(moveType, attrName) {
 	}).autocomplete("instance")._renderItem = _renderAutocompleteMoveItem;
 
 	moveInput.onfocus = function () { $(this).autocomplete("search", ""); };
-
 	return moveInput;
 }
 
-function createMinimizeButton(parentName) {
-	const pName = parentName;
+
+function createMinimizeButton(parentName, childrenName) {
+	const pName = parentName, cName = childrenName;
 	var button = createElement("button", '<i class="fa fa-minus" aria-hidden="true"></i>', {
 		class: "button-icon", title: "Minimize"
 	});
 	button.onclick = function () {
-		$($(this).parents("[name=" + pName + "]")[0].children[1]).slideToggle('fast');
+		$($(this).parents("[name=" + pName + "]").find("[name=" + cName + "]")[0]).slideToggle('fast');
 	}
 	return button;
 }
-
 
 function createCopyPokemonButton() {
 	var copyPokemonButton = createElement('button', '<i class="fa fa-files-o" aria-hidden="true"></i>', {
@@ -489,7 +489,6 @@ function createCopyPokemonButton() {
 	}
 	return copyPokemonButton;
 }
-
 
 function createPastePokemonButton() {
 	var pastePokemonButton = createElement('button', '<i class="fa fa-clipboard" aria-hidden="true"></i>', {
@@ -503,15 +502,14 @@ function createPastePokemonButton() {
 	return pastePokemonButton;
 }
 
-
 function createRemovePokemonButton() {
 	var removePokemonButton = createElement('button', '<i class="fa fa-times" aria-hidden="true"></i>', {
 		class: "button-icon", title: "Remove"
 	});
 	removePokemonButton.onclick = function () {
-		var pokemonNode = $(this).parents("[name=pokemon]")[0];
-		if (pokemonNode.parentNode.children.length > 1) {
-			pokemonNode.parentNode.removeChild(pokemonNode);
+		var pokemonNodes = $(this).parents("[name=party]").find("[name=pokemon]");
+		if (pokemonNodes.length > 1) {
+			$(this).parents("[name=pokemon]").remove();
 		} else {
 			UI.sendFeedbackDialog("Cannot remove the only Pokemon of the party.");
 		}
@@ -522,7 +520,9 @@ function createRemovePokemonButton() {
 
 
 function createPokemonRoleInput() {
-	var roleInput = createElement("select", "", { name: "pokemon-role" });
+	var roleInput = createElement("select", "", {
+		name: "pokemon-role", class: "form-control"
+	});
 	roleInput.appendChild(createElement('option', 'Attacker', { value: "a" }));
 	roleInput.appendChild(createElement('option', 'Attacker Basic', { value: "a_basic" }));
 	roleInput.appendChild(createElement('option', 'Gym Defender', { value: "gd" }));
@@ -531,10 +531,10 @@ function createPokemonRoleInput() {
 	roleInput.appendChild(createElement('option', 'Raid Boss Immortal', { value: "RB" }));
 	roleInput.onchange = function () {
 		var pokemonNode = $(this).parents("[name=pokemon]")[0];
-		for (var i = 0; i < pokemonNode.children[1].children.length; i++) {
-			var child = pokemonNode.children[1].children[i];
-			if (child.hasAttribute("for_roles")) {
-				let roles = child.getAttribute("for_roles").split(";");
+		for (var i = 0; i < pokemonNode.children.length; i++) {
+			var child = pokemonNode.children[i];
+			if (child.hasAttribute("for_role")) {
+				let roles = child.getAttribute("for_role").split(";");
 				if (roles.includes(this.value)) {
 					child.removeAttribute("hidden");
 				} else {
@@ -574,11 +574,10 @@ function createPokemonRoleInput() {
 	return roleInput;
 }
 
-
 function createPokemonCopiesInput() {
-	var copiesInput = createElement('input', '', {
-		type: 'number', placeholder: 'Copies', title: "Number of copies",
-		min: 1, max: 6, value: 1, name: "pokemon-copies"
+	var copiesInput = createElement("input", "", {
+		type: 'number', min: 0, max: 6, value: 1, title: "Copies",
+		name: "pokemon-copies", class: "form-control",
 	});
 	copiesInput.onchange = function () {
 		var pokemonCount = countPokemonFromParty($(this).parents("[name=party]")[0]);
@@ -595,6 +594,12 @@ function createPokemonCopiesInput() {
 				this.value = 1;
 				this.disabled = true;
 			}
+			$(this).attr("placeholder", "Copies");
+			$(this).attr("title", "Copies");
+		}
+		else {
+			$(this).attr("placeholder", "Shields");
+			$(this).attr("title", "Shields");
 		}
 	}
 	return copiesInput;
@@ -603,7 +608,7 @@ function createPokemonCopiesInput() {
 
 function createPokemonRaidTierInput() {
 	var raidTierInput = createElement("select", "", {
-		name: "pokemon-raidTier"
+		name: "pokemon-raidTier", class: "form-control"
 	});
 	GM.each("RaidTier", function (raidTier) {
 		raidTierInput.appendChild(createElement('option', raidTier.label, { value: raidTier.name }));
@@ -628,7 +633,9 @@ function createPokemonRaidTierInput() {
 
 
 function createPokemonStrategyInput() {
-	var strategyInput = createElement('select', '', { name: "pokemon-strategy" });
+	var strategyInput = createElement("select", "", {
+		name: "pokemon-strategy", class: "form-control"
+	});
 
 	if (EngineStrategies.length == 0) {
 		let cfg = GBS.config();
@@ -646,34 +653,18 @@ function createPokemonStrategyInput() {
 				this.disabled = true;
 			}
 		} else if (kwargs.battleMode == "pvp") {
-			this.value = "PVP_BASIC";
+			this.value = "PVP_ADVANCE";
 			$(this).hide();
-			$(this).parents("[name=pokemon]").find("[name=pokemon-shields]").attr("hidden", false).show();
 		}
 	}
 	return strategyInput;
 }
 
-
-function createPokemonProtectStrategyInput() {
-	var strategyInput = createElement('input', '', {
-		name: "pokemon-shields", placeholder: "Number of shields", value: 0, type: "number", min: 0, max: 2
-	});
-	strategyInput.comply = function (kwargs) {
-		if (kwargs.battleMode == "pvp") {
-			$(this).parents("[name=pokemon]").find("[name=pokemon-strategy]").hide();
-			$(this).attr("hidden", false).show();
-		} else {
-			$(this).hide();
-			$(this).parents("[name=pokemon]").find("[name=pokemon-strategy]").attr("hidden", false).show();
-		}
-	}
-	return strategyInput;
-}
 
 function createPartyNameInput() {
 	var partyNameInput = createElement('input', '', {
-		type: "text", style: "width: 30%; display: inline-block; text-align: center;", name: "party-name"
+		type: "text", style: "width: 100%; text-align: center;", placeholder: "Party name",
+		name: "party-name", class: "form-control"
 	});
 	$(partyNameInput).autocomplete({
 		minLength: 0,
@@ -744,11 +735,11 @@ function createRemovePartyButton() {
 		class: 'button-icon', title: 'Remove'
 	});
 	removePartyButton.onclick = function () {
-		var partyNode = $(this).parents("[name=party]")[0];
+		var partyNode = $(this).parents("[name=party]");
 		var partyName = $(partyNode).find("[name=party-name]").val();
 		var askForConfirm = GM.get("BattleParties_local", partyName) != null;
-		if (partyNode.parentNode.children.length > 1) {
-			partyNode.parentNode.removeChild(partyNode);
+		if ($(partyNode).parents("[name=player]").find("[name=party]").length > 1) {
+			$(partyNode).remove();
 		} else if (!askForConfirm) {
 			UI.sendFeedbackDialog("Cannot remove the only party of the player.");
 		}
@@ -780,7 +771,7 @@ function createRemovePartyButton() {
 
 
 function createPartyReviveCheckbox() {
-	var reviveCheckboxContainer = createElement("label", "Max Revive", { style: "width: 50%" });
+	var reviveCheckboxContainer = createElement("label", "Max Revive", { style: "width: 100%;" });
 	var reviveCheckbox = createElement("input", "", { type: "checkbox", name: "party-revive" });
 	reviveCheckbox.onclick = function () {
 		$(this).button("refresh");
@@ -805,15 +796,17 @@ function createPartyReviveCheckbox() {
 
 
 function createAddPokemonButton() {
-	var addPokemonButton = createElement("button", "Add Pokemon", { style: "width: 50%" });
+	var addPokemonButton = createElement("button", "Add Pokemon", {
+		class: 'player_button'
+	});
 	addPokemonButton.onclick = function () {
 		let partyNode = $(this).parents("[name=party]")[0];
 		let pokemonCount = countPokemonFromParty(partyNode);
 		if (pokemonCount < MAX_NUM_POKEMON_PER_PARTY) {
 			let newPokemonNode = createPokemonNode();
-			let prevPokemonConfig = UI.read(partyNode.children[1].lastChild);
+			let prevPokemonConfig = UI.read(partyNode.children[2].lastChild);
 			prevPokemonConfig.copies = 1;
-			partyNode.children[1].appendChild(newPokemonNode);
+			partyNode.children[2].appendChild(newPokemonNode);
 			UI.write(prevPokemonConfig, newPokemonNode);
 			formatting(newPokemonNode);
 			comply(newPokemonNode, { battleMode: $("#battleMode").val() });
@@ -836,7 +829,8 @@ function createAddPokemonButton() {
 
 function createPlayerTeamInput() {
 	var playerTeamInput = createElement('select', '', {
-		style: 'width: 50%; display: inline-block; text-align: center;', name: "player-team"
+		style: 'width: 100%; display: inline-block; text-align: center;',
+		name: "player-team", class: "form-control"
 	});
 	playerTeamInput.appendChild(createElement('option', "Primary Team", { value: "1" }));
 	playerTeamInput.appendChild(createElement('option', "Opposite Team", { value: "0" }));
@@ -874,9 +868,11 @@ function createPlayerTeamInput() {
 
 
 function createPlayerFriendInput() {
-	var playerFriendInput = createElement('select', '', {
-		style: 'width: 50%; display: inline-block; text-align: center;', name: "player-friend"
+	var playerFriendInput = createElement("select", "", {
+		style: "width: 100%; display: inline-block; text-align: center;",
+		name: "player-friend", class: "form-control"
 	});
+
 	GM.each("friend", function (friendSetting) {
 		playerFriendInput.appendChild(createElement('option', friendSetting.label, { value: friendSetting.name }));
 	});
@@ -902,7 +898,7 @@ function createRemovePlayerButton() {
 		if (playersNode.children.length > 2) {
 			var playerNode = $(this).parents("[name=player]")[0];
 			playerNode.parentNode.removeChild(playerNode);
-			document.getElementById('input.addPlayer').disabled = false;
+			document.getElementById('AddPlayerButton').disabled = false;
 			relabel();
 		} else {
 			UI.sendFeedbackDialog("Need at least two players to fight");
@@ -911,24 +907,24 @@ function createRemovePlayerButton() {
 	return removePlayerButton;
 }
 
-
 function createAddPartyButton() {
 	var addPartyButton = createElement("button", "Add Party", {
 		class: 'player_button'
 	});
 	addPartyButton.onclick = function () {
-		var playerNode = $(this).parents("[name=player]")[0];
-		if (playerNode.children[1].children.length < MAX_NUM_PARTIES_PER_PLAYER) {
-			playerNode.children[1].appendChild(createPartyNode());
+		var playerNode = $(this).parents("[name=player]");
+		if (playerNode.find("[name=player-parties]").length < MAX_NUM_PARTIES_PER_PLAYER) {
+			$(playerNode).find("[name=player-parties]").append(createPartyNode());
 			relabel();
 		} else {
 			UI.sendFeedbackDialog("Exceeding Maximum number of Parties per player.");
 		}
 	}
 	addPartyButton.comply = function (kwargs) {
+		var playerNode = $(this).parents("[name=player]");
 		$(this).button("enable");
 		if (kwargs.battleMode == "raid") {
-			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "0") {
+			if ($(playerNode).find("[name=player-team]").val() == "0") {
 				$(this).button("disable");
 			}
 		} else if (kwargs.battleMode == "gym") {
@@ -937,6 +933,9 @@ function createAddPartyButton() {
 	}
 	return addPartyButton;
 }
+
+
+
 
 // Recursive call to make a node and all its children to comply the system requirements
 function comply(node, kwargs) {
@@ -980,139 +979,295 @@ function complyBattleMode(mode) {
 
 
 function createPokemonNode() {
-	var pokemonNode = createElement('div', '', {
-		class: "section-body section-pokemon-node", name: "pokemon"
+	var pokemonNode = createElement("div", "", {
+		class: "section-body section-pokemon-node container", name: "pokemon"
 	});
-	pokemonNode.appendChild(createElement('div', "", { class: "section-node-head" }));
-	pokemonNode.appendChild(createElement('div', ""));
-	pokemonNode.appendChild(createElement('div', ""));
 
 	// 1. Head
-	pokemonNode.children[0].appendChild(createElement('span', "Unlabeled Pokemon", { class: "section-node-title" }));
+	var row1 = createElement("div", "", {
+		class: "row"
+	});
+	var row1col1 = createElement("div", "", {
+		class: "col-sm-6"
+	});
+	var row1col2 = createElement("div", "", {
+		class: "col-sm-6 section-buttons-panel"
+	});
+	$(row1col1).append(createElement("span", "", {
+		name: "pokemon-label", class: "section-node-title"
+	}));
+	$(row1col2).append(createMinimizeButton("pokemon"));
+	$(row1col2).append(createPastePokemonButton());
+	$(row1col2).append(createRemovePokemonButton());
 
-	var controlButtonDiv = createElement('div', "", { class: "section-buttons-panel" });
-	controlButtonDiv.appendChild(createMinimizeButton("pokemon"));
-	controlButtonDiv.appendChild(createCopyPokemonButton());
-	controlButtonDiv.appendChild(createPastePokemonButton());
-	controlButtonDiv.appendChild(createRemovePokemonButton());
-	pokemonNode.children[0].appendChild(controlButtonDiv);
+	$(row1).append(row1col1);
+	$(row1).append(row1col2);
+	$(pokemonNode).append(row1);
 
 
 	// 2. Body
-	var tb1 = createElement("table", "<colgroup><col width=50%><col width=25%><col width=25%></colgroup>");
-	tb1.appendChild(createRow(['', '', ''], 'td'));
-	tb1.children[1].children[0].appendChild(createPokemonNameInput());
-	tb1.children[1].children[0].appendChild(createElement("input", "", { name: "pokemon-label", hidden: true }));
-	tb1.children[1].children[1].appendChild(createPokemonRoleInput());
-	tb1.children[1].children[2].appendChild(createPokemonCopiesInput());
-	pokemonNode.children[1].appendChild(tb1);
+	var row2 = createElement("div", "", {
+		class: "row"
+	});
+	var row2col1 = createElement("div", "", {
+		class: "col-sm-6"
+	});
+	var row2col2 = createElement("div", "", {
+		class: "col-sm-3"
+	});
+	var row2col3 = createElement("div", "", {
+		class: "col-sm-3"
+	});
+	$(row2col1).append(createPokemonNameInput());
+	$(row2col2).append(createPokemonRoleInput());
+	$(row2col3).append(createPokemonCopiesInput());
+	$(row2).append(row2col1);
+	$(row2).append(row2col2);
+	$(row2).append(row2col3);
+	$(pokemonNode).append(row2);
 
-	var tb2 = createElement("table", "<colgroup><col width=25%><col width=25%><col width=25%><col width=25%></colgroup>", { for_roles: "a;gd" });
-	tb2.appendChild(createRow(['', '', '', ''], 'td'));
-	tb2.children[1].children[0].appendChild(createElement("input", "", {
-		placeholder: "Level", name: "pokemon-level"
+	var row3a = createElement("div", "", {
+		class: "row", for_role: "a;gd"
+	});
+	var row3acol1 = createElement("div", "", {
+		class: "col-6 col-md-3"
+	});
+	var row3acol2 = createElement("div", "", {
+		class: "col-6 col-md-3"
+	});
+	var row3acol3 = createElement("div", "", {
+		class: "col-6 col-md-3"
+	});
+	var row3acol4 = createElement("div", "", {
+		class: "col-6 col-md-3"
+	});
+	$(row3acol1).append(createElement("input", "", {
+		placeholder: "Level", name: "pokemon-level", class: "form-control"
 	}));
-	tb2.children[1].children[1].appendChild(createElement("input", "", {
-		placeholder: "HP IV", name: "pokemon-stmiv"
+	$(row3acol2).append(createElement("input", "", {
+		placeholder: "HP IV", name: "pokemon-stmiv", class: "form-control"
 	}));
-	tb2.children[1].children[2].appendChild(createElement("input", "", {
-		placeholder: "Atk. IV", name: "pokemon-atkiv"
+	$(row3acol3).append(createElement("input", "", {
+		placeholder: "Atk. IV", name: "pokemon-atkiv", class: "form-control"
 	}));
-	tb2.children[1].children[3].appendChild(createElement("input", "", {
-		placeholder: "Def. IV", name: "pokemon-defiv"
+	$(row3acol4).append(createElement("input", "", {
+		placeholder: "Def. IV", name: "pokemon-defiv", class: "form-control"
 	}));
-	pokemonNode.children[1].appendChild(tb2);
 
-	var tb2b = createElement("table", "<colgroup><col width=100%></colgroup>", { hidden: "true", for_roles: "a_basic;gd_basic" });
-	tb2b.appendChild(createRow(['']));
-	tb2b.children[1].children[0].appendChild(createElement("input", "", {
-		placeholder: "CP", name: "pokemon-cp"
+	$(row3a).append(row3acol1);
+	$(row3a).append(row3acol2);
+	$(row3a).append(row3acol3);
+	$(row3a).append(row3acol4);
+	$(pokemonNode).append(row3a);
+
+	var row3b = createElement("div", "", {
+		class: "row", for_role: "a_basic;gd_basic", hidden: "true"
+	});
+	var row3bcol1 = createElement("div", "", {
+		class: "col"
+	});
+	$(row3bcol1).append(createElement("input", "", {
+		placeholder: "CP", name: "pokemon-cp", class: "form-control"
 	}));
-	pokemonNode.children[1].appendChild(tb2b);
+	$(row3b).append(row3bcol1);
+	$(pokemonNode).append(row3b);
 
-	var tb3 = createElement("table", "<colgroup><col width=100%></colgroup>", { hidden: "true", for_roles: "rb;RB" });
-	tb3.appendChild(createRow(['']));
-	tb3.children[1].children[0].appendChild(createPokemonRaidTierInput());
-	pokemonNode.children[1].appendChild(tb3);
+	var row3c = createElement("div", "", {
+		class: "row", for_role: "rb;RB", hidden: "true"
+	});
+	var row3ccol1 = createElement("div", "", {
+		class: "col"
+	});
+	$(row3ccol1).append(createPokemonRaidTierInput());
+	$(row3c).append(row3ccol1);
+	$(pokemonNode).append(row3c);
 
-	var tb4 = createElement("table", "<colgroup><col width=50%><col width=50%></colgroup>");
-	tb4.appendChild(createRow(['', ''], 'td'));
-	tb4.children[1].children[0].appendChild(createPokemonMoveInput("fast", "fmove"));
-	tb4.children[1].children[1].appendChild(createPokemonStrategyInput());
-	var protectShieldStratInput = createPokemonProtectStrategyInput();
-	protectShieldStratInput.setAttribute("hidden", true);
-	tb4.children[1].children[1].appendChild(protectShieldStratInput);
-	pokemonNode.children[1].appendChild(tb4);
+	var row4 = createElement("div", "", {
+		class: "row"
+	});
+	var row4ccol1 = createElement("div", "", {
+		class: "col-sm-6"
+	});
+	var row4ccol2 = createElement("div", "", {
+		class: "col-sm-6"
+	});
+	$(row4ccol1).append(createPokemonMoveInput("fast", "fmove"));
+	$(row4ccol2).append(createPokemonStrategyInput());
+	$(row4).append(row4ccol1);
+	$(row4).append(row4ccol2);
+	$(pokemonNode).append(row4);
 
-	var tb5 = createElement("table", "<colgroup><col width=50%><col width=50%></colgroup>");
-	tb5.appendChild(createRow(['', ''], 'td'));
-	tb5.children[1].children[0].appendChild(createPokemonMoveInput("charged", "cmove"));
-	tb5.children[1].children[1].appendChild(createPokemonMoveInput("charged", "cmove2"));
-	pokemonNode.children[1].appendChild(tb5);
+	var row5 = createElement("div", "", {
+		class: "row"
+	});
+	var row5ccol1 = createElement("div", "", {
+		class: "col-sm-6"
+	});
+	var row5ccol2 = createElement("div", "", {
+		class: "col-sm-6"
+	});
+	$(row5ccol1).append(createPokemonMoveInput("charged", "cmove"));
+	$(row5ccol2).append(createPokemonMoveInput("charged", "cmove2"));
+	$(row5).append(row5ccol1);
+	$(row5).append(row5ccol2);
+	$(pokemonNode).append(row5);
 
 	return pokemonNode;
 }
 
 
 function createPartyNode() {
-	var partyNode = createElement('div', '', {
-		class: 'section-body section-party-node', name: "party"
+	var partyNode = createElement("div", "", {
+		class: "section-body container", name: "party"
 	});
-	partyNode.appendChild(createElement('div', "", { class: "section-node-head" }));
-	partyNode.appendChild(createElement('div', "", { name: "party-pokemon" }));
-	partyNode.appendChild(createElement('div', "", { style: "width:100%" }));
 
 	// 1. Head
-	partyNode.children[0].innerHTML = "<span class='section-node-title'>Unlabeled Party</span>";
-	partyNode.children[0].appendChild(createPartyNameInput());
-	var controlButtonDiv = createElement('div', "", { class: "section-buttons-panel" });
-	controlButtonDiv.appendChild(createMinimizeButton("party"));
-	controlButtonDiv.appendChild(createSavePartyButton());
-	controlButtonDiv.appendChild(createRemovePartyButton());
-	partyNode.children[0].appendChild(controlButtonDiv);
+	var row1 = createElement("div", "", {
+		class: "row"
+	});
+	var row1col1 = createElement("div", "", {
+		class: "col-sm-6"
+	});
+	var row1col2 = createElement("div", "", {
+		class: "col-sm-6 section-buttons-panel"
+	});
+
+	$(row1col1).append(createElement("span", "", {
+		name: "party-label", class: "section-node-title"
+	}));
+	$(row1col2).append(createMinimizeButton("party", "party-pokemon"));
+	$(row1col2).append(createSavePartyButton());
+	$(row1col2).append(createRemovePartyButton());
+
+	$(row1).append(row1col1);
+	$(row1).append(row1col2);
+	$(partyNode).append(row1);
+
+	var row2 = createElement("div", "", {
+		class: "row"
+	});
+	var row2col1 = createElement("div", "", {
+		class: "col-sm-4 section-node-head"
+	});
+	var row2col2 = createElement("div", "", {
+		class: "col-sm-4 section-node-head"
+	});
+	var row2col3 = createElement("div", "", {
+		class: "col-sm-4 section-node-head"
+	});
+
+	$(row2col1).append(createPartyReviveCheckbox());
+	$(row2col1).controlgroup();
+	$(row2col2).append(createPartyNameInput());
+	$(row2col3).append(createElement("input", "", {
+		type: "number", min: 0, placeholder: "Enter delay", title: "Enter delay",
+		name: "party-enterDelay", class: "form-control"
+	}));
+
+	$(row2).append(row2col1);
+	$(row2).append(row2col2);
+	$(row2).append(row2col3);
+	$(partyNode).append(row2);
 
 	// 2. Body
-	partyNode.children[1].appendChild(createPokemonNode());
-	$(partyNode.children[1]).sortable({ axis: 'y' });
+	var row3a = createElement("div", "", {
+		name: "party-pokemon", class: "row"
+	});
+	$(row3a).append(createPokemonNode());
+	$(row3a).sortable({ axis: 'y' });
+	$(partyNode).append(row3a);
 
 	// 3. Tail
-	partyNode.children[2].appendChild(createPartyReviveCheckbox());
-	partyNode.children[2].appendChild(createAddPokemonButton());
-	$(partyNode.children[2]).controlgroup();
+	var row4 = createElement("div", "", {
+		class: "row"
+	});
+	var row4col1 = createElement("div", "", {
+		class: "col"
+	});
+
+	$(row4col1).append(createAddPokemonButton());
+	$(row4col1).controlgroup();
+	$(row4).append(row4col1);
+
+	$(partyNode).append(row4);
 
 	return partyNode;
 }
 
 
 function createPlayerNode() {
-	var playerNode = createElement('div', '', {
-		class: 'section-body section-player-node', name: "player"
+	var playerNode = createElement("div", "", {
+		name: "player", class: 'section-body container',
 	});
-	playerNode.appendChild(createElement('div', "", { class: "section-node-head" }));
-	playerNode.appendChild(createElement('div', "", { name: "player-parties" }));
-	playerNode.appendChild(createElement('div', "", { style: "width:100%" }));
 
 	// 1. Head
-	playerNode.children[0].innerHTML = "<span class='section-node-title'>Unlabeled Player</span>";
-	var playerSettingDiv = createElement('div', '', {
-		style: 'width: 50%; display: inline-block; text-align: center;'
+	var row1 = createElement("div", "", {
+		class: "row"
 	});
-	playerSettingDiv.appendChild(createPlayerTeamInput());
-	playerSettingDiv.appendChild(createPlayerFriendInput());
-	playerNode.children[0].appendChild(playerSettingDiv);
+	var row1col1 = createElement("div", "", {
+		class: "col-sm-6"
+	});
+	var row1col2 = createElement("div", "", {
+		class: "col-sm-6 section-buttons-panel"
+	});
 
-	var controlButtonDiv = createElement('div', "", { class: 'section-buttons-panel' });
-	controlButtonDiv.appendChild(createMinimizeButton("player"));
-	controlButtonDiv.appendChild(createRemovePlayerButton());
-	playerNode.children[0].appendChild(controlButtonDiv);
+	$(row1col1).append(createElement("span", "", {
+		name: "player-label", class: "section-node-title"
+	}));
+	$(row1col2).append(createMinimizeButton("player", "player-parties"));
+	$(row1col2).append(createRemovePlayerButton());
+
+	$(row1).append(row1col1);
+	$(row1).append(row1col2);
+	$(playerNode).append(row1);
+
+	var row2 = createElement("div", "", {
+		class: "row"
+	});
+	var row2col1 = createElement("div", "", {
+		class: "col-md-4 section-node-head"
+	});
+	var row2col2 = createElement("div", "", {
+		class: "col-md-4 section-node-head"
+	});
+	var row2col3 = createElement("div", "", {
+		class: "col-md-4 section-node-head"
+	});
+
+	$(row2col1).append(createPlayerFriendInput());
+	$(row2col2).append(createPlayerTeamInput());
+	$(row2col3).append(createElement("input", "", {
+		type: "number", min: 1, placeholder: "Clones", title: "Clones",
+		name: "player-cloneMultiplier", class: "form-control"
+	}));
+
+	$(row2).append(row2col1);
+	$(row2).append(row2col2);
+	$(row2).append(row2col3);
+	$(playerNode).append(row2);
+
 
 	// 2. Body
-	playerNode.children[1].appendChild(createPartyNode());
-	$(playerNode.children[1]).sortable({ axis: 'y' });
+	var row3a = createElement("div", "", {
+		name: "player-parties", class: "row"
+	});
+
+	$(row3a).append(createPartyNode());
+	$(row3a).sortable({ axis: 'y' });
+	$(playerNode).append(row3a);
 
 	// 3. Tail
-	playerNode.children[2].appendChild(createAddPartyButton());
-	$(playerNode.children[2]).controlgroup();
+	var row4 = createElement("div", "", {
+		class: "row"
+	});
+	var row4col1 = createElement("div", "", {
+		class: "col"
+	});
+
+	$(row4col1).append(createAddPartyButton());
+	$(row4).append(row4col1);
+	$(row4).controlgroup();
+	$(playerNode).append(row4);
 
 	return playerNode;
 }
@@ -1124,8 +1279,8 @@ function addPlayerNode() {
 		playerNodes.appendChild(createPlayerNode());
 		relabel();
 	} else {
-		document.getElementById('input.addPlayer').setAttribute('disabled', true);
-		UI.sendFeedbackDialog('Exceeding maximum number of players.');
+		document.getElementById('AddPlayerButton').setAttribute('disabled', true);
+		UI.sendFeedbackDialog('Exceeding maximum number of players');
 	}
 }
 
