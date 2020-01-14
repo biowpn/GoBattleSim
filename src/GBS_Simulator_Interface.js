@@ -617,7 +617,7 @@ function generateEngineInputPvP(sim_input) {
 				delete engine_pkm.strategy;
 				out.pokemon.push(engine_pkm);
 				out.strategies.push(pkm.strategy);
-				out.numShields.push(parseInt(pkm.shields));
+				out.numShields.push(parseInt(pkm.copies) || 0);
 			}
 		}
 	}
