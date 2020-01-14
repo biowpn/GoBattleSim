@@ -20,7 +20,7 @@ function welcomeDialogSubmit(configIndex, advanced) {
 	$("#WelcomeDialog").dialog("close");
 	if (!advanced) {
 		document.getElementById('GoButton').scrollIntoView({ block: "center", inline: "center" });
-		UI.sendFeedbackDialog('Nice choice! Now, review the configuration and click "GO" to start the simulation.');
+		UI.sendFeedbackDialog('Nice choice! Now, review the input and click "GO" to start.');
 	}
 }
 
@@ -1267,30 +1267,7 @@ var sampleConfigurations = [
 			{
 				"team": "1",
 				"friend": "ultra",
-				"parties": [
-					{
-						"name": "",
-						"pokemon": [
-							{
-								"name": "Tyranitar",
-								"role": "a",
-								"copies": 6,
-								"level": "40",
-								"stmiv": "15",
-								"atkiv": "15",
-								"defiv": "15",
-								"fmove": "Smack Down",
-								"cmove": "Stone Edge",
-								"strategy": "ATTACKER_NO_DODGE"
-							}
-						],
-						"revive": true
-					}
-				]
-			},
-			{
-				"team": "1",
-				"friend": "ultra",
+				"cloneMultiplier": 2,
 				"parties": [
 					{
 						"name": "",

@@ -563,6 +563,7 @@ function generateEngineInputPvE(sim_input) {
 		battleMode: sim_input.battleMode,
 		timelimit: sim_input.timelimit - Data.BattleSettings.arenaEntryLagMs - Data.BattleSettings.arenaEarlyTerminationMs,
 		weather: sim_input.weather,
+		backgroundDPS: sim_input.backgroundDPS,
 		numSims: sim_input.numSims,
 		aggregation: sim_input.aggregation,
 		enableLog: (sim_input.aggregation == "enum"),

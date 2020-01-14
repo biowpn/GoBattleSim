@@ -988,10 +988,10 @@ function createPokemonNode() {
 		class: "row"
 	});
 	var row1col1 = createElement("div", "", {
-		class: "col-sm-6"
+		class: "col-6"
 	});
 	var row1col2 = createElement("div", "", {
-		class: "col-sm-6 section-buttons-panel"
+		class: "col-6 section-buttons-panel"
 	});
 	$(row1col1).append(createElement("span", "", {
 		name: "pokemon-label", class: "section-node-title"
@@ -1010,13 +1010,13 @@ function createPokemonNode() {
 		class: "row"
 	});
 	var row2col1 = createElement("div", "", {
-		class: "col-sm-6"
+		class: "col-md-6"
 	});
 	var row2col2 = createElement("div", "", {
-		class: "col-sm-3"
+		class: "col-md-3"
 	});
 	var row2col3 = createElement("div", "", {
-		class: "col-sm-3"
+		class: "col-md-3"
 	});
 	$(row2col1).append(createPokemonNameInput());
 	$(row2col2).append(createPokemonRoleInput());
@@ -1086,10 +1086,10 @@ function createPokemonNode() {
 		class: "row"
 	});
 	var row4ccol1 = createElement("div", "", {
-		class: "col-sm-6"
+		class: "col-md-6"
 	});
 	var row4ccol2 = createElement("div", "", {
-		class: "col-sm-6"
+		class: "col-md-6"
 	});
 	$(row4ccol1).append(createPokemonMoveInput("fast", "fmove"));
 	$(row4ccol2).append(createPokemonStrategyInput());
@@ -1101,10 +1101,10 @@ function createPokemonNode() {
 		class: "row"
 	});
 	var row5ccol1 = createElement("div", "", {
-		class: "col-sm-6"
+		class: "col-md-6"
 	});
 	var row5ccol2 = createElement("div", "", {
-		class: "col-sm-6"
+		class: "col-md-6"
 	});
 	$(row5ccol1).append(createPokemonMoveInput("charged", "cmove"));
 	$(row5ccol2).append(createPokemonMoveInput("charged", "cmove2"));
@@ -1126,10 +1126,10 @@ function createPartyNode() {
 		class: "row"
 	});
 	var row1col1 = createElement("div", "", {
-		class: "col-sm-6"
+		class: "col-6"
 	});
 	var row1col2 = createElement("div", "", {
-		class: "col-sm-6 section-buttons-panel"
+		class: "col-6 section-buttons-panel"
 	});
 
 	$(row1col1).append(createElement("span", "", {
@@ -1147,13 +1147,13 @@ function createPartyNode() {
 		class: "row"
 	});
 	var row2col1 = createElement("div", "", {
-		class: "col-sm-4 section-node-head"
+		class: "col-md-4 section-node-head"
 	});
 	var row2col2 = createElement("div", "", {
-		class: "col-sm-4 section-node-head"
+		class: "col-md-4 section-node-head"
 	});
 	var row2col3 = createElement("div", "", {
-		class: "col-sm-4 section-node-head"
+		class: "col-md-4 section-node-head"
 	});
 
 	$(row2col1).append(createPartyReviveCheckbox());
@@ -1182,12 +1182,20 @@ function createPartyNode() {
 		class: "row"
 	});
 	var row4col1 = createElement("div", "", {
-		class: "col"
+		class: "col-3"
+	});
+	var row4col2 = createElement("div", "", {
+		class: "col-6"
+	});
+	var row4col3 = createElement("div", "", {
+		class: "col-3"
 	});
 
-	$(row4col1).append(createAddPokemonButton());
-	$(row4col1).controlgroup();
+	$(row4col2).append(createAddPokemonButton());
+	$(row4col2).controlgroup();
 	$(row4).append(row4col1);
+	$(row4).append(row4col2);
+	$(row4).append(row4col3);
 
 	$(partyNode).append(row4);
 
@@ -1205,10 +1213,10 @@ function createPlayerNode() {
 		class: "row"
 	});
 	var row1col1 = createElement("div", "", {
-		class: "col-sm-6"
+		class: "col-6"
 	});
 	var row1col2 = createElement("div", "", {
-		class: "col-sm-6 section-buttons-panel"
+		class: "col-6 section-buttons-panel"
 	});
 
 	$(row1col1).append(createElement("span", "", {
@@ -1261,12 +1269,20 @@ function createPlayerNode() {
 		class: "row"
 	});
 	var row4col1 = createElement("div", "", {
-		class: "col"
+		class: "col-3"
+	});
+	var row4col2 = createElement("div", "", {
+		class: "col-6"
+	});
+	var row4col3 = createElement("div", "", {
+		class: "col-3"
 	});
 
-	$(row4col1).append(createAddPartyButton());
+	$(row4col2).append(createAddPartyButton());
+	$(row4col2).controlgroup();
 	$(row4).append(row4col1);
-	$(row4).controlgroup();
+	$(row4).append(row4col2);
+	$(row4).append(row4col3);
 	$(playerNode).append(row4);
 
 	return playerNode;

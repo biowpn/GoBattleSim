@@ -66,16 +66,13 @@
 		background-position: 10px;
 	}
 
-	button {
-		width: 100%;
-	}
-
 	.button-icon,
 	.button-icon:focus {
 		background-color: transparent;
 		margin: 1%;
 		cursor: pointer;
-		width: 10%;
+		width: 25px;
+		height: 25px;
 	}
 
 	.ui-controlgroup-item {
@@ -96,8 +93,8 @@
 
 	.player_button,
 	.player_button:focus {
+		width: 100%;
 		vertical-align: middle;
-		height: 31.6px;
 		color: #3076b2 !important;
 		background-color: white;
 		border: 1px solid #3076b2;
@@ -158,10 +155,6 @@
 		padding: 0px 0px 10px 8px;
 	}
 
-	div#feedback_buttons {
-		margin-bottom: 15px;
-	}
-
 	div#feedback_message {
 		margin-bottom: 10px;
 	}
@@ -200,11 +193,15 @@
 		position: relative;
 	}
 
-	.sub-menu {
-		position: absolute;
-		width: 90%;
+	.sub-menu-opener {
+		width: 100%;
 	}
 
+	.sub-menu {
+		width: 90%;
+		height: 100%;
+		position: absolute;
+	}
 
 
 	.center_stuff {
@@ -254,22 +251,30 @@
 		</colgroup>
 		<tr>
 			<td style='vertical-align: top'>
-				<button id='userEditFormOpener'><i class="fa fa-user" aria-hidden="true"></i> User/Box</button>
+				<button id='userEditFormOpener' class='sub-menu-opener'>
+					<i class="fa fa-user" aria-hidden="true"></i>
+					<span class="d-none d-sm-inline">User/Box</span>
+				</button>
 			</td>
 
 			<td class='sub-menu-container'>
-				<button class='sub-menu-opener'><i class="fa fa-cog" aria-hidden="true"></i> Customize</button>
+				<button class='sub-menu-opener'>
+					<i class="fa fa-cog" aria-hidden="true"></i>
+					<span class="d-none d-sm-inline">Customize</span>
+				</button>
 				<div class='sub-menu'>
 					<button class='player_button' id='moveEditFormOpener'>Move</button>
 					<button class='player_button' id='pokemonEditFormOpener'>Species</button>
 					<button class='player_button' id='parameterEditFormOpener'>Battle Settings</button>
 					<button class='player_button' id='modEditFormOpener'>Mods</button>
 				</div>
-
 			</td>
 
 			<td class='sub-menu-container'>
-				<button class='sub-menu-opener'><i class="fa fa-wrench" aria-hidden="true"></i> Tools</button>
+				<button class='sub-menu-opener'>
+					<i class="fa fa-wrench" aria-hidden="true"></i>
+					<span class="d-none d-sm-inline">Tools</span>
+				</button>
 				<div class='sub-menu'>
 					<button class='player_button' id='MVLTableOpener'>MVL Table</button>
 					<button class='player_button' id='battleMatrixOpener'>Battle Matrix</button>
@@ -279,7 +284,10 @@
 			</td>
 
 			<td class='sub-menu-container'>
-				<button class='sub-menu-opener'><i class="fa fa-question" aria-hidden="true"></i> Help</button>
+				<button class='sub-menu-opener'>
+					<i class="fa fa-question" aria-hidden="true"></i>
+					<span class="d-none d-sm-inline">Help</span>
+				</button>
 				<div class='sub-menu'>
 					<button class='player_button' id="WelcomeDialogOpener">Quick Start</button>
 					<button class='player_button' id="UserGuideOpener">User Guide</button>
@@ -293,7 +301,7 @@
 
 <div id="input">
 
-	<h2>General Settings</h2>
+	<br>
 	<div>
 		<table>
 			<colgroup>
@@ -323,6 +331,12 @@
 				</td>
 			</tr>
 			<tr>
+				<th>Background DPS</th>
+				<td>
+					<input type="number" min=0 value=0 name="input-backgroundDPS" id="backgroundDPS"></input>
+				</td>
+			</tr>
+			<tr>
 				<th>Repeat</th>
 				<td>
 					<input name="input-numSims" type="number" min="1">
@@ -341,34 +355,65 @@
 		</table>
 	</div>
 
-	<h2>Player Settings</h2>
-	<button id="AddPlayerButton" class="player_button"><i class="fa fa-user-plus" aria-hidden="true"></i> Add
-		Player</button>
+	<br>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-3">
+
+			</div>
+			<div class="col-sm-6">
+				<button id="AddPlayerButton" class="player_button">
+					<i class="fa fa-user-plus" aria-hidden="true"></i> Add Player
+				</button>
+			</div>
+			<div class="col-sm-3">
+
+			</div>
+		</div>
+	</div>
 
 	<div name="input-players" class="container">
 	</div>
 
 </div>
 
+<br>
 
-<button id="GoButton">Go</button>
+<div class="container">
+	<div class="row">
+		<div class="col-sm-6">
+			<button id="GoButton" class="btn btn-primary center_stuff">Go</button>
+		</div>
+		<div class="col-sm-6">
+			<button id="ClearButton" class="btn btn-secondary center_stuff">Clear All</button>
+		</div>
+	</div>
+</div>
 
+<br>
 
-<div id="feedback_message"></div>
+<div id="feedback_message">
+
+</div>
 
 <h4>Summary Table</h4>
-<div id="feedback_buttons"><button id="ClearButton">Clear All</button></div>
-<div id="feedback_table1"></div>
-<table>
-	<colgroup>
-		<col width="50%">
-		<col width="50%">
-	</colgroup>
-	<tr>
-		<td><button class="player_button" id="CopyClipboardButton">Copy to Clipboard</button></td>
-		<td><button class="player_button" id="CopyCSVButton">Export To CSV</button></td>
-	</tr>
-</table>
+
+<div id="feedback_table1">
+
+</div>
+
+
+<div class="container">
+	<div class="row">
+		<div class="col-sm-6">
+			<button class="player_button" id="CopyClipboardButton">Copy to Clipboard</button>
+		</div>
+		<div class="col-sm-6">
+			<button class="player_button" id="CopyCSVButton">Export To CSV</button>
+		</div>
+	</div>
+</div>
 
 <h4>Battle Statistics</h4>
 <div id="feedback_table2"></div>
