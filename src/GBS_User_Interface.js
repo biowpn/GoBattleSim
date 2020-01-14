@@ -1537,6 +1537,13 @@ function convertEngineBattleLog(sim_input, engine_log) {
 				text: "Effect Activated"
 			});
 		}
+		else if (event.type == "BackgroundDPS") {
+			head_pkm.hp -= event.value;
+			setLastRow(col_idx, {
+				style: "text",
+				text: head_pkm.hp.toString() + "(-" + event.value.toString() + ")"
+			});
+		}
 		else if (event.type == "Enter" || event.type == "Exit") {
 			head_pkm = Object.assign({}, pkm_map[event.value]);
 			head_pkm.hp = head_pkm.maxHP;
