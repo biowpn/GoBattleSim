@@ -62,7 +62,6 @@ GBS.run = function () {
  */
 GBS.collect = function () {
 	let out_ptr = Module.ccall("GBS_collect", "number", [], []);
-	console.log(out_ptr);
 	let _str = UTF8ToString(out_ptr);
 	return JSON.parse(_str);
 }

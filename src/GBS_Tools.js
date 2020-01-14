@@ -7,7 +7,7 @@ function welcomeDialogInit() {
 	$("#WelcomeDialog").attr("style", "visibility: show;");
 	$("#WelcomeDialog").dialog({
 		autoOpen: false,
-		width: 600
+		width: innerWidth * 0.9
 	});
 	$("#WelcomeDialogOpener").click(function () {
 		$("#WelcomeDialog").dialog("open");
@@ -64,7 +64,7 @@ function moveEditFormInit() {
 	$("#moveEditForm").attr("style", "visibility: show;");
 	$("#moveEditForm").dialog({
 		autoOpen: false,
-		width: 600
+		width: innerWidth * 0.9
 	});
 	$("#moveEditFormOpener").click(function () {
 		$("#moveEditForm").dialog("open");
@@ -172,7 +172,7 @@ function pokemonEditFormInit() {
 	$("#pokemonEditForm").attr("style", "visibility: show;");
 	$("#pokemonEditForm").dialog({
 		autoOpen: false,
-		width: 600
+		width: innerWidth * 0.9
 	});
 	$("#pokemonEditFormOpener").click(function () {
 		$("#pokemonEditForm").dialog("open");
@@ -297,7 +297,7 @@ function parameterEditFormInit() {
 	$("#parameterEditForm").attr("style", "visibility: show;");
 	$("#parameterEditForm").dialog({
 		autoOpen: false,
-		width: 600,
+		width: innerWidth * 0.9,
 		maxHeight: 700
 	});
 	$("#parameterEditFormOpener").click(function () {
@@ -349,7 +349,7 @@ function userEditFormInit() {
 	$("#boxEditForm").attr("style", "visibility: show;");
 	$("#userEditForm").dialog({
 		autoOpen: false,
-		width: 600
+		width: innerWidth * 0.9
 	});
 	$("#userEditFormOpener").click(function () {
 		updateUserTable();
@@ -358,7 +358,7 @@ function userEditFormInit() {
 
 	$("#boxEditForm").dialog({
 		autoOpen: false,
-		width: 600
+		width: innerWidth * 0.9
 	});
 	$('#boxEditForm-pokemonTable').DataTable({
 		scrollX: true,
@@ -446,7 +446,7 @@ function modEditFormInit() {
 	$("#modEditForm").attr("style", "visibility: show;");
 	$("#modEditForm").dialog({
 		autoOpen: false,
-		width: 600
+		width: innerWidth * 0.9
 	});
 	$("#modEditFormOpener").click(function () {
 		$("#modEditForm").dialog("open");
@@ -473,7 +473,7 @@ function MVLTableInit() {
 	$("#MVLTable").attr("style", "visibility: show;");
 	$("#MVLTable").dialog({
 		autoOpen: false,
-		width: 600
+		width: innerWidth * 0.9
 	});
 	$("#MVLTableOpener").click(function () {
 		$("#MVLTable").dialog("open");
