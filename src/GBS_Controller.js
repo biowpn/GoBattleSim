@@ -5,6 +5,8 @@
  */
 var App = {};
 
+var GameMaster = {};
+var Simulations = [];
 
 /** 
  * Application entry point. This is called after the Data_Factory has prepared all the data.
@@ -58,6 +60,13 @@ App.init = function () {
 
 	var playersNode = $("#input").find("[name=input-players]")[0];
 	$(playersNode).sortable({ axis: 'y' });
+
+	// Do it now because addPlayerNode() needs GBS ready (to fetch strategy)
+	GameMaster = GM.convert();
+	tryTillSuccess(function () {
+		GBS.config(GameMaster);
+	});
+
 	addPlayerNode();
 	addPlayerNode();
 	UI.write({ team: "0", parties: [{ pokemon: [{ role: "rb" }] }] }, playersNode.children[1]);
@@ -76,11 +85,6 @@ App.init = function () {
 		$("#WelcomeDialog").dialog("open");
 	}
 	parameterEditFormRefresh();
-
-	GameMaster = GM.convert();
-	tryTillSuccess(function () {
-		GBS.config(GameMaster);
-	});
 
 	UI.refresh();
 }
@@ -121,12 +125,3 @@ App.onBattleLogChange = function (battleInfo) {
 		output: output
 	});
 }
-
-
-/** 
- * Non-interface members
- */
-
-var GameMaster = {};
-
-var Simulations = [];
