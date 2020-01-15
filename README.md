@@ -1,6 +1,16 @@
 # GoBattleSim
 
-A next-generation Pokemon Go battle simulator, supporting multi-player gym battles, raid battles and trainer battles (PvP). It also includes rich functionalities such as Pokemon / Move Editor that allows users to tune the stats of Pokemon / Move with high flexibility.
+GoBattleSim is an open-sourced Pokemon Go battle simulator, supporting multi-player gym battles, raid battles, and trainer battles (PvP). Its design goals are:
+ 
+ - **Flexable**: Pokemon Go is constantly being updated, and GoBattleSim is able to simulate not only *the present*, but also *the future*.
+
+ - **Customizable**: Almost everything in GoBattleSim can be configured as the user wishes, from Pokemon / Move stats to detailed battle settings.
+
+ - **Fast**: While GoBattleSim is a client-side application, it is powered by [WebAssembly](https://webassembly.org/) which allows executing at almost native speed.
+
+ - **Extensible**: The simulation engine part of GoBattleSim provides C/C++/JavaScript/Python API, allowing other applications to be built on top of it.
+
+
 
 ## Public Hosting
 
@@ -17,7 +27,11 @@ https://gamepress.gg/pokemongo/comprehensive-dps-spreadsheet
 
 1. Clone this repository
 
-2. `tar -xf` the "pokemongo_*.tar" file which contains the necessary assets
+2. `tar -xf` the "pokemongo_*.tar"
+
+    - Afterwards, these sub directories should be under the root directory:
+        - pokemongo/
+        - sites/
 
 3. Set up a simple HTTP server from the root directory, for example with Python3:
 
@@ -35,13 +49,13 @@ https://gamepress.gg/pokemongo/comprehensive-dps-spreadsheet
 
 ## Build
 
-The simulator engine part of GoBattleSim is written in C++ and compiled into [src/GBS_Engine.wasm](./src/GBS_Engine.wasm). If you want to build it from source, you need [emscripten](https://emscripten.org/) as well as the following modules:
+The simulator engine part of GoBattleSim is [src/GBS_Engine.wasm](./src/GBS_Engine.wasm). You need [emscripten](https://emscripten.org/) to build it from the sources:
 
 - [GoBattleSim-Engine](https://github.com/biowpn/GoBattleSim-Engine.git)
 
 - [GameSolver](https://github.com/biowpn/GameSolver.git)
 
-Place the above modules on the same directory level as this repository.
+Place the above repositories on the same directory level as this repository.
 
 Make sure `em++` is available from command line. Then run the script:
 
