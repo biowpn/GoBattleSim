@@ -52,10 +52,10 @@ App.init = function () {
 	$("#GoButton").click(App.onclickGo);
 	$("#ClearButton").click(App.onclickClear);
 	$("#CopyClipboardButton").click(function () {
-		UI.copyTableToClipboard('MasterSummaryTable');
+		copyTableToClipboard('MasterSummaryTable');
 	});
 	$("#CopyCSVButton").click(function () {
-		UI.exportTableToCSV('MasterSummaryTable', 'GoBattleSim_result.csv');
+		exportTableToCSV('MasterSummaryTable', 'GoBattleSim_result.csv');
 	});
 
 	var playersNode = $("#input").find("[name=input-players]")[0];
