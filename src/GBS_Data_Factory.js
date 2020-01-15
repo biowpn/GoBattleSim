@@ -6,13 +6,9 @@
 
 var GM = {};
 
-if (window.BASE_URL == undefined) {
-	// local hosting
-	window.BASE_URL = "http://127.0.0.1:80";
-	window.raidBossListURL = BASE_URL + "/pokemongo/sites/pokemongo/files/pogo-jsons/raid-boss-list-PoGO.json";
-	window.pokemonDataFullURL = BASE_URL + "/pokemongo/sites/pokemongo/files/pogo-jsons/pokemon-data-full-en-PoGO.json";
-	window.moveDataFullURL = BASE_URL + "/pokemongo/sites/pokemongo/files/pogo-jsons/move-data-full-PoGO.json";
-}
+var pokemonDataFullURL = "/sites/default/files/aggregatedjson/pokemon-data-full-en-PoGO.json";
+var moveDataFullURL = "/sites/default/files/aggregatedjson/move-data-full-PoGO.json";
+var raidBossListURL = "/sites/default/files/aggregatedjson/raid-boss-list-PoGO.json";
 
 /** 
  * Fetch all required JSONs for the application.
@@ -362,16 +358,6 @@ GM.convert = function (src) {
  * Non-interface members
  */
 var curTime = Date.now();
-
-if (window.raidBossListURL == undefined) {
-	window.raidBossListURL = "";
-}
-if (window.pokemonDataFullURL == undefined) {
-	window.pokemonDataFullURL = "";
-}
-if (window.moveDataFullURL == undefined) {
-	window.moveDataFullURL = "";
-}
 
 var requiredJSONStatus = {
 	// 0: Not loaded, 1: Started loading, 2: Successfully loaded
@@ -723,7 +709,7 @@ function getPokemonIcon(dex) {
 	dex = (dex || "").toString();
 	while (dex.length < 3)
 		dex = '0' + dex;
-	return BASE_URL + "/pokemongo/assets/img/sprites/" + dex + "MS.png";
+	return "/pokemongo/assets/img/sprites/" + dex + "MS.png";
 }
 
 /**
@@ -733,7 +719,7 @@ function getPokemonIcon(dex) {
  * @return {string} The URL to the icon.
  */
 function getTypeIcon(type) {
-	return BASE_URL + "/pokemongo/sites/pokemongo/files/icon_" + (type || "none").toLowerCase() + ".png";
+	return "/pokemongo/sites/pokemongo/files/icon_" + (type || "none").toLowerCase() + ".png";
 }
 
 /**
@@ -825,7 +811,7 @@ function parseUserPokebox(data) {
  */
 function fetchURLs(oncomplete) {
 	$.ajax({
-		url: BASE_URL + "/json-list?_format=json&game_tid=1&" + curTime,
+		url: "/json-list?_format=json&game_tid=1&" + curTime,
 		dataType: 'json',
 		success: function (data) {
 			for (var i = 0; i < data.length; i++) {
@@ -857,7 +843,7 @@ function fetchLevelSettings(oncomplete) {
 		return;
 	requiredJSONStatus.LevelSettings = 1;
 	$.ajax({
-		url: BASE_URL + "/pokemongo/assets/data/cpm.json",
+		url: "/pokemongo/assets/data/cpm.json",
 		dataType: 'json',
 		success: function (data) {
 			Data.LevelSettings = [];
@@ -883,17 +869,11 @@ function fetchLevelSettings(oncomplete) {
  * @param oncomplete The callback after the fetching is complete.
  */
 function fetchRaidBosses(oncomplete) {
-	if (!window.raidBossListURL) {
-		fetchURLs(function () {
-			fetchRaidBosses(oncomplete);
-		});
-		return;
-	}
-	if (requiredJSONStatus.RaidBosses != 0)
-		return;
+	if (requiredJSONStatus.RaidBosses != 0) { return; }
 	requiredJSONStatus.RaidBosses = 1;
+
 	$.ajax({
-		url: raidBossListURL,
+		url: raidBossListURL + "?" + curTime,
 		dataType: 'json',
 		success: function (data) {
 			Data.RaidBosses = [];
@@ -923,17 +903,11 @@ function fetchRaidBosses(oncomplete) {
  * @param oncomplete The callback after the fetching is complete.
  */
 function fetchPokemon(oncomplete) {
-	if (!window.pokemonDataFullURL) {
-		fetchURLs(function () {
-			fetchPokemon(oncomplete);
-		});
-		return;
-	}
-	if (requiredJSONStatus.Pokemon != 0)
-		return;
+	if (requiredJSONStatus.Pokemon != 0) { return; }
 	requiredJSONStatus.Pokemon = 1;
+
 	$.ajax({
-		url: pokemonDataFullURL,
+		url: pokemonDataFullURL + "?" + curTime,
 		dataType: 'json',
 		success: function (data) {
 			Data.Pokemon = [];
@@ -984,10 +958,11 @@ function fetchPokemon(oncomplete) {
  */
 function fetchPokemonForms(oncomplete) {
 	if (requiredJSONStatus.PokemonForms != 0)
-		return;
+		{return;}
 	requiredJSONStatus.PokemonForms = 1;
+
 	$.ajax({
-		url: BASE_URL + "/pokemongo/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json",
+		url: "/pokemongo/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json" + "?" + curTime,
 		dataType: 'json',
 		success: function (data) {
 			Data.PokemonForms = [];
@@ -1015,17 +990,11 @@ function fetchPokemonForms(oncomplete) {
  * @param oncomplete The callback after the fetching is complete.
  */
 function fetchMoves(oncomplete) {
-	if (!window.moveDataFullURL) {
-		fetchURLs(function () {
-			fetchMoves(oncomplete);
-		});
-		return;
-	}
-	if (requiredJSONStatus.Moves != 0)
-		return;
+	if (requiredJSONStatus.Moves != 0) { return; }
 	requiredJSONStatus.Moves = 1;
+
 	$.ajax({
-		url: moveDataFullURL,
+		url: moveDataFullURL + "?" + curTime,
 		dataType: 'json',
 		success: function (data) {
 			Data.FastMoves = [];
@@ -1133,7 +1102,7 @@ function fetchUser(oncomplete, userid) {
 
 	// Fetch box
 	$.ajax({
-		url: BASE_URL + "/pokemongo/user-pokemon-json-list?_format=json&new&uid_raw=" + userid,
+		url: "/pokemongo/user-pokemon-json-list?_format=json&new&uid_raw=" + userid,
 		dataType: 'json',
 		success: function (data) {
 			for (let pokemon of data) {
@@ -1152,7 +1121,7 @@ function fetchUser(oncomplete, userid) {
 	});
 	// Fetch parties
 	$.ajax({
-		url: BASE_URL + "/pokemongo/user-pokemon-team?_format=json&uid=" + userid,
+		url: "/pokemongo/user-pokemon-team?_format=json&uid=" + userid,
 		dataType: 'json',
 		success: function (data) {
 			user.parties = [];
