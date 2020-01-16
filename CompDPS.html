@@ -1,394 +1,410 @@
-<script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
-	crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
-<script type="text/javascript"
-	src="https://cdn.datatables.net/v/ju/dt-1.10.16/r-2.2.1/sc-1.4.4/datatables.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+<!DOCTYPE HTML>
+<html>
 
-<script type="text/javascript" src="src/DPS_Calculator.js"></script>
-<script type="text/javascript" src="src/GBS_Data_Factory.js"></script>
-<script type="text/javascript" src="src/GBS_Simulator_Interface.js"></script>
-<script type="text/javascript" src="src/GBS_Tools.js"></script>
-<script type="text/javascript" src="src/GBS_User_Interface.js"></script>
+<head>
+	<title>Comprehensive DPS Spreadsheet</title>
+
+	<script src="https://code.jquery.com/jquery-2.2.4.js"
+		integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
+	<script type="text/javascript"
+		src="https://cdn.datatables.net/v/ju/dt-1.10.16/r-2.2.1/sc-1.4.4/datatables.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
+
+	<script type="text/javascript" src="src/DPS_Calculator.js"></script>
+	<script type="text/javascript" src="src/GBS_Data_Factory.js"></script>
+	<script type="text/javascript" src="src/GBS_Simulator_Interface.js"></script>
+	<script type="text/javascript" src="src/GBS_Tools.js"></script>
+	<script type="text/javascript" src="src/GBS_User_Interface.js"></script>
 
 
-<link href="https://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/scroller/1.4.4/css/scroller.dataTables.min.css" rel="stylesheet">
-<link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+	<link href="https://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
+	<link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
+	<link href="https://cdn.datatables.net/scroller/1.4.4/css/scroller.dataTables.min.css" rel="stylesheet">
+	<link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
 
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
 
-<style>
-	table {
-		width: 100%;
-		margin-bottom: 0px;
-	}
+	<style>
+		table {
+			width: 100%;
+			margin-bottom: 0px;
+		}
 
-	div#players-input h4 {
-		background: white;
-		padding: 8px;
-		margin: 10px 0px 0px 0px;
-		border: 1px solid #eceef3;
-		border-radius: 2px;
-	}
+		div#players-input h4 {
+			background: white;
+			padding: 8px;
+			margin: 10px 0px 0px 0px;
+			border: 1px solid #eceef3;
+			border-radius: 2px;
+		}
 
-	th,
-	td {
-		vertical-align: middle;
-		text-align: center;
-		line-height: normal;
-	}
+		th,
+		td {
+			vertical-align: middle;
+			text-align: center;
+			line-height: normal;
+		}
 
-	input,
-	select {
-		width: 100%;
-		margin-bottom: 0px !important;
-	}
+		input,
+		select {
+			width: 100%;
+			margin-bottom: 0px !important;
+		}
 
-	.input-with-icon {
-		padding-left: 40px !important;
-		background-repeat: no-repeat;
-		text-align: left;
-		display: inline-block;
-		width: 100%;
-	}
+		.input-with-icon {
+			padding-left: 40px !important;
+			background-repeat: no-repeat;
+			text-align: left;
+			display: inline-block;
+			width: 100%;
+		}
 
-	.species-input-with-icon {
-		background-size: 30px 30px;
-		background-position: 5px;
-	}
+		.species-input-with-icon {
+			background-size: 30px 30px;
+			background-position: 5px;
+		}
 
-	.move-input-with-icon {
-		background-size: 18px 18px;
-		background-position: 10px;
-	}
+		.move-input-with-icon {
+			background-size: 18px 18px;
+			background-position: 10px;
+		}
 
-	button {
-		width: 100%;
-	}
+		button {
+			width: 100%;
+		}
 
-	.ui-controlgroup-item {
-		margin-top: 5px;
-		margin-bottom: 5px;
-	}
+		.ui-controlgroup-item {
+			margin-top: 5px;
+			margin-bottom: 5px;
+		}
 
-	.ui-button,
-	.ui-button:focus {
-		color: white;
-		background-color: #3076b2;
-	}
+		.ui-button,
+		.ui-button:focus {
+			color: white;
+			background-color: #3076b2;
+		}
 
-	.ui-button:hover,
-	.ui-button:hover:focus {
-		background-color: #366ea2;
-	}
+		.ui-button:hover,
+		.ui-button:hover:focus {
+			background-color: #366ea2;
+		}
 
-	.player_button,
-	.player_button:focus {
-		vertical-align: middle;
-		height: 31.6px;
-		color: #3076b2 !important;
-		background-color: white;
-		border: 1px solid #3076b2;
-		padding: 0px 0px;
-	}
+		.player_button,
+		.player_button:focus {
+			vertical-align: middle;
+			height: 31.6px;
+			color: #3076b2 !important;
+			background-color: white;
+			border: 1px solid #3076b2;
+			padding: 0px 0px;
+		}
 
-	.player_button:hover,
-	.player_button:hover:focus {
-		color: #fff !important;
-		background-color: #366ea2;
-	}
+		.player_button:hover,
+		.player_button:hover:focus {
+			color: #fff !important;
+			background-color: #366ea2;
+		}
 
-	.section-node-head {
-		height: 30px;
-		padding-bottom: 3px;
-		text-align: center;
-	}
+		.section-node-head {
+			height: 30px;
+			padding-bottom: 3px;
+			text-align: center;
+		}
 
-	.section-node-title {
-		float: left;
-		width: 25%;
-		text-align: left;
-	}
+		.section-node-title {
+			float: left;
+			width: 25%;
+			text-align: left;
+		}
 
-	.section-buttons-panel {
-		float: right;
-		width: 25%;
-		text-align: right;
-	}
+		.section-buttons-panel {
+			float: right;
+			width: 25%;
+			text-align: right;
+		}
 
-	.button-icon,
-	.button-icon:focus {
-		background-color: transparent;
-		margin: 4px;
-		cursor: pointer;
-		height: 30px;
-		width: 30px;
-	}
+		.button-icon,
+		.button-icon:focus {
+			background-color: transparent;
+			margin: 4px;
+			cursor: pointer;
+			height: 30px;
+			width: 30px;
+		}
 
-	.ui-checkboxradio-label {
-		color: white;
-	}
+		.ui-checkboxradio-label {
+			color: white;
+		}
 
-	div#ui-mastersummarytable_filter {
-		float: none;
-	}
+		div#ui-mastersummarytable_filter {
+			float: none;
+		}
 
-	.dataTables_wrapper .dataTables_filter input {
-		margin: 5px 0px 0px 0px;
-	}
+		.dataTables_wrapper .dataTables_filter input {
+			margin: 5px 0px 0px 0px;
+		}
 
-	div#ui-mastersummarytable_filter {
-		float: none;
-		padding: 5px 5px 0px 5px;
-	}
+		div#ui-mastersummarytable_filter {
+			float: none;
+			padding: 5px 5px 0px 5px;
+		}
 
-	table.dataTable thead .sorting {
-		background-image: none !important;
-	}
+		table.dataTable thead .sorting {
+			background-image: none !important;
+		}
 
-	.dataTables_wrapper .dataTables_length,
-	.dataTables_wrapper .dataTables_filter,
-	.dataTables_wrapper .dataTables_info,
-	.dataTables_wrapper .dataTables_processing,
-	.dataTables_wrapper .dataTables_paginate {
-		color: #585858;
-	}
+		.dataTables_wrapper .dataTables_length,
+		.dataTables_wrapper .dataTables_filter,
+		.dataTables_wrapper .dataTables_info,
+		.dataTables_wrapper .dataTables_processing,
+		.dataTables_wrapper .dataTables_paginate {
+			color: #585858;
+		}
 
-	.fg-toolbar.ui-toolbar.ui-widget-header.ui-helper-clearfix.ui-corner-bl.ui-corner-br {
-		padding: 0px 0px 10px 8px;
-	}
+		.fg-toolbar.ui-toolbar.ui-widget-header.ui-helper-clearfix.ui-corner-bl.ui-corner-br {
+			padding: 0px 0px 10px 8px;
+		}
 
-	div#feedback_message {
-		margin-bottom: 10px;
-	}
+		div#feedback_message {
+			margin-bottom: 10px;
+		}
 
-	div#ui-mastersummarytable_filter label {
-		text-align: left;
-	}
+		div#ui-mastersummarytable_filter label {
+			text-align: left;
+		}
 
-	img {
-		max-width: 100%;
-		max-height: 100%;
-		vertical-align: middle !important;
-	}
+		img {
+			max-width: 100%;
+			max-height: 100%;
+			vertical-align: middle !important;
+		}
 
-	.section-body {
-		background: #f1f1f1;
-		padding: 5px 8px;
-		border-radius: 3px;
-		margin: 10px 0px;
-		border: 1px solid #ddd;
-	}
+		.section-body {
+			background: #f1f1f1;
+			padding: 5px 8px;
+			border-radius: 3px;
+			margin: 10px 0px;
+			border: 1px solid #ddd;
+		}
 
-	.section-player-node {}
+		.section-player-node {}
 
-	.section-party-node {}
+		.section-party-node {}
 
-	.section-pokemon-node {}
+		.section-pokemon-node {}
 
-	.ui-autocomplete {
-		max-height: 300px;
-		overflow-y: auto;
-		overflow-x: hidden;
-		padding-right: 20px;
-	}
+		.ui-autocomplete {
+			max-height: 300px;
+			overflow-y: auto;
+			overflow-x: hidden;
+			padding-right: 20px;
+		}
 
-	.ui-dialog-buttonset {
-		width: 100%;
-	}
+		.ui-dialog-buttonset {
+			width: 100%;
+		}
 
-	.sub-menu-container {
-		vertical-align: top;
-		position: relative;
-	}
+		.sub-menu-container {
+			vertical-align: top;
+			position: relative;
+		}
 
-	.sub-menu-opener {}
+		.sub-menu-opener {}
 
-	.sub-menu {
-		position: absolute;
-		width: 90%;
-		z-index: 100;
-	}
+		.sub-menu {
+			position: absolute;
+			width: 90%;
+			z-index: 100;
+		}
 
-	a {
-		color: inherit;
-		cursor: pointer;
-		text-decoration: inherit;
-	}
-</style>
+		a {
+			color: inherit;
+			cursor: pointer;
+			text-decoration: inherit;
+		}
+	</style>
 
-<div name="pokemon">
+</head>
+
+<body>
+
+	<div name="pokemon">
+
+		<table>
+			<colgroup>
+				<col width='50%'>
+				<col width='25%'>
+				<col width='25%'>
+			</colgroup>
+			<tr>
+				<th>Enemy Species</th>
+				<th>PokeType 1</th>
+				<th>PokeType 2</th>
+			</tr>
+			<tr>
+				<td id="enemy-pokemon-name-container"></td>
+				<td><select name='pokemon-pokeType1' id="pokemon-pokeType1" onchange='requestSpreadsheet()'></select>
+				</td>
+				<td><select name='pokemon-pokeType2' id="pokemon-pokeType2" onchange='requestSpreadsheet()'></select>
+				</td>
+			</tr>
+		</table>
+
+		<table>
+			<colgroup>
+				<col width='50%'>
+				<col width='50%'>
+			</colgroup>
+			<tr>
+				<th>Enemy Fast Move</th>
+				<th>Enemy Charged Move</th>
+			</tr>
+			<tr>
+				<td id="enemy-pokemon-fmove-container"></td>
+				<td id="enemy-pokemon-cmove-container"></td>
+			</tr>
+		</table>
+
+	</div>
 
 	<table>
 		<colgroup>
 			<col width='50%'>
-			<col width='25%'>
-			<col width='25%'>
+			<col width='50%'>
 		</colgroup>
 		<tr>
-			<th>Enemy Species</th>
-			<th>PokeType 1</th>
-			<th>PokeType 2</th>
+			<th>Weather</th>
+			<th>Customization</th>
 		</tr>
 		<tr>
-			<td id="enemy-pokemon-name-container"></td>
-			<td><select name='pokemon-pokeType1' id="pokemon-pokeType1" onchange='requestSpreadsheet()'></select></td>
-			<td><select name='pokemon-pokeType2' id="pokemon-pokeType2" onchange='requestSpreadsheet()'></select></td>
+			<td><select id='weather' onchange='requestSpreadsheet()'></select></td>
+			<td class='sub-menu-container'>
+				<button class='sub-menu-opener'><i class="fa fa-cog" aria-hidden="true"></i> Customize</button>
+				<div class='sub-menu'>
+					<button class='player_button' id='moveEditFormOpener'>Move</button>
+					<button class='player_button' id='pokemonEditFormOpener'>Species</button>
+					<button class='player_button' id='modEditFormOpener'>Mods</button>
+				</div>
+			</td>
 		</tr>
 	</table>
 
 	<table>
 		<colgroup>
-			<col width='50%'>
-			<col width='50%'>
+			<col width='25%'>
+			<col width='25%'>
+			<col width='25%'>
+			<col width='25%'>
 		</colgroup>
 		<tr>
-			<th>Enemy Fast Move</th>
-			<th>Enemy Charged Move</th>
+			<td>
+				<div id='ui-swapDiscount' style='width:100%;'><label style='width:100%;font-size:16px;'>Swap
+						Discount<input type='checkbox' id='ui-swapDiscount-checkbox'></label></div>
+			</td>
+			<td>
+				<div id='ui-use-box' style='width:100%;'><label style='width:100%;font-size:16px;'>My Pokemon<input
+							type='checkbox' id='ui-use-box-checkbox'></label></div>
+			</td>
+			<td>
+				<div id='ui-uniqueSpecies' style='width:100%;'><label style='width:100%;font-size:16px;'>Best<input
+							type='checkbox' id='ui-uniqueSpecies-checkbox'></label></div>
+			</td>
+			<td>
+				<button class='player_button' id='refresher'><i class="fa fa-refresh" aria-hidden="true"></i>
+					Refresh</button>
+			</td>
 		</tr>
 		<tr>
-			<td id="enemy-pokemon-fmove-container"></td>
-			<td id="enemy-pokemon-cmove-container"></td>
+			<td>
+				<div style='width:100%;'><input id="ui-cpcap" type="number" placeholder="CP Cap"></input></div>
+			</td>
+			<td>
+				<div id='ui-pvpMode' style='width:100%;'><label style='width:100%;font-size:16px;'>PvP Mode<input
+							type='checkbox' id='ui-pvpMode-checkbox'></label></div>
+			</td>
+			<td>
+
+			</td>
+			<td>
+
+			</td>
 		</tr>
 	</table>
 
-</div>
+	<table>
+		<colgroup>
+			<col width='100%'>
+		</colgroup>
+		<tr>
+			<th>Search</th>
+		</tr>
+		<tr>
+			<td><input type='text' id='searchInput' onkeyup='search_trigger()'></input></td>
+		</tr>
+	</table>
 
-<table>
-	<colgroup>
-		<col width='50%'>
-		<col width='50%'>
-	</colgroup>
-	<tr>
-		<th>Weather</th>
-		<th>Customization</th>
-	</tr>
-	<tr>
-		<td><select id='weather' onchange='requestSpreadsheet()'></select></td>
-		<td class='sub-menu-container'>
-			<button class='sub-menu-opener'><i class="fa fa-cog" aria-hidden="true"></i> Customize</button>
-			<div class='sub-menu'>
-				<button class='player_button' id='moveEditFormOpener'>Move</button>
-				<button class='player_button' id='pokemonEditFormOpener'>Species</button>
-				<button class='player_button' id='modEditFormOpener'>Mods</button>
-			</div>
-		</td>
-	</tr>
-</table>
+	<table id='ranking_table' style='width:100%;'>
+		<thead></thead>
+		<tfoot></tfoot>
+		<tbody></tbody>
+	</table>
 
-<table>
-	<colgroup>
-		<col width='25%'>
-		<col width='25%'>
-		<col width='25%'>
-		<col width='25%'>
-	</colgroup>
-	<tr>
-		<td>
-			<div id='ui-swapDiscount' style='width:100%;'><label style='width:100%;font-size:16px;'>Swap Discount<input
-						type='checkbox' id='ui-swapDiscount-checkbox'></label></div>
-		</td>
-		<td>
-			<div id='ui-use-box' style='width:100%;'><label style='width:100%;font-size:16px;'>My Pokemon<input
-						type='checkbox' id='ui-use-box-checkbox'></label></div>
-		</td>
-		<td>
-			<div id='ui-uniqueSpecies' style='width:100%;'><label style='width:100%;font-size:16px;'>Best<input
-						type='checkbox' id='ui-uniqueSpecies-checkbox'></label></div>
-		</td>
-		<td>
-			<button class='player_button' id='refresher'><i class="fa fa-refresh" aria-hidden="true"></i>
-				Refresh</button>
-		</td>
-	</tr>
-	<tr>
-		<td>
-			<div style='width:100%;'><input id="ui-cpcap" type="number" placeholder="CP Cap"></input></div>
-		</td>
-		<td>
-			<div id='ui-pvpMode' style='width:100%;'><label style='width:100%;font-size:16px;'>PvP Mode<input
-						type='checkbox' id='ui-pvpMode-checkbox'></label></div>
-		</td>
-		<td>
+	<table>
+		<colgroup>
+			<col width="50%">
+			<col width="50%">
+		</colgroup>
+		<tr>
+			<td><button class="player_button" onclick="copyTableToClipboard('ranking_table')">Copy to Clipboard</button>
+			</td>
+			<td><button class="player_button"
+					onclick="exportTableToCSV('ranking_table', 'comprehensive_dps.csv')">Export To
+					CSV</button></td>
+		</tr>
+	</table>
 
-		</td>
-		<td>
+	<div w3-include-html="Modules.html" style="display: none;"></div>
 
-		</td>
-	</tr>
-</table>
-
-<table>
-	<colgroup>
-		<col width='100%'>
-	</colgroup>
-	<tr>
-		<th>Search</th>
-	</tr>
-	<tr>
-		<td><input type='text' id='searchInput' onkeyup='search_trigger()'></input></td>
-	</tr>
-</table>
-
-<table id='ranking_table' style='width:100%;'>
-	<thead></thead>
-	<tfoot></tfoot>
-	<tbody></tbody>
-</table>
-
-<table>
-	<colgroup>
-		<col width="50%">
-		<col width="50%">
-	</colgroup>
-	<tr>
-		<td><button class="player_button" onclick="copyTableToClipboard('ranking_table')">Copy to Clipboard</button>
-		</td>
-		<td><button class="player_button" onclick="exportTableToCSV('ranking_table', 'comprehensive_dps.csv')">Export To
-				CSV</button></td>
-	</tr>
-</table>
-
-<div w3-include-html="Modules.html" style="display: none;"></div>
-
-<script>
-	function includeHTML(oncomplete) {
-		var z, i, elmnt, file, xhttp;
-		/* Loop through a collection of all HTML elements: */
-		z = document.getElementsByTagName("*");
-		for (i = 0; i < z.length; i++) {
-			elmnt = z[i];
-			/*search for elements with a certain atrribute:*/
-			file = elmnt.getAttribute("w3-include-html");
-			if (file) {
-				/* Make an HTTP request using the attribute value as the file name: */
-				xhttp = new XMLHttpRequest();
-				xhttp.onreadystatechange = function () {
-					if (this.readyState == 4) {
-						if (this.status == 200) { elmnt.innerHTML = this.responseText; }
-						if (this.status == 404) { elmnt.innerHTML = "Page not found."; }
-						/* Remove the attribute, and call this function once more: */
-						elmnt.removeAttribute("w3-include-html");
-						includeHTML(oncomplete);
+	<script>
+		function includeHTML(oncomplete) {
+			var z, i, elmnt, file, xhttp;
+			/* Loop through a collection of all HTML elements: */
+			z = document.getElementsByTagName("*");
+			for (i = 0; i < z.length; i++) {
+				elmnt = z[i];
+				/*search for elements with a certain atrribute:*/
+				file = elmnt.getAttribute("w3-include-html");
+				if (file) {
+					/* Make an HTTP request using the attribute value as the file name: */
+					xhttp = new XMLHttpRequest();
+					xhttp.onreadystatechange = function () {
+						if (this.readyState == 4) {
+							if (this.status == 200) { elmnt.innerHTML = this.responseText; }
+							if (this.status == 404) { elmnt.innerHTML = "Page not found."; }
+							/* Remove the attribute, and call this function once more: */
+							elmnt.removeAttribute("w3-include-html");
+							includeHTML(oncomplete);
+						}
 					}
+					xhttp.open("GET", file, true);
+					xhttp.send();
+					/* Exit the function: */
+					return;
 				}
-				xhttp.open("GET", file, true);
-				xhttp.send();
-				/* Exit the function: */
-				return;
+			}
+			if (oncomplete) {
+				oncomplete();
 			}
 		}
-		if (oncomplete)
-		{
-			oncomplete();
-		}
-	}
-</script>
+	</script>
 
-<script>
-	includeHTML(DPSCalculatorInit);
-</script>
+	<script>
+		includeHTML(DPSCalculatorInit);
+	</script>
+
+</body>
+
+</html>

@@ -1,259 +1,266 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html>
 
 <head>
 
-<style>
-	table {
-		width: 100%;
-		margin-bottom: 0px;
-	}
+	<style>
+		table {
+			width: 100%;
+			margin-bottom: 0px;
+		}
 
-	th, td {
-		vertical-align: middle;
-		text-align: center;
-		line-height: normal;
-	}
+		th,
+		td {
+			vertical-align: middle;
+			text-align: center;
+			line-height: normal;
+		}
 
-	input, select {
-		width: 100%;
-        margin-bottom:0px !important;
-	}
-	
-	.input-with-icon{
-		padding-left: 40px !important;
-		background-repeat: no-repeat;
-		text-align: left;
-		width: 100%;
-	}
-	.species-input-with-icon{
-		background-size: 30px 30px;
-		background-position: 5px;
-	}
-	.move-input-with-icon{
-		background-size: 18px 18px;
-		background-position: 10px;
-	}
-	
-	button {
-		width: 100%;
-	}
-	
-	.ui-autocomplete {
-		max-height: 300px;
-		overflow-y: auto;
-		overflow-x: hidden;
-		padding-right: 20px;
-	}
-	
-</style>
+		input,
+		select {
+			width: 100%;
+			margin-bottom: 0px !important;
+		}
 
+		.input-with-icon {
+			padding-left: 40px !important;
+			background-repeat: no-repeat;
+			text-align: left;
+			width: 100%;
+		}
 
-<script src="https://code.jquery.com/jquery-2.2.4.js"></script>
-<script type="text/javascript" src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
-<link href="https://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
+		.species-input-with-icon {
+			background-size: 30px 30px;
+			background-position: 5px;
+		}
 
-<script src="src/GBS_Data_Factory.js"></script>
-<script src="src/GBS_User_Interface.js"></script>
+		.move-input-with-icon {
+			background-size: 18px 18px;
+			background-position: 10px;
+		}
 
-<script>
-function calculateCP(pkm){
-	var cpm = parseFloat(pkm.cpm);
-	var atk = pkm.Atk || (pkm.baseAtk + pkm.atkiv) * cpm;
-	var def = pkm.Def || (pkm.baseDef + pkm.defiv) * cpm;
-	var stm = pkm.Stm || (pkm.baseStm + pkm.stmiv) * cpm;
-	return Math.max(10, Math.floor(atk * Math.sqrt(def * stm)/10));
-}
+		button {
+			width: 100%;
+		}
+
+		.ui-autocomplete {
+			max-height: 300px;
+			overflow-y: auto;
+			overflow-x: hidden;
+			padding-right: 20px;
+		}
+	</style>
 
 
-/*
-	Find the list of CPs of the source Pokemon such that
-	when it becomes the target Pokemon (via evolving or whatsoever),
-	the cp will fall within the range [lower, upper]
-*/
-function solve(srcPkm, targetPkm, lower, upper){
-	var cpms = [];
-	GM.each("level", function(level){
-		cpms.push(level.cpm);
-	});
-	cpms.sort((x,y) => x < y ? -1 : 1);
-	
-	var validSrcCPs = {};
-	for (let cpm of cpms) {
-		srcPkm.cpm = cpm;
-		targetPkm.cpm = cpm;
-		for (let atkiv = 0; atkiv < 16; ++atkiv) {
-			srcPkm.atkiv = atkiv;
-			targetPkm.atkiv = atkiv;
-			for (let defiv = 0; defiv < 16; ++defiv) {
-				srcPkm.defiv = defiv;
-				targetPkm.defiv = defiv;
-				for (let stmiv = 0; stmiv < 16; ++stmiv) {
-					srcPkm.stmiv = stmiv;
-					targetPkm.stmiv = stmiv;
-					
-					let cur_target_cp = calculateCP(targetPkm);
-					if (lower <= cur_target_cp && cur_target_cp <= upper) {
-						let cur_srouce_cp = calculateCP(srcPkm);
-						validSrcCPs[cur_srouce_cp] = 1;
+	<script src="https://code.jquery.com/jquery-2.2.4.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
+	<link href="https://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
+
+	<script src="src/GBS_Data_Factory.js"></script>
+	<script src="src/GBS_User_Interface.js"></script>
+
+	<script>
+		function calculateCP(pkm) {
+			var cpm = parseFloat(pkm.cpm);
+			var atk = pkm.Atk || (pkm.baseAtk + pkm.atkiv) * cpm;
+			var def = pkm.Def || (pkm.baseDef + pkm.defiv) * cpm;
+			var stm = pkm.Stm || (pkm.baseStm + pkm.stmiv) * cpm;
+			return Math.max(10, Math.floor(atk * Math.sqrt(def * stm) / 10));
+		}
+
+
+		/**
+		 * Find the list of CPs of the source Pokemon such that
+		 * when it becomes the target Pokemon (via evolving or whatsoever),
+		 * the cp will fall within the range [lower, upper]
+		 */
+		function solve(srcPkm, targetPkm, lower, upper) {
+			var cpms = [];
+			GM.each("level", function (level) {
+				cpms.push(level.cpm);
+			});
+			cpms.sort((x, y) => x < y ? -1 : 1);
+
+			var validSrcCPs = {};
+			for (let cpm of cpms) {
+				srcPkm.cpm = cpm;
+				targetPkm.cpm = cpm;
+				for (let atkiv = 0; atkiv < 16; ++atkiv) {
+					srcPkm.atkiv = atkiv;
+					targetPkm.atkiv = atkiv;
+					for (let defiv = 0; defiv < 16; ++defiv) {
+						srcPkm.defiv = defiv;
+						targetPkm.defiv = defiv;
+						for (let stmiv = 0; stmiv < 16; ++stmiv) {
+							srcPkm.stmiv = stmiv;
+							targetPkm.stmiv = stmiv;
+
+							let cur_target_cp = calculateCP(targetPkm);
+							if (lower <= cur_target_cp && cur_target_cp <= upper) {
+								let cur_srouce_cp = calculateCP(srcPkm);
+								validSrcCPs[cur_srouce_cp] = 1;
+							}
+						}
 					}
 				}
 			}
-		}
-	}
-	var validCPs = [];
-	for (var cp in validSrcCPs) {
-		validCPs.push(parseInt(cp));
-	}
-	return validCPs.sort((x,y) => x < y ? -1 : 1);
-}
-
-
-function findContinousInterval(values) {
-	var lower = values[0], upper = values[values.length - 1];
-	var prev_v = lower;
-	for (var i = 1; i < values.length - 1; ++i) {
-		if (values[i] - prev_v > 1) {
-			lower = values[i];
-		}
-		prev_v = values[i];
-	}
-	var prev_v = upper;
-	for (var i = values.length - 2; values[i] > lower; --i) {
-		if (values[i] - prev_v < -1) {
-			upper = values[i];
-		}
-		prev_v = values[i];
-	}
-	return [lower, upper];
-}
-
-
-$(document).ready(function(){
-	
-	GM.fetch();
-	
-	for (let prefix of ["source", "target"]) {
-		$("#" + prefix + "-name").autocomplete({
-			minLength: 0,
-			delay: 0,
-			source: function(request, response){
-				response(GM.select("pokemon", request.term));
-			},
-			select: function(event, ui){
-				$(this).data('ui-autocomplete')._trigger('change', 'autocompletechange', {item: ui.item});
-			},
-			change: function(event, ui){
-				var pkmInfo = ui.item || GM.get("pokemon", this.value.trim().toLowerCase());
-				if (pkmInfo){
-					this.setAttribute('style', 'background-image: url(' + pkmInfo.icon + ')');
-					$("#" + prefix + "-baseAtk").val(pkmInfo.baseAtk);
-					$("#" + prefix + "-baseDef").val(pkmInfo.baseDef);
-					$("#" + prefix + "-baseStm").val(pkmInfo.baseStm);
-				}
+			var validCPs = [];
+			for (var cp in validSrcCPs) {
+				validCPs.push(parseInt(cp));
 			}
-		}).autocomplete( "instance" )._renderItem = _renderAutocompletePokemonItem;
-		
-		$("#" + prefix + "-name").css('background-image: url(' + getPokemonIcon() + ')');
-	}
-	
-	$("#solveButton").on("click", function(){
-		var srcPkm = {
-			baseAtk: parseInt($("#source-baseAtk").val()),
-			baseDef: parseInt($("#source-baseDef").val()),
-			baseStm: parseInt($("#source-baseStm").val())
-		};
-		var targetPkm = {
-			baseAtk: parseInt($("#target-baseAtk").val()),
-			baseDef: parseInt($("#target-baseDef").val()),
-			baseStm: parseInt($("#target-baseStm").val())
-		};
-		srcCPs = solve(srcPkm, targetPkm, parseInt($("#target-lowerCP").val()), parseInt($("#target-upperCP").val()));
-		$("#source-lowerCP").text(srcCPs[0]);
-		$("#source-upperCP").text(srcCPs[srcCPs.length - 1]);
-		hardRange = findContinousInterval(srcCPs);
-		$("#source-lowerCPhard").text(hardRange[0]);
-		$("#source-upperCPhard").text(hardRange[1]);
-		
-	});
-});
+			return validCPs.sort((x, y) => x < y ? -1 : 1);
+		}
 
-</script>
 
+		function findContinousInterval(values) {
+			var lower = values[0], upper = values[values.length - 1];
+			var prev_v = lower;
+			for (var i = 1; i < values.length - 1; ++i) {
+				if (values[i] - prev_v > 1) {
+					lower = values[i];
+				}
+				prev_v = values[i];
+			}
+			var prev_v = upper;
+			for (var i = values.length - 2; values[i] > lower; --i) {
+				if (values[i] - prev_v < -1) {
+					upper = values[i];
+				}
+				prev_v = values[i];
+			}
+			return [lower, upper];
+		}
+
+
+		$(document).ready(function () {
+
+			GM.fetch();
+
+			for (let prefix of ["source", "target"]) {
+				$("#" + prefix + "-name").autocomplete({
+					minLength: 0,
+					delay: 0,
+					source: function (request, response) {
+						response(GM.select("pokemon", request.term));
+					},
+					select: function (event, ui) {
+						$(this).data('ui-autocomplete')._trigger('change', 'autocompletechange', { item: ui.item });
+					},
+					change: function (event, ui) {
+						var pkmInfo = ui.item || GM.get("pokemon", this.value.trim().toLowerCase());
+						if (pkmInfo) {
+							this.setAttribute('style', 'background-image: url(' + pkmInfo.icon + ')');
+							$("#" + prefix + "-baseAtk").val(pkmInfo.baseAtk);
+							$("#" + prefix + "-baseDef").val(pkmInfo.baseDef);
+							$("#" + prefix + "-baseStm").val(pkmInfo.baseStm);
+						}
+					}
+				}).autocomplete("instance")._renderItem = _renderAutocompletePokemonItem;
+
+				$("#" + prefix + "-name").css('background-image: url(' + getPokemonIcon() + ')');
+			}
+
+			$("#solveButton").on("click", function () {
+				var srcPkm = {
+					baseAtk: parseInt($("#source-baseAtk").val()),
+					baseDef: parseInt($("#source-baseDef").val()),
+					baseStm: parseInt($("#source-baseStm").val())
+				};
+				var targetPkm = {
+					baseAtk: parseInt($("#target-baseAtk").val()),
+					baseDef: parseInt($("#target-baseDef").val()),
+					baseStm: parseInt($("#target-baseStm").val())
+				};
+				srcCPs = solve(srcPkm, targetPkm, parseInt($("#target-lowerCP").val()), parseInt($("#target-upperCP").val()));
+				$("#source-lowerCP").text(srcCPs[0]);
+				$("#source-upperCP").text(srcCPs[srcCPs.length - 1]);
+				hardRange = findContinousInterval(srcCPs);
+				$("#source-lowerCPhard").text(hardRange[0]);
+				$("#source-upperCPhard").text(hardRange[1]);
+
+			});
+		});
+
+	</script>
 
 </head>
 
 <body>
 
-<h3>Source Pokemon</h3>
-<table>
-	<thead>
-	</thead>
-	<tbody>
-		<tr>
-			<th>Species</th>
-		</tr>
-		<tr>
-			<td><input id="source-name" class="input-with-icon species-input-with-icon"></input></td>
-		</tr>
-		<tr>
-			<th>Base Atk</th><th>Base Def</th><th>Base Stm</th>
-		</tr>
-		<tr>
-			<td><input id="source-baseAtk"></input></td>
-			<td><input id="source-baseDef"></input></td>
-			<td><input id="source-baseStm"></input></td>
-		</tr>
-		<tr>
-			<th>Lower CP</th><th>Upper CP</th>
-		</tr>
-		<tr>
-			<td><label id="source-lowerCP"></label></td>
-			<td><label id="source-upperCP"></label></td>
-		</tr>
-		<tr>
-			<th>Lower CP Hard</th><th>Upper CP Hard</th>
-		</tr>
-		<tr>
-			<td><label id="source-lowerCPhard"></label></td>
-			<td><label id="source-upperCPhard"></label></td>
-		</tr>
-	</tbody>
-</table>
+	<h3>Source Pokemon</h3>
+	<table>
+		<thead>
+		</thead>
+		<tbody>
+			<tr>
+				<th>Species</th>
+			</tr>
+			<tr>
+				<td><input id="source-name" class="input-with-icon species-input-with-icon"></input></td>
+			</tr>
+			<tr>
+				<th>Base Atk</th>
+				<th>Base Def</th>
+				<th>Base Stm</th>
+			</tr>
+			<tr>
+				<td><input id="source-baseAtk"></input></td>
+				<td><input id="source-baseDef"></input></td>
+				<td><input id="source-baseStm"></input></td>
+			</tr>
+			<tr>
+				<th>Lower CP</th>
+				<th>Upper CP</th>
+			</tr>
+			<tr>
+				<td><label id="source-lowerCP"></label></td>
+				<td><label id="source-upperCP"></label></td>
+			</tr>
+			<tr>
+				<th>Lower CP Hard</th>
+				<th>Upper CP Hard</th>
+			</tr>
+			<tr>
+				<td><label id="source-lowerCPhard"></label></td>
+				<td><label id="source-upperCPhard"></label></td>
+			</tr>
+		</tbody>
+	</table>
 
-<h3>Target Pokemon</h3>
-<table>
-	<thead>
-	</thead>
-	<tbody>
-		<tr>
-			<th>Species</th>
-		</tr>
-		<tr>
-			<td><input id="target-name" class="input-with-icon species-input-with-icon"></input></td>
-		</tr>
-		<tr>
-			<th>Base Atk</th><th>Base Def</th><th>Base Stm</th>
-		</tr>
-		<tr>
-			<td><input id="target-baseAtk"></input></td>
-			<td><input id="target-baseDef"></input></td>
-			<td><input id="target-baseStm"></input></td>
-		</tr>
-		<tr>
-			<th>Lower CP</th><th>Upper CP</th>
-		</tr>
-		<tr>
-			<td><input id="target-lowerCP"></input></td>
-			<td><input id="target-upperCP"></input></td>
-		</tr>
-	</tbody>
-</table>
+	<h3>Target Pokemon</h3>
+	<table>
+		<thead>
+		</thead>
+		<tbody>
+			<tr>
+				<th>Species</th>
+			</tr>
+			<tr>
+				<td><input id="target-name" class="input-with-icon species-input-with-icon"></input></td>
+			</tr>
+			<tr>
+				<th>Base Atk</th>
+				<th>Base Def</th>
+				<th>Base Stm</th>
+			</tr>
+			<tr>
+				<td><input id="target-baseAtk"></input></td>
+				<td><input id="target-baseDef"></input></td>
+				<td><input id="target-baseStm"></input></td>
+			</tr>
+			<tr>
+				<th>Lower CP</th>
+				<th>Upper CP</th>
+			</tr>
+			<tr>
+				<td><input id="target-lowerCP"></input></td>
+				<td><input id="target-upperCP"></input></td>
+			</tr>
+		</tbody>
+	</table>
 
-<button id="solveButton">Solve</button>
+	<button id="solveButton">Solve</button>
 
 </body>
-
-
 
 </html>

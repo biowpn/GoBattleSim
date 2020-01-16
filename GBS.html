@@ -1,465 +1,480 @@
-<script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
-	crossorigin="anonymous"></script>
-<script type="text/javascript"
-	src="https://cdn.datatables.net/v/ju/dt-1.10.16/r-2.2.1/sc-1.4.4/datatables.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
+<!DOCTYPE HTML>
+<html>
 
-<script type="text/javascript" src="src/GBS_Controller.js"></script>
-<script type="text/javascript" src="src/GBS_Data_Factory.js"></script>
-<script type="text/javascript" src="src/GBS_Engine.js"></script>
-<script type="text/javascript" src="src/GBS_Simulator_Interface.js"></script>
-<script type="text/javascript" src="src/GBS_Tools.js"></script>
-<script type="text/javascript" src="src/GBS_User_Interface.js"></script>
+<head>
+	<title>GoBattleSim</title>
 
-<link href="https://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/scroller/1.4.4/css/scroller.dataTables.min.css" rel="stylesheet">
-<link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+	<script src="https://code.jquery.com/jquery-2.2.4.js"
+		integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
+	<script type="text/javascript"
+		src="https://cdn.datatables.net/v/ju/dt-1.10.16/r-2.2.1/sc-1.4.4/datatables.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
 
+	<script type="text/javascript" src="src/GBS_Controller.js"></script>
+	<script type="text/javascript" src="src/GBS_Data_Factory.js"></script>
+	<script type="text/javascript" src="src/GBS_Engine.js"></script>
+	<script type="text/javascript" src="src/GBS_Simulator_Interface.js"></script>
+	<script type="text/javascript" src="src/GBS_Tools.js"></script>
+	<script type="text/javascript" src="src/GBS_User_Interface.js"></script>
 
-<style>
-	table {
-		width: 100%;
-		margin-bottom: 0px;
-	}
+	<link href="https://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
+	<link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
+	<link href="https://cdn.datatables.net/scroller/1.4.4/css/scroller.dataTables.min.css" rel="stylesheet">
+	<link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
 
-	div#players-input h4 {
-		background: white;
-		padding: 8px;
-		margin: 10px 0px 0px 0px;
-		border: 1px solid #eceef3;
-		border-radius: 2px;
-	}
-
-	th,
-	td {
-		vertical-align: middle;
-		text-align: center;
-		line-height: normal;
-	}
-
-	input,
-	select {
-		width: 100%;
-		margin-bottom: 0px !important;
-	}
-
-	.input-with-icon {
-		padding-left: 35x !important;
-		background-repeat: no-repeat;
-		text-align: left;
-		width: 100%;
-	}
-
-	.species-input-with-icon {
-		background-size: 30px 30px;
-		background-position: 5px;
-	}
-
-	.move-input-with-icon {
-		background-size: 18px 18px;
-		background-position: 10px;
-	}
-
-	.button-icon,
-	.button-icon:focus {
-		background-color: transparent;
-		margin: 1%;
-		cursor: pointer;
-		width: 25px;
-		height: 25px;
-	}
-
-	.ui-controlgroup-item {
-		margin-top: 5px;
-		margin-bottom: 5px;
-	}
-
-	.ui-button,
-	.ui-button:focus {
-		color: white;
-		background-color: #3076b2;
-	}
-
-	.ui-button:hover,
-	.ui-button:hover:focus {
-		background-color: #366ea2;
-	}
-
-	.player_button,
-	.player_button:focus {
-		width: 100%;
-		vertical-align: middle;
-		color: #3076b2 !important;
-		background-color: white;
-		border: 1px solid #3076b2;
-		padding: 0px 0px;
-	}
-
-	.player_button:hover,
-	.player_button:hover:focus {
-		color: #fff !important;
-		background-color: #366ea2;
-	}
-
-	.section-node-head {
-		text-align: center;
-	}
-
-	.section-node-title {
-		float: left;
-		width: 100%;
-		text-align: left;
-	}
-
-	.section-buttons-panel {
-		float: right;
-		text-align: right;
-	}
-
-	.ui-checkboxradio-label {
-		color: white;
-	}
-
-	div#MasterSummaryTable_filter {
-		float: none;
-	}
-
-	.dataTables_wrapper .dataTables_filter input {
-		margin: 5px 0px 0px 0px;
-	}
-
-	div#MasterSummaryTable_filter {
-		float: none;
-		padding: 5px 5px 0px 5px;
-	}
-
-	table.dataTable thead .sorting {
-		background-image: none !important;
-	}
-
-	.dataTables_wrapper .dataTables_length,
-	.dataTables_wrapper .dataTables_filter,
-	.dataTables_wrapper .dataTables_info,
-	.dataTables_wrapper .dataTables_processing,
-	.dataTables_wrapper .dataTables_paginate {
-		color: #585858;
-	}
-
-	.fg-toolbar.ui-toolbar.ui-widget-header.ui-helper-clearfix.ui-corner-bl.ui-corner-br {
-		padding: 0px 0px 10px 8px;
-	}
-
-	div#feedback_message {
-		margin-bottom: 10px;
-	}
-
-	div#MasterSummaryTable_filter label {
-		text-align: left;
-	}
-
-	img {
-		max-width: 100%;
-		max-height: 100%;
-		vertical-align: middle !important;
-	}
-
-	.section-body {
-		background: #f1f1f1;
-		border-radius: 3px;
-		margin: 10px 0px;
-		border: 1px solid #ddd;
-		text-align: center;
-	}
-
-	.ui-autocomplete {
-		max-height: 300px;
-		overflow-y: auto;
-		overflow-x: hidden;
-		padding-right: 20px;
-	}
-
-	.ui-dialog-buttonset {
-		width: 100%;
-	}
-
-	.sub-menu-container {
-		vertical-align: top;
-		position: relative;
-	}
-
-	.sub-menu-opener {
-		width: 100%;
-	}
-
-	.sub-menu {
-		width: 90%;
-		height: 100%;
-		position: absolute;
-	}
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
 
 
-	.center_stuff {
-		width: 100%;
-		text-align: center;
-	}
+	<style>
+		table {
+			width: 100%;
+			margin-bottom: 0px;
+		}
 
-	.text_box {
-		width: 100%;
-	}
+		div#players-input h4 {
+			background: white;
+			padding: 8px;
+			margin: 10px 0px 0px 0px;
+			border: 1px solid #eceef3;
+			border-radius: 2px;
+		}
 
-	.overlay {
-		height: 100%;
-		width: 100%;
-		position: fixed;
-		z-index: 1;
-		left: 0;
-		top: 0;
-		background-color: rgb(0, 0, 0);
-		background-color: rgba(0, 0, 0, 0.9);
-		overflow-x: hidden;
-		transition: 0.5s;
-	}
+		th,
+		td {
+			vertical-align: middle;
+			text-align: center;
+			line-height: normal;
+		}
 
-	.overlay-content {
-		position: relative;
-		top: 40%;
-		width: 100%;
-		text-align: center;
-		margin-top: 30px;
-	}
+		input,
+		select {
+			width: 100%;
+			margin-bottom: 0px !important;
+		}
 
-	.col-sm-3,
-	col-sm-6 {
-		padding-bottom: 4px;
-	}
-</style>
+		.input-with-icon {
+			padding-left: 35px !important;
+			background-repeat: no-repeat;
+			text-align: left;
+			width: 100%;
+		}
+
+		.species-input-with-icon {
+			background-size: 30px 30px;
+			background-position: 5px;
+		}
+
+		.move-input-with-icon {
+			background-size: 18px 18px;
+			background-position: 10px;
+		}
+
+		.button-icon,
+		.button-icon:focus {
+			background-color: transparent;
+			margin: 1%;
+			cursor: pointer;
+			width: 25px;
+			height: 25px;
+		}
+
+		.ui-controlgroup-item {
+			margin-top: 5px;
+			margin-bottom: 5px;
+		}
+
+		.ui-button,
+		.ui-button:focus {
+			color: white;
+			background-color: #3076b2;
+		}
+
+		.ui-button:hover,
+		.ui-button:hover:focus {
+			background-color: #366ea2;
+		}
+
+		.player_button,
+		.player_button:focus {
+			width: 100%;
+			vertical-align: middle;
+			color: #3076b2 !important;
+			background-color: white;
+			border: 1px solid #3076b2;
+			padding: 0px 0px;
+		}
+
+		.player_button:hover,
+		.player_button:hover:focus {
+			color: #fff !important;
+			background-color: #366ea2;
+		}
+
+		.section-node-head {
+			text-align: center;
+		}
+
+		.section-node-title {
+			float: left;
+			width: 100%;
+			text-align: left;
+		}
+
+		.section-buttons-panel {
+			float: right;
+			text-align: right;
+		}
+
+		.ui-checkboxradio-label {
+			color: white;
+		}
+
+		div#MasterSummaryTable_filter {
+			float: none;
+		}
+
+		.dataTables_wrapper .dataTables_filter input {
+			margin: 5px 0px 0px 0px;
+		}
+
+		div#MasterSummaryTable_filter {
+			float: none;
+			padding: 5px 5px 0px 5px;
+		}
+
+		table.dataTable thead .sorting {
+			background-image: none !important;
+		}
+
+		.dataTables_wrapper .dataTables_length,
+		.dataTables_wrapper .dataTables_filter,
+		.dataTables_wrapper .dataTables_info,
+		.dataTables_wrapper .dataTables_processing,
+		.dataTables_wrapper .dataTables_paginate {
+			color: #585858;
+		}
+
+		.fg-toolbar.ui-toolbar.ui-widget-header.ui-helper-clearfix.ui-corner-bl.ui-corner-br {
+			padding: 0px 0px 10px 8px;
+		}
+
+		div#feedback_message {
+			margin-bottom: 10px;
+		}
+
+		div#MasterSummaryTable_filter label {
+			text-align: left;
+		}
+
+		img {
+			max-width: 100%;
+			max-height: 100%;
+			vertical-align: middle !important;
+		}
+
+		.section-body {
+			background: #f1f1f1;
+			border-radius: 3px;
+			margin: 10px 0px;
+			border: 1px solid #ddd;
+			text-align: center;
+		}
+
+		.ui-autocomplete {
+			max-height: 300px;
+			overflow-y: auto;
+			overflow-x: hidden;
+			padding-right: 20px;
+		}
+
+		.ui-dialog-buttonset {
+			width: 100%;
+		}
+
+		.sub-menu-container {
+			vertical-align: top;
+			position: relative;
+		}
+
+		.sub-menu-opener {
+			width: 100%;
+		}
+
+		.sub-menu {
+			width: 90%;
+			height: 100%;
+			position: absolute;
+		}
 
 
-<div id='menu' style="visibility: hidden;">
-	<table style="position: relative; height: 40px">
-		<colgroup>
-			<col width=25%>
-			<col width=25%>
-			<col width=25%>
-			<col width=25%>
-		</colgroup>
-		<tr>
-			<td style='vertical-align: top'>
-				<button id='userEditFormOpener' class='sub-menu-opener'>
-					<i class="fa fa-user" aria-hidden="true"></i>
-					<span class="d-none d-sm-inline">User/Box</span>
-				</button>
-			</td>
+		.center_stuff {
+			width: 100%;
+			text-align: center;
+		}
 
-			<td class='sub-menu-container'>
-				<button class='sub-menu-opener'>
-					<i class="fa fa-cog" aria-hidden="true"></i>
-					<span class="d-none d-sm-inline">Customize</span>
-				</button>
-				<div class='sub-menu'>
-					<button class='player_button' id='moveEditFormOpener'>Move</button>
-					<button class='player_button' id='pokemonEditFormOpener'>Species</button>
-					<button class='player_button' id='parameterEditFormOpener'>Battle Settings</button>
-					<button class='player_button' id='modEditFormOpener'>Mods</button>
-				</div>
-			</td>
+		.text_box {
+			width: 100%;
+		}
 
-			<td class='sub-menu-container'>
-				<button class='sub-menu-opener'>
-					<i class="fa fa-wrench" aria-hidden="true"></i>
-					<span class="d-none d-sm-inline">Tools</span>
-				</button>
-				<div class='sub-menu'>
-					<button class='player_button' id='MVLTableOpener'>MVL Table</button>
-					<button class='player_button' id='battleMatrixOpener'>Battle Matrix</button>
-					<button class='player_button' id='teamBuilderOpener'>Team Builder</button>
-					<button class='player_button' id='typeCheckerOpener'>Type Checker</button>
-				</div>
-			</td>
+		.overlay {
+			height: 100%;
+			width: 100%;
+			position: fixed;
+			z-index: 1;
+			left: 0;
+			top: 0;
+			background-color: rgb(0, 0, 0);
+			background-color: rgba(0, 0, 0, 0.9);
+			overflow-x: hidden;
+			transition: 0.5s;
+		}
 
-			<td class='sub-menu-container'>
-				<button class='sub-menu-opener'>
-					<i class="fa fa-question" aria-hidden="true"></i>
-					<span class="d-none d-sm-inline">Help</span>
-				</button>
-				<div class='sub-menu'>
-					<button class='player_button' id="WelcomeDialogOpener">Quick Start</button>
-					<button class='player_button' id="UserGuideOpener">User Guide</button>
-					<button class='player_button' id="ChanegLogOpener">Change Log</button>
-				</div>
-			</td>
+		.overlay-content {
+			position: relative;
+			top: 40%;
+			width: 100%;
+			text-align: center;
+			margin-top: 30px;
+		}
 
-		</tr>
-	</table>
-</div>
+		.col-sm-3,
+		col-sm-6 {
+			padding-bottom: 4px;
+		}
+	</style>
 
-<div id="input">
+</head>
 
-	<br>
-	<div>
-		<table>
+<body>
+
+	<div id='menu' style="visibility: hidden;">
+		<table style="position: relative; height: 40px">
 			<colgroup>
-				<col width=50%>
-				<col width=50%>
+				<col width=25%>
+				<col width=25%>
+				<col width=25%>
+				<col width=25%>
 			</colgroup>
 			<tr>
-				<th>Battle Mode</th>
-				<td>
-					<select name="input-battleMode" id="battleMode" onchange="complyBattleMode(this.value);">
-						<option value="raid">Raid</option>
-						<option value="gym">Gym</option>
-						<option value="pvp">PvP</option>
-					</select>
+				<td style='vertical-align: top'>
+					<button id='userEditFormOpener' class='sub-menu-opener'>
+						<i class="fa fa-user" aria-hidden="true"></i>
+						<span class="d-none d-sm-inline">User/Box</span>
+					</button>
 				</td>
-			</tr>
-			<tr>
-				<th>Time Limit (ms)</th>
-				<td>
-					<input type="number" name="input-timelimit" id="timelimit"></input>
+
+				<td class='sub-menu-container'>
+					<button class='sub-menu-opener'>
+						<i class="fa fa-cog" aria-hidden="true"></i>
+						<span class="d-none d-sm-inline">Customize</span>
+					</button>
+					<div class='sub-menu'>
+						<button class='player_button' id='moveEditFormOpener'>Move</button>
+						<button class='player_button' id='pokemonEditFormOpener'>Species</button>
+						<button class='player_button' id='parameterEditFormOpener'>Battle Settings</button>
+						<button class='player_button' id='modEditFormOpener'>Mods</button>
+					</div>
 				</td>
-			</tr>
-			<tr>
-				<th>Weather</th>
-				<td>
-					<select name="input-weather"></select>
+
+				<td class='sub-menu-container'>
+					<button class='sub-menu-opener'>
+						<i class="fa fa-wrench" aria-hidden="true"></i>
+						<span class="d-none d-sm-inline">Tools</span>
+					</button>
+					<div class='sub-menu'>
+						<button class='player_button' id='MVLTableOpener'>MVL Table</button>
+						<button class='player_button' id='battleMatrixOpener'>Battle Matrix</button>
+						<button class='player_button' id='teamBuilderOpener'>Team Builder</button>
+						<button class='player_button' id='typeCheckerOpener'>Type Checker</button>
+					</div>
 				</td>
-			</tr>
-			<tr>
-				<th>Background DPS</th>
-				<td>
-					<input type="number" min=0 value=0 name="input-backgroundDPS" id="backgroundDPS"></input>
+
+				<td class='sub-menu-container'>
+					<button class='sub-menu-opener'>
+						<i class="fa fa-question" aria-hidden="true"></i>
+						<span class="d-none d-sm-inline">Help</span>
+					</button>
+					<div class='sub-menu'>
+						<button class='player_button' id="WelcomeDialogOpener">Quick Start</button>
+						<button class='player_button' id="UserGuideOpener">User Guide</button>
+						<button class='player_button' id="ChanegLogOpener">Change Log</button>
+					</div>
 				</td>
-			</tr>
-			<tr>
-				<th>Repeat</th>
-				<td>
-					<input name="input-numSims" type="number" min="1">
-				</td>
-			</tr>
-			<tr>
-				<th>Aggregation</th>
-				<td>
-					<select name="input-aggregation">
-						<option value="enum">Enumerate</option>
-						<option value="avrg">Average</option>
-						<option value="tree">Tree Average</option>
-					</select>
-				</td>
+
 			</tr>
 		</table>
+	</div>
+
+	<div id="input">
+
+		<br>
+		<div>
+			<table>
+				<colgroup>
+					<col width=50%>
+					<col width=50%>
+				</colgroup>
+				<tr>
+					<th>Battle Mode</th>
+					<td>
+						<select name="input-battleMode" id="battleMode" onchange="complyBattleMode(this.value);">
+							<option value="raid">Raid</option>
+							<option value="gym">Gym</option>
+							<option value="pvp">PvP</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>Time Limit (ms)</th>
+					<td>
+						<input type="number" name="input-timelimit" id="timelimit"></input>
+					</td>
+				</tr>
+				<tr>
+					<th>Weather</th>
+					<td>
+						<select name="input-weather"></select>
+					</td>
+				</tr>
+				<tr>
+					<th>Background DPS</th>
+					<td>
+						<input type="number" min=0 value=0 name="input-backgroundDPS" id="backgroundDPS"></input>
+					</td>
+				</tr>
+				<tr>
+					<th>Repeat</th>
+					<td>
+						<input name="input-numSims" type="number" min="1">
+					</td>
+				</tr>
+				<tr>
+					<th>Aggregation</th>
+					<td>
+						<select name="input-aggregation">
+							<option value="enum">Enumerate</option>
+							<option value="avrg">Average</option>
+							<option value="tree">Tree Average</option>
+						</select>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<br>
+
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-3">
+
+				</div>
+				<div class="col-sm-6">
+					<button id="AddPlayerButton" class="player_button">
+						<i class="fa fa-user-plus" aria-hidden="true"></i> Add Player
+					</button>
+				</div>
+				<div class="col-sm-3">
+
+				</div>
+			</div>
+		</div>
+
+		<div name="input-players" class="container">
+		</div>
+
 	</div>
 
 	<br>
 
 	<div class="container">
 		<div class="row">
-			<div class="col-sm-3">
-
+			<div class="col-sm-6">
+				<button id="GoButton" class="btn btn-primary center_stuff">Go</button>
 			</div>
 			<div class="col-sm-6">
-				<button id="AddPlayerButton" class="player_button">
-					<i class="fa fa-user-plus" aria-hidden="true"></i> Add Player
-				</button>
-			</div>
-			<div class="col-sm-3">
-
+				<button id="ClearButton" class="btn btn-secondary center_stuff">Clear All</button>
 			</div>
 		</div>
 	</div>
 
-	<div name="input-players" class="container">
+	<br>
+
+	<div id="feedback_message">
+
 	</div>
 
-</div>
+	<h4>Summary Table</h4>
 
-<br>
+	<div id="feedback_table1">
 
-<div class="container">
-	<div class="row">
-		<div class="col-sm-6">
-			<button id="GoButton" class="btn btn-primary center_stuff">Go</button>
-		</div>
-		<div class="col-sm-6">
-			<button id="ClearButton" class="btn btn-secondary center_stuff">Clear All</button>
+	</div>
+
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-6">
+				<button class="player_button" id="CopyClipboardButton">Copy to Clipboard</button>
+			</div>
+			<div class="col-sm-6">
+				<button class="player_button" id="CopyCSVButton">Export To CSV</button>
+			</div>
 		</div>
 	</div>
-</div>
 
-<br>
+	<h4>Battle Statistics</h4>
+	<div id="feedback_table2"></div>
 
-<div id="feedback_message">
+	<h4>Battle Log</h4>
+	<div id="feedback_table3"></div>
 
-</div>
+	<div w3-include-html="Modules.html" style="display: none;"></div>
 
-<h4>Summary Table</h4>
-
-<div id="feedback_table1">
-
-</div>
-
-
-<div class="container">
-	<div class="row">
-		<div class="col-sm-6">
-			<button class="player_button" id="CopyClipboardButton">Copy to Clipboard</button>
-		</div>
-		<div class="col-sm-6">
-			<button class="player_button" id="CopyCSVButton">Export To CSV</button>
-		</div>
-	</div>
-</div>
-
-<h4>Battle Statistics</h4>
-<div id="feedback_table2"></div>
-
-<h4>Battle Log</h4>
-<div id="feedback_table3"></div>
-
-<div w3-include-html="Modules.html" style="display: none;"></div>
-
-<script>
-	function includeHTML() {
-		var z, i, elmnt, file, xhttp;
-		/* Loop through a collection of all HTML elements: */
-		z = document.getElementsByTagName("*");
-		for (i = 0; i < z.length; i++) {
-			elmnt = z[i];
-			/*search for elements with a certain atrribute:*/
-			file = elmnt.getAttribute("w3-include-html");
-			if (file) {
-				/* Make an HTTP request using the attribute value as the file name: */
-				xhttp = new XMLHttpRequest();
-				xhttp.onreadystatechange = function () {
-					if (this.readyState == 4) {
-						if (this.status == 200) { elmnt.innerHTML = this.responseText; }
-						if (this.status == 404) { elmnt.innerHTML = "Page not found."; }
-						/* Remove the attribute, and call this function once more: */
-						elmnt.removeAttribute("w3-include-html");
-						includeHTML();
+	<script>
+		function includeHTML() {
+			var z, i, elmnt, file, xhttp;
+			/* Loop through a collection of all HTML elements: */
+			z = document.getElementsByTagName("*");
+			for (i = 0; i < z.length; i++) {
+				elmnt = z[i];
+				/*search for elements with a certain atrribute:*/
+				file = elmnt.getAttribute("w3-include-html");
+				if (file) {
+					/* Make an HTTP request using the attribute value as the file name: */
+					xhttp = new XMLHttpRequest();
+					xhttp.onreadystatechange = function () {
+						if (this.readyState == 4) {
+							if (this.status == 200) { elmnt.innerHTML = this.responseText; }
+							if (this.status == 404) { elmnt.innerHTML = "Page not found."; }
+							/* Remove the attribute, and call this function once more: */
+							elmnt.removeAttribute("w3-include-html");
+							includeHTML();
+						}
 					}
+					xhttp.open("GET", file, true);
+					xhttp.send();
+					/* Exit the function: */
+					return;
 				}
-				xhttp.open("GET", file, true);
-				xhttp.send();
-				/* Exit the function: */
-				return;
 			}
 		}
-	}
-</script>
+	</script>
 
-<script>
-	includeHTML();
-	$(document).ready(function () {
-		GM.fetch({
-			complete: function () {
-				App.init();
-			}
+	<script>
+		includeHTML();
+		$(document).ready(function () {
+			GM.fetch({
+				complete: function () {
+					App.init();
+				}
+			});
 		});
-	});
-</script>
+	</script>
+
+</body>
+
+</html>
