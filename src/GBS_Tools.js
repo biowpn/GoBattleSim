@@ -7,7 +7,8 @@ function welcomeDialogInit() {
 	$("#WelcomeDialog").attr("style", "visibility: show;");
 	$("#WelcomeDialog").dialog({
 		autoOpen: false,
-		width: innerWidth * 0.9
+		width: Math_min(innerWidth * 0.9, 900),
+		maxWidth: 900
 	});
 	$("#WelcomeDialogOpener").click(function () {
 		$("#WelcomeDialog").dialog("open");
@@ -64,7 +65,8 @@ function moveEditFormInit() {
 	$("#moveEditForm").attr("style", "visibility: show;");
 	$("#moveEditForm").dialog({
 		autoOpen: false,
-		width: innerWidth * 0.9
+		width: Math_min(innerWidth * 0.9, 900),
+		maxWidth: 900
 	});
 	$("#moveEditFormOpener").click(function () {
 		$("#moveEditForm").dialog("open");
@@ -172,7 +174,8 @@ function pokemonEditFormInit() {
 	$("#pokemonEditForm").attr("style", "visibility: show;");
 	$("#pokemonEditForm").dialog({
 		autoOpen: false,
-		width: innerWidth * 0.9
+		width: Math_min(innerWidth * 0.9, 900),
+		maxWidth: 900
 	});
 	$("#pokemonEditFormOpener").click(function () {
 		$("#pokemonEditForm").dialog("open");
@@ -297,7 +300,8 @@ function parameterEditFormInit() {
 	$("#parameterEditForm").attr("style", "visibility: show;");
 	$("#parameterEditForm").dialog({
 		autoOpen: false,
-		width: innerWidth * 0.9,
+		width: Math_min(innerWidth * 0.9, 900),
+		maxWidth: 900,
 		maxHeight: 700
 	});
 	$("#parameterEditFormOpener").click(function () {
@@ -349,7 +353,8 @@ function userEditFormInit() {
 	$("#boxEditForm").attr("style", "visibility: show;");
 	$("#userEditForm").dialog({
 		autoOpen: false,
-		width: innerWidth * 0.9
+		width: Math_min(innerWidth * 0.9, 900),
+		maxWidth: 900
 	});
 	$("#userEditFormOpener").click(function () {
 		updateUserTable();
@@ -358,7 +363,8 @@ function userEditFormInit() {
 
 	$("#boxEditForm").dialog({
 		autoOpen: false,
-		width: innerWidth * 0.9
+		width: Math_min(innerWidth * 0.9, 900),
+		maxWidth: 900
 	});
 	$('#boxEditForm-pokemonTable').DataTable({
 		scrollX: true,
@@ -446,7 +452,8 @@ function modEditFormInit() {
 	$("#modEditForm").attr("style", "visibility: show;");
 	$("#modEditForm").dialog({
 		autoOpen: false,
-		width: innerWidth * 0.9
+		width: Math_min(innerWidth * 0.9, 900),
+		maxWidth: 900
 	});
 	$("#modEditFormOpener").click(function () {
 		$("#modEditForm").dialog("open");
@@ -473,7 +480,8 @@ function MVLTableInit() {
 	$("#MVLTable").attr("style", "visibility: show;");
 	$("#MVLTable").dialog({
 		autoOpen: false,
-		width: innerWidth * 0.9
+		width: Math_min(innerWidth * 0.9, 900),
+		maxWidth: 900
 	});
 	$("#MVLTableOpener").click(function () {
 		$("#MVLTable").dialog("open");
@@ -599,10 +607,12 @@ function teamBuilderInit() {
 	$("#teamBuilder").attr("style", "visibility: show;");
 	$("#teamBuilder").dialog({
 		autoOpen: false,
-		width: 800
+		width: Math_min(innerWidth * 0.9, 900),
+		maxWidth: 900
 	});
 	$("#teamBuilderOpener").click(function () {
 		$("#teamBuilder").dialog("open");
+		$("#teamBuilder-pokemonTable").DataTable().draw();
 	});
 
 	var pokemonDT = $("#teamBuilder-pokemonTable").DataTable({
@@ -727,7 +737,6 @@ function teamBuilderCalculatePokemon() {
 		UI.sendFeedbackDialog("No Pokemon in your box! Please log in and enter some Pokemon.");
 		return;
 	}
-	baseConfig.timelimit = -1;
 	baseConfig.numSims = 100;
 
 	var pokemonDT = $("#teamBuilder-pokemonTable").DataTable();
@@ -939,7 +948,8 @@ function typeCheckerInit() {
 	$("#typeChecker").attr("style", "visibility: show;");
 	$("#typeChecker").dialog({
 		autoOpen: false,
-		width: 800
+		width: Math_min(innerWidth * 0.9, 900),
+		maxWidth: 900
 	});
 	$("#typeCheckerOpener").click(function () {
 		$("#typeChecker").dialog("open");
