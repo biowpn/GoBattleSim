@@ -2,13 +2,11 @@
 
 GoBattleSim is an open-sourced Pokemon Go battle simulator, supporting multi-player gym battles, raid battles, and trainer battles (PvP). Its design goals are:
  
- - **Flexable**: Pokemon Go is constantly being updated, and GoBattleSim is able to simulate not only *the present*, but also *the future*.
-
- - **Customizable**: Almost everything in GoBattleSim can be configured as the user wishes, from Pokemon / Move stats to detailed battle settings.
+ - **Customizable**: Almost everything in GoBattleSim can be configured as users desire, from Pokemon / Move stats to nitty-gritty battle settings.
 
  - **Fast**: Performance matters, especially in mass simulations.
 
- - **Extensible**: The simulation engine part of GoBattleSim provides C/C++/JavaScript/Python API, allowing other applications to be built on top of it.
+ - **Flexable**: GoBattleSim generalizes the battle mechanics, and is able to simulate not only *the reality*, but also *the imagination*.
 
 ## Public Hosting
 
