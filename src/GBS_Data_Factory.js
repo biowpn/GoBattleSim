@@ -333,8 +333,8 @@ GM.convert = function (src) {
 		// PvPBattleSettings
 		dst.PvPBattleSettings = {
 			sameTypeAttackBonusMultiplier: src.BattleSettings.sameTypeAttackBonusMultiplier,
-			fastAttackBonusMultiplier: src.BattleSettings.PvPAttackBonusMultiplier,
-			chargeAttackBonusMultiplier: src.BattleSettings.PvPAttackBonusMultiplier,
+			fastAttackBonusMultiplier: src.BattleSettings.fastAttackBonusMultiplier,
+			chargeAttackBonusMultiplier: src.BattleSettings.chargeAttackBonusMultiplier,
 			maxEnergy: src.BattleSettings.maxEnergy,
 			quickSwapCooldownDurationMs: src.BattleSettings.quickSwapCooldownDurationMs,
 			quickSwapCooldownDurationSeconds: Math.round(src.BattleSettings.quickSwapCooldownDurationMs / 1000),
@@ -372,7 +372,7 @@ var Data = {
 	BattleSettings: {
 		'dodgeDurationMs': 500,
 		'dodgeWindowMs': 700,
-		'swapDurationMs': 500,
+		'swapDurationMs': 1000,
 		'quickSwapCooldownDurationMs': 60000,
 		'arenaEntryLagMs': 3000,
 		'arenaEarlyTerminationMs': 3000,
@@ -388,9 +388,10 @@ var Data = {
 
 		'sameTypeAttackBonusMultiplier': 1.2,
 		'weatherAttackBonusMultiplier': 1.2,
-		'PvPAttackBonusMultiplier': 1.3,
-		'attackBuffMultiplier': [0.5, 0.5714286, 0.66666669, 0.8, 1.0, 1.25, 1.5, 1.75, 2],
-		'defenseBuffMultiplier': [0.5, 0.5714286, 0.66666669, 0.8, 1.0, 1.25, 1.5, 1.75, 2],
+		'fastAttackBonusMultiplier': 1.3,
+		'chargeAttackBonusMultiplier': 1.3,
+		'attackBuffMultiplier': [0.5, 0.5714286, 0.6666667, 0.8, 1.0, 1.25, 1.5, 1.75, 2.0],
+		'defenseBuffMultiplier': [0.5, 0.5714286, 0.6666667, 0.8, 1.0, 1.25, 1.5, 1.75, 2.0],
 		'minimumStatStage': -4,
 		'maximumStatStage': 4,
 
@@ -956,8 +957,7 @@ function fetchPokemon(oncomplete) {
  * @param oncomplete The callback after the fetching is complete.
  */
 function fetchPokemonForms(oncomplete) {
-	if (requiredJSONStatus.PokemonForms != 0)
-		{return;}
+	if (requiredJSONStatus.PokemonForms != 0) { return; }
 	requiredJSONStatus.PokemonForms = 1;
 
 	$.ajax({
