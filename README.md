@@ -71,4 +71,4 @@ GNU public v3. See the [LICENSE.md](LICENSE.md) file for details
 
 ## Acknowledgments
 
-* [Felix](https://github.com/doublefelix921) and I, two GamePress Pokemon Go staff, were researching on the game mechanics of Pokemon Go (which is definitely not reverse-engineering) and made some findings. At that point of time, the well-established simulator PokeBattler hadn't implemented the new mechanics, so we decided to build simulators of our own. Felix's version of simulator is [BattleSim](https://github.com/doublefelix921/battlesim). I decided to write one that can be hosted easily on GamePress, hence GoBattleSim was born.
+* In late 2017, [Felix](https://github.com/doublefelix921) and I were researching on the battle mechanics of Pokemon Go (which is definitely not reverse-engineering) and [made some findings](https://gamepress.gg/pokemongo/new-discoveries-theory-battle-mechanics). At that point of time, the well-established simulator PokeBattler hadn't implemented the new mechanics, so we decided to build simulators of our own. Felix's version of simulator is [BattleSim](https://github.com/doublefelix921/battlesim) and mine was GoBattleSim.
