@@ -198,7 +198,7 @@ function DPSCalculatorInit() {
 			$("#attacker-level").val("40");
 			$("#attacker-level").on("change", function () {
 				DEFAULT_ATTACKER_CPM = GM.get("level", this.value).cpm;
-				requestSpreadsheet(true);
+				// requestSpreadsheet(true);
 			});
 
 			requestSpreadsheet(true);
@@ -413,7 +413,12 @@ function applyContext() {
 function generateSpreadsheet(pokemonCollection) {
 	var Table = $("#ranking_table").DataTable();
 	Table.clear();
+
+	let t1 = Date.now(), t2 = t1;
+	console.log("Start");
+
 	applyContext();
+
 	for (let pkm of pokemonCollection) {
 		var fastMoves_all = pkm.fmove ? [pkm.fmove] : pkm.fastMoves.concat(pkm.fastMoves_legacy).concat(pkm.fastMoves_exclusive);
 		var chargedMoves_all = pkm.cmove ? [pkm.cmove] : pkm.chargedMoves.concat(pkm.chargedMoves_legacy).concat(pkm.chargedMoves_exclusive);
@@ -459,9 +464,17 @@ function generateSpreadsheet(pokemonCollection) {
 			}
 		}
 	}
-	console.log(Date() + ": All DPS calculated");
-	pred = $('#searchInput').val() ? PokeQuery($('#searchInput').val()) : (arg => true);
+
+	t2 = Date.now();
+	console.log("Primary Calculation took", t2 - t1, "ms");
+	t1 = t2;
+
+	Predicate = $('#searchInput').val() ? PokeQuery($('#searchInput').val()) : (arg => true);
 	$("#ranking_table").DataTable().draw();
+
+	t2 = Date.now();
+	console.log("Drawing took", t2 - t1, "ms");
+	t2 = t1;
 }
 
 
@@ -482,7 +495,7 @@ function updateSpreadsheet() {
 		Table.row(i).data(pkmInstance);
 	}
 	console.log(Date() + ": All DPS re-calculated");
-	pred = $('#searchInput').val() ? PokeQuery($('#searchInput').val()) : (arg => true);
+	Predicate = $('#searchInput').val() ? PokeQuery($('#searchInput').val()) : (arg => true);
 	$("#ranking_table").DataTable().draw();
 }
 
@@ -525,16 +538,15 @@ function requestSpreadsheet(startover) {
 }
 
 
-var lastKeyUpTime = 0;
-pred = function (obj) { return true; }
+var LastKeyUpTime = 0;
+Predicate = function (obj) { return true; }
 
 function search_trigger() {
-	lastKeyUpTime = Date.now();
+	LastKeyUpTime = Date.now();
 	setTimeout(function () {
-		if (Date.now() - lastKeyUpTime >= 600) {
-			var DT = $("#ranking_table").DataTable();
-			pred = $('#searchInput').val() ? PokeQuery($('#searchInput').val()) : (arg => true);
-			DT.draw();
+		if (Date.now() - LastKeyUpTime >= 600) {
+			Predicate = $('#searchInput').val() ? PokeQuery($('#searchInput').val()) : (arg => true);
+			$("#ranking_table").DataTable().draw();
 		}
 	}, 600);
 }
@@ -558,7 +570,7 @@ $.fn.dataTable.ext.search.push(
 	function (settings, searchData, index, rowData, counter) {
 		var selected = true;
 		try {
-			selected = pred(rowData) && (!uniqueSpecies || rowData.best);
+			selected = Predicate(rowData) && (!uniqueSpecies || rowData.best);
 		} catch (err) {
 			selected = true;
 		}
