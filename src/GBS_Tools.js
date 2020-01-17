@@ -151,6 +151,7 @@ function moveEditFormSubmit() {
 function moveEditFormReset() {
 	GM.erase("fast_local");
 	GM.erase("charged_local");
+	GM.save();
 	GM.invalidate();
 	GM.fetch({
 		name: 'move',

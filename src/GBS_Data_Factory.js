@@ -210,7 +210,6 @@ GM.save = function () {
 	if (localStorage) {
 		localStorage.LocalData = JSON.stringify(LocalData);
 	}
-	GBS.config(GM.convert());
 }
 
 
