@@ -7,7 +7,7 @@ function welcomeDialogInit() {
 	$("#WelcomeDialog").attr("style", "visibility: show;");
 	$("#WelcomeDialog").dialog({
 		autoOpen: false,
-		width: Math_min(innerWidth * 0.9, 900),
+		width: Math.min(innerWidth * 0.9, 900),
 		maxWidth: 900
 	});
 	$("#WelcomeDialogOpener").click(function () {
@@ -65,7 +65,7 @@ function moveEditFormInit() {
 	$("#moveEditForm").attr("style", "visibility: show;");
 	$("#moveEditForm").dialog({
 		autoOpen: false,
-		width: Math_min(innerWidth * 0.9, 900),
+		width: Math.min(innerWidth * 0.9, 900),
 		maxWidth: 900
 	});
 	$("#moveEditFormOpener").click(function () {
@@ -174,7 +174,7 @@ function pokemonEditFormInit() {
 	$("#pokemonEditForm").attr("style", "visibility: show;");
 	$("#pokemonEditForm").dialog({
 		autoOpen: false,
-		width: Math_min(innerWidth * 0.9, 900),
+		width: Math.min(innerWidth * 0.9, 900),
 		maxWidth: 900
 	});
 	$("#pokemonEditFormOpener").click(function () {
@@ -300,7 +300,7 @@ function parameterEditFormInit() {
 	$("#parameterEditForm").attr("style", "visibility: show;");
 	$("#parameterEditForm").dialog({
 		autoOpen: false,
-		width: Math_min(innerWidth * 0.9, 900),
+		width: Math.min(innerWidth * 0.9, 900),
 		maxWidth: 900,
 		maxHeight: 700
 	});
@@ -353,7 +353,7 @@ function userEditFormInit() {
 	$("#boxEditForm").attr("style", "visibility: show;");
 	$("#userEditForm").dialog({
 		autoOpen: false,
-		width: Math_min(innerWidth * 0.9, 900),
+		width: Math.min(innerWidth * 0.9, 900),
 		maxWidth: 900
 	});
 	$("#userEditFormOpener").click(function () {
@@ -363,7 +363,7 @@ function userEditFormInit() {
 
 	$("#boxEditForm").dialog({
 		autoOpen: false,
-		width: Math_min(innerWidth * 0.9, 900),
+		width: Math.min(innerWidth * 0.9, 900),
 		maxWidth: 900
 	});
 	$('#boxEditForm-pokemonTable').DataTable({
@@ -452,7 +452,7 @@ function modEditFormInit() {
 	$("#modEditForm").attr("style", "visibility: show;");
 	$("#modEditForm").dialog({
 		autoOpen: false,
-		width: Math_min(innerWidth * 0.9, 900),
+		width: Math.min(innerWidth * 0.9, 900),
 		maxWidth: 900
 	});
 	$("#modEditFormOpener").click(function () {
@@ -480,7 +480,7 @@ function MVLTableInit() {
 	$("#MVLTable").attr("style", "visibility: show;");
 	$("#MVLTable").dialog({
 		autoOpen: false,
-		width: Math_min(innerWidth * 0.9, 900),
+		width: Math.min(innerWidth * 0.9, 900),
 		maxWidth: 900
 	});
 	$("#MVLTableOpener").click(function () {
@@ -607,7 +607,7 @@ function teamBuilderInit() {
 	$("#teamBuilder").attr("style", "visibility: show;");
 	$("#teamBuilder").dialog({
 		autoOpen: false,
-		width: Math_min(innerWidth * 0.9, 900),
+		width: Math.min(innerWidth * 0.9, 900),
 		maxWidth: 900
 	});
 	$("#teamBuilderOpener").click(function () {
@@ -948,7 +948,7 @@ function typeCheckerInit() {
 	$("#typeChecker").attr("style", "visibility: show;");
 	$("#typeChecker").dialog({
 		autoOpen: false,
-		width: Math_min(innerWidth * 0.9, 900),
+		width: Math.min(innerWidth * 0.9, 900),
 		maxWidth: 900
 	});
 	$("#typeCheckerOpener").click(function () {
