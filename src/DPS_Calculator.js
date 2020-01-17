@@ -177,6 +177,14 @@ function calculateDPSIntake(pokemon, kwargs) {
 	}
 }
 
+function calculateCP(pkm) {
+	var cpm = parseFloat(pkm.cpm);
+	var atk = pkm.Atk || (pkm.baseAtk + pkm.atkiv) * cpm;
+	var def = pkm.Def || (pkm.baseDef + pkm.defiv) * cpm;
+	var stm = pkm.Stm || (pkm.baseStm + pkm.stmiv) * cpm;
+	return Math.max(10, Math.floor(atk * Math.sqrt(def * stm) / 10));
+}
+
 
 function DPSCalculatorInit() {
 	GM.fetch({
@@ -499,8 +507,7 @@ function requestSpreadsheet(startover) {
 		calculationMethod = updateSpreadsheet;
 	}
 
-	UI.wait(calculationMethod, "Calculating...");
-	//calculationMethod();
+	UI.wait(calculationMethod, { message: "Calculating..." });
 }
 
 

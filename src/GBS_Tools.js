@@ -679,9 +679,9 @@ function teamBuilderInit() {
 function teamBuilderSubmit(type) {
 	if (type == 0) {
 		teamBuilderPartyPermutationStats = {};
-		UI.wait(teamBuilderCalculatePokemon, "Evaluating Pokemon...");
+		UI.wait(teamBuilderCalculatePokemon, { message: "Evaluating Pokemon..." });
 	} else if (type == 1) {
-		UI.wait(teamBuilderCalculateParty, "Calculating optimal permuation...");
+		UI.wait(teamBuilderCalculateParty, { message: "Calculating optimal permuation..." });
 	}
 }
 

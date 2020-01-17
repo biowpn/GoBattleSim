@@ -34,32 +34,40 @@ UI.sendFeedbackDialog = function (message, dialogTitle, onOK) {
 }
 
 /**
- * Display a spinning spinner while waiting a computation job to finish.
+ * Display a spinning spinner while doing a job.
  * Remove the spinner upon the job finishes.
  * 
  * @param {function} task The job to do.
- * @param {string} message The message displayed next to the spinner. Default to "Running..."
+ * @param {Object} kwargs Additional arguments: "message", "success", "error", "complete"
 */
-UI.wait = function (task, message) {
-	message = message || "Running...";
-	// GBS.error();
+UI.wait = function (task, kwargs) {
+	let message = kwargs.message || "Running...";
+	let success_cb = kwargs.success || function () { };
+	let error_cb = kwargs.error || function (err) {
+		UI.sendFeedbackDialog("<p>Oops, something went wrong!</p>" + err.toString());
+	};
+	let complete_cb = kwargs.complete || function () { };
+
 	UI.sendFeedbackDialog("<i class='fa fa-spinner fa-spin fa-3x fa-fw'><\/i><span class='sr-only'><\/span>" + message);
 	setTimeout(function () {
+		let error = null;
 		try {
 			task();
-			while (DialogStack.length) {
-				DialogStack.pop().dialog('close');
-			}
 		} catch (err) {
+			error = err;
+		} finally {
 			while (DialogStack.length) {
 				DialogStack.pop().dialog('close');
 			}
-			let js_err_str = err.toString();
-			let gbs_err_str = GBS.error();
-			let err_str = gbs_err_str || js_err_str;
-			UI.sendFeedbackDialog("<p>Oops, something went wrong!</p>" + err_str);
 		}
-	}, 1);
+		if (error) {
+			error_cb(error);
+		}
+		else {
+			success_cb();
+		}
+		complete_cb();
+	}, 0);
 }
 
 /**
@@ -637,10 +645,6 @@ function createPokemonStrategyInput() {
 		name: "pokemon-strategy", class: "form-control"
 	});
 
-	if (EngineStrategies.length == 0) {
-		let cfg = GBS.config();
-		EngineStrategies = cfg.PvEStrategies.concat(cfg.PvPStrategies);
-	}
 	for (let strat of EngineStrategies) {
 		strategyInput.appendChild(createElement('option', strat, { value: strat }));
 	}
@@ -650,13 +654,13 @@ function createPokemonStrategyInput() {
 		if (kwargs.battleMode == "raid" || kwargs.battleMode == "gym") {
 			if ($(this).parents("[name=player]").find("[name=player-team]").val() == "0") {
 				this.value = "DEFENDER";
-				this.disabled = true;
 			}
 		} else if (kwargs.battleMode == "pvp") {
 			this.value = "PVP_ADVANCE";
 			$(this).hide();
 		}
 	}
+
 	return strategyInput;
 }
 
@@ -1579,7 +1583,7 @@ function createBattleLogTable(data) {
 
 
 /**
- * convert GBS engine produced battle log for UI display.
+ * Convert engine produced battle log for UI display.
  * notes: 
  * 	1) for N players there should be (N+1) columns, the extra column being time.
  * 	2) events at the same time should be merged into one row if possible.

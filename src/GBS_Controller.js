@@ -62,10 +62,12 @@ App.init = function () {
 	$(playersNode).sortable({ axis: 'y' });
 
 	// Do it now because addPlayerNode() needs GBS ready (to fetch strategy)
+	var engine_cfg = {};
 	GameMaster = GM.convert();
 	tryTillSuccess(function () {
-		GBS.config(GameMaster);
+		engine_cfg = GBS.config(GameMaster);
 	});
+	EngineStrategies = engine_cfg.PvEStrategies.concat(engine_cfg.PvPStrategies);
 
 	addPlayerNode();
 	addPlayerNode();
@@ -99,6 +101,13 @@ App.onclickGo = function () {
 		var battles = GBS.request(input);
 		Simulations = Simulations.concat(battles);
 		UI.updateMasterSummaryTable(Simulations, GBS.metrics());
+	}, {
+		error: function (err) {
+			let js_err = err.toString();
+			let gbs_err = GBS.error();
+			let final_err = js_err || gbs_err || "unknown error";
+			UI.sendFeedbackDialog("<p>Oops, something went wrong!</p>" + final_err);
+		}
 	});
 }
 
