@@ -2,10 +2,11 @@
  * @file Comprehensive DPS Calculator
  */
 
-var DEFAULT_ATTACKER_LEVEL = 40;
+var DEFAULT_ATTACKER_CPM = 0.7903;
 var DEFAULT_ATTACKER_IVs = [15, 15, 15];
 var DEFAULT_ENEMY_DPS1 = 900;
 var DEFAULT_ENEMY_LEVEL = 40;
+var DEFAULT_ENEMY_CPM = 0.7903;
 var DEFAULT_ENEMY_IVs = [15, 15, 15];
 var DEFAULT_ENEMY_CURRENT_DEFENSE = 160;
 var DEFAULT_ENEMY_POKETYPE1 = 'none';
@@ -189,6 +190,17 @@ function calculateCP(pkm) {
 function DPSCalculatorInit() {
 	GM.fetch({
 		complete: function () {
+			for (let level of Data.LevelSettings) {
+				$("<option/>", {
+					value: level.name
+				}).html("Lv " + level.name + " Attacker").appendTo("#attacker-level");
+			}
+			$("#attacker-level").val("40");
+			$("#attacker-level").on("change", function () {
+				DEFAULT_ATTACKER_CPM = GM.get("level", this.value).cpm;
+				requestSpreadsheet(true);
+			});
+
 			requestSpreadsheet(true);
 		}
 	});
@@ -238,7 +250,7 @@ function DPSCalculatorInit() {
 		}
 		requestSpreadsheet(true);
 	});
-	// Refresh button
+
 	$("#refresher").click(function () {
 		requestSpreadsheet(true);
 	});
@@ -370,7 +382,7 @@ function applyContext() {
 
 	Context.enemy.fmove = enemyFast;
 	Context.enemy.cmove = enemyCharged;
-	var enemy_cpm = GM.get("level", DEFAULT_ENEMY_LEVEL).cpm;
+	var enemy_cpm = DEFAULT_ENEMY_CPM;
 	Context.enemy.Atk = (Context.enemy.baseAtk + DEFAULT_ENEMY_IVs[0]) * enemy_cpm;
 	Context.enemy.Def = (Context.enemy.baseDef + DEFAULT_ENEMY_IVs[1]) * enemy_cpm;
 	Context.enemy.Stm = (Context.enemy.baseStm + DEFAULT_ENEMY_IVs[2]) * enemy_cpm;
@@ -407,26 +419,23 @@ function generateSpreadsheet(pokemonCollection) {
 		var chargedMoves_all = pkm.cmove ? [pkm.cmove] : pkm.chargedMoves.concat(pkm.chargedMoves_legacy).concat(pkm.chargedMoves_exclusive);
 		for (let fmove of fastMoves_all) {
 			var fmoveInstance = GM.get("fast", fmove);
-			if (!fmoveInstance)
-				continue;
+			if (!fmoveInstance) { continue; }
 			for (let cmove of chargedMoves_all) {
 				var cmoveInstance = GM.get("charged", cmove);
-				if (!cmoveInstance)
-					continue;
+				if (!cmoveInstance) { continue; }
+
 				var pkmInstance = {};
 				$.extend(pkmInstance, pkm);
 
-				var pkm_cpm = GM.get("level", pkm.level || DEFAULT_ATTACKER_LEVEL).cpm;
-
 				pkmInstance.fmove = fmoveInstance;
 				pkmInstance.cmove = cmoveInstance;
-				pkmInstance.cpm = pkm_cpm;
+				pkmInstance.cpm = pkm.level ? GM.get("level", pkm.level).cpm : DEFAULT_ATTACKER_CPM;
 				pkmInstance.atkiv = pkm.atkiv >= 0 ? pkm.atkiv : DEFAULT_ATTACKER_IVs[0];
 				pkmInstance.defiv = pkm.defiv >= 0 ? pkm.defiv : DEFAULT_ATTACKER_IVs[1];
 				pkmInstance.stmiv = pkm.stmiv >= 0 ? pkm.stmiv : DEFAULT_ATTACKER_IVs[2];
-				pkmInstance.Atk = (pkmInstance.baseAtk + pkmInstance.atkiv) * pkm_cpm;
-				pkmInstance.Def = (pkmInstance.baseDef + pkmInstance.defiv) * pkm_cpm;
-				pkmInstance.Stm = (pkmInstance.baseStm + pkmInstance.stmiv) * pkm_cpm;
+				pkmInstance.Atk = (pkmInstance.baseAtk + pkmInstance.atkiv) * pkmInstance.cpm;
+				pkmInstance.Def = (pkmInstance.baseDef + pkmInstance.defiv) * pkmInstance.cpm;
+				pkmInstance.Stm = (pkmInstance.baseStm + pkmInstance.stmiv) * pkmInstance.cpm;
 
 				if (LeagueCPCap > 0) {
 					adjustStatsUnderCPCap(pkmInstance, LeagueCPCap);
@@ -490,16 +499,10 @@ function requestSpreadsheet(startover) {
 		if (pokebox_checkbox.checked) {
 			var user = GM.get("user", window.userID2);
 			if (user == null) {
-				window.userID2 = prompt("Enter your user ID:").trim();
-				fetchUser(function () {
-					requestSpreadsheet(startover);
-				}, window.userID2);
-				/*
 				UI.sendFeedbackDialog("To use your Pokemon, please log in");
 				pokebox_checkbox.checked = false;
 				$(pokebox_checkbox).button('refresh');
 				return;
-				*/
 			} else {
 				calculationMethod = function () {
 					generateSpreadsheet(user.box);
