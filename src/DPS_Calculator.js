@@ -201,6 +201,10 @@ function DPSCalculatorInit() {
 		}
 	});
 
+	$("#pokemon-pokeType1").on("change", requestSpreadsheet);
+	$("#pokemon-pokeType2").on("change", requestSpreadsheet);
+	$("#weather").on("change", requestSpreadsheet);
+
 	$("#ui-swapDiscount").controlgroup();
 	$("#ui-swapDiscount-checkbox").change(function () {
 		Context.swapDiscount = this.checked;
@@ -237,6 +241,13 @@ function DPSCalculatorInit() {
 	// Refresh button
 	$("#refresher").click(function () {
 		requestSpreadsheet(true);
+	});
+
+	$("#CopyClipboardButton").click(function () {
+		copyTableToClipboard("ranking_table");
+	});
+	$("#CopyCSVButton").click(function () {
+		exportTableToCSV("ranking_table", "comprehensive_dps.csv");
 	});
 
 	dropdownMenuInit();
