@@ -237,38 +237,6 @@ GBS.metrics = function (user_metrics) {
 	return combinedMetrics;
 }
 
-/**
- * Change the global battle mode.
- * 
- * @param {string} mode one of {"raid", "gym", "pvp"}
- */
-GBS.mode = function (mode) {
-	if (mode == "pvp") {
-		GM.each("fast", function (move) {
-			for (var a in move.combat) {
-				move[a] = move.combat[a];
-			}
-		});
-		GM.each("charged", function (move) {
-			for (var a in move.combat) {
-				move[a] = move.combat[a];
-			}
-		});
-	} else {
-		GM.each("fast", function (move) {
-			for (var a in move.regular) {
-				move[a] = move.regular[a];
-			}
-		});
-		GM.each("charged", function (move) {
-			for (var a in move.regular) {
-				move[a] = move.regular[a];
-			}
-		});
-	}
-}
-
-
 
 /**
  * Non-interface members

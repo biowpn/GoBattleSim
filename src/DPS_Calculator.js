@@ -218,11 +218,11 @@ function DPSCalculatorInit() {
 		if (this.checked) {
 			$($("#ranking_table").DataTable().column(5).header()).text('Activation');
 			Context.battleMode = "pvp";
-			GBS.mode("pvp");
+			GM.mode("pvp");
 		} else {
 			$($("#ranking_table").DataTable().column(5).header()).text('DPS^3*TDO');
 			Context.battleMode = "regular";
-			GBS.mode("raid");
+			GM.mode("raid");
 		}
 		requestSpreadsheet(true);
 	});

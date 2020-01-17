@@ -90,7 +90,6 @@ GM.invalidate = function () {
 	}
 }
 
-
 /** 
  * Erase all records of the specified database and make it empty.
  * 
@@ -106,7 +105,6 @@ GM.erase = function (nameDb) {
 		}
 	}
 }
-
 
 /**
  * Get one entry from the specified database.
@@ -351,6 +349,38 @@ GM.convert = function (src) {
 	}
 
 	return dst;
+}
+
+/**
+ * Change the global battle mode.
+ * Set the default move parameters to the ones for the target battle mode.
+ * 
+ * @param {string} mode one of {"raid", "gym", "pvp"}
+ */
+GM.mode = function (mode) {
+	if (mode == "pvp") {
+		GM.each("fast", function (move) {
+			for (var a in move.combat) {
+				move[a] = move.combat[a];
+			}
+		});
+		GM.each("charged", function (move) {
+			for (var a in move.combat) {
+				move[a] = move.combat[a];
+			}
+		});
+	} else {
+		GM.each("fast", function (move) {
+			for (var a in move.regular) {
+				move[a] = move.regular[a];
+			}
+		});
+		GM.each("charged", function (move) {
+			for (var a in move.regular) {
+				move[a] = move.regular[a];
+			}
+		});
+	}
 }
 
 

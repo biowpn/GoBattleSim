@@ -16,7 +16,7 @@ var example_kanto_starters = [
 
 function battleMatrixInit() {
 
-    GBS.mode("pvp");
+    GM.mode("pvp");
 
     GameMaster = GM.convert();
 

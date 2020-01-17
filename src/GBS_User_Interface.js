@@ -974,7 +974,7 @@ function complyBattleMode(mode) {
 	} else if (mode == "pvp") {
 		timelimitInput.value = GM.get("battle", "timelimitPvPMs");
 	}
-	GBS.mode(mode);
+	GM.mode(mode);
 }
 
 
