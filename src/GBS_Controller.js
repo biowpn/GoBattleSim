@@ -71,6 +71,7 @@ App.init = function () {
 
 	addPlayerNode();
 	addPlayerNode();
+	UI.write({ team: "1", parties: [{ pokemon: [{ role: "a" }] }] }, playersNode.children[0]);
 	UI.write({ team: "0", parties: [{ pokemon: [{ role: "rb" }] }] }, playersNode.children[1]);
 	//comply();
 
