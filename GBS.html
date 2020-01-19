@@ -262,14 +262,14 @@
 			</colgroup>
 			<tr>
 				<td style='vertical-align: top'>
-					<button id='userEditFormOpener' class='sub-menu-opener'>
+					<button id='userEditFormOpener' class='center_stuff btn btn-secondary'>
 						<i class="fa fa-user" aria-hidden="true"></i>
 						<span class="d-none d-sm-inline">User/Box</span>
 					</button>
 				</td>
 
 				<td class='sub-menu-container'>
-					<button class='sub-menu-opener'>
+					<button class='center_stuff btn btn-secondary'>
 						<i class="fa fa-cog" aria-hidden="true"></i>
 						<span class="d-none d-sm-inline">Customize</span>
 					</button>
@@ -282,20 +282,20 @@
 				</td>
 
 				<td class='sub-menu-container'>
-					<button class='sub-menu-opener'>
+					<button class='center_stuff btn btn-secondary'>
 						<i class="fa fa-wrench" aria-hidden="true"></i>
 						<span class="d-none d-sm-inline">Tools</span>
 					</button>
 					<div class='sub-menu'>
 						<button class='player_button' id='MVLTableOpener'>MVL Table</button>
-						<button class='player_button' id='battleMatrixOpener'>Battle Matrix</button>
 						<button class='player_button' id='teamBuilderOpener'>Team Builder</button>
+						<button class='player_button' id='battleMatrixOpener'>Battle Matrix</button>
 						<button class='player_button' id='typeCheckerOpener'>Type Checker</button>
 					</div>
 				</td>
 
 				<td class='sub-menu-container'>
-					<button class='sub-menu-opener'>
+					<button class='center_stuff btn btn-secondary'>
 						<i class="fa fa-question" aria-hidden="true"></i>
 						<span class="d-none d-sm-inline">Help</span>
 					</button>
@@ -394,7 +394,7 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-6">
-				<button id="GoButton" class="btn btn-primary center_stuff">Go</button>
+				<button id="GoButton" class="btn btn-success center_stuff">Go</button>
 			</div>
 			<div class="col-sm-6">
 				<button id="ClearButton" class="btn btn-secondary center_stuff">Clear All</button>
@@ -418,10 +418,10 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-6">
-				<button class="player_button" id="CopyClipboardButton">Copy to Clipboard</button>
+				<button class="center_stuff btn btn-info" id="CopyClipboardButton">Copy to Clipboard</button>
 			</div>
 			<div class="col-sm-6">
-				<button class="player_button" id="CopyCSVButton">Export To CSV</button>
+				<button class="center_stuff btn btn-info" id="CopyCSVButton">Export To CSV</button>
 			</div>
 		</div>
 	</div>
@@ -466,6 +466,14 @@
 
 	<script>
 		includeHTML();
+
+		$("#battleMatrixOpener").click(function () {
+			window.open("https://gamepress.gg/pokemongo/pvp-battle-matrix");
+		});
+		$("#typeCheckerOpener").click(function () {
+			window.open("https://gamepress.gg/pokemongo/pokemon-go-pvp-type-checker");
+		});
+
 		$(document).ready(function () {
 			GM.fetch({
 				complete: function () {
