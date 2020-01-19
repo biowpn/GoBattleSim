@@ -52,15 +52,15 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-6">
-				<button onclick='moveEditFormSubmit()' class="center_stuff" id='moveEditForm-submit'><i
+				<button onclick='moveEditFormSubmit()' class="center_stuff btn btn-primary" id='moveEditForm-submit'><i
 						class="fa fa-check" aria-hidden="true"></i> Save</button>
 			</div>
 			<div class="col-sm-3">
-				<button onclick='moveEditFormDelete()' class="center_stuff" id='moveEditForm-delete'><i
+				<button onclick='moveEditFormDelete()' class="center_stuff btn btn-warning" id='moveEditForm-delete'><i
 						class="fa fa-trash" aria-hidden="true"></i> Delete</button>
 			</div>
 			<div class="col-sm-3">
-				<button onclick='moveEditFormReset()' class="center_stuff" id='moveEditForm-reset'><i
+				<button onclick='moveEditFormReset()' class="center_stuff btn btn-danger" id='moveEditForm-reset'><i
 						class="fa fa-refresh" aria-hidden="true"></i> Reset</button>
 			</div>
 		</div>
@@ -109,16 +109,16 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-6">
-				<button onclick='pokemonEditFormSubmit()' class="center_stuff" id='pokemonEditForm-submit'><i
-						class="fa fa-check" aria-hidden="true"></i> Save</button>
+				<button onclick='pokemonEditFormSubmit()' class="center_stuff btn btn-primary"
+					id='pokemonEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button>
 			</div>
 			<div class="col-sm-3">
-				<button onclick='pokemonEditFormDelete()' class="center_stuff" id='pokemonEditForm-delete'><i
-						class="fa fa-trash" aria-hidden="true"></i> Delete</button>
+				<button onclick='pokemonEditFormDelete()' class="center_stuff btn btn-warning"
+					id='pokemonEditForm-delete'><i class="fa fa-trash" aria-hidden="true"></i> Delete</button>
 			</div>
 			<div class="col-sm-3">
-				<button onclick='pokemonEditFormReset()' class="center_stuff" id='pokemonEditForm-reset'><i
-						class="fa fa-refresh" aria-hidden="true"></i> Reset</button>
+				<button onclick='pokemonEditFormReset()' class="center_stuff btn btn-danger"
+					id='pokemonEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button>
 			</div>
 		</div>
 	</div>
@@ -129,6 +129,10 @@
 <div id='modEditForm' title="Edit Mods" style="visibility: hidden;">
 	<table id='modEditForm-Table'>
 		<thead>
+			<colgroup>
+				<col width="50%">
+				<col width="50%">
+			</colgroup>
 			<tr>
 				<th>Mod Name</th>
 				<th>Applied</th>
@@ -138,16 +142,17 @@
 
 		</tbody>
 	</table>
+
 	<br>
-	<table>
-		<colgroup>
-			<col width='100%'>
-		</colgroup>
-		<tr>
-			<td><button onclick='modEditFormSubmit()' id='modForm-submit'><i class="fa fa-check" aria-hidden="true"></i>
-					Save</button></td>
-		</tr>
-	</table>
+
+	<div class="container">
+		<div class="row">
+			<div class="col">
+				<button onclick='modEditFormSubmit()' class="center_stuff btn btn-primary" id='modForm-submit'>
+					<i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+			</div>
+		</div>
+	</div>
 
 	<div id='modEditForm-feedback'>
 	</div>
@@ -170,19 +175,24 @@
 	</table>
 
 	<br>
-	<input type='text' id='userEditForm-userID-1' placeholder='userID To Add/Remove'></input>
-	<table>
-		<colgroup>
-			<col width=50%>
-			<col width=50%>
-		</colgroup>
-		<tr>
-			<td><button onclick='userEditFormAddUser()'><i class="fa fa-user-plus" aria-hidden="true"></i> Add
-					User</button></td>
-			<td><button onclick='userEditFormRemoveUser()'><i class="fa fa-user-times" aria-hidden="true"></i> Remove
-					User</button></td>
-		</tr>
-	</table>
+
+	<div class="container">
+		<div class="row">
+			<div class="col">
+				<input type='text' id='userEditForm-userID-1' placeholder='userID To Add/Remove'></input>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6">
+				<button onclick='userEditFormAddUser()' class="center_stuff btn btn-primary"><i class="fa fa-user-plus"
+						aria-hidden="true"></i> Add User</button>
+			</div>
+			<div class="col-sm-6">
+				<button onclick='userEditFormRemoveUser()' class="center_stuff btn btn-danger"><i
+						class="fa fa-user-times" aria-hidden="true"></i> Remove User</button>
+			</div>
+		</div>
+	</div>
 
 	<div id='userEditForm-feedback'>
 	</div>
@@ -214,30 +224,35 @@
 
 
 <div id='parameterEditForm' title="Edit Battle Settings" style="visibility: hidden;">
-	<table id='parameterEditForm-Table'>
-		<thead>
-			<tr>
-				<th>Paramater</th>
-				<th>Value</th>
-			</tr>
-		</thead>
-		<tbody>
+	<div style="display:inline-block; overflow-y:scroll; max-height: 40vh; width: 100%;">
+		<table id='parameterEditForm-Table'>
+			<thead>
+				<tr>
+					<th>Paramater</th>
+					<th>Value</th>
+				</tr>
+			</thead>
+			<tbody>
 
-		</tbody>
-	</table>
+			</tbody>
+		</table>
+	</div>
+
+
 	<br>
-	<table>
-		<colgroup>
-			<col width='50%'>
-			<col width='50%'>
-		</colgroup>
-		<tr>
-			<td><button onclick='parameterEditFormSubmit()' id='parameterEditForm-submit'><i class="fa fa-check"
-						aria-hidden="true"></i> Save</button></td>
-			<td><button onclick='parameterEditFormReset()' id='parameterEditForm-reset'><i class="fa fa-refresh"
-						aria-hidden="true"></i> Reset</button></td>
-		</tr>
-	</table>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-6">
+				<button onclick='parameterEditFormSubmit()' class="center_stuff btn btn-primary"
+					id='parameterEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button>
+			</div>
+			<div class="col-sm-6">
+				<button onclick='parameterEditFormReset()' class="center_stuff btn btn-danger"
+					id='parameterEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button>
+			</div>
+		</div>
+	</div>
 
 	<div id='parameterEditForm-feedback'>
 	</div>
@@ -277,93 +292,88 @@
 	</table>
 	<br>
 
-	<div><button onclick="MVLTableSubmit();">Generate</button></div>
+	<div class="container">
+		<div class="row">
+			<div class="col">
+				<button onclick="MVLTableSubmit();" class="center_stuff btn btn-primary">Generate</button>
+			</div>
+		</div>
+	</div>
 
 </div>
 
 
 <div id='WelcomeDialog' title="Welcome to GoBattleSim v4" style="visibility: hidden;">
 
-	<table>
-		<thead>
-			<colgroup>
-				<col width="60%">
-				<col width="40%">
-			</colgroup>
-		</thead>
-		<tbody>
-			<tr>
-				<td>
-					<p>Hi there! Thanks for using GoBattleSim v4. </p>
-					<p>If you are new to it, check out the examples below and get a feel of how GoBattleSim works:</p>
-				</td>
-				<td>
-					<img src="https://gamepress.gg/pokemongo/sites/pokemongo/files/2017-08/381_0.png"
-						width="150px;"></img>
-				</td>
-			</tr>
-		</tbody>
-	</table>
+	<div class="container">
 
-	<table>
-		<thead>
-			<colgroup>
-				<col width="50%">
-				<col width="50%">
-			</colgroup>
-		</thead>
-		<tbody>
-			<tr>
-				<td><button class="player_button" onclick="welcomeDialogSubmit(1)">Solo Raid</button></td>
-				<td><button class="player_button" onclick="welcomeDialogSubmit(2)">Duo Raid</button></td>
-			</tr>
-			<tr>
-				<td><button class="player_button" onclick="welcomeDialogSubmit(0)">Gym Battle</button></td>
-				<td><button class="player_button" onclick="welcomeDialogSubmit(3)">PvP</button></td>
-			</tr>
-		</tbody>
-	</table>
+		<div class="row">
+			<div class="col-sm-8">
+				<p>Hi there! Thanks for using GoBattleSim v4. </p>
+				<p>If you are new to it, check out the examples below and get a feel of how GoBattleSim works:</p>
+			</div>
+			<div class="col-sm-4">
+				<img src="https://gamepress.gg/pokemongo/sites/pokemongo/files/2017-08/381_0.png" width="150px;"></img>
+			</div>
+		</div>
 
-	<table>
-		<thead>
-			<colgroup>
-				<col width="100%">
-			</colgroup>
-		</thead>
-		<tbody>
-			<tr>
-				<td>
-					<p>If you already know the basics, you may want to learn about the <b>Batch Input Scheme</b> by
-						checking out the examples below: </p>
-				</td>
-			</tr>
-			<tr>
-				<td><button class="player_button" onclick="welcomeDialogSubmit(4, true)">My Best Counter</button></td>
-			</tr>
-			<tr>
-				<td><button class="player_button" onclick="welcomeDialogSubmit(5, true)">Minimum Level to Win</button>
-				</td>
-			</tr>
-			<tr>
-				<td><button class="player_button" onclick="welcomeDialogSubmit(6, true)">Best Pokemon of Type</button>
-				</td>
-			</tr>
-		</tbody>
-	</table>
+		<div class="row">
+			<div class="col-sm-6">
+				<button class="player_button" onclick="welcomeDialogSubmit(1)">Solo Raid</button>
+			</div>
+			<div class="col-sm-6">
+				<button class="player_button" onclick="welcomeDialogSubmit(2)">Duo Raid</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6">
+				<button class="player_button" onclick="welcomeDialogSubmit(0)">Gym Battle</button>
+			</div>
+			<div class="col-sm-6">
+				<button class="player_button" onclick="welcomeDialogSubmit(3)">PvP</button>
+			</div>
+		</div>
 
-	<p>And don't forget to check out the <b>Team Builder</b> under the "Tools" tag!</p>
+		<div class="row">
+			<div class="col">
+				<p>If you already know the basics, you may want to learn about the <b>Batch Input Scheme</b>: </p>
+			</div>
+		</div>
 
+		<div class="row">
+			<div class="col">
+				<button class="player_button" onclick="welcomeDialogSubmit(4, true)">My Best Counter</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col">
+				<button class="player_button" onclick="welcomeDialogSubmit(5, true)">Minimum Level to Win</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col">
+				<button class="player_button" onclick="welcomeDialogSubmit(6, true)">Best Pokemon of Type</button>
+			</div>
+		</div>
 
-	<table>
-		<colgroup>
-			<col width='50%'>
-			<col width='50%'>
-		</colgroup>
-		<tr>
-			<td><button onclick='welcomeDialogRespond(0)'>OK</button></td>
-			<td><button onclick='welcomeDialogRespond(1)'>Don't show this again</button></td>
-		</tr>
-	</table>
+		<div class="row">
+			<div class="col">
+				<p>And don't forget to check out the <b>Team Builder</b> in the "Tools"!</p>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-6">
+				<button onclick='welcomeDialogRespond(0)' class="center_stuff btn btn-success">OK</button>
+			</div>
+			<div class="col-sm-6">
+				<button onclick='welcomeDialogRespond(1)' class="center_stuff btn btn-primary">Don't show this
+					again</button>
+			</div>
+		</div>
+
+	</div>
+
 </div>
 
 <div id='teamBuilder' title="Team Builder" style="visibility: hidden;">
@@ -395,8 +405,10 @@
 		</thead>
 		<tbody>
 			<tr>
-				<td><button class="player_button" onclick="teamBuilderSubmit(0)">Find Counters</button></td>
-				<td><button class="player_button" onclick="teamBuilderSubmit(1)">Permutate Parties</button></td>
+				<td><button class="center_stuff btn btn-primary" onclick="teamBuilderSubmit(0)">Find Counters</button>
+				</td>
+				<td><button class="center_stuff btn btn-primary" onclick="teamBuilderSubmit(1)">Permutate
+						Parties</button></td>
 			</tr>
 			<tr>
 				<td>
@@ -429,7 +441,8 @@
 			</tr>
 			<tr>
 				<td></td>
-				<td><button class="player_button" onclick="teamBuilderSaveParty()">Save Party</button></td>
+				<td><button class="center_stuff btn btn-success" onclick="teamBuilderSaveParty()">Save Party</button>
+				</td>
 			</tr>
 		</tbody>
 	</table>

@@ -336,6 +336,7 @@ function parameterEditFormSubmit() {
 		}
 	});
 	GM.save();
+	GBS.config(GM.convert());
 	if (error_params.length > 0) {
 		UI.sendFeedbackDialog("Error parsing parameters: " + error_params.join(", "));
 	}

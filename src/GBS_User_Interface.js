@@ -18,18 +18,23 @@ var UI = {};
  * @param {function} onOK The callback function that will be called right after the user clicks "OK".
  */
 UI.sendFeedbackDialog = function (message, dialogTitle, onOK) {
-	var d = $(createElement('div', message, {
-		title: dialogTitle || document.title
-	})).dialog({
-		buttons: {
-			"OK": function () {
-				$(this).dialog("close");
-				if (onOK) {
-					onOK();
+	var d = $("<div>")
+		.html(message)
+		.dialog({
+			title: dialogTitle || document.title,
+			buttons: [
+				{
+					"text": "OK",
+					"click": function () {
+						$(this).dialog("close");
+						if (onOK) {
+							onOK();
+						}
+					},
+					"class": "center_stuff btn btn-primary"
 				}
-			}
-		}
-	});
+			]
+		});
 	DialogStack.push(d);
 }
 
