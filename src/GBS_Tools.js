@@ -13,16 +13,24 @@ function welcomeDialogInit() {
 	$("#WelcomeDialogOpener").click(function () {
 		$("#WelcomeDialog").dialog("open");
 	});
+	for (let i = 0; i < sampleConfigurations.length; ++i) {
+		$("#WelcomeDialog-ex-" + i.toString()).click(function () {
+			welcomeDialogSubmit(i);
+		});
+	}
+	$("#WelcomeDialog-ok").click(function () {
+		welcomeDialogRespond(0);
+	});
+	$("#WelcomeDialog-noshow").click(function () {
+		welcomeDialogRespond(1);
+	});
 }
 
 function welcomeDialogSubmit(configIndex, advanced) {
 	UI.write(sampleConfigurations[configIndex] || {});
 	UI.refresh();
 	$("#WelcomeDialog").dialog("close");
-	if (!advanced) {
-		document.getElementById('GoButton').scrollIntoView({ block: "center", inline: "center" });
-		UI.sendFeedbackDialog('Nice choice! Now, review the input and click "GO" to start.');
-	}
+	UI.sendFeedbackDialog('Nice choice! Now, review the input and click "GO" to start.');
 }
 
 function welcomeDialogRespond(resp) {
@@ -71,6 +79,9 @@ function moveEditFormInit() {
 	$("#moveEditFormOpener").click(function () {
 		$("#moveEditForm").dialog("open");
 	});
+	$("#moveEditForm-submit").click(moveEditFormSubmit);
+	$("#moveEditForm-delete").click(moveEditFormDelete);
+	$("#moveEditForm-reset").click(moveEditFormReset);
 
 	var moveInput = document.getElementById("moveEditForm-table");
 
@@ -154,9 +165,9 @@ function moveEditFormReset() {
 	GM.save();
 	GM.invalidate();
 	GM.fetch({
-		name: 'move',
+		name: "move",
 		complete: function () {
-			UI.sendFeedbackDialog("Latest move data have been fetched");
+			UI.sendFeedbackDialog("Local Move data cleared");
 		}
 	});
 }
@@ -181,6 +192,9 @@ function pokemonEditFormInit() {
 	$("#pokemonEditFormOpener").click(function () {
 		$("#pokemonEditForm").dialog("open");
 	});
+	$("#pokemonEditForm-submit").click(pokemonEditFormSubmit);
+	$("#pokemonEditForm-delete").click(pokemonEditFormDelete);
+	$("#pokemonEditForm-reset").click(pokemonEditFormReset);
 
 	var pokemonInput = document.getElementById("pokemonEditForm-table");
 
@@ -283,7 +297,7 @@ function pokemonEditFormReset() {
 	GM.fetch({
 		name: "pokemon",
 		complete: function () {
-			UI.sendFeedbackDialog("Latest Pokemon data have been fetched");
+			UI.sendFeedbackDialog("Local Pokemon data cleared");
 		}
 	});
 }
@@ -308,6 +322,8 @@ function parameterEditFormInit() {
 	$("#parameterEditFormOpener").click(function () {
 		$("#parameterEditForm").dialog("open");
 	});
+	$("#parameterEditForm-submit").click(parameterEditFormSubmit);
+	$("#parameterEditForm-reset").click(parameterEditFormReset);
 
 	var parameterTable = document.getElementById('parameterEditForm-Table');
 	GM.each("battleSetting", function (value, param) {
@@ -346,7 +362,7 @@ function parameterEditFormSubmit() {
 function parameterEditFormReset() {
 	GM.erase("BattleSettings_local");
 	GM.save();
-	UI.sendFeedbackDialog("Battle settings have been reset. Refresh the page to get default back.");
+	UI.sendFeedbackDialog("Local battle settings cleared. Refresh the page to get the default settings.");
 }
 
 
@@ -362,6 +378,8 @@ function userEditFormInit() {
 		updateUserTable();
 		$("#userEditForm").dialog("open");
 	});
+	$("#userEditForm-add").click(userEditFormAddUser);
+	$("#userEditForm-remove").click(userEditFormRemoveUser);
 
 	$("#boxEditForm").dialog({
 		autoOpen: false,
@@ -460,6 +478,7 @@ function modEditFormInit() {
 	$("#modEditFormOpener").click(function () {
 		$("#modEditForm").dialog("open");
 	});
+	$("#modForm-submit").click(modEditFormSubmit);
 }
 
 function modEditFormSubmit() {
@@ -472,7 +491,7 @@ function modEditFormSubmit() {
 					Mods[i].effect();
 				}
 			}
-			UI.sendFeedbackDialog("Mods have been applied");
+			UI.sendFeedbackDialog("Mods settings have been applied");
 		}
 	});
 }
@@ -488,6 +507,10 @@ function MVLTableInit() {
 	$("#MVLTableOpener").click(function () {
 		$("#MVLTable").dialog("open");
 	});
+	$("#MVLTable-submit").click(function () {
+		UI.wait(MVLTableCalculate);
+	});
+
 	var friendStartEl = document.getElementById("MVLTable-friendStart"), friendEndEl = document.getElementById("MVLTable-friendEnd");
 	GM.each("friend", function (friendSetting, index) {
 		friendStartEl.appendChild(createElement("option", friendSetting.name, { "value": index }));
@@ -495,10 +518,6 @@ function MVLTableInit() {
 	});
 	friendStartEl.value = 0;
 	friendEndEl.value = friendEndEl.lastChild.value;
-}
-
-function MVLTableSubmit() {
-	UI.wait(MVLTableCalculate);
 }
 
 function MVLTableCalculate() {
@@ -604,7 +623,6 @@ function getPokemonByNID(nid) {
 	return pokemon;
 }
 
-
 function teamBuilderInit() {
 	$("#teamBuilder").attr("style", "visibility: show;");
 	$("#teamBuilder").dialog({
@@ -616,6 +634,13 @@ function teamBuilderInit() {
 		$("#teamBuilder").dialog("open");
 		$("#teamBuilder-pokemonTable").DataTable().draw();
 	});
+	$("#teamBuilder-find").click(function () {
+		teamBuilderSubmit(0);
+	});
+	$("#teamBuilder-perm").click(function () {
+		teamBuilderSubmit(1);
+	});
+	$("#teamBuilder-save").click(teamBuilderSaveParty);
 
 	var pokemonDT = $("#teamBuilder-pokemonTable").DataTable({
 		data: [],
@@ -675,7 +700,6 @@ function teamBuilderInit() {
 			}
 		}
 	});
-
 }
 
 function teamBuilderSubmit(type) {
@@ -683,7 +707,7 @@ function teamBuilderSubmit(type) {
 		teamBuilderPartyPermutationStats = {};
 		UI.wait(teamBuilderCalculatePokemon, { message: "Evaluating Pokemon..." });
 	} else if (type == 1) {
-		UI.wait(teamBuilderCalculateParty, { message: "Calculating optimal permuation..." });
+		UI.wait(teamBuilderCalculateParty, { message: "Finding optimal permuation..." });
 	}
 }
 
@@ -736,7 +760,7 @@ function teamBuilderCalculatePokemon() {
 		}
 	});
 	if (allPokemon.length == 0) {
-		UI.sendFeedbackDialog("No Pokemon in your box! Please log in and enter some Pokemon.");
+		UI.sendFeedbackDialog("No Pokemon in your box! Please enter some Pokemon.");
 		return;
 	}
 	baseConfig.numSims = 100;

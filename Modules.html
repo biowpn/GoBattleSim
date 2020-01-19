@@ -52,16 +52,16 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-6">
-				<button onclick='moveEditFormSubmit()' class="center_stuff btn btn-primary" id='moveEditForm-submit'><i
-						class="fa fa-check" aria-hidden="true"></i> Save</button>
+				<button id='moveEditForm-submit' class="center_stuff btn btn-primary"><i class="fa fa-check"
+						aria-hidden="true"></i> Save</button>
 			</div>
 			<div class="col-sm-3">
-				<button onclick='moveEditFormDelete()' class="center_stuff btn btn-warning" id='moveEditForm-delete'><i
-						class="fa fa-trash" aria-hidden="true"></i> Delete</button>
+				<button id='moveEditForm-delete' class="center_stuff btn btn-warning"><i class="fa fa-trash"
+						aria-hidden="true"></i> Delete</button>
 			</div>
 			<div class="col-sm-3">
-				<button onclick='moveEditFormReset()' class="center_stuff btn btn-danger" id='moveEditForm-reset'><i
-						class="fa fa-refresh" aria-hidden="true"></i> Reset</button>
+				<button id='moveEditForm-reset' class="center_stuff btn btn-danger"><i class="fa fa-refresh"
+						aria-hidden="true"></i> Reset</button>
 			</div>
 		</div>
 	</div>
@@ -109,16 +109,16 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-6">
-				<button onclick='pokemonEditFormSubmit()' class="center_stuff btn btn-primary"
-					id='pokemonEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button>
+				<button id="pokemonEditForm-submit" class="center_stuff btn btn-primary"><i class="fa fa-check"
+						aria-hidden="true"></i> Save</button>
 			</div>
 			<div class="col-sm-3">
-				<button onclick='pokemonEditFormDelete()' class="center_stuff btn btn-warning"
-					id='pokemonEditForm-delete'><i class="fa fa-trash" aria-hidden="true"></i> Delete</button>
+				<button id="pokemonEditForm-delete" class="center_stuff btn btn-warning"><i class="fa fa-trash"
+						aria-hidden="true"></i> Delete</button>
 			</div>
 			<div class="col-sm-3">
-				<button onclick='pokemonEditFormReset()' class="center_stuff btn btn-danger"
-					id='pokemonEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button>
+				<button id="pokemonEditForm-reset" class="center_stuff btn btn-danger"><i class="fa fa-refresh"
+						aria-hidden="true"></i> Reset</button>
 			</div>
 		</div>
 	</div>
@@ -148,8 +148,8 @@
 	<div class="container">
 		<div class="row">
 			<div class="col">
-				<button onclick='modEditFormSubmit()' class="center_stuff btn btn-primary" id='modForm-submit'>
-					<i class="fa fa-check" aria-hidden="true"></i> Save</button></td>
+				<button id="modForm-submit" class="center_stuff btn btn-primary">
+					<i class="fa fa-check" aria-hidden="true"></i> Save</button>
 			</div>
 		</div>
 	</div>
@@ -159,7 +159,7 @@
 </div>
 
 
-<div id='userEditForm' title="Add/Edit User" style="visibility: hidden;">
+<div id="userEditForm" title="Add/Edit User" style="visibility: hidden;">
 	<h4>List of Users</h4>
 	<table id='userEditForm-userTable'>
 		<thead>
@@ -184,12 +184,12 @@
 		</div>
 		<div class="row">
 			<div class="col-sm-6">
-				<button onclick='userEditFormAddUser()' class="center_stuff btn btn-primary"><i class="fa fa-user-plus"
+				<button id="userEditForm-add" class="center_stuff btn btn-primary"><i class="fa fa-user-plus"
 						aria-hidden="true"></i> Add User</button>
 			</div>
 			<div class="col-sm-6">
-				<button onclick='userEditFormRemoveUser()' class="center_stuff btn btn-danger"><i
-						class="fa fa-user-times" aria-hidden="true"></i> Remove User</button>
+				<button id="userEditForm-remove" class="center_stuff btn btn-danger"><i class="fa fa-user-times"
+						aria-hidden="true"></i> Remove User</button>
 			</div>
 		</div>
 	</div>
@@ -223,7 +223,7 @@
 </div>
 
 
-<div id='parameterEditForm' title="Edit Battle Settings" style="visibility: hidden;">
+<div id="parameterEditForm" title="Edit Battle Settings" style="visibility: hidden;">
 	<div style="display:inline-block; overflow-y:scroll; max-height: 40vh; width: 100%;">
 		<table id='parameterEditForm-Table'>
 			<thead>
@@ -238,18 +238,17 @@
 		</table>
 	</div>
 
-
 	<br>
 
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-6">
-				<button onclick='parameterEditFormSubmit()' class="center_stuff btn btn-primary"
-					id='parameterEditForm-submit'><i class="fa fa-check" aria-hidden="true"></i> Save</button>
+				<button id="parameterEditForm-submit" class="center_stuff btn btn-primary"><i class="fa fa-check"
+						aria-hidden="true"></i> Save</button>
 			</div>
 			<div class="col-sm-6">
-				<button onclick='parameterEditFormReset()' class="center_stuff btn btn-danger"
-					id='parameterEditForm-reset'><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button>
+				<button id="parameterEditForm-reset" class="center_stuff btn btn-danger"><i class="fa fa-refresh"
+						aria-hidden="true"></i> Reset</button>
 			</div>
 		</div>
 	</div>
@@ -259,7 +258,7 @@
 </div>
 
 
-<div id='MVLTable' title="Minimum Viable Level Table" style="visibility: hidden;">
+<div id="MVLTable" title="Minimum Viable Level Table" style="visibility: hidden;">
 	<ul>
 		<li>Enter the raid boss and attackers information in the main simulator page first,</li>
 		<li>Then hit the "Generate" button in this tool.</li>
@@ -295,7 +294,7 @@
 	<div class="container">
 		<div class="row">
 			<div class="col">
-				<button onclick="MVLTableSubmit();" class="center_stuff btn btn-primary">Generate</button>
+				<button id="MVLTable-submit" class="center_stuff btn btn-primary">Generate</button>
 			</div>
 		</div>
 	</div>
@@ -303,7 +302,7 @@
 </div>
 
 
-<div id='WelcomeDialog' title="Welcome to GoBattleSim v4" style="visibility: hidden;">
+<div id="WelcomeDialog" title="GoBattleSim" style="visibility: hidden;">
 
 	<div class="container">
 
@@ -319,18 +318,18 @@
 
 		<div class="row">
 			<div class="col-sm-6">
-				<button class="player_button" onclick="welcomeDialogSubmit(1)">Solo Raid</button>
+				<button id="WelcomeDialog-ex-1" class="player_button">Solo Raid</button>
 			</div>
 			<div class="col-sm-6">
-				<button class="player_button" onclick="welcomeDialogSubmit(2)">Duo Raid</button>
+				<button id="WelcomeDialog-ex-2" class="player_button">Duo Raid</button>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-sm-6">
-				<button class="player_button" onclick="welcomeDialogSubmit(0)">Gym Battle</button>
+				<button id="WelcomeDialog-ex-0" class="player_button">Gym Battle</button>
 			</div>
 			<div class="col-sm-6">
-				<button class="player_button" onclick="welcomeDialogSubmit(3)">PvP</button>
+				<button id="WelcomeDialog-ex-3" class="player_button">PvP</button>
 			</div>
 		</div>
 
@@ -342,17 +341,17 @@
 
 		<div class="row">
 			<div class="col">
-				<button class="player_button" onclick="welcomeDialogSubmit(4, true)">My Best Counter</button>
+				<button id="WelcomeDialog-ex-4" class="player_button">My Best Counter</button>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col">
-				<button class="player_button" onclick="welcomeDialogSubmit(5, true)">Minimum Level to Win</button>
+				<button id="WelcomeDialog-ex-5" class="player_button">Minimum Level to Win</button>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col">
-				<button class="player_button" onclick="welcomeDialogSubmit(6, true)">Best Pokemon of Type</button>
+				<button id="WelcomeDialog-ex-6" class="player_button">Best Pokemon of Type</button>
 			</div>
 		</div>
 
@@ -364,11 +363,10 @@
 
 		<div class="row">
 			<div class="col-sm-6">
-				<button onclick='welcomeDialogRespond(0)' class="center_stuff btn btn-success">OK</button>
+				<button id="WelcomeDialog-ok" class="center_stuff btn btn-success">OK</button>
 			</div>
 			<div class="col-sm-6">
-				<button onclick='welcomeDialogRespond(1)' class="center_stuff btn btn-primary">Don't show this
-					again</button>
+				<button id="WelcomeDialog-noshow" class="center_stuff btn btn-primary">Don't show this again</button>
 			</div>
 		</div>
 
@@ -376,7 +374,7 @@
 
 </div>
 
-<div id='teamBuilder' title="Team Builder" style="visibility: hidden;">
+<div id="teamBuilder" title="Team Builder" style="visibility: hidden;">
 	<p><i><b>Build your best team to beat a raid boss!</b></i></p>
 
 	<p>Enter the raid boss information on the main simulator, then hit "Find
@@ -390,60 +388,37 @@
 
 	<p> Hit "Permutate Parties" to find the best performing party.</p>
 
-	<p></p>
+	<br>
 
-	<table>
-		<thead>
-			<colgroup>
-				<col width="50%">
-				<col width="50%">
-			</colgroup>
-			<tr>
-				<th>Pokemon Pool</th>
-				<th>Party Optimizer</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<td><button class="center_stuff btn btn-primary" onclick="teamBuilderSubmit(0)">Find Counters</button>
-				</td>
-				<td><button class="center_stuff btn btn-primary" onclick="teamBuilderSubmit(1)">Permutate
-						Parties</button></td>
-			</tr>
-			<tr>
-				<td>
-					<table id="teamBuilder-pokemonTable">
-						<thead></thead>
-						<tbody></tbody>
-					</table>
-				</td>
-				<td id="teamBuilder-partyTable-dropArea">
-					<table id="teamBuilder-partyTable">
-						<thead></thead>
-						<tbody></tbody>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<td></td>
-				<td>
-					<table>
-						<tr>
-							<th>DPS</th>
-							<td id="teamBuilder-optimalPartyDPS"></td>
-						</tr>
-						<tr>
-							<th>TDO%</th>
-							<td id="teamBuilder-optimalPartyTDO"></td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<td></td>
-				<td><button class="center_stuff btn btn-success" onclick="teamBuilderSaveParty()">Save Party</button>
-				</td>
-			</tr>
-		</tbody>
-	</table>
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-6">
+				<label class="col-form-label">Pokemon Pool</label>
+				<button id="teamBuilder-find" class="center_stuff btn btn-primary">Find Counters</button>
+				<table id="teamBuilder-pokemonTable">
+					<thead></thead>
+					<tbody></tbody>
+				</table>
+			</div>
+			<div class="col-sm-6">
+				<label class="col-form-label">Party Optimizer</label>
+				<button id="teamBuilder-perm" class="center_stuff btn btn-primary">Permutate Parties</button>
+				<table id="teamBuilder-partyTable">
+					<thead></thead>
+					<tbody></tbody>
+				</table>
+				<div>
+					<th>DPS</th>
+					<td id="teamBuilder-optimalPartyDPS">0</td>
+				</div>
+				<div>
+					<th>TDO%</th>
+					<td id="teamBuilder-optimalPartyTDO">0</td>
+				</div>
+				<div>
+					<button id="teamBuilder-save" class="center_stuff btn btn-success">Save Party</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
