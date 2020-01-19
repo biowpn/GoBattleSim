@@ -420,6 +420,20 @@ function generateSpreadsheet(pokemonCollection) {
 	applyContext();
 
 	for (let pkm of pokemonCollection) {
+
+		// user Pokemon
+		if (pkm.baseAtk == undefined || pkm.baseDef == undefined || pkm.baseStm == undefined) {
+			let species = GM.get("pokemon", pkm.name);
+			if (!species) {
+				continue;
+			}
+			pkm.cpm = GM.get("level", pkm.level).cpm;
+			pkm.baseAtk = species.baseAtk;
+			pkm.baseDef = species.baseDef;
+			pkm.baseStm = species.baseStm;
+			pkm.icon = species.icon;
+		}
+
 		var fastMoves_all = pkm.fmove ? [pkm.fmove] : pkm.fastMoves.concat(pkm.fastMoves_legacy).concat(pkm.fastMoves_exclusive);
 		var chargedMoves_all = pkm.cmove ? [pkm.cmove] : pkm.chargedMoves.concat(pkm.chargedMoves_legacy).concat(pkm.chargedMoves_exclusive);
 		for (let fmove of fastMoves_all) {
@@ -434,7 +448,7 @@ function generateSpreadsheet(pokemonCollection) {
 
 				pkmInstance.fmove = fmoveInstance;
 				pkmInstance.cmove = cmoveInstance;
-				pkmInstance.cpm = pkm.level ? GM.get("level", pkm.level).cpm : DEFAULT_ATTACKER_CPM;
+				pkmInstance.cpm = pkm.cpm || DEFAULT_ATTACKER_CPM;
 				pkmInstance.atkiv = pkm.atkiv >= 0 ? pkm.atkiv : DEFAULT_ATTACKER_IVs[0];
 				pkmInstance.defiv = pkm.defiv >= 0 ? pkm.defiv : DEFAULT_ATTACKER_IVs[1];
 				pkmInstance.stmiv = pkm.stmiv >= 0 ? pkm.stmiv : DEFAULT_ATTACKER_IVs[2];

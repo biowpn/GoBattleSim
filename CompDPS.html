@@ -189,12 +189,6 @@
 			border: 1px solid #ddd;
 		}
 
-		.section-player-node {}
-
-		.section-party-node {}
-
-		.section-pokemon-node {}
-
 		.ui-autocomplete {
 			max-height: 300px;
 			overflow-y: auto;
@@ -265,7 +259,8 @@
 			<div class="col-sm-6">
 				<label class="col-form-label">Controls</label>
 				<div class="sub-menu-container">
-					<button class='sub-menu-opener'><i class="fa fa-cog" aria-hidden="true"></i> Customize</button>
+					<button class='sub-menu-opener btn btn-primary'><i class="fa fa-cog" aria-hidden="true"></i>
+						Customize</button>
 					<div class='sub-menu'>
 						<button class='player_button' id='moveEditFormOpener'>Move</button>
 						<button class='player_button' id='pokemonEditFormOpener'>Species</button>
@@ -281,7 +276,7 @@
 		<div class="row">
 			<div class="col-sm-6 col-lg-3">
 				<div id='ui-swapDiscount' style='width:100%;'><label style='width:100%;font-size:16px;'>Swap
-						Discount<input type='checkbox' id='ui-swapDiscount-checkbox'></label></div>
+						Dscnt<input type='checkbox' id='ui-swapDiscount-checkbox'></label></div>
 			</div>
 			<div class="col-sm-6 col-lg-3">
 				<div id='ui-use-box' style='width:100%;'><label style='width:100%;font-size:16px;'>My Pokemon<input
@@ -309,8 +304,7 @@
 
 			</div>
 			<div class="col-sm-6 col-md-3">
-				<button class='player_button ui-controlgroup-item' id='refresher'><i class="fa fa-refresh"
-						aria-hidden="true"></i>
+				<button class='btn btn-success' id='refresher'><i class="fa fa-refresh" aria-hidden="true"></i>
 					Refresh</button>
 			</div>
 		</div>
@@ -339,13 +333,15 @@
 		<tbody></tbody>
 	</table>
 
+	<br>
+
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-6">
-				<button id="CopyClipboardButton" class="player_button">Copy to Clipboard</button>
+				<button id="CopyClipboardButton" class="btn btn-info">Copy to Clipboard</button>
 			</div>
 			<div class="col-sm-6">
-				<button id="CopyCSVButton" class="player_button">Export To CSV</button>
+				<button id="CopyCSVButton" class="btn btn-info">Export To CSV</button>
 			</div>
 		</div>
 	</div>
