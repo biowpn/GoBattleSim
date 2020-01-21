@@ -7,20 +7,20 @@ In this document, all PokeQuery search features are summarized and compared with
 
 | Feature | Format | Supported in GoBattleSim | Supported in Pokemon Go |
 | ------- | ------ | ------------------------ | ----------------------- |
-| Combat Power (CP) | `cp{number|range}` | Yes | Yes |
-| Distance  | `distance{number|range}` | No | Yes |
+| Combat Power (CP) | `cp{number\|range}` | Yes | Yes |
+| Distance  | `distance{number\|range}` | No | Yes |
 | Evolutionary family  | `+{string}` | Yes | Yes<sup>[1]</sup> |
-| Health Points (HP) | `hp{number|range}` | Yes | Yes |
+| Health Points (HP) | `hp{number\|range}` | Yes | Yes |
 | Name | `{string}` | Yes | Yes |
 | Nickname | `{string}` | Yes | Yes |
-| Pokedex number | `{number|range}` | Yes | Yes |
+| Pokedex number | `{number\|range}` | Yes | Yes |
 | Pokedex type | `{PokeType}` | Yes, Extended<sup>[2]</sup> | Yes |
 | Region | `{string}` | Yes, Extended<sup>[3]</sup> | Yes |
 | Move | `@{string}` | Yes | Yes |
 | Move type | `@{PokeType}` | Yes | Yes |
-| Move stats | `@power{number|range}` | Yes | No |
-|  | `@duration{number|range}` | Yes | No |
-|  | `@energy{number|range}` | Yes | No |
+| Move stats | `@power{number\|range}` | Yes | No |
+|  | `@duration{number\|range}` | Yes | No |
+|  | `@energy{number\|range}` | Yes | No |
 | Move with effect | `@effect` | Yes | No |
 | Special Moves | `@special` | Yes | Yes |
 | Legacy Moves | `@legacy` | Yes | No |
@@ -31,15 +31,15 @@ In this document, all PokeQuery search features are summarized and compared with
 | Both Quick and Charged Attacks | `@*{string}` | Yes | No |
 | Weather-boosted | `@weather` | Yes<sup>[4]</sup> | Yes |
 | STAB | `@stab` | Yes | No |
-| Appraisal | `{number|range}*` | No | Yes |
-| IVs | `atkiv{number|range}` | Yes | No |
-|  | `defiv{number|range}` | Yes | No |
-|  | `stmiv{number|range}` | Yes | No |
-| Level | `level{number|range}` | Yes | No |
-| Base Stats | `baseAtk{number|range}` | Yes | No |
-|  | `baseDef{number|range}` | Yes | No |
-|  | `baseStm{number|range}` | Yes | No |
-| GamePress rating | `rating{number|range}` | Yes | - |
+| Appraisal | `{number\|range}*` | No | Yes |
+| IVs | `atkiv{number\|range}` | Yes | No |
+|  | `defiv{number\|range}` | Yes | No |
+|  | `stmiv{number\|range}` | Yes | No |
+| Level | `level{number\|range}` | Yes | No |
+| Base Stats | `baseAtk{number\|range}` | Yes | No |
+|  | `baseDef{number\|range}` | Yes | No |
+|  | `baseStm{number\|range}` | Yes | No |
+| GamePress rating | `rating{number\|range}` | Yes | - |
 | Evolvable Pokemon | `evolve` | Yes | Yes |
 | Legendary Pokemon | `legendary` | Yes | Yes |
 | Mythical Pokemon | `mythical` | Yes | Yes |
@@ -58,8 +58,8 @@ In this document, all PokeQuery search features are summarized and compared with
 | Raid Boss Tier | `%{number}` | Yes | No |
 | Current Raid Boss | `%current` | Yes | No |
 | Legacy Raid Boss | `%legacy` | Yes | No |
-| DPS / TDO | `dps{number|range}` | Yes<sup>[5]</sup> | - |
-|  | `tdo{number|range}` | Yes<sup>[5]</sup> | - |
+| DPS / TDO | `dps{number\|range}` | Yes<sup>[5]</sup> | - |
+|  | `tdo{number\|range}` | Yes<sup>[5]</sup> | - |
 
 Note:
 
@@ -86,7 +86,7 @@ Note:
 | | `{number}-` | Yes | Yes |
 |  | `-{number}` | Yes | Yes |
 | AND statement | `{expr1} & {expr2}` | Yes | Yes |
-| | `{expr1} | {expr2}` | Yes | Yes |
+| | `{expr1} \| {expr2}` | Yes | Yes |
 | OR statement | `{expr1} , {expr2}` | Yes | Yes |
 | | `{expr1} : {expr2}` | Yes | Yes |
 | | `{expr1} ; {expr2}` | Yes | Yes |
