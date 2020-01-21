@@ -754,8 +754,8 @@ function getTypeIcon(type) {
 /**
  * Get all evolutions of a Pokemon.
  * 
- * @param {string} name The name of the Pokemon.
- * @return {string[]} A list of names of Pokemon.
+ * @param {string} name the name of the Pokemon.
+ * @return {string[]} a list of names of Pokemon.
  */
 function getAllEvolutions(name) {
 	var evolutions = [name], pkm = getEntry(name, Data.Pokemon);
@@ -766,6 +766,28 @@ function getAllEvolutions(name) {
 	}
 	return evolutions;
 }
+
+/**
+ * Get the pre-evolution a Pokemon.
+ * 
+ * @param {string} name the name of the Pokemon.
+ * @return {string} the name of the Pokemon's ancestor.
+ */
+function getPreEvolution(name) {
+	let flag = false;
+	for (let pkm of Data.Pokemon) {
+		if (pkm.evolutions && pkm.evolutions.includes(name) && pkm.name != name) {
+			flag = true;
+			name = pkm.name;
+		}
+	}
+	if (flag) {
+		return getPreEvolution(name);
+	} else {
+		return name;
+	}
+}
+
 
 /**
  * Get the union of generic Pokemon pool and user Pokemon.
@@ -1235,9 +1257,10 @@ var LOGICAL_OPERATORS = {
 };
 var SELECTORS = ['*', '?'];
 var acceptedNumericalAttributes = [
-	'cp', 'atkiv', 'defiv', 'stmiv', 'level', 'dex',
+	'cp', 'hp', 'dex', 'atkiv', 'defiv', 'stmiv', 'level',
 	'baseAtk', 'baseDef', 'baseStm', 'rating',
-	'duration', 'dws', 'energyDelta', 'value', 'dps', 'tdo'
+	'power', 'duration', 'dws', 'energyDelta',
+	'value', 'dps', 'tdo'
 ];
 
 var LegendaryPokemon = ['regice', 'entei', 'registeel', 'suicune', 'heatran', 'latias', 'rayquaza', 'azelf', 'moltres', 'mewtwo', 'latios', 'groudon', 'regirock', 'dialga', 'giratina (altered forme)', 'giratina (origin forme)', 'mesprit', 'zapdos', 'lugia', 'regigigas', 'articuno', 'ho-oh', 'kyogre', 'uxie', 'palkia', 'cresselia', 'raikou'];
@@ -1336,6 +1359,27 @@ function PokeQuery(queryStr, pokemonInstance) {
 }
 
 
+function tryParseNumberOrRange(exp) {
+	let bounds = Array(2);
+	if (exp.includes('-')) {
+		bounds[0] = exp.split('-')[0];
+		bounds[1] = exp.split('-')[1];
+	} else if (!isNaN(parseFloat(exp))) {
+		bounds[0] = exp;
+		bounds[1] = exp;
+	} else {
+		return null;
+	}
+	bounds[0] = bounds[0] ? parseFloat(bounds[0]) : null;
+	bounds[1] = bounds[1] ? parseFloat(bounds[1]) : null;
+	if (isNaN(bounds[0]) || isNaN(bounds[1])) {
+		return null;
+	} else {
+		return bounds;
+	}
+}
+
+
 /**
  * Create a basic PokeQuery that filters Pokemon, Moves and other attributes of the Pokemon.
  * A basic PokeQuery is a PokeQuery without logical operator or parathesis.
@@ -1348,23 +1392,33 @@ function BasicPokeQuery(queryStr, pokemonInstance) {
 	let str = queryStr.trim();
 
 	let numericalAttr = "";
-	if (!isNaN(parseFloat(str))) {
+	let numericalBounds = tryParseNumberOrRange(str);
+	if (numericalBounds) {
 		numericalAttr = pokemonInstance ? 'value' : 'dex';
 	} else {
+		let non_alpha_idx = str.search(/[^A-Za-z]/);
+		let name = str.substr(0, non_alpha_idx).toLowerCase();
 		for (let attr of acceptedNumericalAttributes) {
-			if (str.startsWith(attr.toLowerCase())) {
-				numericalAttr = attr;
-				str = str.substring(attr.length);
-				break;
+			if (name && attr.toLowerCase().startsWith(name)) {
+				numericalBounds = tryParseNumberOrRange(str.substr(non_alpha_idx));
+				if (numericalBounds) {
+					numericalAttr = attr;
+					str = str.substr(non_alpha_idx);
+					break;
+				}
 			}
 		}
 	}
-	if (numericalAttr != '') { // Match numerical attributes
-		let bounds = str.split((str.includes('~') ? '~' : '-'));
-		const LBound = parseFloat(bounds[0]) || -1000000, UBound = parseFloat(bounds[bounds.length - 1]) || 1000000;
-		return function (obj) {
-			return LBound <= obj[numericalAttr] && obj[numericalAttr] <= UBound;
-		};
+
+	if (numericalAttr && numericalBounds) { // Match numerical attributes
+		const L = numericalBounds[0], U = numericalBounds[1];
+		if (L === null) {
+			return x => Math.abs(x[numericalAttr]) <= U;
+		} else if (U === null) {
+			return x => Math.abs(x[numericalAttr]) >= L;
+		} else {
+			return x => (L <= Math.abs(x[numericalAttr]) && Math.abs(x[numericalAttr]) <= U);
+		}
 	} else if (Data.BattleSettings.TypeEffectiveness.hasOwnProperty(str.toLowerCase()) || str.toLowerCase() == 'none') { // Match types
 		str = str.toLowerCase();
 		return function (obj) {
@@ -1419,16 +1473,11 @@ function BasicPokeQuery(queryStr, pokemonInstance) {
 		return function (obj) {
 			return obj.raidMarker && obj.raidMarker.includes(str);
 		};
-	} else if (str[0] == '+') { // Evolutions
-		let evolutions_const = getAllEvolutions(str.slice(1).trim().toLowerCase());
+	} else if (str[0] == '+') { // Evolutionary Family
+		let ancestor = getPreEvolution(str.slice(1).trim().toLowerCase());
+		const evolutions = getAllEvolutions(ancestor);
 		return function (obj) {
-			return evolutions_const.includes(obj.name);
-		};
-	} else if (str[0] == '?') { // JavaScript Expression
-		str = str.slice(1);
-		let y = pokemonInstance;
-		return function (x) {
-			return eval(str);
+			return evolutions.includes(obj.name);
 		};
 	} else if (str.toLowerCase() == "evolve") { // The Pokemon has evolution
 		return function (obj) {
@@ -1438,11 +1487,11 @@ function BasicPokeQuery(queryStr, pokemonInstance) {
 		return function (obj) {
 			return obj.rarity == "POKEMON_RARITY_LEGENDARY";
 		};
-	} else if (str.toLowerCase() == "mythic" || str.toLowerCase() == "mythical") { // Match mythical Pokemon
+	} else if (str.toLowerCase() == "mythical") { // Match mythical Pokemon
 		return function (obj) {
 			return obj.rarity == "POKEMON_RARITY_MYTHIC";
 		};
-	} else if (str.toLowerCase() == "baby" || str.toLowerCase() == "eggsonly") { // Match baby Pokemon
+	} else if (str.toLowerCase() == "eggsonly") { // Match baby Pokemon
 		return function (obj) {
 			return BabyPokemon.includes(obj.name);
 		};
@@ -1461,17 +1510,29 @@ function BasicPokeQuery(queryStr, pokemonInstance) {
 			var movepool = (pokemonInstance || {})[obj.moveType + "Moves_legacy"];
 			return movepool && movepool.includes(obj.name);
 		};
-	} else if (str.toLowerCase() == "exclusive" || str.toLowerCase() == "special") { // Exclusive Move
+	} else if (str.toLowerCase() == "exclusive") { // Exclusive Move
 		return function (obj) {
 			var movepool = (pokemonInstance || {})[obj.moveType + "Moves_exclusive"];
 			return movepool && movepool.includes(obj.name);
 		};
-	} else if (str.toLowerCase() == "stab") { // STAB Move
+	} else if (str.toLowerCase() == "special") { // Legacy or Exclusive Move
+		return function (obj) {
+			var movepool1 = (pokemonInstance || {})[obj.moveType + "Moves_legacy"];
+			var movepool2 = (pokemonInstance || {})[obj.moveType + "Moves_exclusive"];
+			return movepool1 && movepool1.includes(obj.name) && movepool2 && movepool2.includes(obj.name);
+		};
+	}
+	else if (str.toLowerCase() == "stab") { // STAB Move
 		return function (obj) {
 			pokemonInstance = pokemonInstance || {};
 			return obj.pokeType == pokemonInstance.pokeType1 || obj.pokeType == pokemonInstance.pokeType2;
 		};
-	} else if (str.toLowerCase() == "weather") { // Weather-boosted Move
+	} else if (str.toLowerCase() == "effect") { // Move with effect
+		return function (obj) {
+			return obj.effect;
+		};
+	}
+	else if (str.toLowerCase() == "weather") { // Weather-boosted Move
 		var Weather = $("#weather").val() || $("[name=input-weather]").val();
 		return function (obj) {
 			return Data.BattleSettings.TypeBoostedWeather[obj.pokeType] == Weather;

@@ -2,6 +2,7 @@
  * @file Comprehensive DPS Calculator
  */
 
+var DEFAULT_ATTACKER_LEVEL = 40;
 var DEFAULT_ATTACKER_CPM = 0.7903;
 var DEFAULT_ATTACKER_IVs = [15, 15, 15];
 var DEFAULT_ENEMY_DPS1 = 900;
@@ -197,8 +198,8 @@ function DPSCalculatorInit() {
 			}
 			$("#attacker-level").val("40");
 			$("#attacker-level").on("change", function () {
+				DEFAULT_ATTACKER_LEVEL = this.value;
 				DEFAULT_ATTACKER_CPM = GM.get("level", this.value).cpm;
-				// requestSpreadsheet(true);
 			});
 
 			requestSpreadsheet(true);
@@ -427,6 +428,7 @@ function generateSpreadsheet(pokemonCollection) {
 			if (!species) {
 				continue;
 			}
+			pkm.level = pkm.level;
 			pkm.cpm = GM.get("level", pkm.level).cpm;
 			pkm.baseAtk = species.baseAtk;
 			pkm.baseDef = species.baseDef;
@@ -448,6 +450,7 @@ function generateSpreadsheet(pokemonCollection) {
 
 				pkmInstance.fmove = fmoveInstance;
 				pkmInstance.cmove = cmoveInstance;
+				pkmInstance.level = pkm.level || DEFAULT_ATTACKER_LEVEL;
 				pkmInstance.cpm = pkm.cpm || DEFAULT_ATTACKER_CPM;
 				pkmInstance.atkiv = pkm.atkiv >= 0 ? pkm.atkiv : DEFAULT_ATTACKER_IVs[0];
 				pkmInstance.defiv = pkm.defiv >= 0 ? pkm.defiv : DEFAULT_ATTACKER_IVs[1];
@@ -455,6 +458,7 @@ function generateSpreadsheet(pokemonCollection) {
 				pkmInstance.Atk = (pkmInstance.baseAtk + pkmInstance.atkiv) * pkmInstance.cpm;
 				pkmInstance.Def = (pkmInstance.baseDef + pkmInstance.defiv) * pkmInstance.cpm;
 				pkmInstance.Stm = (pkmInstance.baseStm + pkmInstance.stmiv) * pkmInstance.cpm;
+				pkmInstance.hp = Math.max(10, Math.floor(pkmInstance.Stm));
 
 				if (LeagueCPCap > 0) {
 					adjustStatsUnderCPCap(pkmInstance, LeagueCPCap);
