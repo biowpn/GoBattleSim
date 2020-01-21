@@ -23,13 +23,14 @@ In this document, all PokeQuery search features are summarized and compared with
 |  | `@energy{number\|range}` | Yes | No |
 | Move with effect | `@effect` | Yes | No |
 | Special Moves | `@special` | Yes | Yes |
-| Legacy Moves | `@legacy` | Yes | No |
+| Exclusive Moves | `@exclusive` | Yes | No<sup>[4]</sup> |
+| Legacy Moves | `@legacy` | Yes | No<sup>[4]</sup> |
 | Current Moves | `@current` | Yes | No |
 | Types of Quick and Charged Attacks | `@1{string}` | Yes | Yes |
 |  | `@2{string}` | Yes | Yes |
 |  | `@3{string}` | Yes | Yes |
 | Both Quick and Charged Attacks | `@*{string}` | Yes | No |
-| Weather-boosted | `@weather` | Yes<sup>[4]</sup> | Yes |
+| Weather-boosted | `@weather` | Yes<sup>[5]</sup> | Yes |
 | STAB | `@stab` | Yes | No |
 | Appraisal | `{number\|range}*` | No | Yes |
 | IVs | `atkiv{number\|range}` | Yes | No |
@@ -48,7 +49,7 @@ In this document, all PokeQuery search features are summarized and compared with
 | Egg-exclusive Pokemon | `eggsonly` | Yes | Yes |
 | Gym defenders | `defender` | No | Yes |
 | Hatched Pokemon | `hatched` | No | Yes |
-| Lukcy Pokemon | `lucky` | No | Yes |
+| Lucky Pokemon | `lucky` | No | Yes |
 | Purified Pokemon | `Purified` | No | Yes |
 | Shadow Pokemon | `Shadow` | No | Yes |
 | Shiny Pokemon | `shiny` | No | Yes |
@@ -58,8 +59,8 @@ In this document, all PokeQuery search features are summarized and compared with
 | Raid Boss Tier | `%{number}` | Yes | No |
 | Current Raid Boss | `%current` | Yes | No |
 | Legacy Raid Boss | `%legacy` | Yes | No |
-| DPS / TDO | `dps{number\|range}` | Yes<sup>[5]</sup> | - |
-|  | `tdo{number\|range}` | Yes<sup>[5]</sup> | - |
+| DPS / TDO | `dps{number\|range}` | Yes<sup>[6]</sup> | - |
+|  | `tdo{number\|range}` | Yes<sup>[6]</sup> | - |
 
 Note:
 
@@ -73,9 +74,11 @@ Note:
 
 3. All 8 regions up to `galar` are supported.
 
-4. Requires a global variable for weather setting.
+4. The `@special` search in Pokemon Go doesn't distinguish exclusive moves (only obtainable during events) from legacy moves (once naturally learnable).
 
-5. Only available in the DPS Spreadsheet.
+5. Requires a global variable for weather setting.
+
+6. Only available in the DPS Spreadsheet.
 
 
 ## Combining Filters & Others
