@@ -423,7 +423,7 @@ function generateSpreadsheet(pokemonCollection) {
 	for (let pkm of pokemonCollection) {
 
 		// user Pokemon
-		if (pkm.baseAtk == undefined || pkm.baseDef == undefined || pkm.baseStm == undefined) {
+		if (pkm.uid !== undefined) {
 			let species = GM.get("pokemon", pkm.name);
 			if (!species) {
 				continue;
