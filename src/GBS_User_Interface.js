@@ -1376,7 +1376,7 @@ function getTableContent(dt) {
 		let row = [];
 		for (var j = 0; j < attributes.length; ++j) {
 			var attr = attributes[j];
-			row.push($("<div>" + data[i][attr] + "</div>").text());
+			row.push($("<div>" + data[i][attr] + "<\/div>").text());
 		}
 		content.push(row);
 	}
@@ -1386,9 +1386,10 @@ function getTableContent(dt) {
 
 function makeAndDownloadCSV(arrayOfLines, filename) {
 	filename = filename || "whatever.csv";
+	var language = window.navigator.userLanguage || window.navigator.language || "en";
 	var lineArray = [];
 	arrayOfLines.forEach(function (infoArray) {
-		lineArray.push(infoArray.map(x => '"' + x.toLocaleString() + '"').join(","));
+		lineArray.push(infoArray.map(x => '"' + x.toLocaleString(language) + '"').join(","));
 	});
 	var csvContent = lineArray.join("\n");
 	var blob = new Blob([csvContent], {
