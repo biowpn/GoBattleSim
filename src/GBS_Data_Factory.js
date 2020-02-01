@@ -544,9 +544,9 @@ var Mods = [
 		}
 	},
 	{
-		name: 'Exclude Low-rating and Low-stat Species',
+		name: 'Exclude Low-rating and Low-Attack Species',
 		effect: function () {
-			Data.Pokemon = Data.Pokemon.filter(x => (x.rating >= 2 && x.baseAtk >= 160));
+			Data.Pokemon = Data.Pokemon.filter(x => (x.rating >= 2 || x.baseAtk >= 160));
 			Data.Pokemon.sorted = true;
 		}
 	}
@@ -1012,7 +1012,7 @@ function fetchPokemonForms(oncomplete) {
 	requiredJSONStatus.PokemonForms = 1;
 
 	$.ajax({
-		url: "/pokemongo/sites/pokemongo/files/pogo-jsons/pogo_data_projection.json" + "?" + curTime,
+		url: "/pokemongo/sites/pokemongo/files/pogo-jsons/pogo_data_projection_9.json" + "?" + curTime,
 		dataType: 'json',
 		success: function (data) {
 			Data.PokemonForms = [];
