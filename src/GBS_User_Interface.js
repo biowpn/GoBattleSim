@@ -487,7 +487,10 @@ function createMinimizeButton(parentName, childrenName) {
 		class: "button-icon", title: "Minimize"
 	});
 	button.onclick = function () {
-		$($(this).parents("[name=" + pName + "]").find("[name=" + cName + "]")[0]).slideToggle('fast');
+		let children = $(this).parents("[name=" + pName + "]").children();
+		for (let i = 1; i < children.length; ++i) {
+			$(children[i]).slideToggle('fast');
+		}
 	}
 	return button;
 }
@@ -806,7 +809,7 @@ function createPartyReviveCheckbox() {
 
 function createAddPokemonButton() {
 	var addPokemonButton = createElement("button", "Add Pokemon", {
-		class: 'player_button'
+		class: 'btn player_button'
 	});
 	addPokemonButton.onclick = function () {
 		let partyNode = $(this).parents("[name=party]")[0];
@@ -918,7 +921,7 @@ function createRemovePlayerButton() {
 
 function createAddPartyButton() {
 	var addPartyButton = createElement("button", "Add Party", {
-		class: 'player_button'
+		class: 'btn player_button'
 	});
 	addPartyButton.onclick = function () {
 		var playerNode = $(this).parents("[name=player]");

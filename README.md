@@ -23,7 +23,7 @@ https://gamepress.gg/pokemongo/comprehensive-dps-spreadsheet
 
 1. Clone this repository
 
-2. `tar -xf` the "pokemongo_*.tar"
+2. `tar -xf pokemongo.tar`
 
     - Afterwards, these sub directories should be under the root directory:
         - pokemongo/
