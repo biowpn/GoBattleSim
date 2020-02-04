@@ -1012,7 +1012,7 @@ function fetchPokemonForms(oncomplete) {
 	requiredJSONStatus.PokemonForms = 1;
 
 	$.ajax({
-		url: "/pokemongo/sites/pokemongo/files/pogo-jsons/pogo_data_projection_9.json" + "?" + curTime,
+		url: "/pokemongo/sites/pokemongo/files/pogo-jsons/pogo_data_projection_10.json" + "?" + curTime,
 		dataType: 'json',
 		success: function (data) {
 			Data.PokemonForms = [];
