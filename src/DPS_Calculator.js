@@ -337,10 +337,10 @@ function DPSCalculatorInit() {
 			{ title: "Pokemon", data: "ui_name", width: "24%" },
 			{ title: "Fast Move", data: "ui_fmove", width: "18%" },
 			{ title: "Charged Move", data: "ui_cmove", width: "18%" },
-			{ title: "DPS", data: "ui_dps", width: "10%", orderSequence: ["desc", "asc"] },
-			{ title: "TDO", data: "ui_tdo", width: "10%", orderSequence: ["desc", "asc"] },
-			{ title: "DPS^3*TDO", data: "ui_overall", width: "10%", orderSequence: ["desc", "asc"] },
-			{ title: "CP", data: "ui_cp", width: "10%", orderSequence: ["desc", "asc"] }
+			{ title: "DPS", data: "ui_dps", type: "num", width: "10%", orderSequence: ["desc", "asc"] },
+			{ title: "TDO", data: "ui_tdo", type: "num", width: "10%", orderSequence: ["desc", "asc"] },
+			{ title: "DPS^3*TDO", data: "ui_overall", type: "num", width: "10%", orderSequence: ["desc", "asc"] },
+			{ title: "CP", data: "ui_cp", type: "num", width: "10%", orderSequence: ["desc", "asc"] }
 		],
 		scrollX: true
 	});
@@ -481,6 +481,10 @@ function generateSpreadsheet(pokemonCollection) {
 				Table.row.add(pkmInstance);
 			}
 		}
+	}
+
+	if (EasterEggActiviated) {
+		applyEasterEgg(Table);
 	}
 
 	t2 = Date.now();
@@ -665,4 +669,42 @@ function calculateDPSGrades(maxDPS) {
 		data[i].ui_cp = grade;
 	}
 	DT.rows().invalidate();
+}
+
+
+var d = new Date();
+var EasterEggActiviated = d.getMonth() == 3 && d.getDate() == 1;
+function applyEasterEgg(dt) {
+	dt.row.add({
+		ui_name: createIconLabelSpan("https://archives.bulbagarden.net/media/upload/2/22/Ani399MS.png", "Shiny Bidoof", 'species-input-with-icon'),
+		ui_fmove: "",
+		ui_cmove: "",
+		ui_dps: Infinity,
+		ui_tdo: Infinity,
+		ui_overall: Infinity,
+		ui_cp: Infinity
+	});
+
+	dt.row.add({
+		ui_name: createIconLabelSpan("https://archives.bulbagarden.net/media/upload/c/c0/Ani132MS.png", "Ditto", 'species-input-with-icon'),
+		ui_fmove: "",
+		ui_cmove: "",
+		ui_dps: Infinity,
+		ui_tdo: Infinity,
+		ui_overall: Infinity,
+		ui_cp: Infinity
+	});
+
+	dt.row.add({
+		name: "Pikachu",
+		label: "Pikachu",
+		nickname: "Pikachu",
+		ui_name: createIconLabelSpan("https://archives.bulbagarden.net/media/upload/6/6f/Ani015OD.png", "Pikachu", 'species-input-with-icon'),
+		ui_fmove: "",
+		ui_cmove: "",
+		ui_dps: 10,
+		ui_tdo: 100,
+		ui_overall: 100,
+		ui_cp: 1600
+	});
 }

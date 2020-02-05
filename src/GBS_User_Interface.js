@@ -484,7 +484,7 @@ function createPokemonMoveInput(moveType, attrName) {
 function createMinimizeButton(parentName, childrenName) {
 	const pName = parentName, cName = childrenName;
 	var button = createElement("button", '<i class="fa fa-minus" aria-hidden="true"></i>', {
-		class: "button-icon", title: "Minimize"
+		class: "btn button-icon", title: "Minimize"
 	});
 	button.onclick = function () {
 		let children = $(this).parents("[name=" + pName + "]").children();
@@ -497,7 +497,7 @@ function createMinimizeButton(parentName, childrenName) {
 
 function createCopyPokemonButton() {
 	var copyPokemonButton = createElement('button', '<i class="fa fa-files-o" aria-hidden="true"></i>', {
-		class: "button-icon", title: "Copy"
+		class: "btn button-icon", title: "Copy"
 	});
 	copyPokemonButton.onclick = function () {
 		LocalData.PokemonClipboard = UI.read($(this).parents("[name=pokemon]")[0]);
@@ -508,7 +508,7 @@ function createCopyPokemonButton() {
 
 function createPastePokemonButton() {
 	var pastePokemonButton = createElement('button', '<i class="fa fa-clipboard" aria-hidden="true"></i>', {
-		class: "button-icon", title: "Paste"
+		class: "btn button-icon", title: "Paste"
 	});
 	pastePokemonButton.onclick = function () {
 		var pokemonNode = $(this).parents("[name=pokemon]")[0];
@@ -520,7 +520,7 @@ function createPastePokemonButton() {
 
 function createRemovePokemonButton() {
 	var removePokemonButton = createElement('button', '<i class="fa fa-times" aria-hidden="true"></i>', {
-		class: "button-icon", title: "Remove"
+		class: "btn button-icon", title: "Remove"
 	});
 	removePokemonButton.onclick = function () {
 		var pokemonNodes = $(this).parents("[name=party]").find("[name=pokemon]");
@@ -725,7 +725,7 @@ function createPartyNameInput() {
 
 function createSavePartyButton() {
 	var savePartyButton = createElement('button', '<i class="fa fa-floppy-o" aria-hidden="true"></i>', {
-		class: 'button-icon', title: 'Save'
+		class: "btn button-icon", title: 'Save'
 	});
 	savePartyButton.onclick = function () {
 		var partyNode = $(this).parents("[name=party]")[0];
@@ -744,7 +744,7 @@ function createSavePartyButton() {
 
 function createRemovePartyButton() {
 	var removePartyButton = createElement('button', '<i class="fa fa-times" aria-hidden="true"></i>', {
-		class: 'button-icon', title: 'Remove'
+		class: "btn button-icon", title: 'Remove'
 	});
 	removePartyButton.onclick = function () {
 		var partyNode = $(this).parents("[name=party]");
@@ -903,7 +903,7 @@ function createPlayerFriendInput() {
 
 function createRemovePlayerButton() {
 	var removePlayerButton = createElement('button', '<i class="fa fa-times" aria-hidden="true"></i>', {
-		class: 'button-icon', title: 'Remove'
+		class: "btn button-icon", title: 'Remove'
 	});
 	removePlayerButton.onclick = function () {
 		var playersNode = $("#input").find("[name=input-players]")[0];
