@@ -342,6 +342,7 @@ function parameterEditFormRefresh() {
 function parameterEditFormSubmit() {
 	var EDITABLE_PARAMETERS = {};
 	var error_params = [];
+
 	GM.each("battleSetting", function (value, param) {
 		try {
 			var val = JSON.parse($('#parameterEditForm-' + param).val());
@@ -352,11 +353,16 @@ function parameterEditFormSubmit() {
 		}
 	});
 	GM.save();
-	GBS.config(GM.convert());
+
+	if (window.GBS) {
+		GBS.config(GM.convert());
+	}
+
 	if (error_params.length > 0) {
 		UI.sendFeedbackDialog("Error parsing parameters: " + error_params.join(", "));
+	} else {
+		UI.sendFeedbackDialog("Battle settings have been updated");
 	}
-	UI.sendFeedbackDialog("Battle settings have been updated");
 }
 
 function parameterEditFormReset() {
