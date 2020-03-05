@@ -8,13 +8,13 @@ In this document, all PokeQuery search features are summarized and compared with
 | Feature | Format | Supported in GoBattleSim | Supported in Pokemon Go |
 | ------- | ------ | ------------------------ | ----------------------- |
 | Combat Power (CP) | `cp{number\|range}` | Yes | Yes |
-| Distance  | `distance{number\|range}` | No | Yes |
+| Distance  | `distance{number\|range}` | - | Yes |
 | Evolutionary family  | `+{string}` | Yes | Yes<sup>[1]</sup> |
 | Health Points (HP) | `hp{number\|range}` | Yes | Yes |
 | Name | `{string}` | Yes | Yes |
 | Nickname | `{string}` | Yes | Yes |
 | Pokedex number | `{number\|range}` | Yes | Yes |
-| Pokedex type | `{PokeType}` | Yes, Extended<sup>[2]</sup> | Yes |
+| Pokemon type | `{PokeType}` | Yes, Extended<sup>[2]</sup> | Yes |
 | Region | `{string}` | Yes, Extended<sup>[3]</sup> | Yes |
 | Move | `@{string}` | Yes | Yes |
 | Move type | `@{PokeType}` | Yes | Yes |
@@ -47,20 +47,20 @@ In this document, all PokeQuery search features are summarized and compared with
 | Item-based evolutions | `item` | No | Yes |
 | Alolan Pokemon | `alolan` | Yes | Yes |
 | Egg-exclusive Pokemon | `eggsonly` | Yes | Yes |
-| Gym defenders | `defender` | No | Yes |
-| Hatched Pokemon | `hatched` | No | Yes |
+| Gym defenders | `defender` | - | Yes |
+| Hatched Pokemon | `hatched` | - | Yes |
 | Lucky Pokemon | `lucky` | No | Yes |
 | Purified Pokemon | `Purified` | No | Yes |
-| Shadow Pokemon | `Shadow` | No | Yes |
-| Shiny Pokemon | `shiny` | No | Yes |
+| Shadow Pokemon | `Shadow` | Yes<sup>[6]</sup> | Yes |
+| Shiny Pokemon | `shiny` | - | Yes |
 | Special Event Pokemon | `costume` | No | Yes |
-| Traded Pokemon | `traded` | No | Yes |
+| Traded Pokemon | `traded` | - | Yes |
 | User Pokemon | `$` | Yes | - |
 | Raid Boss Tier | `%{number}` | Yes | No |
 | Current Raid Boss | `%current` | Yes | No |
 | Legacy Raid Boss | `%legacy` | Yes | No |
-| DPS / TDO | `dps{number\|range}` | Yes<sup>[6]</sup> | - |
-|  | `tdo{number\|range}` | Yes<sup>[6]</sup> | - |
+| DPS / TDO | `dps{number\|range}` | Yes<sup>[7]</sup> | - |
+|  | `tdo{number\|range}` | Yes<sup>[7]</sup> | - |
 
 Note:
 
@@ -78,7 +78,9 @@ Note:
 
 5. Requires a global variable for weather setting.
 
-6. Only available in the DPS Spreadsheet.
+6. Match name/nickname containing "shadow".
+
+7. Only available in the DPS Spreadsheet.
 
 
 ## Combining Filters & Others
@@ -94,6 +96,6 @@ Note:
 | | `{expr1} : {expr2}` | Yes | Yes |
 | | `{expr1} ; {expr2}` | Yes | Yes |
 | NOT statement | `!{expr}` | Yes | Yes |
-| Override Precedence | `(expr)` | Yes | No |
+| Override Precedence | `({expr})` | Yes | No |
 
 Note: In the Pokemon Go app, the precedence is `NOT > OR > AND`, where in GoBattleSim it's `NOT > AND > OR`.
