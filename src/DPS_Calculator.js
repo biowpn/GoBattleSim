@@ -266,6 +266,7 @@ function DPSCalculatorInit() {
 	dropdownMenuInit();
 	moveEditFormInit();
 	pokemonEditFormInit();
+	parameterEditFormInit();
 	modEditFormInit();
 
 	$.fn.dataTable.Api.register('rows().generate()', function () {
@@ -459,6 +460,11 @@ function generateSpreadsheet(pokemonCollection) {
 				pkmInstance.Def = (pkmInstance.baseDef + pkmInstance.defiv) * pkmInstance.cpm;
 				pkmInstance.Stm = (pkmInstance.baseStm + pkmInstance.stmiv) * pkmInstance.cpm;
 				pkmInstance.hp = Math.max(10, Math.floor(pkmInstance.Stm));
+
+				if (pkmInstance.name.startsWith("shadow ")) {
+					pkmInstance.Atk *= Data.BattleSettings.shadowPokemonAttackBonusMultiplier;
+					pkmInstance.Def *= Data.BattleSettings.shadowPokemonDefenseBonusMultiplier;
+				}
 
 				if (LeagueCPCap > 0) {
 					adjustStatsUnderCPCap(pkmInstance, LeagueCPCap);
@@ -676,7 +682,7 @@ var d = new Date();
 var EasterEggActiviated = d.getMonth() == 3 && d.getDate() == 1;
 function applyEasterEgg(dt) {
 	dt.row.add({
-		ui_name: createIconLabelSpan("https://archives.bulbagarden.net/media/upload/2/22/Ani399MS.png", "Shiny Bidoof", 'species-input-with-icon'),
+		ui_name: createIconLabelSpan("/pokemongo/sites/pokemongo/files/2020-03/Ani399MS.png", "Shiny Bidoof", 'species-input-with-icon'),
 		ui_fmove: "",
 		ui_cmove: "",
 		ui_dps: Infinity,
@@ -686,7 +692,7 @@ function applyEasterEgg(dt) {
 	});
 
 	dt.row.add({
-		ui_name: createIconLabelSpan("https://archives.bulbagarden.net/media/upload/c/c0/Ani132MS.png", "Ditto", 'species-input-with-icon'),
+		ui_name: createIconLabelSpan("/pokemongo/sites/pokemongo/files/2020-03/Ani132MS.png", "Ditto", 'species-input-with-icon'),
 		ui_fmove: "",
 		ui_cmove: "",
 		ui_dps: Infinity,
@@ -699,7 +705,7 @@ function applyEasterEgg(dt) {
 		name: "Pikachu",
 		label: "Pikachu",
 		nickname: "Pikachu",
-		ui_name: createIconLabelSpan("https://archives.bulbagarden.net/media/upload/6/6f/Ani015OD.png", "Pikachu", 'species-input-with-icon'),
+		ui_name: createIconLabelSpan("/pokemongo/sites/pokemongo/files/2020-03/Ani015OD.png", "Pikachu", 'species-input-with-icon'),
 		ui_fmove: "",
 		ui_cmove: "",
 		ui_dps: 10,
