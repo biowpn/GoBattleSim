@@ -1002,10 +1002,6 @@ function fetchPokemon(oncomplete) {
 					var pkm_shadow = JSON.parse(JSON.stringify(pkm));
 					pkm_shadow.label = "Shadow " + pkm_shadow.label;
 					pkm_shadow.labelLinked = pkm_shadow.label;
-					pkm_shadow.fastMoves_legacy = [];
-					pkm_shadow.fastMoves_exclusive = [];
-					pkm_shadow.chargedMoves_legacy = [];
-					pkm_shadow.chargedMoves_exclusive = [];
 					pkm_shadow.name = pkm_shadow.label.toLowerCase();
 					Data.Pokemon.push(pkm_shadow);
 				}
