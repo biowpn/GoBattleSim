@@ -51,9 +51,7 @@ The simulator engine part of GoBattleSim is [src/GBS_Engine.wasm](./src/GBS_Engi
 
 - [GameSolver](https://github.com/biowpn/GameSolver.git)
 
-Place the above repositories on the same directory level as this repository.
-
-Make sure `em++` is available from command line. Then run the script:
+Place the above repositories on the same directory level as this repository. Make sure `em++` is available from command line. Then run the script:
 
 ```
 python build-gbs-wasm.py
