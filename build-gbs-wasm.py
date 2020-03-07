@@ -5,7 +5,7 @@ import os
 import shutil
 import subprocess
 
-COMIPLE_FLAGS = ""
+COMPILE_FLAGS = ""
 
 
 def compile_to(project_dir, build_dir):
@@ -26,7 +26,7 @@ def compile_to(project_dir, build_dir):
             continue
         src_path = os.path.join(src_dir, src)
         bin_path = os.path.join(build_dir, src_name + ".bc")
-        cmd = f"em++ --std=c++11 {COMIPLE_FLAGS} -s ALLOW_MEMORY_GROWTH=1 {include_path_arg} -c {src_path} -o {bin_path}"
+        cmd = f"em++ --std=c++11 {COMPILE_FLAGS} -s ALLOW_MEMORY_GROWTH=1 {include_path_arg} -c {src_path} -o {bin_path}"
         print(cmd)
         p = subprocess.Popen(cmd, shell=True)
         procs.append(p)
@@ -40,7 +40,7 @@ def compile_to(project_dir, build_dir):
 
 def main():
 
-    global COMIPLE_FLAGS
+    global COMPILE_FLAGS
 
     parser = argparse.ArgumentParser()
     parser.add_argument("projects", type=str, nargs='*', default=["../GoBattleSim-Engine/", "../GameSolver/"],
@@ -55,9 +55,9 @@ def main():
     Target_Dir = args.out
 
     if args.type == "release":
-        COMIPLE_FLAGS = "-O3"
+        COMPILE_FLAGS = "-O3"
     else:
-        COMIPLE_FLAGS = "-s ASSERTIONS=1"
+        COMPILE_FLAGS = "-s ASSERTIONS=1"
 
     # prepare a clean build dir
     if os.path.isdir(Build_Dir):
@@ -73,7 +73,7 @@ def main():
     for bc in glob.glob(f"{Build_Dir}/*.bc"):
         bin_paths_str += bc + " "
 
-    cmd = f"emcc {COMIPLE_FLAGS} {bin_paths_str} -o {Build_Dir}/GBS_Engine.html -s ALLOW_MEMORY_GROWTH=1 -s EXTRA_EXPORTED_RUNTIME_METHODS=[ccall,cwrap,getValue,setValue]"
+    cmd = f"emcc {COMPILE_FLAGS} {bin_paths_str} -o {Build_Dir}/GBS_Engine.html -s ALLOW_MEMORY_GROWTH=1 -s EXTRA_EXPORTED_RUNTIME_METHODS=[ccall,cwrap,getValue,setValue]"
     print(cmd)
     p = subprocess.Popen(cmd, shell=True)
     p.wait()
