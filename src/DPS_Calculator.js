@@ -682,7 +682,7 @@ var d = new Date();
 var EasterEggActiviated = d.getMonth() == 3 && d.getDate() == 1;
 function applyEasterEgg(dt) {
 	dt.row.add({
-		ui_name: createIconLabelSpan("/pokemongo/sites/pokemongo/files/2020-03/Ani399MS.png", "Shiny Bidoof", 'species-input-with-icon'),
+		ui_name: createIconLabelSpan("/pokemongo/sites/pokemongo/files/2020-03/Ani213MS.png", "Shuckle", 'species-input-with-icon'),
 		ui_fmove: "",
 		ui_cmove: "",
 		ui_dps: Infinity,
@@ -691,15 +691,25 @@ function applyEasterEgg(dt) {
 		ui_cp: Infinity
 	});
 
-	dt.row.add({
-		ui_name: createIconLabelSpan("/pokemongo/sites/pokemongo/files/2020-03/Ani132MS.png", "Ditto", 'species-input-with-icon'),
-		ui_fmove: "",
-		ui_cmove: "",
-		ui_dps: Infinity,
-		ui_tdo: Infinity,
-		ui_overall: Infinity,
-		ui_cp: Infinity
-	});
+	// dt.row.add({
+	// 	ui_name: createIconLabelSpan("/pokemongo/sites/pokemongo/files/2020-03/Ani399MS.png", "Shiny Bidoof", 'species-input-with-icon'),
+	// 	ui_fmove: "",
+	// 	ui_cmove: "",
+	// 	ui_dps: Infinity,
+	// 	ui_tdo: Infinity,
+	// 	ui_overall: Infinity,
+	// 	ui_cp: Infinity
+	// });
+
+	// dt.row.add({
+	// 	ui_name: createIconLabelSpan("/pokemongo/sites/pokemongo/files/2020-03/Ani132MS.png", "Ditto", 'species-input-with-icon'),
+	// 	ui_fmove: "",
+	// 	ui_cmove: "",
+	// 	ui_dps: Infinity,
+	// 	ui_tdo: Infinity,
+	// 	ui_overall: Infinity,
+	// 	ui_cp: Infinity
+	// });
 
 	dt.row.add({
 		name: "Pikachu",
