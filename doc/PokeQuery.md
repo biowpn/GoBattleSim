@@ -78,7 +78,7 @@ Note:
 
 5. Requires a global variable for weather setting.
 
-6. Match name/nickname containing "shadow".
+6. Match name/nickname containing "shadow ".
 
 7. Only available in the DPS Spreadsheet.
 

@@ -393,8 +393,8 @@ function PokemonInput(kwargs) {
 	if (typeof this.attack == typeof 0 && typeof this.defense == typeof 0 && typeof this.maxHP == typeof 0) {
 		// 1.0 If attack, defense and maxHP are all defined, then we are good.
 	} else {
-		// Otherwise need to calculate them using [Stat = (baseStat + ivStat) * cpm]
-		// 1.1 Find baseAtk, baseDef, baseStm.
+		// 1.1 Otherwise need to calculate them using [Stat = (baseStat + ivStat) * cpm]
+		// 1.1.0 Find baseAtk, baseDef, baseStm.
 		if (typeof kwargs.baseAtk == typeof 0 && typeof kwargs.baseDef == typeof 0 && typeof kwargs.baseStm == typeof 0) {
 			// If all of them are defined, then no need to look up species stats.
 			stats.baseAtk = kwargs.baseAtk;
@@ -405,7 +405,7 @@ function PokemonInput(kwargs) {
 			stats.baseDef = species.baseDef;
 			stats.baseStm = species.baseStm;
 		}
-		// 1.2 Find atkiv, defiv, stmiv
+		// 1.1.1 Find atkiv, defiv, stmiv
 		if (role == "rb") {
 			// For raid bosses, atkiv and defiv are 15. maxHP and cpm are also defined based on their tier.
 			let raidTier = GM.get("RaidTierSettings", kwargs.raidTier);
@@ -440,7 +440,7 @@ function PokemonInput(kwargs) {
 				stats.stmiv = parseInt(stats.stmiv) || 0;
 			}
 		}
-		// 1.3 Find cpm
+		// 1.1.2 Find cpm
 		if (typeof stats.cpm == typeof 0) {
 			// cpm already defined in 1.2
 		} else if (typeof kwargs.cpm == typeof 0) {
@@ -454,12 +454,17 @@ function PokemonInput(kwargs) {
 			}
 			stats.cpm = levelSetting.cpm;
 		}
-		// 1.4 With everything ready, calculate the three stats if necessary
+		// 1.1.3 With everything ready, calculate the three stats
 		this.attack = (stats.baseAtk + stats.atkiv) * stats.cpm;
 		this.defense = (stats.baseDef + stats.defiv) * stats.cpm;
 		stats.stamina = (stats.baseStm + stats.stmiv) * stats.cpm;
+		// 1.1.4 Apply Shadow multipliers
+		if (this.name.startsWith("shadow ")) {
+			this.attack *= Data.BattleSettings.shadowPokemonAttackBonusMultiplier;
+			this.defense *= Data.BattleSettings.shadowPokemonDefenseBonusMultiplier;
+		}
 	}
-	// 1.5 Calculate maxHP
+	// 1.2 Calculate maxHP
 	if (typeof this.maxHP != typeof 0) {
 		if (role == "gd") { // Gym Defender
 			this.maxHP = 2 * Math.floor(stats.stamina);

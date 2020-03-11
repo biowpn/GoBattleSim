@@ -1513,6 +1513,10 @@ function BasicPokeQuery(queryStr, pokemonInstance) {
 		return function (obj) {
 			return dex_range[0] <= obj.dex && obj.dex <= dex_range[1];
 		};
+	} else if (str.toLowerCase() == "shadow") { // Match Shadow Pokemon
+		return function (obj) {
+			return obj.name && obj.name.startsWith("shadow ");
+		};
 	} else if (str.toLowerCase() == "current") { // Current Move
 		return function (obj) {
 			var movepool = (pokemonInstance || {})[obj.moveType + "Moves"];
