@@ -461,15 +461,16 @@ function generateSpreadsheet(pokemonCollection) {
 				pkmInstance.Stm = (pkmInstance.baseStm + pkmInstance.stmiv) * pkmInstance.cpm;
 				pkmInstance.hp = Math.max(10, Math.floor(pkmInstance.Stm));
 
+				if (LeagueCPCap > 0) {
+					adjustStatsUnderCPCap(pkmInstance, LeagueCPCap);
+				}
+				pkmInstance.cp = calculateCP(pkmInstance);
+
 				if (pkmInstance.name.startsWith("shadow ")) {
 					pkmInstance.Atk *= Data.BattleSettings.shadowPokemonAttackBonusMultiplier;
 					pkmInstance.Def *= Data.BattleSettings.shadowPokemonDefenseBonusMultiplier;
 				}
 
-				if (LeagueCPCap > 0) {
-					adjustStatsUnderCPCap(pkmInstance, LeagueCPCap);
-				}
-				pkmInstance.cp = calculateCP(pkmInstance);
 				calculateDPS(pkmInstance, Context);
 
 				pkmInstance.ui_name = createIconLabelSpan(pkm.icon, pkm.labelLinked || pkm.label, 'species-input-with-icon');
@@ -611,10 +612,11 @@ var LeagueCPCap = 0;
 function adjustStatsUnderCPCap(pkm, cp) {
 	var old_cp = calculateCP(pkm);
 	if (old_cp > cp) {
-		pkm.cpm = pkm.cpm * Math.sqrt(cp / old_cp);
-		pkm.Atk = (pkm.baseAtk + pkm.atkiv) * pkm.cpm;
-		pkm.Def = (pkm.baseDef + pkm.defiv) * pkm.cpm;
-		pkm.Stm = (pkm.baseStm + pkm.stmiv) * pkm.cpm;
+		let adjust_ratio = Math.sqrt(cp / old_cp);
+		pkm.cpm *= adjust_ratio;
+		pkm.Atk *= adjust_ratio;
+		pkm.Def *= adjust_ratio;
+		pkm.Stm *= adjust_ratio;
 	}
 }
 
