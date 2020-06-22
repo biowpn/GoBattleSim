@@ -989,10 +989,10 @@ function fetchPokemon(oncomplete) {
 					baseAtk: parseInt(data[i].atk),
 					baseDef: parseInt(data[i].def),
 					baseStm: parseInt(data[i].sta),
-					fastMoves: parseMovesFromString(data[i].field_primary_moves).concat(parseMovesFromString(data[i].elite_fast_moves)).concat(parseMovesFromString(data[i].purified_fast_moves)), //for now, just stick the new fields in the base array,
-					chargedMoves: parseMovesFromString(data[i].field_secondary_moves).concat(parseMovesFromString(data[i].elite_charge_moves)).concat(parseMovesFromString(data[i].purified_charge_moves)), //for now, just stick the new fields in the base array,
-					fastMoves_legacy: parseMovesFromString(data[i].field_legacy_quick_moves),
-					chargedMoves_legacy: parseMovesFromString(data[i].field_legacy_charge_moves),
+					fastMoves: parseMovesFromString(data[i].field_primary_moves).concat(parseMovesFromString(data[i].purified_fast_moves)), //for now, just stick the new fields in the base array
+					chargedMoves: parseMovesFromString(data[i].field_secondary_moves).concat(parseMovesFromString(data[i].purified_charge_moves)), //for now, just stick the new fields in the base array
+					fastMoves_legacy: parseMovesFromString(data[i].field_legacy_quick_moves).concat(parseMovesFromString(data[i].elite_fast_moves)),
+					chargedMoves_legacy: parseMovesFromString(data[i].field_legacy_charge_moves).concat(parseMovesFromString(data[i].elite_charge_moves)),
 					fastMoves_exclusive: parseMovesFromString(data[i].quick_exclusive_moves),
 					chargedMoves_exclusive: parseMovesFromString(data[i].charge_exclusive_moves),
 					rating: parseFloat(data[i].rating) || 0,
@@ -1001,7 +1001,7 @@ function fetchPokemon(oncomplete) {
 					icon: getPokemonIcon(data[i].number),
 					label: data[i].title_1.replace("&#039;", "'"),
 					labelLinked: data[i].title,
-					evolutions: parseMovesFromString(data[i].field_evolutions),
+					evolutions: parseMovesFromString(data[i].field_evolutions)
 				};
 				if (LegendaryPokemon.includes(pkm.name)) {
 					pkm.rarity = "POKEMON_RARITY_LEGENDARY";
@@ -1011,7 +1011,6 @@ function fetchPokemon(oncomplete) {
 				}
 
 				Data.Pokemon.push(pkm);
-
 			}
 			Data.Pokemon.sort((a, b) => (a.name < b.name ? -1 : 1));
 			Data.Pokemon.sorted = true;
@@ -1519,10 +1518,6 @@ function BasicPokeQuery(queryStr, pokemonInstance) {
 		var dex_range = PokemonRegions[str.toLowerCase()];
 		return function (obj) {
 			return dex_range[0] <= obj.dex && obj.dex <= dex_range[1];
-		};
-	} else if (str.toLowerCase() == "shadow") { // Match Shadow Pokemon
-		return function (obj) {
-			return obj.name && obj.name.startsWith("shadow ");
 		};
 	} else if (str.toLowerCase() == "current") { // Current Move
 		return function (obj) {
