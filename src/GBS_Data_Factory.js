@@ -997,14 +997,6 @@ function fetchPokemon(oncomplete) {
 
 				Data.Pokemon.push(pkm);
 
-				if (data[i].purification_candy && data[i].purification_dust) {
-					// Shadow variant
-					var pkm_shadow = JSON.parse(JSON.stringify(pkm));
-					pkm_shadow.label = "Shadow " + pkm_shadow.label;
-					pkm_shadow.labelLinked = pkm_shadow.label;
-					pkm_shadow.name = pkm_shadow.label.toLowerCase();
-					Data.Pokemon.push(pkm_shadow);
-				}
 			}
 			Data.Pokemon.sort((a, b) => (a.name < b.name ? -1 : 1));
 			Data.Pokemon.sorted = true;
