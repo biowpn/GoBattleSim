@@ -537,6 +537,7 @@ var LocalData = {
 var Mods = [
 	{
 		name: 'Mega Evolutions Basic Movepool',
+		defaulted: true,
 		effect: function () {
 			for (let pokemon of Data.Pokemon) {
 				if (pokemon.name.includes("mega") && (pokemon.fastMoves.length == 0 || pokemon.chargedMoves.length == 0)) {

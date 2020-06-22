@@ -471,7 +471,7 @@ function modEditFormInit() {
 		for (var i = 0; i < Mods.length; i++) {
 			tbody.appendChild(createRow([
 				Mods[i].name,
-				"<input type='checkbox' id='mod_checkbox_" + i + "'>"
+				"<input type='checkbox' id='mod_checkbox_" + i + "' " + (Mods[i].defaulted ? "checked='checked'" : "") + ">"
 			]));
 		}
 	}
@@ -497,7 +497,7 @@ function modEditFormSubmit() {
 					Mods[i].effect();
 				}
 			}
-			UI.sendFeedbackDialog("Mods settings have been applied");
+			UI.sendFeedbackDialog("Mods settings applied");
 		}
 	});
 }

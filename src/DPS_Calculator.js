@@ -202,6 +202,12 @@ function DPSCalculatorInit() {
 				DEFAULT_ATTACKER_CPM = GM.get("level", this.value).cpm;
 			});
 
+			for (var i = 0; i < Mods.length; i++) {
+				if (Mods[i].defaulted) {
+					Mods[i].effect();
+				}
+			}
+
 			requestSpreadsheet(true);
 		}
 	});
