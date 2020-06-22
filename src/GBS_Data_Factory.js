@@ -536,6 +536,21 @@ var LocalData = {
 
 var Mods = [
 	{
+		name: 'Mega Evolutions Basic Movepool',
+		effect: function () {
+			for (let pokemon of Data.Pokemon) {
+				if (pokemon.name.includes("mega") && (pokemon.fastMoves.length == 0 || pokemon.chargedMoves.length == 0)) {
+					for (let pkm2 of Data.Pokemon) {
+						if (pokemon.dex == pkm2.dex) {
+							pokemon.fastMoves = pkm2.fastMoves;
+							pokemon.chargedMoves = pkm2.chargedMoves;
+						}
+					}
+				}
+			}
+		}
+	},
+	{
 		name: 'Future Pokemon Movepool Expansion',
 		effect: function () {
 			for (let pokemon of Data.Pokemon) {
