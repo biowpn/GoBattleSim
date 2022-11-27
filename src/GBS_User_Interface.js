@@ -16,8 +16,9 @@ var UI = {};
  * @param {string} message The content of the feedback.
  * @param {string} dialogTitle The title of the dialog. Default to document.title
  * @param {function} onOK The callback function that will be called right after the user clicks "OK".
+ * @param {boolean} addToStack Whether or not to exclude this dialog from the DialogStack
  */
-UI.sendFeedbackDialog = function (message, dialogTitle, onOK) {
+UI.sendFeedbackDialog = function (message, dialogTitle, onOK, excludeFromStack) {
 	var d = $("<div>")
 		.html(message)
 		.dialog({
@@ -35,7 +36,9 @@ UI.sendFeedbackDialog = function (message, dialogTitle, onOK) {
 				}
 			]
 		});
-	DialogStack.push(d);
+	if (!excludeFromStack) {
+		DialogStack.push(d);
+	}
 }
 
 /**
@@ -375,7 +378,7 @@ function relabel() {
 
 /**
  * Create a document element.
-
+ 
  * @param {string} type the name tag of the element. E.g., "input", "button", "div"
  * @param {string} innerHTML the initial value of innerHTML of the element to create. Default to empty string ""
  * @param {Object} attrsAndValues name-value pairs to add additional attributes to the element
@@ -484,20 +487,17 @@ function createPokemonMoveInput(moveType, attrName) {
 function createMinimizeButton(parentName, childrenName) {
 	const pName = parentName, cName = childrenName;
 	var button = createElement("button", '<i class="fa fa-minus" aria-hidden="true"></i>', {
-		class: "btn button-icon", title: "Minimize"
+		class: "button-icon", title: "Minimize"
 	});
 	button.onclick = function () {
-		let children = $(this).parents("[name=" + pName + "]").children();
-		for (let i = 1; i < children.length; ++i) {
-			$(children[i]).slideToggle('fast');
-		}
+		$($(this).parents("[name=" + pName + "]").find("[name=" + cName + "]")[0]).slideToggle('fast');
 	}
 	return button;
 }
 
 function createCopyPokemonButton() {
 	var copyPokemonButton = createElement('button', '<i class="fa fa-files-o" aria-hidden="true"></i>', {
-		class: "btn button-icon", title: "Copy"
+		class: "button-icon", title: "Copy"
 	});
 	copyPokemonButton.onclick = function () {
 		LocalData.PokemonClipboard = UI.read($(this).parents("[name=pokemon]")[0]);
@@ -508,7 +508,7 @@ function createCopyPokemonButton() {
 
 function createPastePokemonButton() {
 	var pastePokemonButton = createElement('button', '<i class="fa fa-clipboard" aria-hidden="true"></i>', {
-		class: "btn button-icon", title: "Paste"
+		class: "button-icon", title: "Paste"
 	});
 	pastePokemonButton.onclick = function () {
 		var pokemonNode = $(this).parents("[name=pokemon]")[0];
@@ -520,7 +520,7 @@ function createPastePokemonButton() {
 
 function createRemovePokemonButton() {
 	var removePokemonButton = createElement('button', '<i class="fa fa-times" aria-hidden="true"></i>', {
-		class: "btn button-icon", title: "Remove"
+		class: "button-icon", title: "Remove"
 	});
 	removePokemonButton.onclick = function () {
 		var pokemonNodes = $(this).parents("[name=party]").find("[name=pokemon]");
@@ -725,7 +725,7 @@ function createPartyNameInput() {
 
 function createSavePartyButton() {
 	var savePartyButton = createElement('button', '<i class="fa fa-floppy-o" aria-hidden="true"></i>', {
-		class: "btn button-icon", title: 'Save'
+		class: 'button-icon', title: 'Save'
 	});
 	savePartyButton.onclick = function () {
 		var partyNode = $(this).parents("[name=party]")[0];
@@ -744,7 +744,7 @@ function createSavePartyButton() {
 
 function createRemovePartyButton() {
 	var removePartyButton = createElement('button', '<i class="fa fa-times" aria-hidden="true"></i>', {
-		class: "btn button-icon", title: 'Remove'
+		class: 'button-icon', title: 'Remove'
 	});
 	removePartyButton.onclick = function () {
 		var partyNode = $(this).parents("[name=party]");
@@ -809,7 +809,7 @@ function createPartyReviveCheckbox() {
 
 function createAddPokemonButton() {
 	var addPokemonButton = createElement("button", "Add Pokemon", {
-		class: 'btn player_button'
+		class: 'player_button'
 	});
 	addPokemonButton.onclick = function () {
 		let partyNode = $(this).parents("[name=party]")[0];
@@ -903,7 +903,7 @@ function createPlayerFriendInput() {
 
 function createRemovePlayerButton() {
 	var removePlayerButton = createElement('button', '<i class="fa fa-times" aria-hidden="true"></i>', {
-		class: "btn button-icon", title: 'Remove'
+		class: 'button-icon', title: 'Remove'
 	});
 	removePlayerButton.onclick = function () {
 		var playersNode = $("#input").find("[name=input-players]")[0];
@@ -921,7 +921,7 @@ function createRemovePlayerButton() {
 
 function createAddPartyButton() {
 	var addPartyButton = createElement("button", "Add Party", {
-		class: 'btn player_button'
+		class: 'player_button'
 	});
 	addPartyButton.onclick = function () {
 		var playerNode = $(this).parents("[name=player]");
@@ -1390,6 +1390,7 @@ function getTableContent(dt) {
 function makeAndDownloadCSV(arrayOfLines, filename) {
 	filename = filename || "whatever.csv";
 	var language = window.navigator.userLanguage || window.navigator.language || "en";
+	console.log("language:", language);
 	var lineArray = [];
 	arrayOfLines.forEach(function (infoArray) {
 		lineArray.push(infoArray.map(x => '"' + x.toLocaleString(language) + '"').join(","));
