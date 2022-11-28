@@ -417,7 +417,9 @@ var Data = {
 		'shadowPokemonAttackBonusMultiplier': 1.2,
 		'shadowPokemonDefenseBonusMultiplier': 0.8333333,
 		'purifiedPokemonAttackMultiplierVsShadow': 1.0,
-
+		//mega pokemon multipliers
+		'sameTypeAttackBonusMultiplierMega': 1.3,
+		'megaPokemonStatMultiplier': 1.1,
 		'sameTypeAttackBonusMultiplier': 1.2,
 		'weatherAttackBonusMultiplier': 1.2,
 		'fastAttackBonusMultiplier': 1.3,
@@ -537,7 +539,6 @@ var LocalData = {
 var Mods = [
 	{
 		name: 'Mega Evolutions Basic Movepool',
-		defaulted: true,
 		effect: function () {
 			for (let pokemon of Data.Pokemon) {
 				if (pokemon.name.includes("mega") && (pokemon.fastMoves.length == 0 || pokemon.chargedMoves.length == 0)) {
@@ -606,35 +607,7 @@ function getDatabaseByName(nameDb) {
  * @param {Object} data The master data reference.
  */
 function manuallyModifyData(data) {
-	// Hidden Powers
-	var hidden_power = getEntry("hidden power", data.FastMoves);
-	var hidden_power_variations = [];
-	if (hidden_power) {
-		for (var type in Data.BattleSettings.TypeEffectiveness) {
-			if (type == "normal" || type == "fairy") {
-				continue;
-			}
-			var hidden_power_variation = JSON.parse(JSON.stringify(hidden_power));
-			hidden_power_variation.name = "hidden power " + type;
-			hidden_power_variation.pokeType = type;
-			hidden_power_variation.label = toTitleCase(hidden_power_variation.name);
-			hidden_power_variation.icon = getTypeIcon(type);
-			insertEntry(hidden_power_variation, data.FastMoves);
-			insertEntry(hidden_power_variation, hidden_power_variations);
-		}
-	}
 
-	// Replace generic hidden power to specific hidden power
-	for (let pokemon of data.Pokemon) {
-		let hpindex = pokemon.fastMoves.indexOf("hidden power");
-		if (hpindex >= 0) {
-
-			pokemon.fastMoves.splice(hpindex, 1);
-			for (let hp of hidden_power_variations) {
-				pokemon.fastMoves.push(hp.name);
-			}
-		}
-	}
 }
 
 
@@ -849,7 +822,13 @@ function attachRaidbossInfo() {
  */
 function parseUserPokebox(data) {
 	var box = [];
+	var missingRequiredFields = [];
 	for (var i = 0; i < data.length; i++) {
+		var curr_pokemon = data[i];
+		if (!(curr_pokemon.fast_move || curr_pokemon.fmove) || !(curr_pokemon.charge_move || curr_pokemon.cmove)) {
+			missingRequiredFields.push(curr_pokemon);
+			continue;
+		}
 		var pkm = {
 			name: (data[i].species || data[i].name).toLowerCase(),
 			cp: parseInt(data[i].cp),
@@ -869,6 +848,13 @@ function parseUserPokebox(data) {
 		pkm.label = pkm.nickname;
 		pkm.labelLinked = data[i].labelLinked;
 		box.push(pkm);
+	}
+	if (missingRequiredFields.length > 0) {
+		var missingMsg = "The following pokemon are missing a fast and/or charge move and will be excluded: ";
+		for (var i = 0; i < missingRequiredFields.length; i++) {
+			missingMsg += "<br/>" + missingRequiredFields[i].labelLinked;
+		}
+		UI.sendFeedbackDialog(missingMsg, "Missing Data", null, true);
 	}
 	return box;
 }
@@ -1187,6 +1173,9 @@ function fetchUser(oncomplete, userid) {
 				if (oncomplete)
 					oncomplete();
 			}
+			$("#ui-use-box-checkbox").checkboxradio({
+				disabled: false
+			});
 		}
 	});
 	// Fetch parties
@@ -1283,7 +1272,7 @@ var acceptedNumericalAttributes = [
 	'value', 'dps', 'tdo'
 ];
 
-var LegendaryPokemon = ['regice', 'entei', 'registeel', 'suicune', 'heatran', 'latias', 'rayquaza', 'azelf', 'moltres', 'mewtwo', 'latios', 'groudon', 'regirock', 'dialga', 'giratina (altered forme)', 'giratina (origin forme)', 'mesprit', 'zapdos', 'lugia', 'regigigas', 'articuno', 'ho-oh', 'kyogre', 'uxie', 'palkia', 'cresselia', 'raikou'];
+var LegendaryPokemon = ['regice', 'entei', 'registeel', 'suicune', 'heatran', 'latias', 'rayquaza', 'azelf', 'moltres', 'mewtwo', 'latios', 'groudon', 'regirock', 'dialga', 'giratina (altered forme)', 'giratina (origin forme)', 'mesprit', 'zapdos', 'lugia', 'articuno', 'ho-oh', 'kyogre', 'regigigas', 'uxie', 'palkia', 'cresselia', 'raikou', 'tornadus (incarnate forme)', 'tornadius (therian forme)', 'landorus (incarnate forme)', 'landorus (therian forme)', 'thundurus (incarnate forme)', 'thundurus (therian forme)', 'black kyurem', 'white kyurem', 'kyurem', 'reshiram', 'zekrom', 'shadow raikou'];
 var MythicalPokemon = ['arceus', 'darkrai', 'phione', 'shaymin', 'deoxys (attack forme)', 'deoxys (defense forme)', 'deoxys (normal forme)', 'deoxys (speed forme)', 'manaphy', 'celebi', 'mew', 'meltan', 'jirachi', 'melmetal'];
 var BabyPokemon = ['pichu', 'cleffa', 'igglybuff', 'togepi', 'tyrogue', 'smoochum', 'elekid', 'magby', 'azurill', 'wynaut', 'budew', 'chingling', 'bonsly', 'mime jr.', 'happiny', 'munchlax', 'mantyke'];
 var PokemonRegions = {
@@ -1444,7 +1433,13 @@ function BasicPokeQuery(queryStr, pokemonInstance) {
 		return function (obj) {
 			return ([obj.pokeType, obj.pokeType1, obj.pokeType2].includes(str));
 		};
-	} else if (str[0] == '@') { // Match Pokemon's moves
+	}
+	else if (str.toLowerCase() == "@same") {
+		return function (obj) {
+			return obj.cmove.pokeType == obj.fmove.pokeType;
+		}
+	}
+	else if (str[0] == '@') { // Match Pokemon's moves
 		str = str.slice(1).toLowerCase();
 		if (str[0] == '1' || str.substring(0, 3) == '<f>') {
 			str = (str[0] == '1' ? str.slice(1) : str.slice(3));
@@ -1557,7 +1552,8 @@ function BasicPokeQuery(queryStr, pokemonInstance) {
 		return function (obj) {
 			return Data.BattleSettings.TypeBoostedWeather[obj.pokeType] == Weather;
 		};
-	} else { // Match name/nickname/species
+	}
+	else { // Match name/nickname/species
 		return function (obj) {
 			if (obj.name && obj.name.includes(str.toLowerCase()))
 				return true;

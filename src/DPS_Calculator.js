@@ -23,14 +23,21 @@ var Context = {
 	genericEnemyFastMove: false,
 	genericEnemyChargedMove: false,
 	swapDiscount: false,
-	battleMode: 'regular'
+	battleMode: 'regular',
+	allyMega: false,
+	allyMegaStab: false
 };
 
 
 function damage(dmg_giver, dmg_taker, move, weather) {
 	var multipliers = 1;
 	if (move.pokeType == dmg_giver.pokeType1 || move.pokeType == dmg_giver.pokeType2) {
-		multipliers *= GM.get("battle", "sameTypeAttackBonusMultiplier");
+		if (Context.allyMega && Context.allyMegaStab) {
+			multipliers *= GM.get("battle", "sameTypeAttackBonusMultiplierMega");
+		}
+		else {
+			multipliers *= GM.get("battle", "sameTypeAttackBonusMultiplier");
+		}
 	}
 	if (GM.get("battle", "TypeBoostedWeather")[move.pokeType] == weather) {
 		multipliers *= GM.get("battle", "weatherAttackBonusMultiplier");
@@ -38,7 +45,15 @@ function damage(dmg_giver, dmg_taker, move, weather) {
 	var Effectiveness = GM.get("battle", "TypeEffectiveness");
 	multipliers *= Effectiveness[move.pokeType][dmg_taker.pokeType1] || 1;
 	multipliers *= Effectiveness[move.pokeType][dmg_taker.pokeType2] || 1;
-	return 0.5 * dmg_giver.Atk / dmg_taker.Def * move.power * multipliers + 0.5;
+	var atk = dmg_giver.Atk;
+	if (dmg_giver.name.startsWith("shadow ")) {
+		atk *= Data.BattleSettings.shadowPokemonAttackBonusMultiplier;
+	}
+
+	if (Context.allyMega) {
+		atk *= Data.BattleSettings.megaPokemonStatMultiplier;
+	}
+	return 0.5 * atk / dmg_taker.Def * move.power * multipliers + 0.5;
 }
 
 // https://gamepress.gg/pokemongo/how-calculate-comprehensive-dps
@@ -202,13 +217,9 @@ function DPSCalculatorInit() {
 				DEFAULT_ATTACKER_CPM = GM.get("level", this.value).cpm;
 			});
 
-			for (var i = 0; i < Mods.length; i++) {
-				if (Mods[i].defaulted) {
-					Mods[i].effect();
-				}
-			}
-
 			requestSpreadsheet(true);
+			$("#loading-image").hide();
+			$(".pogo-dps-sheet-container").show();
 		}
 	});
 	$(document).ready(function () {
@@ -229,6 +240,24 @@ function DPSCalculatorInit() {
 		Context.swapDiscount = this.checked;
 		requestSpreadsheet(false);
 	});
+
+	$("#ui-allyMega").controlgroup();
+	$("#ui-allyMega-checkbox").change(function () {
+		Context.allyMega = this.checked;
+		if (Context.allyMega) {
+			$("#ui-allyMegaStab").show();
+		}
+		else {
+			$("#ui-allyMegaStab").hide();
+		}
+		requestSpreadsheet(false);
+	})
+
+	$("#ui-allyMegaStab").controlgroup();
+	$("#ui-allyMegaStab-checkbox").change(function () {
+		Context.allyMegaStab = this.checked;
+		requestSpreadsheet(false);
+	})
 
 	$("#ui-use-box").controlgroup();
 	$("#ui-use-box-checkbox").change(function () {
@@ -473,8 +502,13 @@ function generateSpreadsheet(pokemonCollection) {
 				pkmInstance.cp = calculateCP(pkmInstance);
 
 				if (pkmInstance.name.startsWith("shadow ")) {
-					pkmInstance.Atk *= Data.BattleSettings.shadowPokemonAttackBonusMultiplier;
+					// pkmInstance.Atk *= Data.BattleSettings.shadowPokemonAttackBonusMultiplier;
 					pkmInstance.Def *= Data.BattleSettings.shadowPokemonDefenseBonusMultiplier;
+				}
+
+				if (pkmInstance.name.startsWith("mega ") || Context.allyMega) {
+					// pkmInstance.Atk *= Data.BattleSettings.megaPokemonStatMultiplier;
+					pkmInstance.Def *= Data.BattleSettings.megaPokemonStatMultiplier;
 				}
 
 				calculateDPS(pkmInstance, Context);

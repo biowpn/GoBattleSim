@@ -16,7 +16,6 @@
 	<script type="text/javascript" src="src/GBS_Tools.js"></script>
 	<script type="text/javascript" src="src/GBS_User_Interface.js"></script>
 
-
 	<link href="https://code.jquery.com/ui/jquery-ui-git.css" rel="stylesheet">
 	<link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
 	<link href="https://cdn.datatables.net/scroller/1.4.4/css/scroller.dataTables.min.css" rel="stylesheet">
@@ -24,7 +23,7 @@
 
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/sites/pokemongo/themes/gamepressbase/css/pokemongodps.css?v1">
 
 	<style>
 		table {
@@ -115,6 +114,7 @@
 
 		.section-node-title {
 			float: left;
+			display: inline-block;
 			width: 25%;
 			text-align: left;
 		}
@@ -167,6 +167,10 @@
 			padding: 0px 0px 10px 8px;
 		}
 
+		div#feedback_buttons {
+			margin-bottom: 15px;
+		}
+
 		div#feedback_message {
 			margin-bottom: 10px;
 		}
@@ -188,6 +192,12 @@
 			margin: 10px 0px;
 			border: 1px solid #ddd;
 		}
+
+		.section-player-node {}
+
+		.section-party-node {}
+
+		.section-pokemon-node {}
 
 		.ui-autocomplete {
 			max-height: 300px;
@@ -218,131 +228,153 @@
 			cursor: pointer;
 			text-decoration: inherit;
 		}
+
+		div#ranking_table_wrapper td {
+			font-size: 12px;
+			padding: 0px;
+			line-height: 3;
+		}
+
+		div#ranking_table_wrapper th {
+			font-size: 11px;
+		}
+
+		div#subMenu {
+			z-index: 10;
+		}
+
+		div#ranking_table_wrapper {
+			margin-top: 10px;
+		}
+
+		i#loading-image {
+			text-align: center;
+			display: block;
+			margin: 20px auto 0px !important;
+		}
 	</style>
 
 </head>
 
 <body>
 
-	<div name="pokemon" class="container form-group">
-
-		<label class="row-form-label">Enemy Information</label>
-
-		<div class="row">
-			<div id="enemy-pokemon-name-container" class="col-sm-6">
-				<label class="col-form-label">Species</label>
+	<div class="pogo-dps-sheet-container">
+		<div name="pokemon" class="container form-group">
+			<label class="row-form-label">Enemy Information</label>
+			<div class="row">
+				<div id="enemy-pokemon-name-container" class="col-sm-6">
+					<label class="col-form-label">Species</label>
+				</div>
+				<div id="pokemon-pokeType1-container" class="col-sm-3">
+					<label class="col-form-label">PokeType 1</label>
+					<select name='pokemon-pokeType1' id="pokemon-pokeType1" class="form-control"></select>
+				</div>
+				<div id="pokemon-pokeType2-container" class="col-sm-3">
+					<label class="col-form-label">PokeType 2</label>
+					<select name='pokemon-pokeType2' id="pokemon-pokeType2" class="form-control"></select>
+				</div>
 			</div>
-			<div id="pokemon-pokeType1-container" class="col-sm-3">
-				<label class="col-form-label">PokeType 1</label>
-				<select name='pokemon-pokeType1' id="pokemon-pokeType1" class="form-control"></select>
+			<div class="row">
+				<div id="enemy-pokemon-fmove-container" class="col-sm-6">
+					<label class="col-form-label">Fast Move</label>
+				</div>
+				<div id="enemy-pokemon-cmove-container" class="col-sm-6">
+					<label class="col-form-label">Charged Move</label>
+				</div>
 			</div>
-			<div id="pokemon-pokeType2-container" class="col-sm-3">
-				<label class="col-form-label">PokeType 2</label>
-				<select name='pokemon-pokeType2' id="pokemon-pokeType2" class="form-control"></select>
-			</div>
-		</div>
-
-		<div class="row">
-			<div id="enemy-pokemon-fmove-container" class="col-sm-6">
-				<label class="col-form-label">Fast Move</label>
-			</div>
-			<div id="enemy-pokemon-cmove-container" class="col-sm-6">
-				<label class="col-form-label">Charged Move</label>
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="col-sm-6">
-				<label class="col-form-label">Weather</label>
-				<select id='weather' class="form-control"></select>
-			</div>
-			<div class="col-sm-6">
-				<label class="col-form-label">Controls</label>
-				<div class="sub-menu-container">
-					<button class='sub-menu-opener btn btn-primary'><i class="fa fa-cog" aria-hidden="true"></i>
-						Customize</button>
-					<div class='sub-menu'>
-						<button class='player_button' id='moveEditFormOpener'>Move</button>
-						<button class='player_button' id='pokemonEditFormOpener'>Species</button>
-						<button class='player_button' id='parameterEditFormOpener'>Battle Settings</button>
-						<button class='player_button' id='modEditFormOpener'>Mods</button>
+			<div class="row">
+				<div class="col-sm-6">
+					<label class="col-form-label">Weather</label>
+					<select id='weather' class="form-control"></select>
+				</div>
+				<div class="col-sm-6">
+					<label class="col-form-label">Controls</label>
+					<div class="sub-menu-container">
+						<button class='sub-menu-opener btn btn-primary'><i class="fa fa-cog" aria-hidden="true"></i>
+							Customize</button>
+						<div class='sub-menu'>
+							<button class='player_button' id='moveEditFormOpener'>Move</button>
+							<button class='player_button' id='pokemonEditFormOpener'>Species</button>
+							<button class='player_button' id='parameterEditFormOpener'>Battle Settings</button>
+							<button class='player_button' id='modEditFormOpener'>Mods</button>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-
-	<div class="container form-group">
-
-		<div class="row">
-			<div class="col-sm-6 col-lg-3">
-				<div id='ui-swapDiscount' style='width:100%;'><label style='width:100%;font-size:16px;'>Swap
-						Dscnt<input type='checkbox' id='ui-swapDiscount-checkbox'></label></div>
+		<div class="container form-group">
+			<div class="row">
+				<div class="col-sm-6 col-lg-3">
+					<div id='ui-swapDiscount' style='width:100%;'><label style='width:100%;font-size:16px;'>Swap
+							Dscnt<input type='checkbox' id='ui-swapDiscount-checkbox'></label>
+					</div>
+				</div>
+				<div class="col-sm-6 col-lg-3">
+					<div id='ui-use-box' style='width:100%;'><label style='width:100%;font-size:16px;'>My Pokemon<input
+								type='checkbox' id='ui-use-box-checkbox' disabled></label></div>
+				</div>
+				<div class="col-sm-6 col-lg-3">
+					<div id='ui-uniqueSpecies' style='width:100%;'><label style='width:100%;font-size:16px;'>Best<input
+								type='checkbox' id='ui-uniqueSpecies-checkbox'></label></div>
+				</div>
+				<div class="col-sm-6 col-lg-3">
+					<select id="attacker-level" class="form-control" value="40"></select>
+				</div>
 			</div>
-			<div class="col-sm-6 col-lg-3">
-				<div id='ui-use-box' style='width:100%;'><label style='width:100%;font-size:16px;'>My Pokemon<input
-							type='checkbox' id='ui-use-box-checkbox'></label></div>
+			<div class="row">
+				<div class="col-sm-6 col-md-3">
+					<div style='width:100%;'><input id="ui-cpcap" type="number" placeholder="CP Cap"
+							class="form-control"></input></div>
+				</div>
+				<div class="col-sm-6 col-md-3">
+					<div id='ui-pvpMode' style='width:100%;'><label style='width:100%;font-size:16px;'>PvP Mode<input
+								type='checkbox' id='ui-pvpMode-checkbox'></label></div>
+				</div>
+				<div class="col-sm-6 col-md-3">
+				</div>
+				<div class="col-sm-6 col-md-3">
+					<button class='btn btn-success' id='refresher'><i class="fa fa-refresh" aria-hidden="true"></i>
+						Refresh</button>
+				</div>
 			</div>
-			<div class="col-sm-6 col-lg-3">
-				<div id='ui-uniqueSpecies' style='width:100%;'><label style='width:100%;font-size:16px;'>Best<input
-							type='checkbox' id='ui-uniqueSpecies-checkbox'></label></div>
-			</div>
-			<div class="col-sm-6 col-lg-3">
-				<select id="attacker-level" class="form-control" value="40"></select>
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="col-sm-6 col-md-3">
-				<div style='width:100%;'><input id="ui-cpcap" type="number" placeholder="CP Cap"
-						class="form-control"></input></div>
-			</div>
-			<div class="col-sm-6 col-md-3">
-				<div id='ui-pvpMode' style='width:100%;'><label style='width:100%;font-size:16px;'>PvP Mode<input
-							type='checkbox' id='ui-pvpMode-checkbox'></label></div>
-			</div>
-			<div class="col-sm-6 col-md-3">
-
-			</div>
-			<div class="col-sm-6 col-md-3">
-				<button class='btn btn-success' id='refresher'><i class="fa fa-refresh" aria-hidden="true"></i>
-					Refresh</button>
-			</div>
-		</div>
-
-	</div>
-
-
-	</div>
-
-	<div class="container">
-		<div class="row">
-			<div class="col">
-				<label class="col-form-label">Search</label>
+			<div class="row">
+				<div class="col-sm-6 col-md-3">
+					<div id='ui-allyMega' style='width:100%;'><label style='width:100%;font-size:16px;'>Mega
+							Boost?<input type='checkbox' id='ui-allyMega-checkbox'></label></div>
+				</div>
+				<div class="col-sm-6 col-md-3">
+					<div id='ui-allyMegaStab' style='width:100%; display:none;'><label
+							style='width:100%;font-size:16px;'>Mega Stab?<input type='checkbox'
+								id='ui-allyMegaStab-checkbox'></label></div>
+				</div>
 			</div>
 		</div>
-		<div class="row">
-			<div class="col">
-				<input id="searchInput" onkeyup="search_trigger()" class="form-control"></input>
+		<div class="container">
+			<div class="row">
+				<div class="col">
+					<label class="col-form-label">Search</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<input id="searchInput" onkeyup="search_trigger()" class="form-control"></input>
+				</div>
 			</div>
 		</div>
-	</div>
-
-	<table id="ranking_table" style="width:100%;">
-		<thead></thead>
-		<tfoot></tfoot>
-		<tbody></tbody>
-	</table>
-
-	<br>
-
-	<div class="container">
-		<div class="row">
-			<div class="col-sm-6">
-				<button id="CopyClipboardButton" class="btn btn-info">Copy to Clipboard</button>
-			</div>
-			<div class="col-sm-6">
-				<button id="CopyCSVButton" class="btn btn-info">Export To CSV</button>
+		<table id="ranking_table" style="width:100%;">
+			<thead></thead>
+			<tfoot></tfoot>
+			<tbody></tbody>
+		</table>
+		<br>
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-6">
+					<button id="CopyClipboardButton" class="btn btn-info">Copy to Clipboard</button>
+				</div>
+				<div class="col-sm-6">
+					<button id="CopyCSVButton" class="btn btn-info">Export To CSV</button>
+				</div>
 			</div>
 		</div>
 	</div>
