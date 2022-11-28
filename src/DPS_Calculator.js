@@ -521,7 +521,7 @@ function generateSpreadsheet(pokemonCollection) {
 				if (Context.battleMode == "pvp") {
 					pkmInstance.ui_overall = Math.ceil(-pkmInstance.cmove.energyDelta / (pkmInstance.fmove.energyDelta || 1)) * pkmInstance.fmove.duration;
 				} else {
-					pkmInstance.ui_overall = round((pkmInstance.dps ** 3 * pkmInstance.tdo) ** 0.25, 3);
+					pkmInstance.ui_overall = round((pkmInstance.dps ** 3 * pkmInstance.tdo) ** 0.25, 2);
 				}
 				pkmInstance.ui_cp = pkmInstance.cp;
 
@@ -559,7 +559,7 @@ function updateSpreadsheet() {
 		if (Context.battleMode == "pvp") {
 			pkmInstance.ui_overall = Math.ceil(-pkmInstance.cmove.energyDelta / (pkmInstance.fmove.energyDelta || 1)) * pkmInstance.fmove.duration;
 		} else {
-			pkmInstance.ui_overall = round((pkmInstance.dps ** 3 * pkmInstance.tdo) ** 0.25, 3);
+			pkmInstance.ui_overall = round((pkmInstance.dps ** 3 * pkmInstance.tdo) ** 0.25, 2);
 		}
 		Table.row(i).data(pkmInstance);
 	}
