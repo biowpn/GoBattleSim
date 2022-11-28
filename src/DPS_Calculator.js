@@ -280,7 +280,7 @@ function DPSCalculatorInit() {
 			Context.battleMode = "pvp";
 			GM.mode("pvp");
 		} else {
-			$($("#ranking_table").DataTable().column(5).header()).text('DPS^3*TDO');
+			$($("#ranking_table").DataTable().column(5).header()).text('ER');
 			Context.battleMode = "regular";
 			GM.mode("raid");
 		}
@@ -375,7 +375,7 @@ function DPSCalculatorInit() {
 			{ title: "Charged Move", data: "ui_cmove", width: "18%" },
 			{ title: "DPS", data: "ui_dps", type: "num", width: "10%", orderSequence: ["desc", "asc"] },
 			{ title: "TDO", data: "ui_tdo", type: "num", width: "10%", orderSequence: ["desc", "asc"] },
-			{ title: "DPS^3*TDO", data: "ui_overall", type: "num", width: "10%", orderSequence: ["desc", "asc"] },
+			{ title: "ER", data: "ui_overall", type: "num", width: "10%", orderSequence: ["desc", "asc"] },
 			{ title: "CP", data: "ui_cp", type: "num", width: "10%", orderSequence: ["desc", "asc"] }
 		],
 		scrollX: true
@@ -521,7 +521,7 @@ function generateSpreadsheet(pokemonCollection) {
 				if (Context.battleMode == "pvp") {
 					pkmInstance.ui_overall = Math.ceil(-pkmInstance.cmove.energyDelta / (pkmInstance.fmove.energyDelta || 1)) * pkmInstance.fmove.duration;
 				} else {
-					pkmInstance.ui_overall = round(pkmInstance.dps ** 3 / 1000 * pkmInstance.tdo, 1);
+					pkmInstance.ui_overall = round((pkmInstance.dps ** 3 * pkmInstance.tdo) ** 0.25, 3);
 				}
 				pkmInstance.ui_cp = pkmInstance.cp;
 
@@ -559,7 +559,7 @@ function updateSpreadsheet() {
 		if (Context.battleMode == "pvp") {
 			pkmInstance.ui_overall = Math.ceil(-pkmInstance.cmove.energyDelta / (pkmInstance.fmove.energyDelta || 1)) * pkmInstance.fmove.duration;
 		} else {
-			pkmInstance.ui_overall = round(pkmInstance.dps ** 3 / 1000 * pkmInstance.tdo, 1);
+			pkmInstance.ui_overall = round((pkmInstance.dps ** 3 * pkmInstance.tdo) ** 0.25, 3);
 		}
 		Table.row(i).data(pkmInstance);
 	}
