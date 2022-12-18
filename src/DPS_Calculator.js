@@ -49,7 +49,6 @@ function damage(dmg_giver, dmg_taker, move, weather) {
 	if (dmg_giver.name.startsWith("shadow ")) {
 		atk *= Data.BattleSettings.shadowPokemonAttackBonusMultiplier;
 	}
-
 	if (Context.allyMega) {
 		atk *= Data.BattleSettings.megaPokemonStatMultiplier;
 	}
@@ -502,13 +501,7 @@ function generateSpreadsheet(pokemonCollection) {
 				pkmInstance.cp = calculateCP(pkmInstance);
 
 				if (pkmInstance.name.startsWith("shadow ")) {
-					// pkmInstance.Atk *= Data.BattleSettings.shadowPokemonAttackBonusMultiplier;
 					pkmInstance.Def *= Data.BattleSettings.shadowPokemonDefenseBonusMultiplier;
-				}
-
-				if (pkmInstance.name.startsWith("mega ") || Context.allyMega) {
-					// pkmInstance.Atk *= Data.BattleSettings.megaPokemonStatMultiplier;
-					pkmInstance.Def *= Data.BattleSettings.megaPokemonStatMultiplier;
 				}
 
 				calculateDPS(pkmInstance, Context);
